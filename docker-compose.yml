@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bodyminute_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bodyminute
+      POSTGRES_PASSWORD: bodyminute
+      POSTGRES_DB: bodyminute_flow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bodyminute -d bodyminute_flow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: bodyminute_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: bodyminute_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:
