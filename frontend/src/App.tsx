@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { AppointmentPanel } from "./components/AppointmentPanel";
+import { DemoTools } from "./components/DemoTools";
 import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
@@ -296,6 +297,34 @@ export default function App() {
     }
   }
 
+  async function handleResetDemo() {
+    if (!selectedInstituteId) return;
+    setError(null);
+    try {
+      await apiPost(`/dev/reset-demo?institute_id=${encodeURIComponent(selectedInstituteId)}`);
+      setSelectedTicketId("");
+      setSelectedEmployeeId("");
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de réinitialiser la démo");
+      throw err;
+    }
+  }
+
+  async function handleCreateDemoDay() {
+    if (!selectedInstituteId) return;
+    setError(null);
+    try {
+      await apiPost(`/dev/create-demo-day?institute_id=${encodeURIComponent(selectedInstituteId)}`);
+      setSelectedTicketId("");
+      setSelectedEmployeeId("");
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de créer la journée de test");
+      throw err;
+    }
+  }
+
   return (
     <div className="app-shell">
       <Sidebar />
@@ -347,6 +376,13 @@ export default function App() {
                 <small>{formatAvailabilityDetail(availability)}</small>
               </div>
             </div>
+
+            <DemoTools
+              disabled={!selectedInstituteId}
+              onResetDemo={handleResetDemo}
+              onCreateDemoDay={handleCreateDemoDay}
+              onRefresh={refreshOperationalData}
+            />
 
             <InstituteDashboard dashboard={dashboard} />
 

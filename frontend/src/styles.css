@@ -1936,60 +1936,73 @@ select {
   }
 }
 
-
-/* Phase 9.1 - RDV terminés visibles dans le planning sans bloquer la disponibilité */
-.appointment-block.historical {
-  z-index: 12;
-  color: #59415f;
-  opacity: 0.86;
-  border-color: rgba(100, 116, 139, 0.22);
-  box-shadow: none;
+/* Phase 10 - Outils de démonstration */
+.demo-tools-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid rgba(236, 72, 153, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(236, 72, 153, 0.08), transparent 34%),
+    linear-gradient(135deg, #fff, #fff7fb);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);
 }
 
-.appointment-block.historical .appointment-block-content span,
-.appointment-block.historical .appointment-block-content small {
-  color: rgba(89, 65, 95, 0.8);
-}
-
-.appointment-block.status-completed {
-  background: linear-gradient(135deg, #f1f5f9, #ffffff);
-  border: 1px dashed rgba(100, 116, 139, 0.34);
-}
-
-.appointment-block.status-completed::before {
-  content: "Terminé";
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  color: #166534;
-  background: #dcfce7;
-  font-size: 10px;
+.demo-tools-copy h2 {
+  margin: 2px 0 4px;
+  color: #111827;
+  font-size: 18px;
   font-weight: 950;
-  text-transform: uppercase;
 }
 
-.appointment-block.status-no_show {
-  background: linear-gradient(135deg, #f8fafc, #fff7ed);
-  border: 1px dashed rgba(148, 163, 184, 0.44);
+.demo-tools-copy span {
+  display: block;
+  max-width: 780px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-.appointment-block.status-no_show::before {
-  content: "Absente";
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  padding: 2px 7px;
-  border-radius: 999px;
+.demo-tools-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.warning-button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 13px;
+  padding: 0 16px;
   color: #92400e;
   background: #fef3c7;
-  font-size: 10px;
   font-weight: 950;
-  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.12);
 }
 
-.appointment-block.historical.compact::after {
-  color: #334155;
-  border-color: rgba(100, 116, 139, 0.22);
+.warning-button:hover {
+  transform: translateY(-1px);
+  background: #fde68a;
+}
+
+.warning-button:disabled,
+.demo-tools-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+@media (max-width: 1100px) {
+  .demo-tools-card {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-tools-actions {
+    justify-content: flex-start;
+  }
 }
