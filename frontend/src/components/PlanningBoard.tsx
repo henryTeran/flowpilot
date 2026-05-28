@@ -129,20 +129,33 @@ export function PlanningBoard({
 
                     const sessionMeta = getSessionMeta(session);
                     const canEdit = ACTIVE_STATUSES.has(session.status);
-                    const isCompact = block.width < 8 || session.duration_minutes <= 15;
+                    const serviceName = service?.name || "Prestation";
+                    const detailText = `${serviceName} · ${session.duration_minutes} min · ${sessionMeta.label} · ${sessionMeta.timeLabel}`;
+                    const isCompact = block.width < 10 || session.duration_minutes <= 15;
+                    const isMicro = block.width < 5;
 
                     return (
                       <article
                         key={session.id}
-                        className={`session-block ${sessionMeta.visualStatus} ${isCompact ? "compact" : ""}`}
+                        className={`session-block ${sessionMeta.visualStatus} ${isCompact ? "compact" : ""} ${isMicro ? "micro" : ""}`}
                         style={{ left: `${block.left}%`, width: `${block.width}%` }}
-                        title={`${service?.name || "Prestation"} · ${session.duration_minutes} min`}
+                        title={detailText}
+                        aria-label={detailText}
+                        data-session-title={serviceName}
+                        data-session-meta={`${session.duration_minutes} min · ${sessionMeta.label} · ${sessionMeta.timeLabel}`}
                       >
                         <div className="session-content">
-                          <strong>{service?.name || "Prestation"}</strong>
+                          <strong>{serviceName}</strong>
                           <span>{session.duration_minutes} min · {sessionMeta.label}</span>
                           <small>{sessionMeta.timeLabel}</small>
                         </div>
+
+                        {isCompact && (
+                          <div className="compact-session-info" aria-hidden="true">
+                            <strong>{getShortServiceName(serviceName)}</strong>
+                            <span>{session.duration_minutes} min</span>
+                          </div>
+                        )}
 
                         {canEdit && (
                           <div className="session-actions">
@@ -186,6 +199,20 @@ export function PlanningBoard({
       </section>
     </main>
   );
+}
+
+
+function getShortServiceName(name: string) {
+  const normalized = name.trim();
+  if (normalized.length <= 10) return normalized;
+
+  const words = normalized.split(/\s+/);
+  if (words.length >= 2) {
+    const initials = words.slice(0, 2).map((word) => word[0]?.toUpperCase()).join("");
+    return initials || normalized.slice(0, 8);
+  }
+
+  return `${normalized.slice(0, 8)}…`;
 }
 
 function KpiCard({ label, value }: { label: string; value: string | number }) {

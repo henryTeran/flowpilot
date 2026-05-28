@@ -1085,3 +1085,98 @@ select {
     grid-template-columns: repeat(3, minmax(150px, 1fr));
   }
 }
+
+/* Hotfix - blocs courts lisibles */
+.session-block.compact {
+  isolation: isolate;
+  min-width: 0;
+  overflow: visible;
+}
+
+.session-block.compact .session-content {
+  display: none;
+}
+
+.compact-session-info {
+  position: absolute;
+  inset: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  color: #fff;
+  pointer-events: none;
+}
+
+.compact-session-info strong,
+.compact-session-info span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.compact-session-info strong {
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.compact-session-info span {
+  margin-top: 2px;
+  opacity: 0.92;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.session-block.micro .compact-session-info span {
+  display: none;
+}
+
+.session-block.compact::after {
+  content: attr(data-session-title) "\A" attr(data-session-meta);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  z-index: 120;
+  min-width: 220px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #3c1830;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(213, 72, 128, 0.18);
+  box-shadow: 0 18px 34px rgba(72, 31, 52, 0.18);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.35;
+  white-space: pre-line;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.session-block.compact:hover::after,
+.session-block.compact:focus-within::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.session-block.compact .session-actions {
+  top: 50%;
+  right: auto;
+  left: calc(100% + 8px);
+  transform: translateY(-50%);
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 20px rgba(91, 23, 51, 0.12);
+}
+
+.session-block.compact .session-actions button {
+  min-width: 38px;
+  height: 30px;
+  font-size: 12px;
+}
