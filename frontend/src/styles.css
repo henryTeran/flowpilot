@@ -1303,3 +1303,277 @@ select {
   font-weight: 850;
   text-align: right;
 }
+
+/* Phase 7 - Dashboard institut présentable */
+.institute-dashboard-v2 {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.82fr) minmax(540px, 1.55fr) minmax(250px, 0.65fr);
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: stretch;
+}
+
+.dashboard-main-card,
+.dashboard-kpi-card,
+.dashboard-alert-card {
+  border: 1px solid rgba(72, 31, 52, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 50px rgba(72, 31, 52, 0.07);
+}
+
+.dashboard-main-card {
+  min-height: 185px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dashboard-main-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: #d54880;
+}
+
+.institute-dashboard-v2.calm .dashboard-main-card::before {
+  background: #22c55e;
+}
+
+.institute-dashboard-v2.normal .dashboard-main-card::before {
+  background: #3b82f6;
+}
+
+.institute-dashboard-v2.busy .dashboard-main-card::before {
+  background: #f97316;
+}
+
+.institute-dashboard-v2.alert .dashboard-main-card::before {
+  background: #ef4444;
+}
+
+.dashboard-main-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-status-label {
+  margin: 0 0 6px;
+  color: #9f426c;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dashboard-main-card h2 {
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.dashboard-status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.dashboard-status-pill.calm {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.dashboard-status-pill.normal {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.dashboard-status-pill.busy {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+.dashboard-status-pill.alert {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.dashboard-main-description {
+  margin: 0;
+  color: #604054;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+.dashboard-progress-block {
+  display: grid;
+  gap: 7px;
+}
+
+.dashboard-progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #765064;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.dashboard-progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f4dce7;
+}
+
+.dashboard-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d54880, #f08ab6);
+  transition: width 0.25s ease;
+}
+
+.institute-dashboard-v2.calm .dashboard-progress-fill {
+  background: linear-gradient(90deg, #16a34a, #86efac);
+}
+
+.institute-dashboard-v2.busy .dashboard-progress-fill {
+  background: linear-gradient(90deg, #ea580c, #fdba74);
+}
+
+.institute-dashboard-v2.alert .dashboard-progress-fill {
+  background: linear-gradient(90deg, #dc2626, #fb7185);
+}
+
+.dashboard-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dashboard-chip-row span {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: #75324f;
+  background: #fff0f6;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.dashboard-kpi-card {
+  min-height: 86px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.dashboard-kpi-card span,
+.dashboard-alert-card span {
+  color: #806276;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.dashboard-kpi-card strong {
+  color: #2f1d28;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-kpi-card small {
+  color: #806276;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.32;
+}
+
+.dashboard-kpi-card.danger {
+  border-color: rgba(220, 38, 38, 0.2);
+  background: linear-gradient(135deg, #fff1f2, rgba(255, 255, 255, 0.9));
+}
+
+.dashboard-kpi-card.danger strong,
+.dashboard-kpi-card.danger small {
+  color: #991b1b;
+}
+
+.dashboard-alert-card {
+  min-height: 185px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.dashboard-alert-card strong {
+  color: #3c2633;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.dashboard-alert-card.visible {
+  border-color: rgba(220, 38, 38, 0.22);
+  background: linear-gradient(135deg, #fff1f2, rgba(255, 255, 255, 0.9));
+}
+
+.dashboard-alert-card.visible span,
+.dashboard-alert-card.visible strong {
+  color: #991b1b;
+}
+
+.dashboard-alert-card.soft {
+  background: linear-gradient(135deg, #f0fdf4, rgba(255, 255, 255, 0.9));
+  border-color: rgba(34, 197, 94, 0.16);
+}
+
+.dashboard-alert-card.soft span,
+.dashboard-alert-card.soft strong {
+  color: #166534;
+}
+
+.institute-dashboard-v2.skeleton .dashboard-main-card,
+.institute-dashboard-v2.skeleton .dashboard-kpi-card {
+  opacity: 0.72;
+}
+
+@media (max-width: 1600px) {
+  .institute-dashboard-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-kpi-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .dashboard-alert-card {
+    min-height: 110px;
+  }
+}
