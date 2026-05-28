@@ -145,3 +145,26 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
     ticket.status = "assigned"
     ticket.assigned_employee_id = employee.id
     return save_ticket(db, ticket)
+
+
+def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise not_found("Ticket introuvable")
+
+    if ticket.status == "cancelled":
+        return ticket
+
+    if ticket.status == "completed":
+        raise business_error("Ce ticket est déjà terminé")
+
+    if ticket.status == "in_progress":
+        raise business_error("Ce ticket est en cours : termine d'abord la prestation depuis le planning")
+
+    if ticket.status not in {"waiting", "assigned"}:
+        raise business_error("Ce ticket ne peut pas être annulé dans son état actuel")
+
+    ticket.status = "cancelled"
+    ticket.assigned_employee_id = None
+    ticket.estimated_start_time = None
+    return save_ticket(db, ticket)

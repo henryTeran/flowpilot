@@ -18,9 +18,11 @@ interface QueuePanelProps {
   onCreateTicket: () => void;
   onAssignTicket: () => void;
   onStartSession: () => void;
+  onCancelTicket: (ticketId: string) => void;
 }
 
 const ACTIONABLE_TICKET_STATUSES = new Set(["waiting", "assigned"]);
+const CANCELLABLE_TICKET_STATUSES = new Set(["waiting", "assigned"]);
 
 export function QueuePanel({
   tickets,
@@ -40,6 +42,7 @@ export function QueuePanel({
   onCreateTicket,
   onAssignTicket,
   onStartSession,
+  onCancelTicket,
 }: QueuePanelProps) {
   const filteredServices = selectedCategoryId
     ? services.filter((service) => service.category_id === selectedCategoryId)
@@ -65,6 +68,10 @@ export function QueuePanel({
     employeeCanStart &&
     (!lockedEmployeeId || lockedEmployeeId === selectedEmployeeId)
   );
+
+  const waitingTickets = tickets.filter((ticket) => ticket.status === "waiting");
+  const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
+  const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
 
   return (
@@ -81,7 +88,7 @@ export function QueuePanel({
             <p className="eyebrow">Accueil</p>
             <h2>Créer un ticket</h2>
           </div>
-          <span className="counter-badge">{tickets.length} en file</span>
+          <span className="counter-badge">{waitingTickets.length + assignedTickets.length} à traiter</span>
         </div>
 
         <label>Catégorie</label>
@@ -118,37 +125,49 @@ export function QueuePanel({
         <div className="section-title-row">
           <div>
             <p className="eyebrow">File d’attente</p>
-            <h2>Tickets sans RDV</h2>
+            <h2>Tickets actifs</h2>
           </div>
         </div>
 
         {tickets.length === 0 ? (
-          <div className="empty-state">Aucun ticket en attente.</div>
+          <div className="empty-state">Aucun ticket actif.</div>
         ) : (
-          <div className="ticket-list">
-            {tickets.map((ticket) => {
-              const service = services.find((item) => item.id === ticketServiceMap[ticket.id]);
-              const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
-              const isFinishedAction = ticket.status === "in_progress" || ticket.status === "completed";
+          <div className="ticket-list ticket-list-grouped">
+            <TicketGroup
+              title="À prendre"
+              tickets={waitingTickets}
+              empty="Aucune cliente en attente."
+              services={services}
+              employees={employees}
+              selectedTicketId={selectedTicketId}
+              ticketServiceMap={ticketServiceMap}
+              onTicketChange={onTicketChange}
+              onCancelTicket={onCancelTicket}
+            />
 
-              return (
-                <button
-                  key={ticket.id}
-                  className={`ticket-card ${selectedTicketId === ticket.id ? "selected" : ""} ${isFinishedAction ? "locked" : ""}`}
-                  onClick={() => onTicketChange(ticket.id)}
-                  type="button"
-                >
-                  <div className="ticket-card-topline">
-                    <strong>{ticket.ticket_number}</strong>
-                    <span>{formatTicketWait(ticket)}</span>
-                  </div>
-                  <span>{service?.name || "Prestation à confirmer"}</span>
-                  <small>
-                    {employee ? `Affecté à ${employee.first_name}` : "Non affecté"} · {translateStatus(ticket.status)}
-                  </small>
-                </button>
-              );
-            })}
+            <TicketGroup
+              title="Affectés"
+              tickets={assignedTickets}
+              empty="Aucun ticket affecté."
+              services={services}
+              employees={employees}
+              selectedTicketId={selectedTicketId}
+              ticketServiceMap={ticketServiceMap}
+              onTicketChange={onTicketChange}
+              onCancelTicket={onCancelTicket}
+            />
+
+            <TicketGroup
+              title="En prestation"
+              tickets={inProgressTickets}
+              empty="Aucune prestation en cours depuis la file."
+              services={services}
+              employees={employees}
+              selectedTicketId={selectedTicketId}
+              ticketServiceMap={ticketServiceMap}
+              onTicketChange={onTicketChange}
+              onCancelTicket={onCancelTicket}
+            />
           </div>
         )}
       </section>
@@ -189,7 +208,7 @@ export function QueuePanel({
 
         {selectedTicket && !selectedTicketIsActionable && (
           <p className="inline-warning">
-            Ce ticket est déjà {translateStatus(selectedTicket.status).toLowerCase()} : il ne peut plus être affecté ou redémarré.
+            Ce ticket est {translateStatus(selectedTicket.status).toLowerCase()} : il se clôture depuis le bloc planning, pas depuis l’action rapide.
           </p>
         )}
 
@@ -218,7 +237,93 @@ export function QueuePanel({
   );
 }
 
+interface TicketGroupProps {
+  title: string;
+  tickets: QueueTicket[];
+  empty: string;
+  services: Service[];
+  employees: Employee[];
+  selectedTicketId: string;
+  ticketServiceMap: Record<string, string>;
+  onTicketChange: (id: string) => void;
+  onCancelTicket: (ticketId: string) => void;
+}
+
+function TicketGroup({
+  title,
+  tickets,
+  empty,
+  services,
+  employees,
+  selectedTicketId,
+  ticketServiceMap,
+  onTicketChange,
+  onCancelTicket,
+}: TicketGroupProps) {
+  return (
+    <div className="ticket-group">
+      <div className="ticket-group-title">
+        <span>{title}</span>
+        <strong>{tickets.length}</strong>
+      </div>
+
+      {tickets.length === 0 ? (
+        <div className="ticket-group-empty">{empty}</div>
+      ) : (
+        tickets.map((ticket) => {
+          const service = services.find((item) => item.id === ticketServiceMap[ticket.id]);
+          const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
+          const isLocked = ticket.status === "in_progress" || ticket.status === "completed";
+          const canCancel = CANCELLABLE_TICKET_STATUSES.has(ticket.status);
+
+          return (
+            <div
+              key={ticket.id}
+              className={`ticket-card ${selectedTicketId === ticket.id ? "selected" : ""} ${isLocked ? "locked" : ""}`}
+              onClick={() => onTicketChange(ticket.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") onTicketChange(ticket.id);
+              }}
+            >
+              <div className="ticket-card-topline">
+                <strong>{ticket.ticket_number}</strong>
+                <span>{formatTicketWait(ticket)}</span>
+              </div>
+              <div className="ticket-card-body">
+                <span>{service?.name || "Prestation à confirmer"}</span>
+                <small>
+                  {employee ? `Affecté à ${employee.first_name}` : "Non affecté"}
+                </small>
+              </div>
+              <div className="ticket-card-footer">
+                <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
+                {canCancel ? (
+                  <button
+                    className="ticket-mini-button"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onCancelTicket(ticket.id);
+                    }}
+                  >
+                    Annuler
+                  </button>
+                ) : (
+                  <small className="ticket-hint">À clôturer dans le planning</small>
+                )}
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
 function formatTicketWait(ticket: QueueTicket) {
+  if (ticket.status === "in_progress") return "En cours";
   if (!ticket.estimated_start_time) return "Attente à calculer";
   const diffMs = new Date(ticket.estimated_start_time).getTime() - Date.now();
   const minutes = Math.max(0, Math.ceil(diffMs / 60000));
@@ -250,7 +355,7 @@ function formatAvailabilityDescription(availability?: PlanningAvailability) {
   ).length;
 
   const delayText = delayedCount > 0 ? ` · ${delayedCount} retard à clôturer` : "";
-  return `${availability.active_sessions} prestation(s) en cours · ${availability.waiting_tickets} ticket(s) en file${delayText}`;
+  return `${availability.active_sessions} prestation(s) en cours · ${availability.waiting_tickets} ticket(s) à traiter${delayText}`;
 }
 
 function translateStatus(status: string) {

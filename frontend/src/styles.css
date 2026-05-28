@@ -1180,3 +1180,126 @@ select {
   height: 30px;
   font-size: 12px;
 }
+
+/* Phase 6 - cycle de vie des tickets */
+.ticket-list-grouped {
+  gap: 14px;
+  max-height: 390px;
+}
+
+.ticket-group {
+  display: grid;
+  gap: 8px;
+}
+
+.ticket-group + .ticket-group {
+  padding-top: 12px;
+  border-top: 1px dashed #efd8e2;
+}
+
+.ticket-group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #8d1e53;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ticket-group-title strong {
+  display: inline-grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  color: #9f426c;
+  background: #fff0f6;
+  font-size: 12px;
+}
+
+.ticket-group-empty {
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #8d6d7e;
+  background: #fff7fb;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ticket-card {
+  cursor: pointer;
+}
+
+.ticket-card-body {
+  display: grid;
+  gap: 2px;
+}
+
+.ticket-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  width: fit-content;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.status-badge-waiting {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.status-badge-assigned {
+  color: #8d1e53;
+  background: #fff0f6;
+}
+
+.status-badge-in_progress {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.status-badge-completed {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.status-badge-cancelled {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.ticket-mini-button {
+  width: auto !important;
+  min-height: 28px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 10px;
+  color: #75324f;
+  background: #f9ddea;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.ticket-mini-button:hover {
+  background: #f4cadd;
+}
+
+.ticket-hint {
+  color: #806276;
+  font-size: 11px;
+  font-weight: 850;
+  text-align: right;
+}

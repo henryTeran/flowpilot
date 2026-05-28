@@ -144,6 +144,12 @@ export default function App() {
     };
   }, [selectedInstituteId, refreshOperationalData]);
 
+  useEffect(() => {
+    if (selectedTicketId && !tickets.some((ticket) => ticket.id === selectedTicketId)) {
+      setSelectedTicketId("");
+    }
+  }, [tickets, selectedTicketId]);
+
   async function handleCreateTicket() {
     if (!selectedInstituteId || !selectedServiceId) return;
     setError(null);
@@ -238,6 +244,19 @@ export default function App() {
     }
   }
 
+  async function handleCancelTicket(ticketId: string) {
+    setError(null);
+    try {
+      await apiPatch(`/tickets/${ticketId}/cancel`);
+      if (selectedTicketId === ticketId) {
+        setSelectedTicketId("");
+      }
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible d’annuler le ticket");
+    }
+  }
+
   async function handleChangeEmployeeStatus(employeeId: string, status: string) {
     setError(null);
     try {
@@ -283,6 +302,7 @@ export default function App() {
             onCreateTicket={handleCreateTicket}
             onAssignTicket={handleAssignTicket}
             onStartSession={handleStartSession}
+            onCancelTicket={handleCancelTicket}
           />
 
           <div className="main-column">
