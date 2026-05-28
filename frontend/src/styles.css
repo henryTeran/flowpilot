@@ -617,7 +617,7 @@ select {
     rgba(248, 230, 239, 0.7) 0,
     rgba(248, 230, 239, 0.7) 1px,
     transparent 1px,
-    transparent calc(100% / 11)
+    transparent calc(100% / var(--hour-count, 11))
   );
 }
 
@@ -642,10 +642,12 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-width: 140px;
+  z-index: 20;
+  min-width: 210px;
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 18px;
+  pointer-events: auto;
   color: #fff;
   background: linear-gradient(135deg, #2563eb, #60a5fa);
   box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
@@ -678,32 +680,245 @@ select {
 }
 
 .session-actions {
+  position: relative;
+  z-index: 40;
   display: flex;
-  gap: 5px;
+  flex-shrink: 0;
+  gap: 6px;
+  pointer-events: auto;
 }
 
 .session-actions button {
-  min-width: 34px;
-  height: 30px;
+  min-width: 42px;
+  height: 34px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 11px;
   color: #5b1733;
-  background: rgba(255, 255, 255, 0.86);
-  font-size: 12px;
-  font-weight: 900;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 14px rgba(91, 23, 51, 0.12);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 950;
+  pointer-events: auto;
+}
+
+.session-actions button:hover {
+  background: #fff;
+  transform: translateY(-1px);
 }
 
 .now-cursor {
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 5;
+  z-index: 6;
   width: 2px;
+  pointer-events: none;
   background: #df2f74;
   box-shadow: 0 0 0 4px rgba(223, 47, 116, 0.08);
 }
 
 .now-cursor span {
+  position: absolute;
+  pointer-events: none;
+  top: 8px;
+  left: 8px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #fff;
+  background: #df2f74;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* Phase 4 - Disponibilité, attente estimée et statuts collaboratrice */
+.availability-card {
+  color: #5c1e3b;
+  background: linear-gradient(135deg, rgba(255, 240, 246, 0.96), rgba(255, 255, 255, 0.9));
+  border-color: rgba(213, 72, 128, 0.18);
+}
+
+.availability-card h2 {
+  font-size: 20px;
+}
+
+.availability-card p {
+  margin: 8px 0 0;
+  color: #765064;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.availability-highlight small {
+  color: #765064;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.selected-summary.compact {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.ticket-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ticket-card-topline span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #8d1e53;
+  background: #fff0f6;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.employee-cell {
+  gap: 7px;
+}
+
+.employee-cell > div:first-child {
+  display: grid;
+  gap: 7px;
+}
+
+.employee-availability {
+  color: #806276;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.employee-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.employee-actions button {
+  min-height: 28px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 9px;
+  color: #75324f;
+  background: #f9ddea;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.employee-actions button:hover {
+  background: #f4cadd;
+}
+
+.status-dot.pause {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.status-dot.pause::before {
+  background: #f59e0b;
+}
+
+.status-dot.absent,
+.status-dot.offline {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.status-dot.absent::before,
+.status-dot.offline::before {
+  background: #64748b;
+}
+
+.session-content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.session-content strong,
+.session-content span,
+.session-content small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-content small {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.9;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.session-block.in_progress {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+
+.session-block.delayed {
+  background: linear-gradient(135deg, #dc2626, #fb7185);
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.22);
+}
+
+.demo-clock-banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(213, 72, 128, 0.18);
+  border-radius: 18px;
+  color: #7a3150;
+  background: #fff7fb;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.inline-warning {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #92400e;
+  background: #fef3c7;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+/* Hotfix temps réel planning : alignement curseur, largeur proportionnelle et actions non bloquantes */
+.time-axis {
+  position: relative;
+  display: block;
+  min-width: 920px;
+}
+
+.time-axis-hour {
+  position: absolute;
+  top: 50%;
+  transform: translate(-2px, -50%);
+  padding-left: 0 !important;
+  color: #8d6d7e;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.slots-cell {
+  overflow: visible;
+}
+
+.row-now-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 2px;
+  pointer-events: none;
+  background: #df2f74;
+  box-shadow: 0 0 0 4px rgba(223, 47, 116, 0.08);
+}
+
+.row-now-cursor span {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -714,4 +929,82 @@ select {
   font-size: 11px;
   font-weight: 900;
   white-space: nowrap;
+}
+
+.session-block {
+  min-width: 0;
+  overflow: visible;
+  padding: 8px 10px;
+}
+
+.session-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding-right: 126px;
+}
+
+.session-content strong,
+.session-content span,
+.session-content small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-block.compact .session-content {
+  padding-right: 0;
+}
+
+.session-block.compact .session-content span,
+.session-block.compact .session-content small {
+  display: none;
+}
+
+.session-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 60;
+}
+
+.session-block.compact .session-actions {
+  top: 50%;
+  right: auto;
+  left: calc(100% + 8px);
+  transform: translateY(-50%);
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 20px rgba(91, 23, 51, 0.1);
+}
+
+.ticket-card.locked {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+.ticket-card.locked .ticket-card-topline span {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.status-dot.delayed {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.status-dot.delayed::before {
+  background: #ef4444;
+}
+
+.employee-availability.warning {
+  color: #991b1b;
+}
+
+.employee-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background: #f3e8ee;
 }

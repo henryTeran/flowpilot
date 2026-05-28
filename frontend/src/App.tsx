@@ -4,7 +4,15 @@ import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
 import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
-import type { Employee, Institute, PlanningDay, QueueTicket, Service, ServiceCategory } from "./types";
+import type {
+  Employee,
+  Institute,
+  PlanningAvailability,
+  PlanningDay,
+  QueueTicket,
+  Service,
+  ServiceCategory,
+} from "./types";
 
 export default function App() {
   const [institutes, setInstitutes] = useState<Institute[]>([]);
@@ -14,6 +22,7 @@ export default function App() {
   const [services, setServices] = useState<Service[]>([]);
   const [tickets, setTickets] = useState<QueueTicket[]>([]);
   const [planning, setPlanning] = useState<PlanningDay | undefined>();
+  const [availability, setAvailability] = useState<PlanningAvailability | undefined>();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState("");
@@ -27,6 +36,29 @@ export default function App() {
     () => institutes.find((institute) => institute.id === selectedInstituteId),
     [institutes, selectedInstituteId]
   );
+
+  const selectedTicket = useMemo(
+    () => tickets.find((ticket) => ticket.id === selectedTicketId),
+    [tickets, selectedTicketId]
+  );
+
+  function handleTicketSelection(ticketId: string) {
+    setSelectedTicketId(ticketId);
+
+    const ticket = tickets.find((item) => item.id === ticketId);
+    if (ticket?.assigned_employee_id) {
+      setSelectedEmployeeId(ticket.assigned_employee_id);
+    }
+  }
+
+  function handleEmployeeSelection(employeeId: string) {
+    if (selectedTicket?.assigned_employee_id && selectedTicket.assigned_employee_id !== employeeId) {
+      setError("Ce ticket est déjà affecté à une autre collaboratrice.");
+      return;
+    }
+
+    setSelectedEmployeeId(employeeId);
+  }
 
   const loadStaticData = useCallback(async () => {
     setLoading(true);
@@ -59,15 +91,17 @@ export default function App() {
     if (!selectedInstituteId) return;
     setError(null);
     try {
-      const [employeesResponse, ticketsResponse, planningResponse] = await Promise.all([
+      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse] = await Promise.all([
         apiGet<Employee[]>(`/employees?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<PlanningDay>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/today`),
+        apiGet<PlanningAvailability>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/availability`),
       ]);
 
       setEmployees(employeesResponse);
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
+      setAvailability(availabilityResponse);
       if (!selectedEmployeeId && employeesResponse.length > 0) {
         setSelectedEmployeeId(employeesResponse[0].id);
       }
@@ -123,6 +157,12 @@ export default function App() {
 
   async function handleAssignTicket() {
     if (!selectedTicketId || !selectedEmployeeId) return;
+
+    if (!selectedTicket || selectedTicket.status !== "waiting") {
+      setError("Seul un ticket en attente peut être affecté.");
+      return;
+    }
+
     setError(null);
     try {
       await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/assign`, {
@@ -136,6 +176,17 @@ export default function App() {
 
   async function handleStartSession() {
     if (!selectedTicketId || !selectedEmployeeId) return;
+
+    if (!selectedTicket || !["waiting", "assigned"].includes(selectedTicket.status)) {
+      setError("Ce ticket est déjà en cours ou terminé. Il ne peut plus être redémarré.");
+      return;
+    }
+
+    if (selectedTicket.assigned_employee_id && selectedTicket.assigned_employee_id !== selectedEmployeeId) {
+      setError("Ce ticket est déjà affecté à une autre collaboratrice.");
+      return;
+    }
+
     const serviceId = ticketServiceMap[selectedTicketId] || selectedServiceId;
     if (!serviceId) {
       setError("Choisis une prestation avant de démarrer la session.");
@@ -144,9 +195,12 @@ export default function App() {
 
     setError(null);
     try {
-      await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/assign`, {
-        employee_id: selectedEmployeeId,
-      });
+      if (selectedTicket.status === "waiting") {
+        await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/assign`, {
+          employee_id: selectedEmployeeId,
+        });
+      }
+
       await apiPost("/planning/sessions/start", {
         ticket_id: selectedTicketId,
         employee_id: selectedEmployeeId,
@@ -179,6 +233,16 @@ export default function App() {
     }
   }
 
+  async function handleChangeEmployeeStatus(employeeId: string, status: string) {
+    setError(null);
+    try {
+      await apiPatch(`/employees/${employeeId}/status`, { status });
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de modifier le statut collaboratrice");
+    }
+  }
+
   return (
     <div className="app-shell">
       <Sidebar />
@@ -196,48 +260,90 @@ export default function App() {
         {loading && <div className="loading-banner">Chargement des données...</div>}
 
         <div className="workspace">
-        <QueuePanel
-          tickets={tickets}
-          services={services}
-          categories={categories}
-          employees={employees}
-          selectedCategoryId={selectedCategoryId}
-          selectedServiceId={selectedServiceId}
-          selectedTicketId={selectedTicketId}
-          selectedEmployeeId={selectedEmployeeId}
-          ticketServiceMap={ticketServiceMap}
-          onCategoryChange={setSelectedCategoryId}
-          onServiceChange={setSelectedServiceId}
-          onTicketChange={setSelectedTicketId}
-          onEmployeeChange={setSelectedEmployeeId}
-          onCreateTicket={handleCreateTicket}
-          onAssignTicket={handleAssignTicket}
-          onStartSession={handleStartSession}
-        />
-
-        <div className="main-column">
-          <div className="context-card">
-            <div>
-              <p className="eyebrow">Institut actif</p>
-              <h2>{selectedInstitute?.name || "Aucun institut"}</h2>
-              <span>{selectedInstitute?.address || "Adresse non renseignée"}</span>
-            </div>
-            <div className="time-card">
-              <span>Objectif terrain</span>
-              <strong>annoncer l’attente en moins de 10 s</strong>
-            </div>
-          </div>
-
-          <PlanningBoard
-            planning={planning}
-            employees={employees}
+          <QueuePanel
+            tickets={tickets}
             services={services}
-            onFinishSession={handleFinishSession}
-            onExtendSession={handleExtendSession}
+            categories={categories}
+            employees={employees}
+            availability={availability}
+            selectedCategoryId={selectedCategoryId}
+            selectedServiceId={selectedServiceId}
+            selectedTicketId={selectedTicketId}
+            selectedEmployeeId={selectedEmployeeId}
+            ticketServiceMap={ticketServiceMap}
+            onCategoryChange={setSelectedCategoryId}
+            onServiceChange={setSelectedServiceId}
+            onTicketChange={handleTicketSelection}
+            onEmployeeChange={handleEmployeeSelection}
+            onCreateTicket={handleCreateTicket}
+            onAssignTicket={handleAssignTicket}
+            onStartSession={handleStartSession}
           />
+
+          <div className="main-column">
+            <div className="context-card">
+              <div>
+                <p className="eyebrow">Institut actif</p>
+                <h2>{selectedInstitute?.name || "Aucun institut"}</h2>
+                <span>{selectedInstitute?.address || "Adresse non renseignée"}</span>
+              </div>
+              <div className="time-card availability-highlight">
+                <span>Prochaine disponibilité</span>
+                <strong>{formatAvailabilityHeadline(availability)}</strong>
+                <small>{formatAvailabilityDetail(availability)}</small>
+              </div>
+            </div>
+
+            <PlanningBoard
+              planning={planning}
+              employees={employees}
+              services={services}
+              availability={availability}
+              onFinishSession={handleFinishSession}
+              onExtendSession={handleExtendSession}
+              onChangeEmployeeStatus={handleChangeEmployeeStatus}
+            />
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
+}
+
+function formatAvailabilityHeadline(availability?: PlanningAvailability) {
+  if (!availability) return "Calcul en cours";
+
+  if (availability.wait_minutes === null || availability.wait_minutes === undefined) {
+    return availability.active_sessions > 0
+      ? "Disponibilité à confirmer"
+      : "Aucune disponibilité";
+  }
+
+  if (availability.wait_minutes <= 0) {
+    return `${availability.next_employee_name || "Une collaboratrice"} disponible maintenant`;
+  }
+
+  return `${availability.wait_minutes} min d’attente`;
+}
+
+function formatAvailabilityDetail(availability?: PlanningAvailability) {
+  if (!availability) return "Calcul de disponibilité en cours.";
+
+  const delayedCount = availability.employees.filter(
+    (employee) => employee.employee_status === "delayed"
+  ).length;
+
+  if (!availability.next_available_at) {
+    return delayedCount > 0
+      ? `${delayedCount} prestation(s) en retard à clôturer avant de libérer la disponibilité.`
+      : "Toutes les collaboratrices sont indisponibles.";
+  }
+
+  const time = new Intl.DateTimeFormat("fr-CH", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(availability.next_available_at));
+
+  const delayText = delayedCount > 0 ? ` · ${delayedCount} retard à clôturer` : "";
+  return `${availability.next_employee_name || "Prochain créneau"} à ${time}${delayText}`;
 }

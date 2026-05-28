@@ -76,3 +76,24 @@ export interface PlanningDay {
   generated_at: string;
   rows: PlanningEmployeeRow[];
 }
+
+export interface AvailabilityEmployee {
+  employee_id: string;
+  employee_name: string;
+  employee_status: string;
+  available_at?: string | null;
+  wait_minutes?: number | null;
+  active_session_id?: string | null;
+}
+
+export interface PlanningAvailability {
+  institute_id: string;
+  generated_at: string;
+  next_employee_id?: string | null;
+  next_employee_name?: string | null;
+  next_available_at?: string | null;
+  wait_minutes?: number | null;
+  active_sessions: number;
+  waiting_tickets: number;
+  employees: AvailabilityEmployee[];
+}

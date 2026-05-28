@@ -1,10 +1,11 @@
-import type { Employee, QueueTicket, Service, ServiceCategory } from "../types";
+import type { Employee, PlanningAvailability, QueueTicket, Service, ServiceCategory } from "../types";
 
 interface QueuePanelProps {
   tickets: QueueTicket[];
   services: Service[];
   categories: ServiceCategory[];
   employees: Employee[];
+  availability?: PlanningAvailability;
   selectedCategoryId: string;
   selectedServiceId: string;
   selectedTicketId: string;
@@ -19,11 +20,14 @@ interface QueuePanelProps {
   onStartSession: () => void;
 }
 
+const ACTIONABLE_TICKET_STATUSES = new Set(["waiting", "assigned"]);
+
 export function QueuePanel({
   tickets,
   services,
   categories,
   employees,
+  availability,
   selectedCategoryId,
   selectedServiceId,
   selectedTicketId,
@@ -44,16 +48,40 @@ export function QueuePanel({
   const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId);
   const selectedTicketServiceId = selectedTicket ? ticketServiceMap[selectedTicket.id] : undefined;
   const selectedTicketService = services.find((service) => service.id === selectedTicketServiceId);
+  const selectedService = services.find((service) => service.id === selectedServiceId);
+  const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId);
+  const selectedTicketIsActionable = Boolean(selectedTicket && ACTIONABLE_TICKET_STATUSES.has(selectedTicket.status));
+  const selectedTicketIsWaiting = selectedTicket?.status === "waiting";
+  const selectedTicketIsAssigned = selectedTicket?.status === "assigned";
+  const lockedEmployeeId = selectedTicket?.assigned_employee_id || "";
+  const isLockedToAnotherEmployee = Boolean(
+    lockedEmployeeId && selectedEmployeeId && lockedEmployeeId !== selectedEmployeeId,
+  );
+  const employeeCanStart = Boolean(selectedEmployee && selectedEmployee.status === "available");
+  const canAssignTicket = Boolean(selectedTicketIsWaiting && selectedEmployeeId && employeeCanStart);
+  const canStartSession = Boolean(
+    selectedTicketIsActionable &&
+    selectedEmployeeId &&
+    employeeCanStart &&
+    (!lockedEmployeeId || lockedEmployeeId === selectedEmployeeId)
+  );
+  const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
 
   return (
     <aside className="queue-panel">
+      <section className="panel-card availability-card">
+        <p className="eyebrow">Disponibilité live</p>
+        <h2>{formatAvailabilityTitle(availability)}</h2>
+        <p>{formatAvailabilityDescription(availability)}</p>
+      </section>
+
       <section className="panel-card">
         <div className="section-title-row">
           <div>
             <p className="eyebrow">Accueil</p>
             <h2>Créer un ticket</h2>
           </div>
-          <span className="counter-badge">{tickets.length} en attente</span>
+          <span className="counter-badge">{tickets.length} en file</span>
         </div>
 
         <label>Catégorie</label>
@@ -73,6 +101,13 @@ export function QueuePanel({
             </option>
           ))}
         </select>
+
+        {selectedService && (
+          <div className="selected-summary compact">
+            <span>Durée standard</span>
+            <strong>{selectedService.duration_min} min</strong>
+          </div>
+        )}
 
         <button className="primary-button" onClick={onCreateTicket} disabled={!selectedServiceId}>
           Ajouter à la file
@@ -94,17 +129,22 @@ export function QueuePanel({
             {tickets.map((ticket) => {
               const service = services.find((item) => item.id === ticketServiceMap[ticket.id]);
               const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
+              const isFinishedAction = ticket.status === "in_progress" || ticket.status === "completed";
 
               return (
                 <button
                   key={ticket.id}
-                  className={`ticket-card ${selectedTicketId === ticket.id ? "selected" : ""}`}
+                  className={`ticket-card ${selectedTicketId === ticket.id ? "selected" : ""} ${isFinishedAction ? "locked" : ""}`}
                   onClick={() => onTicketChange(ticket.id)}
+                  type="button"
                 >
-                  <strong>{ticket.ticket_number}</strong>
+                  <div className="ticket-card-topline">
+                    <strong>{ticket.ticket_number}</strong>
+                    <span>{formatTicketWait(ticket)}</span>
+                  </div>
                   <span>{service?.name || "Prestation à confirmer"}</span>
                   <small>
-                    {employee ? `Affecté à ${employee.first_name}` : "Non affecté"} · {ticket.status}
+                    {employee ? `Affecté à ${employee.first_name}` : "Non affecté"} · {translateStatus(ticket.status)}
                   </small>
                 </button>
               );
@@ -120,33 +160,112 @@ export function QueuePanel({
         <label>Ticket sélectionné</label>
         <select value={selectedTicketId} onChange={(event) => onTicketChange(event.target.value)}>
           <option value="">Choisir un ticket</option>
-          {tickets.map((ticket) => (
-            <option key={ticket.id} value={ticket.id}>{ticket.ticket_number}</option>
+          {actionableTickets.map((ticket) => (
+            <option key={ticket.id} value={ticket.id}>{ticket.ticket_number} · {translateStatus(ticket.status)}</option>
           ))}
         </select>
 
         <label>Collaboratrice</label>
-        <select value={selectedEmployeeId} onChange={(event) => onEmployeeChange(event.target.value)}>
+        <select
+          value={selectedEmployeeId}
+          onChange={(event) => onEmployeeChange(event.target.value)}
+          disabled={Boolean(selectedTicketIsAssigned && lockedEmployeeId)}
+        >
           <option value="">Choisir une collaboratrice</option>
-          {employees.map((employee) => (
-            <option key={employee.id} value={employee.id}>{employee.first_name} · {employee.status}</option>
-          ))}
+          {employees.map((employee) => {
+            const disabled = employee.status !== "available" || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
+            return (
+              <option key={employee.id} value={employee.id} disabled={disabled}>
+                {employee.first_name} · {translateStatus(employee.status)}
+              </option>
+            );
+          })}
         </select>
 
         <div className="selected-summary">
           <span>Prestation</span>
-          <strong>{selectedTicketService?.name || "Utilise la prestation actuellement sélectionnée"}</strong>
+          <strong>{selectedTicketService?.name || selectedService?.name || "Choisir une prestation"}</strong>
         </div>
 
+        {selectedTicket && !selectedTicketIsActionable && (
+          <p className="inline-warning">
+            Ce ticket est déjà {translateStatus(selectedTicket.status).toLowerCase()} : il ne peut plus être affecté ou redémarré.
+          </p>
+        )}
+
+        {selectedEmployee && selectedEmployee.status !== "available" && (
+          <p className="inline-warning">
+            {selectedEmployee.first_name} est {translateStatus(selectedEmployee.status).toLowerCase()} : termine ou libère la prestation avant d’en démarrer une autre.
+          </p>
+        )}
+
+        {isLockedToAnotherEmployee && (
+          <p className="inline-warning">
+            Ce ticket est déjà affecté à une autre collaboratrice. Il faut d’abord annuler ou modifier l’affectation côté métier.
+          </p>
+        )}
+
         <div className="button-row">
-          <button className="secondary-button" onClick={onAssignTicket} disabled={!selectedTicketId || !selectedEmployeeId}>
+          <button className="secondary-button" onClick={onAssignTicket} disabled={!canAssignTicket}>
             Affecter
           </button>
-          <button className="primary-button" onClick={onStartSession} disabled={!selectedTicketId || !selectedEmployeeId}>
+          <button className="primary-button" onClick={onStartSession} disabled={!canStartSession}>
             Démarrer
           </button>
         </div>
       </section>
     </aside>
   );
+}
+
+function formatTicketWait(ticket: QueueTicket) {
+  if (!ticket.estimated_start_time) return "Attente à calculer";
+  const diffMs = new Date(ticket.estimated_start_time).getTime() - Date.now();
+  const minutes = Math.max(0, Math.ceil(diffMs / 60000));
+  if (minutes <= 0) return "Maintenant";
+  return `~ ${minutes} min`;
+}
+
+function formatAvailabilityTitle(availability?: PlanningAvailability) {
+  if (!availability) return "Calcul en cours";
+
+  if (availability.wait_minutes === null || availability.wait_minutes === undefined) {
+    return availability.active_sessions > 0
+      ? "Disponibilité à confirmer"
+      : "Aucune collaboratrice disponible";
+  }
+
+  if (availability.wait_minutes <= 0) {
+    return `${availability.next_employee_name || "Disponible"} maintenant`;
+  }
+
+  return `${availability.wait_minutes} min avant prochain créneau`;
+}
+
+function formatAvailabilityDescription(availability?: PlanningAvailability) {
+  if (!availability) return "Calcul en cours...";
+
+  const delayedCount = availability.employees.filter(
+    (employee) => employee.employee_status === "delayed"
+  ).length;
+
+  const delayText = delayedCount > 0 ? ` · ${delayedCount} retard à clôturer` : "";
+  return `${availability.active_sessions} prestation(s) en cours · ${availability.waiting_tickets} ticket(s) en file${delayText}`;
+}
+
+function translateStatus(status: string) {
+  const labels: Record<string, string> = {
+    available: "Disponible",
+    busy: "Occupée",
+    pause: "Pause",
+    absent: "Absente",
+    offline: "Hors ligne",
+    delayed: "Retard",
+    waiting: "En attente",
+    assigned: "Affecté",
+    in_progress: "En cours",
+    completed: "Terminé",
+    cancelled: "Annulé",
+  };
+  return labels[status] || status;
 }

@@ -39,3 +39,24 @@ class PlanningDayRead(BaseModel):
     institute_id: str
     generated_at: datetime
     rows: list[PlanningEmployeeRow]
+
+
+class AvailabilityEmployeeRead(BaseModel):
+    employee_id: str
+    employee_name: str
+    employee_status: str
+    available_at: datetime | None
+    wait_minutes: int | None
+    active_session_id: str | None = None
+
+
+class PlanningAvailabilityRead(BaseModel):
+    institute_id: str
+    generated_at: datetime
+    next_employee_id: str | None
+    next_employee_name: str | None
+    next_available_at: datetime | None
+    wait_minutes: int | None
+    active_sessions: int
+    waiting_tickets: int
+    employees: list[AvailabilityEmployeeRead]
