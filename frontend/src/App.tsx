@@ -8,6 +8,7 @@ import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
 import type {
   Appointment,
+  AppointmentAction,
   AppointmentCreatePayload,
   Employee,
   Institute,
@@ -284,13 +285,14 @@ export default function App() {
     }
   }
 
-  async function handleCancelAppointment(appointmentId: string) {
+  async function handleAppointmentAction(appointmentId: string, action: AppointmentAction) {
     setError(null);
     try {
-      await apiPatch<Appointment>(`/appointments/${appointmentId}/cancel`);
+      await apiPatch<Appointment>(`/appointments/${appointmentId}/${action}`);
       await refreshOperationalData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Impossible d’annuler le rendez-vous");
+      setError(err instanceof Error ? err.message : "Impossible de modifier le rendez-vous");
+      throw err;
     }
   }
 
@@ -354,7 +356,7 @@ export default function App() {
               services={services}
               appointments={appointments}
               onCreateAppointment={handleCreateAppointment}
-              onCancelAppointment={handleCancelAppointment}
+              onAppointmentAction={handleAppointmentAction}
             />
 
             <PlanningBoard

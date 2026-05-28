@@ -1763,3 +1763,175 @@ select {
     grid-template-columns: repeat(2, minmax(150px, 1fr));
   }
 }
+
+/* Phase 9 - Cycle complet RDV sous appel */
+.appointment-panel.phase9 .appointment-list-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.counter-badge.violet {
+  color: #5b21b6;
+  background: #ede9fe;
+}
+
+.appointment-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(124, 58, 237, 0.2);
+}
+
+.appointment-history-header span {
+  color: #7e5e91;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.appointment-list.history {
+  max-height: 160px;
+  opacity: 0.82;
+}
+
+.appointment-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.appointment-card-main {
+  min-width: 0;
+}
+
+.appointment-card-main small {
+  display: block;
+  margin-top: 3px;
+  color: #9b79ac;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.appointment-status-badge {
+  justify-self: end;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #5b217a;
+  background: #ede9fe;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.appointment-status-badge.arrived {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.appointment-status-badge.in_progress {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.appointment-status-badge.completed {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.appointment-status-badge.no_show,
+.appointment-status-badge.cancelled {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.appointment-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.appointment-action {
+  min-height: 30px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 10px;
+  color: #5b217a;
+  background: #ede9fe;
+  font-size: 11px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.appointment-action:hover {
+  transform: translateY(-1px);
+  background: #ddd6fe;
+}
+
+.appointment-action.start {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.appointment-action.complete {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.appointment-action.no-show,
+.appointment-action.cancel {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.appointment-action:disabled {
+  cursor: wait;
+  opacity: 0.55;
+  transform: none;
+}
+
+.appointment-card.status-in_progress {
+  border-color: rgba(37, 99, 235, 0.18);
+  background: linear-gradient(135deg, #eff6ff, #fff);
+}
+
+.appointment-card.status-arrived {
+  border-color: rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, #fffbeb, #fff);
+}
+
+.appointment-card.status-completed {
+  border-color: rgba(22, 163, 74, 0.18);
+  background: linear-gradient(135deg, #f0fdf4, #fff);
+}
+
+.appointment-card.status-no_show,
+.appointment-card.status-cancelled,
+.appointment-card.readonly {
+  border-color: rgba(100, 116, 139, 0.16);
+  background: linear-gradient(135deg, #f8fafc, #fff);
+}
+
+.appointment-block.status-arrived {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.18);
+}
+
+.appointment-block.status-in_progress {
+  background: linear-gradient(135deg, #4f46e5, #818cf8);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.22);
+}
+
+@media (max-width: 1600px) {
+  .appointment-card {
+    grid-template-columns: 1fr;
+  }
+
+  .appointment-status-badge {
+    justify-self: start;
+  }
+}

@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.modules.appointments.models import Appointment
 
-ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived"]
+ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived", "in_progress"]
+FINAL_APPOINTMENT_STATUSES = ["completed", "cancelled", "no_show"]
+ALL_APPOINTMENT_STATUSES = ACTIVE_APPOINTMENT_STATUSES + FINAL_APPOINTMENT_STATUSES
 
 
 def get_appointment(db: Session, appointment_id: str) -> Appointment | None:
@@ -16,6 +18,8 @@ def list_appointments_for_day(db: Session, institute_id: str, day: datetime) -> 
     start = day.replace(hour=0, minute=0, second=0, microsecond=0)
     end = start + timedelta(days=1)
 
+    # On retourne aussi les RDV terminés / absents / annulés afin que l’agenda puisse
+    # les afficher dans une section historique séparée, sans les mélanger aux actifs.
     return list(
         db.scalars(
             select(Appointment)
@@ -23,7 +27,6 @@ def list_appointments_for_day(db: Session, institute_id: str, day: datetime) -> 
                 Appointment.institute_id == institute_id,
                 Appointment.start_time >= start,
                 Appointment.start_time < end,
-                Appointment.status != "cancelled",
             )
             .order_by(Appointment.start_time)
         ).all()

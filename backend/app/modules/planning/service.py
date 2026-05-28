@@ -23,7 +23,7 @@ from app.shared.time import utcnow
 
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
-ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived"]
+ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived", "in_progress"]
 UNAVAILABLE_EMPLOYEE_STATUSES = {"pause", "absent", "offline"}
 
 

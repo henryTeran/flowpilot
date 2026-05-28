@@ -15,6 +15,7 @@ interface PlanningBoardProps {
 const BUSINESS_START_HOUR = 9;
 const BUSINESS_END_HOUR = 20;
 const ACTIVE_STATUSES = new Set(["planned", "in_progress", "extended", "delayed"]);
+const ACTIVE_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived", "in_progress"]);
 
 export function PlanningBoard({
   planning,
@@ -75,7 +76,7 @@ export function PlanningBoard({
           {rows.map((row, rowIndex) => {
             const availabilityRow = availability?.employees.find((item) => item.employee_id === row.employee_id);
             const rowAppointments = appointments.filter(
-              (appointment) => appointment.employee_id === row.employee_id && appointment.status !== "cancelled",
+              (appointment) => appointment.employee_id === row.employee_id && ACTIVE_APPOINTMENT_STATUSES.has(appointment.status),
             );
             const hasActiveSession = row.sessions.some((session) => ACTIVE_STATUSES.has(session.status));
             const hasAppointment = rowAppointments.length > 0;
@@ -204,23 +205,23 @@ export function PlanningBoard({
                     if (!block) return null;
 
                     const serviceName = service?.name || "Rendez-vous";
-                    const detailText = `${appointment.customer_name} · ${serviceName} · ${formatClock(appointment.start_time)}-${formatClock(appointment.end_time)}`;
+                    const detailText = `${appointment.customer_name} · ${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}-${formatClock(appointment.end_time)}`;
                     const isCompact = block.width < 10;
 
                     return (
                       <article
                         key={appointment.id}
-                        className={`appointment-block ${isCompact ? "compact" : ""}`}
+                        className={`appointment-block status-${appointment.status} ${isCompact ? "compact" : ""}`}
                         style={{ left: `${block.left}%`, width: `${block.width}%` }}
                         title={detailText}
                         aria-label={detailText}
                         data-appointment-title={appointment.customer_name}
-                        data-appointment-meta={`${serviceName} · ${formatClock(appointment.start_time)}`}
+                        data-appointment-meta={`${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}`}
                       >
                         <div className="appointment-block-content">
                           <strong>{appointment.customer_name}</strong>
                           <span>{serviceName}</span>
-                          <small>{formatClock(appointment.start_time)} · RDV</small>
+                          <small>{formatClock(appointment.start_time)} · {translateAppointmentStatus(appointment.status)}</small>
                         </div>
                       </article>
                     );
@@ -416,6 +417,19 @@ function formatEmployeeAvailability(row?: PlanningAvailability["employees"][numb
 
   if (row.wait_minutes <= 0) return "Disponible maintenant";
   return `Disponible dans ${row.wait_minutes} min`;
+}
+
+function translateAppointmentStatus(status: string) {
+  const labels: Record<string, string> = {
+    scheduled: "Planifié",
+    confirmed: "Confirmé",
+    arrived: "Arrivée",
+    in_progress: "RDV en cours",
+    completed: "Terminé",
+    cancelled: "Annulé",
+    no_show: "Absente",
+  };
+  return labels[status] || status;
 }
 
 function translateStatus(status: string) {

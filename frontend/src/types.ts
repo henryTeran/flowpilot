@@ -84,7 +84,6 @@ export interface AvailabilityEmployee {
   available_at?: string | null;
   wait_minutes?: number | null;
   active_session_id?: string | null;
-  active_appointment_id?: string | null;
 }
 
 export interface PlanningAvailability {
@@ -147,3 +146,5 @@ export interface AppointmentCreatePayload {
   start_time: string;
   notes?: string | null;
 }
+
+export type AppointmentAction = "arrive" | "start" | "complete" | "no-show" | "cancel";
