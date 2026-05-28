@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
+import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
 import type { Employee, Institute, PlanningDay, QueueTicket, Service, ServiceCategory } from "./types";
 
@@ -180,18 +181,21 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <TopBar
-        institutes={institutes}
-        selectedInstituteId={selectedInstituteId}
-        realtimeStatus={realtimeStatus}
-        onInstituteChange={setSelectedInstituteId}
-        onRefresh={refreshOperationalData}
-      />
+      <Sidebar />
 
-      {error && <div className="error-banner">{error}</div>}
-      {loading && <div className="loading-banner">Chargement des données...</div>}
+      <div className="content-shell">
+        <TopBar
+          institutes={institutes}
+          selectedInstituteId={selectedInstituteId}
+          realtimeStatus={realtimeStatus}
+          onInstituteChange={setSelectedInstituteId}
+          onRefresh={refreshOperationalData}
+        />
 
-      <div className="workspace">
+        {error && <div className="error-banner">{error}</div>}
+        {loading && <div className="loading-banner">Chargement des données...</div>}
+
+        <div className="workspace">
         <QueuePanel
           tickets={tickets}
           services={services}
@@ -232,6 +236,7 @@ export default function App() {
             onExtendSession={handleExtendSession}
           />
         </div>
+      </div>
       </div>
     </div>
   );
