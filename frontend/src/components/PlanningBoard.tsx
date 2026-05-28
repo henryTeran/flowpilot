@@ -80,7 +80,7 @@ export function PlanningBoard({
             const hasActiveSession = row.sessions.some((session) => ACTIVE_STATUSES.has(session.status));
             const hasAppointment = rowAppointments.length > 0;
             const displayStatus = availabilityRow?.employee_status || row.employee_status;
-            const isBlockedByActiveSession = Boolean(availabilityRow?.active_session_id);
+            const isBlockedByActiveSession = Boolean(availabilityRow?.active_session_id || availabilityRow?.active_appointment_id);
 
             return (
               <div className="timeline-row" key={row.employee_id}>
@@ -99,7 +99,7 @@ export function PlanningBoard({
                       type="button"
                       onClick={() => onChangeEmployeeStatus(row.employee_id, "pause")}
                       disabled={isBlockedByActiveSession}
-                      title={isBlockedByActiveSession ? "Terminer la prestation avant de changer le statut" : "Mettre en pause"}
+                      title={isBlockedByActiveSession ? "Terminer la prestation ou attendre la fin du RDV avant de changer le statut" : "Mettre en pause"}
                     >
                       Pause
                     </button>
@@ -107,7 +107,7 @@ export function PlanningBoard({
                       type="button"
                       onClick={() => onChangeEmployeeStatus(row.employee_id, "available")}
                       disabled={isBlockedByActiveSession}
-                      title={isBlockedByActiveSession ? "Terminer la prestation avant de rendre disponible" : "Rendre disponible"}
+                      title={isBlockedByActiveSession ? "Terminer la prestation ou attendre la fin du RDV avant de rendre disponible" : "Rendre disponible"}
                     >
                       Dispo
                     </button>
@@ -404,6 +404,10 @@ function formatEmployeeAvailability(row?: PlanningAvailability["employees"][numb
 
   if (row.active_session_id && !row.available_at) {
     return "En retard — terminer la prestation";
+  }
+
+  if (row.active_appointment_id && row.available_at) {
+    return `RDV en cours — dispo à ${formatClock(row.available_at)}`;
   }
 
   if (row.wait_minutes === null || row.wait_minutes === undefined) {

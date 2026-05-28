@@ -48,6 +48,7 @@ class AvailabilityEmployeeRead(BaseModel):
     available_at: datetime | None
     wait_minutes: int | None
     active_session_id: str | None = None
+    active_appointment_id: str | None = None
 
 
 class PlanningAvailabilityRead(BaseModel):

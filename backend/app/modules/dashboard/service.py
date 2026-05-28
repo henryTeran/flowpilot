@@ -78,17 +78,6 @@ def get_institute_dashboard(db: Session, institute_id: str) -> InstituteDashboar
     delayed_sessions = [session for session in active_sessions if _is_session_late(session, now) or session.status == "delayed"]
     completed_sessions = [session for session in sessions_today if session.status in COMPLETED_SESSION_STATUSES]
 
-    employee_statuses = {employee.id: employee.status for employee in employees}
-
-    # Une collaboratrice avec une session dépassée doit être vue comme en retard côté dashboard,
-    # même si son champ status est resté disponible par erreur.
-    delayed_employee_ids = {session.employee_id for session in delayed_sessions}
-
-    employees_available = sum(1 for employee in employees if employee.status == "available" and employee.id not in delayed_employee_ids)
-    employees_busy = sum(1 for employee in employees if employee.status == "busy" and employee.id not in delayed_employee_ids)
-    employees_pause = sum(1 for employee in employees if employee.status == "pause")
-    employees_absent_or_offline = sum(1 for employee in employees if employee.status in {"absent", "offline"})
-
     tickets_by_status = {status: 0 for status in ["waiting", "assigned", "in_progress", "completed", "cancelled"]}
     for ticket in tickets_today:
         if ticket.status in tickets_by_status:
@@ -96,6 +85,17 @@ def get_institute_dashboard(db: Session, institute_id: str) -> InstituteDashboar
 
     availability = get_institute_availability(db, institute_id)
     average_wait = _average_wait_minutes(tickets_today, now)
+
+    # Les statuts affichés doivent utiliser la disponibilité effective :
+    # une collaboratrice avec un RDV sous appel en cours est occupée, même si son champ Employee.status vaut encore available.
+    effective_statuses = {row.employee_id: row.employee_status for row in availability.employees}
+    employees_available = sum(1 for employee in employees if effective_statuses.get(employee.id, employee.status) == "available")
+    employees_busy = sum(1 for employee in employees if effective_statuses.get(employee.id, employee.status) == "busy")
+    employees_pause = sum(1 for employee in employees if effective_statuses.get(employee.id, employee.status) == "pause")
+    employees_absent_or_offline = sum(
+        1 for employee in employees if effective_statuses.get(employee.id, employee.status) in {"absent", "offline"}
+    )
+    delayed_employee_ids = {row.employee_id for row in availability.employees if row.employee_status == "delayed"}
 
     if delayed_sessions:
         operational_status = "alert"

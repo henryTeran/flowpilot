@@ -53,6 +53,9 @@ export function QueuePanel({
   const selectedTicketService = services.find((service) => service.id === selectedTicketServiceId);
   const selectedService = services.find((service) => service.id === selectedServiceId);
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId);
+  const selectedEmployeeEffectiveStatus = selectedEmployee
+    ? getEffectiveEmployeeStatus(selectedEmployee.id, selectedEmployee.status, availability)
+    : undefined;
   const selectedTicketIsActionable = Boolean(selectedTicket && ACTIONABLE_TICKET_STATUSES.has(selectedTicket.status));
   const selectedTicketIsWaiting = selectedTicket?.status === "waiting";
   const selectedTicketIsAssigned = selectedTicket?.status === "assigned";
@@ -60,7 +63,7 @@ export function QueuePanel({
   const isLockedToAnotherEmployee = Boolean(
     lockedEmployeeId && selectedEmployeeId && lockedEmployeeId !== selectedEmployeeId,
   );
-  const employeeCanStart = Boolean(selectedEmployee && selectedEmployee.status === "available");
+  const employeeCanStart = Boolean(selectedEmployee && selectedEmployeeEffectiveStatus === "available");
   const canAssignTicket = Boolean(selectedTicketIsWaiting && selectedEmployeeId && employeeCanStart);
   const canStartSession = Boolean(
     selectedTicketIsActionable &&
@@ -192,10 +195,11 @@ export function QueuePanel({
         >
           <option value="">Choisir une collaboratrice</option>
           {employees.map((employee) => {
-            const disabled = employee.status !== "available" || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
+            const effectiveStatus = getEffectiveEmployeeStatus(employee.id, employee.status, availability);
+            const disabled = effectiveStatus !== "available" || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
             return (
               <option key={employee.id} value={employee.id} disabled={disabled}>
-                {employee.first_name} · {translateStatus(employee.status)}
+                {employee.first_name} · {translateStatus(effectiveStatus)}
               </option>
             );
           })}
@@ -212,9 +216,9 @@ export function QueuePanel({
           </p>
         )}
 
-        {selectedEmployee && selectedEmployee.status !== "available" && (
+        {selectedEmployee && selectedEmployeeEffectiveStatus !== "available" && (
           <p className="inline-warning">
-            {selectedEmployee.first_name} est {translateStatus(selectedEmployee.status).toLowerCase()} : termine ou libère la prestation avant d’en démarrer une autre.
+            {selectedEmployee.first_name} est {translateStatus(selectedEmployeeEffectiveStatus || selectedEmployee.status).toLowerCase()} : termine la prestation ou attends la fin du RDV avant d’en démarrer une autre.
           </p>
         )}
 
@@ -320,6 +324,14 @@ function TicketGroup({
       )}
     </div>
   );
+}
+
+function getEffectiveEmployeeStatus(
+  employeeId: string,
+  fallbackStatus: string,
+  availability?: PlanningAvailability,
+) {
+  return availability?.employees.find((employee) => employee.employee_id === employeeId)?.employee_status || fallbackStatus;
 }
 
 function formatTicketWait(ticket: QueueTicket) {

@@ -83,25 +83,74 @@ def _get_active_employee_session(
     ).first()
 
 
+def _get_current_employee_appointment(
+    db: Session,
+    institute_id: str,
+    employee_id: str,
+    now: datetime,
+) -> Appointment | None:
+    """Retourne le RDV qui occupe la collaboratrice maintenant.
+
+    Un RDV planifié sur le créneau courant doit bloquer la collaboratrice,
+    même si son statut en base est resté ``available`` après la fin d'une prestation.
+    """
+    return db.scalars(
+        select(Appointment)
+        .where(
+            Appointment.institute_id == institute_id,
+            Appointment.employee_id == employee_id,
+            Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+            Appointment.start_time <= now,
+            Appointment.end_time > now,
+        )
+        .order_by(Appointment.end_time.asc())
+    ).first()
+
+
+def _has_current_employee_appointment(
+    db: Session,
+    institute_id: str,
+    employee_id: str,
+    now: datetime,
+) -> bool:
+    return _get_current_employee_appointment(db, institute_id, employee_id, now) is not None
+
+
 def get_day_planning(db: Session, institute_id: str) -> PlanningDayRead:
+    now = utcnow()
     employees = list_by_institute(db, institute_id)
-    sessions = list_sessions_for_day(db, institute_id, utcnow())
+    sessions = list_sessions_for_day(db, institute_id, now)
 
     sessions_by_employee: dict[str, list[ServiceSession]] = {}
     for session in sessions:
         sessions_by_employee.setdefault(session.employee_id, []).append(session)
 
-    rows = [
-        PlanningEmployeeRow(
-            employee_id=employee.id,
-            employee_name=employee.first_name,
-            employee_status=employee.status,
-            sessions=sessions_by_employee.get(employee.id, []),
-        )
-        for employee in employees
-    ]
-    return PlanningDayRead(institute_id=institute_id, generated_at=utcnow(), rows=rows)
+    rows: list[PlanningEmployeeRow] = []
+    for employee in employees:
+        employee_sessions = sessions_by_employee.get(employee.id, [])
+        active_sessions = [session for session in employee_sessions if session.status in ACTIVE_SESSION_STATUSES]
+        delayed_session = next((session for session in active_sessions if _is_session_late(session, now)), None)
+        current_appointment = _get_current_employee_appointment(db, institute_id, employee.id, now)
 
+        if employee.status in UNAVAILABLE_EMPLOYEE_STATUSES:
+            effective_status = employee.status
+        elif delayed_session:
+            effective_status = "delayed"
+        elif active_sessions or current_appointment:
+            effective_status = "busy"
+        else:
+            effective_status = employee.status
+
+        rows.append(
+            PlanningEmployeeRow(
+                employee_id=employee.id,
+                employee_name=employee.first_name,
+                employee_status=effective_status,
+                sessions=employee_sessions,
+            )
+        )
+
+    return PlanningDayRead(institute_id=institute_id, generated_at=now, rows=rows)
 
 def get_institute_availability(db: Session, institute_id: str) -> PlanningAvailabilityRead:
     """
@@ -134,6 +183,7 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
         )
 
         is_late = bool(active_session and _is_session_late(active_session, now))
+        current_appointment = _get_current_employee_appointment(db, institute_id, employee.id, now)
 
         if employee.status in UNAVAILABLE_EMPLOYEE_STATUSES:
             display_status = employee.status
@@ -145,8 +195,13 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
             available_at = None
             wait_minutes = None
         elif active_session:
-            display_status = employee.status if employee.status != "available" else "busy"
+            display_status = "busy"
             available_at = _ensure_aware(active_session.planned_end_time)
+            wait_minutes = _minutes_until(available_at, now)
+        elif current_appointment:
+            # RDV sous appel en cours : la collaboratrice est occupée jusqu'à la fin du RDV.
+            display_status = "busy"
+            available_at = _ensure_aware(current_appointment.end_time)
             wait_minutes = _minutes_until(available_at, now)
         else:
             display_status = employee.status
@@ -161,6 +216,7 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
                 available_at=available_at,
                 wait_minutes=wait_minutes,
                 active_session_id=active_session.id if active_session else None,
+                active_appointment_id=current_appointment.id if current_appointment else None,
             )
         )
 
@@ -298,7 +354,15 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
 
     employee = get_employee(db, session.employee_id)
     if employee:
-        employee.status = "available"
+        current_appointment = _get_current_employee_appointment(
+            db=db,
+            institute_id=session.institute_id,
+            employee_id=employee.id,
+            now=utcnow(),
+        )
+        # Si la collaboratrice termine une prestation alors qu'un RDV sous appel est déjà en cours,
+        # elle reste occupée. Elle ne doit pas redevenir disponible visuellement.
+        employee.status = "busy" if current_appointment else "available"
         db.add(employee)
 
     if session.ticket_line_id:
