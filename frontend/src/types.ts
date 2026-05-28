@@ -97,3 +97,28 @@ export interface PlanningAvailability {
   waiting_tickets: number;
   employees: AvailabilityEmployee[];
 }
+
+
+export interface InstituteDashboardRead {
+  institute_id: string;
+  generated_at: string;
+  employees_total: number;
+  employees_available: number;
+  employees_busy: number;
+  employees_delayed: number;
+  employees_pause: number;
+  employees_absent_or_offline: number;
+  tickets_waiting: number;
+  tickets_assigned: number;
+  tickets_in_progress: number;
+  tickets_completed_today: number;
+  tickets_cancelled_today: number;
+  sessions_active: number;
+  sessions_delayed: number;
+  sessions_completed_today: number;
+  average_wait_minutes?: number | null;
+  next_available_employee_name?: string | null;
+  next_available_minutes?: number | null;
+  operational_status: "calm" | "normal" | "busy" | "alert" | string;
+  alert_message?: string | null;
+}

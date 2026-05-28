@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
+import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
 import { Sidebar } from "./components/Sidebar";
@@ -7,6 +8,7 @@ import { TopBar } from "./components/TopBar";
 import type {
   Employee,
   Institute,
+  InstituteDashboardRead,
   PlanningAvailability,
   PlanningDay,
   QueueTicket,
@@ -23,6 +25,7 @@ export default function App() {
   const [tickets, setTickets] = useState<QueueTicket[]>([]);
   const [planning, setPlanning] = useState<PlanningDay | undefined>();
   const [availability, setAvailability] = useState<PlanningAvailability | undefined>();
+  const [dashboard, setDashboard] = useState<InstituteDashboardRead | undefined>();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState("");
@@ -91,17 +94,19 @@ export default function App() {
     if (!selectedInstituteId) return;
     setError(null);
     try {
-      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse] = await Promise.all([
+      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, dashboardResponse] = await Promise.all([
         apiGet<Employee[]>(`/employees?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<PlanningDay>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/today`),
         apiGet<PlanningAvailability>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/availability`),
+        apiGet<InstituteDashboardRead>(`/dashboard/institutes/${encodeURIComponent(selectedInstituteId)}/live`),
       ]);
 
       setEmployees(employeesResponse);
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
       setAvailability(availabilityResponse);
+      setDashboard(dashboardResponse);
       if (!selectedEmployeeId && employeesResponse.length > 0) {
         setSelectedEmployeeId(employeesResponse[0].id);
       }
@@ -293,6 +298,8 @@ export default function App() {
                 <small>{formatAvailabilityDetail(availability)}</small>
               </div>
             </div>
+
+            <InstituteDashboard dashboard={dashboard} />
 
             <PlanningBoard
               planning={planning}
