@@ -1935,3 +1935,61 @@ select {
     justify-self: start;
   }
 }
+
+
+/* Phase 9.1 - RDV terminés visibles dans le planning sans bloquer la disponibilité */
+.appointment-block.historical {
+  z-index: 12;
+  color: #59415f;
+  opacity: 0.86;
+  border-color: rgba(100, 116, 139, 0.22);
+  box-shadow: none;
+}
+
+.appointment-block.historical .appointment-block-content span,
+.appointment-block.historical .appointment-block-content small {
+  color: rgba(89, 65, 95, 0.8);
+}
+
+.appointment-block.status-completed {
+  background: linear-gradient(135deg, #f1f5f9, #ffffff);
+  border: 1px dashed rgba(100, 116, 139, 0.34);
+}
+
+.appointment-block.status-completed::before {
+  content: "Terminé";
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.appointment-block.status-no_show {
+  background: linear-gradient(135deg, #f8fafc, #fff7ed);
+  border: 1px dashed rgba(148, 163, 184, 0.44);
+}
+
+.appointment-block.status-no_show::before {
+  content: "Absente";
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #92400e;
+  background: #fef3c7;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.appointment-block.historical.compact::after {
+  color: #334155;
+  border-color: rgba(100, 116, 139, 0.22);
+}

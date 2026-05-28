@@ -16,6 +16,7 @@ const BUSINESS_START_HOUR = 9;
 const BUSINESS_END_HOUR = 20;
 const ACTIVE_STATUSES = new Set(["planned", "in_progress", "extended", "delayed"]);
 const ACTIVE_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived", "in_progress"]);
+const DISPLAYED_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived", "in_progress", "completed"]);
 
 export function PlanningBoard({
   planning,
@@ -76,10 +77,12 @@ export function PlanningBoard({
           {rows.map((row, rowIndex) => {
             const availabilityRow = availability?.employees.find((item) => item.employee_id === row.employee_id);
             const rowAppointments = appointments.filter(
-              (appointment) => appointment.employee_id === row.employee_id && ACTIVE_APPOINTMENT_STATUSES.has(appointment.status),
+              (appointment) => appointment.employee_id === row.employee_id && DISPLAYED_APPOINTMENT_STATUSES.has(appointment.status),
             );
+            const blockingAppointments = rowAppointments.filter((appointment) => ACTIVE_APPOINTMENT_STATUSES.has(appointment.status));
             const hasActiveSession = row.sessions.some((session) => ACTIVE_STATUSES.has(session.status));
             const hasAppointment = rowAppointments.length > 0;
+            const hasBlockingAppointment = blockingAppointments.length > 0;
             const displayStatus = availabilityRow?.employee_status || row.employee_status;
             const isBlockedByActiveSession = Boolean(availabilityRow?.active_session_id || availabilityRow?.active_appointment_id);
 
@@ -205,18 +208,20 @@ export function PlanningBoard({
                     if (!block) return null;
 
                     const serviceName = service?.name || "Rendez-vous";
-                    const detailText = `${appointment.customer_name} · ${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}-${formatClock(appointment.end_time)}`;
+                    const isFinalAppointment = !ACTIVE_APPOINTMENT_STATUSES.has(appointment.status);
+                    const finalHint = isFinalAppointment ? " · ne bloque plus la collaboratrice" : " · bloque la collaboratrice";
+                    const detailText = `${appointment.customer_name} · ${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}-${formatClock(appointment.end_time)}${finalHint}`;
                     const isCompact = block.width < 10;
 
                     return (
                       <article
                         key={appointment.id}
-                        className={`appointment-block status-${appointment.status} ${isCompact ? "compact" : ""}`}
+                        className={`appointment-block status-${appointment.status} ${isFinalAppointment ? "historical" : "active"} ${isCompact ? "compact" : ""}`}
                         style={{ left: `${block.left}%`, width: `${block.width}%` }}
                         title={detailText}
                         aria-label={detailText}
                         data-appointment-title={appointment.customer_name}
-                        data-appointment-meta={`${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}`}
+                        data-appointment-meta={`${serviceName} · ${translateAppointmentStatus(appointment.status)} · ${formatClock(appointment.start_time)}${isFinalAppointment ? " · historique" : ""}`}
                       >
                         <div className="appointment-block-content">
                           <strong>{appointment.customer_name}</strong>
