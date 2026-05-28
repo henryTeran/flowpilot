@@ -122,3 +122,27 @@ export interface InstituteDashboardRead {
   operational_status: "calm" | "normal" | "busy" | "alert" | string;
   alert_message?: string | null;
 }
+
+
+export interface Appointment {
+  id: string;
+  institute_id: string;
+  service_id: string;
+  employee_id: string;
+  customer_name: string;
+  phone?: string | null;
+  start_time: string;
+  end_time: string;
+  status: string;
+  notes?: string | null;
+}
+
+export interface AppointmentCreatePayload {
+  institute_id: string;
+  service_id: string;
+  employee_id: string;
+  customer_name: string;
+  phone?: string | null;
+  start_time: string;
+  notes?: string | null;
+}

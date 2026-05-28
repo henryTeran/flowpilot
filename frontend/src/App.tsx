@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
+import { AppointmentPanel } from "./components/AppointmentPanel";
 import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
 import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
 import type {
+  Appointment,
+  AppointmentCreatePayload,
   Employee,
   Institute,
   InstituteDashboardRead,
@@ -26,6 +29,7 @@ export default function App() {
   const [planning, setPlanning] = useState<PlanningDay | undefined>();
   const [availability, setAvailability] = useState<PlanningAvailability | undefined>();
   const [dashboard, setDashboard] = useState<InstituteDashboardRead | undefined>();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState("");
@@ -94,12 +98,13 @@ export default function App() {
     if (!selectedInstituteId) return;
     setError(null);
     try {
-      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, dashboardResponse] = await Promise.all([
+      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, dashboardResponse, appointmentsResponse] = await Promise.all([
         apiGet<Employee[]>(`/employees?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<PlanningDay>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/today`),
         apiGet<PlanningAvailability>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/availability`),
         apiGet<InstituteDashboardRead>(`/dashboard/institutes/${encodeURIComponent(selectedInstituteId)}/live`),
+        apiGet<Appointment[]>(`/appointments?institute_id=${encodeURIComponent(selectedInstituteId)}`),
       ]);
 
       setEmployees(employeesResponse);
@@ -107,6 +112,7 @@ export default function App() {
       setPlanning(planningResponse);
       setAvailability(availabilityResponse);
       setDashboard(dashboardResponse);
+      setAppointments(appointmentsResponse);
       if (!selectedEmployeeId && employeesResponse.length > 0) {
         setSelectedEmployeeId(employeesResponse[0].id);
       }
@@ -267,6 +273,27 @@ export default function App() {
     }
   }
 
+  async function handleCreateAppointment(payload: AppointmentCreatePayload) {
+    setError(null);
+    try {
+      await apiPost<Appointment>("/appointments", payload);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de créer le rendez-vous");
+      throw err;
+    }
+  }
+
+  async function handleCancelAppointment(appointmentId: string) {
+    setError(null);
+    try {
+      await apiPatch<Appointment>(`/appointments/${appointmentId}/cancel`);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible d’annuler le rendez-vous");
+    }
+  }
+
   return (
     <div className="app-shell">
       <Sidebar />
@@ -321,10 +348,20 @@ export default function App() {
 
             <InstituteDashboard dashboard={dashboard} />
 
+            <AppointmentPanel
+              instituteId={selectedInstituteId}
+              employees={employees}
+              services={services}
+              appointments={appointments}
+              onCreateAppointment={handleCreateAppointment}
+              onCancelAppointment={handleCancelAppointment}
+            />
+
             <PlanningBoard
               planning={planning}
               employees={employees}
               services={services}
+              appointments={appointments}
               availability={availability}
               onFinishSession={handleFinishSession}
               onExtendSession={handleExtendSession}

@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
-import type { Employee, PlanningAvailability, PlanningDay, Service, ServiceSession } from "../types";
+import type { Appointment, Employee, PlanningAvailability, PlanningDay, Service, ServiceSession } from "../types";
 
 interface PlanningBoardProps {
   planning?: PlanningDay;
   employees: Employee[];
   services: Service[];
+  appointments: Appointment[];
   availability?: PlanningAvailability;
   onFinishSession: (sessionId: string) => void;
   onExtendSession: (sessionId: string, minutes: number) => void;
@@ -19,6 +20,7 @@ export function PlanningBoard({
   planning,
   employees,
   services,
+  appointments,
   availability,
   onFinishSession,
   onExtendSession,
@@ -72,7 +74,11 @@ export function PlanningBoard({
         <div className="timeline-body">
           {rows.map((row, rowIndex) => {
             const availabilityRow = availability?.employees.find((item) => item.employee_id === row.employee_id);
+            const rowAppointments = appointments.filter(
+              (appointment) => appointment.employee_id === row.employee_id && appointment.status !== "cancelled",
+            );
             const hasActiveSession = row.sessions.some((session) => ACTIVE_STATUSES.has(session.status));
+            const hasAppointment = rowAppointments.length > 0;
             const displayStatus = availabilityRow?.employee_status || row.employee_status;
             const isBlockedByActiveSession = Boolean(availabilityRow?.active_session_id);
 
@@ -120,7 +126,7 @@ export function PlanningBoard({
                     <div className="hour-grid-line" key={index} />
                   ))}
 
-                  {!hasActiveSession && <div className="free-label">Libre</div>}
+                  {!hasActiveSession && !hasAppointment && <div className="free-label">Libre</div>}
 
                   {row.sessions.map((session) => {
                     const service = services.find((item) => item.id === session.service_id);
@@ -188,6 +194,34 @@ export function PlanningBoard({
                             </button>
                           </div>
                         )}
+                      </article>
+                    );
+                  })}
+
+                  {rowAppointments.map((appointment) => {
+                    const service = services.find((item) => item.id === appointment.service_id);
+                    const block = getAppointmentBlock(appointment, timelineRange, totalMinutes);
+                    if (!block) return null;
+
+                    const serviceName = service?.name || "Rendez-vous";
+                    const detailText = `${appointment.customer_name} · ${serviceName} · ${formatClock(appointment.start_time)}-${formatClock(appointment.end_time)}`;
+                    const isCompact = block.width < 10;
+
+                    return (
+                      <article
+                        key={appointment.id}
+                        className={`appointment-block ${isCompact ? "compact" : ""}`}
+                        style={{ left: `${block.left}%`, width: `${block.width}%` }}
+                        title={detailText}
+                        aria-label={detailText}
+                        data-appointment-title={appointment.customer_name}
+                        data-appointment-meta={`${serviceName} · ${formatClock(appointment.start_time)}`}
+                      >
+                        <div className="appointment-block-content">
+                          <strong>{appointment.customer_name}</strong>
+                          <span>{serviceName}</span>
+                          <small>{formatClock(appointment.start_time)} · RDV</small>
+                        </div>
                       </article>
                     );
                   })}
@@ -278,6 +312,37 @@ function getSessionBlock(session: ServiceSession, range: TimelineRange, totalMin
   };
 }
 
+function getAppointmentBlock(appointment: Appointment, range: TimelineRange, totalMinutes: number) {
+  const start = new Date(appointment.start_time);
+  const end = new Date(appointment.end_time);
+  const startMinutes = start.getHours() * 60 + start.getMinutes();
+  const endMinutes = end.getHours() * 60 + end.getMinutes();
+  const rangeStart = range.startHour * 60;
+  const rangeEnd = range.endHour * 60;
+
+  if (endMinutes <= rangeStart || startMinutes >= rangeEnd) {
+    return null;
+  }
+
+  const visibleStart = Math.max(startMinutes, rangeStart);
+  const visibleEnd = Math.min(endMinutes, rangeEnd);
+  const left = ((visibleStart - rangeStart) / totalMinutes) * 100;
+  const proportionalWidth = ((visibleEnd - visibleStart) / totalMinutes) * 100;
+  const width = Math.min(Math.max(proportionalWidth, 1.6), 100 - left);
+
+  return {
+    left: clamp(left, 0, 100),
+    width: clamp(width, 1.6, 100),
+  };
+}
+
+function formatClock(value: string) {
+  return new Intl.DateTimeFormat("fr-CH", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 function getSessionMeta(session: ServiceSession) {
   const now = Date.now();
   const end = new Date(session.planned_end_time).getTime();
@@ -361,7 +426,6 @@ function translateStatus(status: string) {
     in_progress: "En cours",
     extended: "Prolongée",
     completed: "Terminée",
-    delayed: "Retard",
     cancelled: "Annulée",
     waiting: "En attente",
     assigned: "Affectée",

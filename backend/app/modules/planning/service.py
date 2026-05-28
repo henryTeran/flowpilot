@@ -4,6 +4,7 @@ from math import ceil
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.modules.appointments.models import Appointment
 from app.modules.employees.repository import get_employee, list_by_institute
 from app.modules.planning.models import ServiceSession
 from app.modules.planning.repository import get_session, list_sessions_for_day
@@ -22,6 +23,7 @@ from app.shared.time import utcnow
 
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
+ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived"]
 UNAVAILABLE_EMPLOYEE_STATUSES = {"pause", "absent", "offline"}
 
 
@@ -42,6 +44,14 @@ def _is_session_late(session: ServiceSession, now: datetime) -> bool:
         session.status in ACTIVE_SESSION_STATUSES
         and _ensure_aware(session.planned_end_time) <= now
     )
+
+
+def _has_overlap(start_a: datetime, end_a: datetime, start_b: datetime, end_b: datetime) -> bool:
+    start_a = _ensure_aware(start_a)
+    end_a = _ensure_aware(end_a)
+    start_b = _ensure_aware(start_b)
+    end_b = _ensure_aware(end_b)
+    return start_a < end_b and end_a > start_b
 
 
 def _get_active_employee_session(
@@ -237,6 +247,23 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
         )
 
     now = utcnow()
+    planned_end_time = now + timedelta(minutes=service.duration_min)
+
+    active_appointments = list(
+        db.scalars(
+            select(Appointment).where(
+                Appointment.institute_id == ticket.institute_id,
+                Appointment.employee_id == employee.id,
+                Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+            )
+        ).all()
+    )
+    for appointment in active_appointments:
+        if _has_overlap(now, planned_end_time, appointment.start_time, appointment.end_time):
+            raise business_error(
+                f"{employee.first_name} a un rendez-vous planifié sur ce créneau. Choisis une autre collaboratrice."
+            )
+
     session = ServiceSession(
         id=new_id("sess"),
         ticket_line_id=line.id if line else None,
@@ -244,7 +271,7 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
         employee_id=employee.id,
         service_id=service.id,
         start_time=now,
-        planned_end_time=now + timedelta(minutes=service.duration_min),
+        planned_end_time=planned_end_time,
         duration_minutes=service.duration_min,
         status="in_progress",
     )
