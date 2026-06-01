@@ -12,6 +12,7 @@ from app.modules.planning.schemas import (
 from app.modules.planning.service import (
     extend_service_session,
     finish_service_session,
+    finish_active_employee_session,
     get_day_planning,
     get_institute_availability,
     start_service_session,
@@ -38,6 +39,15 @@ def post_start_session(payload: StartSession, db: Session = Depends(get_db)) -> 
 @router.patch("/sessions/{session_id}/finish", response_model=ServiceSessionRead)
 def patch_finish_session(session_id: str, db: Session = Depends(get_db)) -> ServiceSessionRead:
     return finish_service_session(db, session_id)
+
+
+@router.patch("/institutes/{institute_id}/employees/{employee_id}/finish-active-session", response_model=ServiceSessionRead)
+def patch_finish_active_employee_session(
+    institute_id: str,
+    employee_id: str,
+    db: Session = Depends(get_db),
+) -> ServiceSessionRead:
+    return finish_active_employee_session(db, institute_id, employee_id)
 
 
 @router.patch("/sessions/{session_id}/extend", response_model=ServiceSessionRead)

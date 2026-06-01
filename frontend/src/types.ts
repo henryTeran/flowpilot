@@ -84,6 +84,7 @@ export interface AvailabilityEmployee {
   available_at?: string | null;
   wait_minutes?: number | null;
   active_session_id?: string | null;
+  active_appointment_id?: string | null;
 }
 
 export interface PlanningAvailability {

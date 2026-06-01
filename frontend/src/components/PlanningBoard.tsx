@@ -10,6 +10,7 @@ interface PlanningBoardProps {
   onFinishSession: (sessionId: string) => void;
   onExtendSession: (sessionId: string, minutes: number) => void;
   onChangeEmployeeStatus: (employeeId: string, status: string) => void;
+  onFinishActiveEmployeeSession: (employeeId: string) => void;
 }
 
 const BUSINESS_START_HOUR = 9;
@@ -27,6 +28,7 @@ export function PlanningBoard({
   onFinishSession,
   onExtendSession,
   onChangeEmployeeStatus,
+  onFinishActiveEmployeeSession,
 }: PlanningBoardProps) {
   const rows = planning?.rows || employees.map((employee) => ({
     employee_id: employee.id,
@@ -99,6 +101,16 @@ export function PlanningBoard({
                   </small>
 
                   <div className="employee-actions">
+                    {availabilityRow?.active_session_id && (
+                      <button
+                        type="button"
+                        className="employee-action-danger"
+                        onClick={() => onFinishActiveEmployeeSession(row.employee_id)}
+                        title="Clôturer la prestation active oubliée et libérer la collaboratrice"
+                      >
+                        Clôturer
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onChangeEmployeeStatus(row.employee_id, "pause")}

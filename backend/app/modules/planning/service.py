@@ -379,6 +379,37 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
     return session
 
 
+def finish_active_employee_session(db: Session, institute_id: str, employee_id: str) -> ServiceSession:
+    """
+    Clôture de secours métier pour libérer une collaboratrice bloquée.
+
+    Cas d'usage terrain : l'accueil a oublié de cliquer sur ``Fin`` et la
+    prestation est passée en retard ou n'est plus visible dans la fenêtre horaire.
+    On clôture la session active la plus ancienne de la collaboratrice.
+    """
+    employee = get_employee(db, employee_id)
+    if not employee:
+        raise not_found("Collaboratrice introuvable")
+
+    if employee.institute_id != institute_id:
+        raise business_error("Collaboratrice hors institut")
+
+    active_session = db.scalars(
+        select(ServiceSession)
+        .where(
+            ServiceSession.institute_id == institute_id,
+            ServiceSession.employee_id == employee_id,
+            ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+        )
+        .order_by(ServiceSession.planned_end_time.asc())
+    ).first()
+
+    if not active_session:
+        raise business_error("Aucune prestation active à clôturer pour cette collaboratrice")
+
+    return finish_service_session(db, active_session.id)
+
+
 def extend_service_session(db: Session, session_id: str, minutes: int) -> ServiceSession:
     if minutes not in {5, 10, 15, 20, 30, 45, 60}:
         raise business_error("Prolongation autorisée : 5, 10, 15, 20, 30, 45 ou 60 minutes")

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
+import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
+import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
 import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
@@ -40,6 +42,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
+  const [activeDrawer, setActiveDrawer] = useState<"tickets" | "appointments" | "dashboard" | "demo" | null>(null);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -242,6 +245,19 @@ export default function App() {
     }
   }
 
+
+  async function handleFinishActiveEmployeeSession(employeeId: string) {
+    if (!selectedInstituteId) return;
+
+    setError(null);
+    try {
+      await apiPatch(`/planning/institutes/${selectedInstituteId}/employees/${employeeId}/finish-active-session`);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de clôturer la prestation active");
+    }
+  }
+
   async function handleExtendSession(sessionId: string, minutes: number) {
     setError(null);
     try {
@@ -326,10 +342,10 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell app-shell-simplified">
       <Sidebar />
 
-      <div className="content-shell">
+      <div className="content-shell content-shell-simplified">
         <TopBar
           institutes={institutes}
           selectedInstituteId={selectedInstituteId}
@@ -338,10 +354,71 @@ export default function App() {
           onRefresh={refreshOperationalData}
         />
 
-        {error && <div className="error-banner">{error}</div>}
-        {loading && <div className="loading-banner">Chargement des données...</div>}
+        {error && <div className="error-banner compact-banner">{error}</div>}
+        {loading && <div className="loading-banner compact-banner">Chargement des données...</div>}
 
-        <div className="workspace">
+        <section className="planning-command-bar">
+          <div className="planning-command-main">
+            <p className="eyebrow">Institut actif</p>
+            <h2>{selectedInstitute?.name || "Aucun institut"}</h2>
+            <span>{selectedInstitute?.address || "Adresse non renseignée"}</span>
+          </div>
+
+          <div className="planning-command-availability">
+            <span>Prochaine disponibilité</span>
+            <strong>{formatAvailabilityHeadline(availability)}</strong>
+            <small>{formatAvailabilityDetail(availability)}</small>
+          </div>
+
+          <div className="planning-command-actions">
+            <button type="button" className="primary-button command-button" onClick={() => setActiveDrawer("tickets")}>
+              + Ticket
+            </button>
+            <button type="button" className="secondary-button command-button" onClick={() => setActiveDrawer("appointments")}>
+              + RDV
+            </button>
+            <button type="button" className="ghost-command-button" onClick={() => setActiveDrawer("dashboard")}>
+              Dashboard
+            </button>
+            <button type="button" className="ghost-command-button subtle" onClick={() => setActiveDrawer("demo")}>
+              Démo
+            </button>
+          </div>
+        </section>
+
+        <div className="workspace workspace-simplified">
+          <CompactQueuePanel
+            tickets={tickets}
+            services={services}
+            employees={employees}
+            selectedTicketId={selectedTicketId}
+            ticketServiceMap={ticketServiceMap}
+            onTicketSelect={handleTicketSelection}
+            onOpenTickets={() => setActiveDrawer("tickets")}
+            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+          />
+
+          <main className="main-column main-column-focus">
+            <PlanningBoard
+              planning={planning}
+              employees={employees}
+              services={services}
+              appointments={appointments}
+              availability={availability}
+              onFinishSession={handleFinishSession}
+              onExtendSession={handleExtendSession}
+              onChangeEmployeeStatus={handleChangeEmployeeStatus}
+              onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            />
+          </main>
+        </div>
+
+        <ActionDrawer
+          open={activeDrawer === "tickets"}
+          title="Tickets et file d’attente"
+          subtitle="Créer un ticket, l’affecter ou démarrer une prestation."
+          onClose={() => setActiveDrawer(null)}
+        >
           <QueuePanel
             tickets={tickets}
             services={services}
@@ -361,52 +438,48 @@ export default function App() {
             onAssignTicket={handleAssignTicket}
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
+            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
           />
+        </ActionDrawer>
 
-          <div className="main-column">
-            <div className="context-card">
-              <div>
-                <p className="eyebrow">Institut actif</p>
-                <h2>{selectedInstitute?.name || "Aucun institut"}</h2>
-                <span>{selectedInstitute?.address || "Adresse non renseignée"}</span>
-              </div>
-              <div className="time-card availability-highlight">
-                <span>Prochaine disponibilité</span>
-                <strong>{formatAvailabilityHeadline(availability)}</strong>
-                <small>{formatAvailabilityDetail(availability)}</small>
-              </div>
-            </div>
+        <ActionDrawer
+          open={activeDrawer === "appointments"}
+          title="Rendez-vous sous appel"
+          subtitle="Bloquer un créneau et suivre l’agenda du jour."
+          onClose={() => setActiveDrawer(null)}
+        >
+          <AppointmentPanel
+            instituteId={selectedInstituteId}
+            employees={employees}
+            services={services}
+            appointments={appointments}
+            onCreateAppointment={handleCreateAppointment}
+            onAppointmentAction={handleAppointmentAction}
+          />
+        </ActionDrawer>
 
-            <DemoTools
-              disabled={!selectedInstituteId}
-              onResetDemo={handleResetDemo}
-              onCreateDemoDay={handleCreateDemoDay}
-              onRefresh={refreshOperationalData}
-            />
+        <ActionDrawer
+          open={activeDrawer === "dashboard"}
+          title="Dashboard institut"
+          subtitle="Indicateurs opérationnels, occupation et alertes terrain."
+          onClose={() => setActiveDrawer(null)}
+        >
+          <InstituteDashboard dashboard={dashboard} />
+        </ActionDrawer>
 
-            <InstituteDashboard dashboard={dashboard} />
-
-            <AppointmentPanel
-              instituteId={selectedInstituteId}
-              employees={employees}
-              services={services}
-              appointments={appointments}
-              onCreateAppointment={handleCreateAppointment}
-              onAppointmentAction={handleAppointmentAction}
-            />
-
-            <PlanningBoard
-              planning={planning}
-              employees={employees}
-              services={services}
-              appointments={appointments}
-              availability={availability}
-              onFinishSession={handleFinishSession}
-              onExtendSession={handleExtendSession}
-              onChangeEmployeeStatus={handleChangeEmployeeStatus}
-            />
-          </div>
-        </div>
+        <ActionDrawer
+          open={activeDrawer === "demo"}
+          title="Mode démonstration"
+          subtitle="Réinitialiser ou générer une journée de test."
+          onClose={() => setActiveDrawer(null)}
+        >
+          <DemoTools
+            disabled={!selectedInstituteId}
+            onResetDemo={handleResetDemo}
+            onCreateDemoDay={handleCreateDemoDay}
+            onRefresh={refreshOperationalData}
+          />
+        </ActionDrawer>
       </div>
     </div>
   );
