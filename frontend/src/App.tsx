@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
+import { BodyMinuteSidebar } from "./components/BodyMinuteSidebar";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
+import { EmployeeIdentityModal } from "./components/EmployeeIdentityModal";
 import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
-import { Sidebar } from "./components/Sidebar";
-import { TopBar } from "./components/TopBar";
 import type {
   Appointment,
   AppointmentAction,
@@ -38,11 +38,13 @@ export default function App() {
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [identifiedEmployeeId, setIdentifiedEmployeeId] = useState("");
   const [ticketServiceMap, setTicketServiceMap] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
-  const [activeDrawer, setActiveDrawer] = useState<"tickets" | "appointments" | "dashboard" | "demo" | null>(null);
+  const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "appointments" | "dashboard" | "demo" | null>(null);
+  const [identityModalOpen, setIdentityModalOpen] = useState(false);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -52,6 +54,21 @@ export default function App() {
   const selectedTicket = useMemo(
     () => tickets.find((ticket) => ticket.id === selectedTicketId),
     [tickets, selectedTicketId]
+  );
+
+  const identifiedEmployee = useMemo(
+    () => employees.find((employee) => employee.id === identifiedEmployeeId),
+    [employees, identifiedEmployeeId]
+  );
+
+  const activeAppointmentsToday = useMemo(
+    () => appointments.filter((appointment) => !["completed", "cancelled", "no_show"].includes(appointment.status)).length,
+    [appointments]
+  );
+
+  const completedAppointmentsToday = useMemo(
+    () => appointments.filter((appointment) => appointment.status === "completed").length,
+    [appointments]
   );
 
   function handleTicketSelection(ticketId: string) {
@@ -70,6 +87,11 @@ export default function App() {
     }
 
     setSelectedEmployeeId(employeeId);
+  }
+
+  function handleIdentifyEmployee(employeeId: string) {
+    setIdentifiedEmployeeId(employeeId);
+    if (!selectedEmployeeId) setSelectedEmployeeId(employeeId);
   }
 
   const loadStaticData = useCallback(async () => {
@@ -245,7 +267,6 @@ export default function App() {
     }
   }
 
-
   async function handleFinishActiveEmployeeSession(employeeId: string) {
     if (!selectedInstituteId) return;
 
@@ -342,63 +363,94 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell app-shell-simplified">
-      <Sidebar />
+    <div className="bm-app-shell">
+      <BodyMinuteSidebar
+        activeItem="Accueil"
+        onOpenTickets={() => setActiveDrawer("tickets")}
+        onOpenDashboard={() => setActiveDrawer("dashboard")}
+      />
 
-      <div className="content-shell content-shell-simplified">
-        <TopBar
-          institutes={institutes}
-          selectedInstituteId={selectedInstituteId}
-          realtimeStatus={realtimeStatus}
-          onInstituteChange={setSelectedInstituteId}
-          onRefresh={refreshOperationalData}
-        />
-
-        {error && <div className="error-banner compact-banner">{error}</div>}
-        {loading && <div className="loading-banner compact-banner">Chargement des données...</div>}
-
-        <section className="planning-command-bar">
-          <div className="planning-command-main">
-            <p className="eyebrow">Institut actif</p>
-            <h2>{selectedInstitute?.name || "Aucun institut"}</h2>
-            <span>{selectedInstitute?.address || "Adresse non renseignée"}</span>
+      <div className="bm-content-shell">
+        <header className="bm-top-strip">
+          <div className="bm-top-left">
+            <p>Accueil / Planning</p>
+            <h1>Planning institut</h1>
           </div>
 
-          <div className="planning-command-availability">
-            <span>Prochaine disponibilité</span>
+          <div className="bm-top-controls">
+            <select
+              value={selectedInstituteId}
+              onChange={(event) => setSelectedInstituteId(event.target.value)}
+              aria-label="Choisir l’institut"
+            >
+              {institutes.map((institute) => (
+                <option key={institute.id} value={institute.id}>
+                  {institute.name}
+                </option>
+              ))}
+            </select>
+
+            <button type="button" className="bm-identity-button" onClick={() => setIdentityModalOpen(true)}>
+              {identifiedEmployee ? `Identifiée : ${identifiedEmployee.first_name}` : "Je m’identifie"}
+            </button>
+
+            <span className={`bm-live-state ${realtimeStatus}`}>
+              {translateRealtimeStatus(realtimeStatus)}
+            </span>
+          </div>
+        </header>
+
+        {error && <div className="bm-banner error">{error}</div>}
+        {loading && <div className="bm-banner loading">Chargement des données...</div>}
+
+        <section className="bm-planning-toolbar">
+          <div className="bm-institute-summary">
+            <span>Institut</span>
+            <strong>{selectedInstitute?.name || "Aucun institut"}</strong>
+            <small>{selectedInstitute?.address || selectedInstitute?.city || "Adresse non renseignée"}</small>
+          </div>
+
+          <div className="bm-toolbar-stat">
+            <span>Prochaine dispo</span>
             <strong>{formatAvailabilityHeadline(availability)}</strong>
             <small>{formatAvailabilityDetail(availability)}</small>
           </div>
 
-          <div className="planning-command-actions">
-            <button type="button" className="primary-button command-button" onClick={() => setActiveDrawer("tickets")}>
-              + Ticket
+          <div className="bm-toolbar-stat compact">
+            <span>Tickets</span>
+            <strong>{tickets.length}</strong>
+            <small>actif(s)</small>
+          </div>
+
+          <div className="bm-toolbar-stat compact">
+            <span>RDV</span>
+            <strong>{activeAppointmentsToday}</strong>
+            <small>{completedAppointmentsToday} terminé(s)</small>
+          </div>
+
+          <div className="bm-primary-actions">
+            <button type="button" className="bm-main-action" onClick={() => setActiveDrawer("newTicket")}>
+              Créer nouveau ticket
             </button>
-            <button type="button" className="secondary-button command-button" onClick={() => setActiveDrawer("appointments")}>
-              + RDV
-            </button>
-            <button type="button" className="ghost-command-button" onClick={() => setActiveDrawer("dashboard")}>
-              Dashboard
-            </button>
-            <button type="button" className="ghost-command-button subtle" onClick={() => setActiveDrawer("demo")}>
-              Démo
+            <button type="button" className="bm-secondary-action" onClick={() => setActiveDrawer("appointments")}>
+              RDV sous appel
             </button>
           </div>
         </section>
 
-        <div className="workspace workspace-simplified">
-          <CompactQueuePanel
-            tickets={tickets}
-            services={services}
-            employees={employees}
-            selectedTicketId={selectedTicketId}
-            ticketServiceMap={ticketServiceMap}
-            onTicketSelect={handleTicketSelection}
-            onOpenTickets={() => setActiveDrawer("tickets")}
-            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
-          />
+        <main className="bm-workspace">
+          <section className="bm-planning-panel">
+            <div className="bm-section-title">
+              <div>
+                <span>Visualisation journée</span>
+                <h2>Collaboratrices, prestations, RDV et disponibilité</h2>
+              </div>
+              <div className="bm-section-actions">
+                <button type="button" onClick={() => void refreshOperationalData()}>Rafraîchir</button>
+                <button type="button" onClick={() => setActiveDrawer("demo")}>Démo</button>
+              </div>
+            </div>
 
-          <main className="main-column main-column-focus">
             <PlanningBoard
               planning={planning}
               employees={employees}
@@ -410,13 +462,53 @@ export default function App() {
               onChangeEmployeeStatus={handleChangeEmployeeStatus}
               onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
             />
-          </main>
-        </div>
+          </section>
+
+          <CompactQueuePanel
+            tickets={tickets}
+            services={services}
+            employees={employees}
+            selectedTicketId={selectedTicketId}
+            ticketServiceMap={ticketServiceMap}
+            onTicketSelect={handleTicketSelection}
+            onOpenTickets={() => setActiveDrawer("tickets")}
+            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+          />
+        </main>
+
+        <ActionDrawer
+          open={activeDrawer === "newTicket"}
+          title="Créer un nouveau ticket"
+          subtitle="Accès depuis le planning, puis workflow ticket BodyMinute-like."
+          onClose={() => setActiveDrawer(null)}
+        >
+          <QueuePanel
+            tickets={tickets}
+            services={services}
+            categories={categories}
+            employees={employees}
+            availability={availability}
+            selectedCategoryId={selectedCategoryId}
+            selectedServiceId={selectedServiceId}
+            selectedTicketId={selectedTicketId}
+            selectedEmployeeId={selectedEmployeeId}
+            ticketServiceMap={ticketServiceMap}
+            onCategoryChange={setSelectedCategoryId}
+            onServiceChange={setSelectedServiceId}
+            onTicketChange={handleTicketSelection}
+            onEmployeeChange={handleEmployeeSelection}
+            onCreateTicket={handleCreateTicket}
+            onAssignTicket={handleAssignTicket}
+            onStartSession={handleStartSession}
+            onCancelTicket={handleCancelTicket}
+            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+          />
+        </ActionDrawer>
 
         <ActionDrawer
           open={activeDrawer === "tickets"}
-          title="Tickets et file d’attente"
-          subtitle="Créer un ticket, l’affecter ou démarrer une prestation."
+          title="Tickets"
+          subtitle="Tickets en attente, affectés ou en prestation."
           onClose={() => setActiveDrawer(null)}
         >
           <QueuePanel
@@ -445,7 +537,7 @@ export default function App() {
         <ActionDrawer
           open={activeDrawer === "appointments"}
           title="Rendez-vous sous appel"
-          subtitle="Bloquer un créneau et suivre l’agenda du jour."
+          subtitle="Créer un RDV et le visualiser dans le planning."
           onClose={() => setActiveDrawer(null)}
         >
           <AppointmentPanel
@@ -460,8 +552,8 @@ export default function App() {
 
         <ActionDrawer
           open={activeDrawer === "dashboard"}
-          title="Dashboard institut"
-          subtitle="Indicateurs opérationnels, occupation et alertes terrain."
+          title="Chiffres"
+          subtitle="Indicateurs opérationnels provisoires avant module chiffres complet."
           onClose={() => setActiveDrawer(null)}
         >
           <InstituteDashboard dashboard={dashboard} />
@@ -480,6 +572,14 @@ export default function App() {
             onRefresh={refreshOperationalData}
           />
         </ActionDrawer>
+
+        <EmployeeIdentityModal
+          open={identityModalOpen}
+          employees={employees}
+          identifiedEmployeeId={identifiedEmployeeId}
+          onIdentify={handleIdentifyEmployee}
+          onClose={() => setIdentityModalOpen(false)}
+        />
       </div>
     </div>
   );
@@ -490,15 +590,15 @@ function formatAvailabilityHeadline(availability?: PlanningAvailability) {
 
   if (availability.wait_minutes === null || availability.wait_minutes === undefined) {
     return availability.active_sessions > 0
-      ? "Disponibilité à confirmer"
+      ? "À confirmer"
       : "Aucune disponibilité";
   }
 
   if (availability.wait_minutes <= 0) {
-    return `${availability.next_employee_name || "Une collaboratrice"} disponible maintenant`;
+    return `${availability.next_employee_name || "Une collaboratrice"} maintenant`;
   }
 
-  return `${availability.wait_minutes} min d’attente`;
+  return `${availability.wait_minutes} min`;
 }
 
 function formatAvailabilityDetail(availability?: PlanningAvailability) {
@@ -510,7 +610,7 @@ function formatAvailabilityDetail(availability?: PlanningAvailability) {
 
   if (!availability.next_available_at) {
     return delayedCount > 0
-      ? `${delayedCount} prestation(s) en retard à clôturer avant de libérer la disponibilité.`
+      ? `${delayedCount} prestation(s) en retard à clôturer.`
       : "Toutes les collaboratrices sont indisponibles.";
   }
 
@@ -519,6 +619,15 @@ function formatAvailabilityDetail(availability?: PlanningAvailability) {
     minute: "2-digit",
   }).format(new Date(availability.next_available_at));
 
-  const delayText = delayedCount > 0 ? ` · ${delayedCount} retard à clôturer` : "";
+  const delayText = delayedCount > 0 ? ` · ${delayedCount} retard` : "";
   return `${availability.next_employee_name || "Prochain créneau"} à ${time}${delayText}`;
+}
+
+function translateRealtimeStatus(status: "connected" | "connecting" | "disconnected") {
+  const labels = {
+    connected: "Temps réel actif",
+    connecting: "Connexion...",
+    disconnected: "Hors ligne",
+  };
+  return labels[status];
 }
