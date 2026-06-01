@@ -2979,3 +2979,864 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================================================
+   HOTFIX VISUEL - Clone plus proche du logiciel BodyMinute actuel
+   Référence visuelle : sidebar bleue étroite, icônes, logo blanc,
+   onglet actif blanc, bouton power rose, contenu clair arrondi.
+   ======================================================================== */
+:root {
+  --bm-current-blue: #315995;
+  --bm-current-blue-dark: #2c4f8e;
+  --bm-current-blue-light: #426aa5;
+  --bm-current-pink: #bd78a0;
+  --bm-current-pink-strong: #b66d98;
+  --bm-current-title: #1f3568;
+  --bm-current-page: #eef1f7;
+  --bm-current-panel: #ffffff;
+  --bm-current-border: #e2e6f0;
+  --bm-current-muted: #7d8494;
+  color: #1f2a44;
+  background: var(--bm-current-page);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  min-width: 980px;
+  background: var(--bm-current-page);
+  color: #1f2a44;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.bm-app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  background: var(--bm-current-page);
+  color: #1f2a44;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.bm-sidebar {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  width: 86px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 7px 0;
+  color: #ffffff;
+  background: linear-gradient(180deg, var(--bm-current-blue-light) 0%, var(--bm-current-blue) 42%, var(--bm-current-blue-dark) 100%);
+  border: 0;
+  box-shadow: none;
+}
+
+.bm-brand-panel {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.bm-logo-mark,
+.bm-brand-panel > div:not(.bm-real-logo) {
+  display: none !important;
+}
+
+.bm-real-logo {
+  display: grid;
+  gap: 0;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.1em;
+  line-height: 0.78;
+  text-align: left;
+  text-transform: lowercase;
+}
+
+.bm-real-logo span:first-child {
+  font-size: 22px;
+}
+
+.bm-real-logo span:last-child {
+  font-size: 20px;
+}
+
+.bm-nav {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.bm-nav-item {
+  width: 70px;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 0;
+  border-radius: 0;
+  padding: 4px 2px;
+  color: rgba(255, 255, 255, 0.92);
+  background: transparent;
+  box-shadow: none;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+}
+
+.bm-nav-item:hover {
+  border: 0;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bm-nav-item.active {
+  width: 70px;
+  min-height: 48px;
+  color: var(--bm-current-pink-strong);
+  border: 0;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(20, 40, 90, 0.14);
+}
+
+.bm-nav-icon {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+}
+
+.bm-nav-icon svg,
+.bm-logout-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bm-nav-label {
+  max-width: 68px;
+  display: block;
+  overflow: hidden;
+  color: currentColor;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.bm-nav-item small {
+  display: none;
+}
+
+.bm-logout-button {
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  margin-top: auto;
+  border: 0;
+  border-radius: 23px 23px 0 0;
+  color: #ffffff;
+  background: linear-gradient(180deg, #c885aa 0%, var(--bm-current-pink) 100%);
+  box-shadow: none;
+  font-size: 0;
+}
+
+.bm-content-shell {
+  min-width: 0;
+  padding: 20px 20px 22px 18px;
+  background: var(--bm-current-page);
+}
+
+.bm-top-strip,
+.bm-planning-toolbar,
+.bm-workspace {
+  max-width: 100%;
+}
+
+.bm-top-strip {
+  position: relative;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--bm-current-panel);
+  box-shadow: none;
+}
+
+.bm-top-left {
+  min-width: 0;
+  text-align: center;
+}
+
+.bm-top-left p {
+  display: none;
+}
+
+.bm-top-left h1 {
+  margin: 0;
+  color: var(--bm-current-title);
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.bm-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.bm-top-controls select,
+.bm-identity-button,
+.bm-live-state {
+  min-height: 32px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bm-top-controls select {
+  min-width: 180px;
+  max-width: 230px;
+  border: 1px solid var(--bm-current-border);
+  color: #344163;
+  background: #ffffff;
+}
+
+.bm-identity-button {
+  border: 0;
+  padding: 0 12px;
+  color: #ffffff;
+  background: var(--bm-current-pink);
+}
+
+.bm-live-state {
+  border: 1px solid #e3e7ef;
+  padding: 0 10px;
+  color: #677083;
+  background: #f7f8fb;
+}
+
+.bm-live-state.connected {
+  color: #2e7d4f;
+  border-color: #d7eadf;
+  background: #eef9f2;
+}
+
+.bm-live-state.connecting {
+  color: #8a6a25;
+  border-color: #f2e3bb;
+  background: #fff9e8;
+}
+
+.bm-live-state.disconnected {
+  color: #9b4747;
+  border-color: #f0cccc;
+  background: #fff1f1;
+}
+
+.bm-banner {
+  margin: 0;
+  padding: 10px 16px;
+  border: 0;
+  border-top: 1px solid var(--bm-current-border);
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bm-planning-toolbar {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.1fr) minmax(260px, 1.4fr) 100px 100px auto;
+  gap: 0;
+  margin-top: 0;
+  border-top: 1px solid var(--bm-current-border);
+  background: #ffffff;
+}
+
+.bm-institute-summary,
+.bm-toolbar-stat,
+.bm-primary-actions {
+  min-height: 72px;
+  border: 0;
+  border-right: 1px solid var(--bm-current-border);
+  background: #ffffff;
+}
+
+.bm-primary-actions {
+  border-right: 0;
+}
+
+.bm-institute-summary,
+.bm-toolbar-stat {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 10px 14px;
+}
+
+.bm-institute-summary span,
+.bm-toolbar-stat span,
+.bm-section-title span {
+  color: var(--bm-current-pink-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bm-institute-summary strong,
+.bm-toolbar-stat strong {
+  color: #1d2438;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.bm-toolbar-stat.compact strong {
+  font-size: 24px;
+}
+
+.bm-institute-summary small,
+.bm-toolbar-stat small {
+  color: var(--bm-current-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bm-primary-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.bm-main-action,
+.bm-secondary-action {
+  min-height: 40px;
+  border-radius: 18px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bm-main-action {
+  border: 0;
+  color: #ffffff;
+  background: var(--bm-current-pink);
+}
+
+.bm-secondary-action {
+  border: 1px solid #dfe3ec;
+  color: #4b5873;
+  background: #f7f8fb;
+}
+
+.bm-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 0;
+  margin-top: 0;
+  align-items: stretch;
+  border-radius: 0 0 24px 24px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.bm-planning-panel {
+  min-width: 0;
+  border: 0;
+  border-top: 1px solid var(--bm-current-border);
+  border-right: 1px solid var(--bm-current-border);
+  background: #ffffff;
+}
+
+.bm-section-title {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--bm-current-border);
+  background: #ffffff;
+}
+
+.bm-section-title h2 {
+  margin: 2px 0 0;
+  color: #1f2a44;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.bm-section-actions button {
+  min-height: 30px;
+  border: 1px solid #dfe3ec;
+  border-radius: 15px;
+  padding: 0 11px;
+  color: #516079;
+  background: #f8f9fc;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.bm-planning-panel .planning-shell {
+  padding: 0;
+  background: #ffffff;
+}
+
+.bm-planning-panel .planning-card,
+.bm-planning-panel .panel-card,
+.bm-planning-panel .context-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #ffffff;
+}
+
+.bm-planning-panel .planning-card {
+  overflow: auto;
+}
+
+.bm-planning-panel .employee-header,
+.bm-planning-panel .time-axis {
+  background: #f6f7fb;
+  border-bottom-color: var(--bm-current-border);
+}
+
+.bm-planning-panel .employee-header,
+.bm-planning-panel .employee-cell {
+  border-right-color: var(--bm-current-border);
+}
+
+.bm-planning-panel .timeline-row {
+  border-bottom-color: #edf0f6;
+}
+
+.bm-planning-panel .employee-cell {
+  background: #ffffff;
+}
+
+.bm-planning-panel .session-block,
+.bm-planning-panel .appointment-block {
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+
+.bm-planning-panel .session-block {
+  background: #61cf8f;
+  color: #ffffff;
+}
+
+.bm-planning-panel .session-block.delayed,
+.bm-planning-panel .session-block.extended {
+  background: #eb6b6b;
+}
+
+.bm-planning-panel .session-block.completed {
+  background: #a8adb8;
+}
+
+.bm-planning-panel .appointment-block {
+  background: #b9a5ee;
+}
+
+.bm-workspace .compact-queue-card {
+  height: 100%;
+  border: 0;
+  border-top: 1px solid var(--bm-current-border);
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.bm-workspace .compact-queue-header {
+  border-bottom: 1px solid var(--bm-current-border);
+  background: #ffffff;
+}
+
+.bm-workspace .compact-queue-header button,
+.bm-workspace .compact-show-more,
+.bm-workspace .compact-close-session,
+.action-drawer,
+.action-drawer-header,
+.action-drawer-body,
+.drawer-close-button {
+  border-radius: 0 !important;
+}
+
+.action-drawer {
+  border-left: 1px solid var(--bm-current-border);
+}
+
+/* ========================================================================
+   HOTFIX TABLETTE - Hauteur complète + lisibilité écran institut
+   Objectif : reproduction plus proche de la tablette BodyMinute actuelle.
+   - sidebar bleue visible sur toute la hauteur
+   - largeur légèrement augmentée pour lisibilité
+   - icônes et labels plus grands
+   - textes planning et boutons plus lisibles sur tablette
+   ======================================================================== */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  min-width: 1024px;
+  overflow-x: auto;
+}
+
+.bm-app-shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  align-items: stretch;
+  background: var(--bm-current-page);
+}
+
+.bm-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: stretch;
+  width: 116px;
+  min-height: 100dvh;
+  height: 100dvh;
+  padding: 18px 9px 0;
+  overflow: hidden;
+}
+
+.bm-brand-panel {
+  min-height: 76px;
+}
+
+.bm-real-logo {
+  line-height: 0.8;
+  letter-spacing: -0.1em;
+}
+
+.bm-real-logo span:first-child {
+  font-size: 29px;
+}
+
+.bm-real-logo span:last-child {
+  font-size: 26px;
+}
+
+.bm-nav {
+  flex: 1;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bm-nav-item,
+.bm-nav-item.active {
+  width: 96px;
+  min-height: 66px;
+}
+
+.bm-nav-item {
+  gap: 5px;
+  padding: 7px 5px;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.bm-nav-item.active {
+  border-radius: 32px;
+}
+
+.bm-nav-icon {
+  width: 27px;
+  height: 27px;
+}
+
+.bm-nav-icon svg,
+.bm-logout-button svg {
+  width: 25px;
+  height: 25px;
+  stroke-width: 1.9;
+}
+
+.bm-nav-label {
+  max-width: 92px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+}
+
+.bm-logout-button {
+  width: 78px;
+  height: 72px;
+  min-height: 72px;
+  border-radius: 30px 30px 0 0;
+}
+
+.bm-content-shell {
+  min-height: 100dvh;
+  padding: 22px 24px 24px 22px;
+}
+
+.bm-top-strip {
+  min-height: 86px;
+  padding: 14px 24px;
+}
+
+.bm-top-left h1 {
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.bm-top-controls select,
+.bm-identity-button,
+.bm-live-state {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.bm-top-controls select {
+  min-width: 220px;
+}
+
+.bm-identity-button,
+.bm-live-state {
+  padding: 0 16px;
+}
+
+.bm-planning-toolbar {
+  grid-template-columns: minmax(230px, 1.1fr) minmax(300px, 1.4fr) 120px 120px auto;
+}
+
+.bm-institute-summary,
+.bm-toolbar-stat,
+.bm-primary-actions {
+  min-height: 88px;
+}
+
+.bm-institute-summary,
+.bm-toolbar-stat {
+  gap: 4px;
+  padding: 12px 18px;
+}
+
+.bm-institute-summary span,
+.bm-toolbar-stat span,
+.bm-section-title span {
+  font-size: 12px;
+}
+
+.bm-institute-summary strong,
+.bm-toolbar-stat strong {
+  font-size: 21px;
+}
+
+.bm-toolbar-stat.compact strong {
+  font-size: 31px;
+}
+
+.bm-institute-summary small,
+.bm-toolbar-stat small {
+  font-size: 13.5px;
+}
+
+.bm-primary-actions {
+  gap: 10px;
+  padding: 14px;
+}
+
+.bm-main-action,
+.bm-secondary-action {
+  min-height: 50px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+.bm-workspace {
+  grid-template-columns: minmax(0, 1fr) 310px;
+}
+
+.bm-section-title {
+  min-height: 70px;
+  padding: 12px 20px;
+}
+
+.bm-section-title h2 {
+  font-size: 22px;
+}
+
+.bm-section-actions button {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.bm-planning-panel .timeline-header,
+.bm-planning-panel .timeline-row {
+  grid-template-columns: 245px 1fr;
+}
+
+.bm-planning-panel .timeline-row {
+  min-height: 112px;
+}
+
+.bm-planning-panel .employee-header {
+  min-height: 64px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+.bm-planning-panel .time-axis {
+  min-height: 64px;
+}
+
+.bm-planning-panel .time-axis-hour {
+  font-size: 14px;
+}
+
+.bm-planning-panel .employee-cell {
+  padding: 0 20px;
+}
+
+.bm-planning-panel .employee-cell strong {
+  font-size: 20px;
+}
+
+.bm-planning-panel .status-dot {
+  min-height: 28px;
+  padding: 6px 10px;
+  font-size: 13.5px;
+}
+
+.bm-planning-panel .employee-availability {
+  font-size: 13.5px;
+}
+
+.bm-planning-panel .employee-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+.bm-planning-panel .free-label {
+  font-size: 16px;
+}
+
+.bm-planning-panel .session-block,
+.bm-planning-panel .appointment-block {
+  top: 16px;
+  bottom: 16px;
+  padding: 11px 13px;
+}
+
+.bm-planning-panel .session-content strong,
+.bm-planning-panel .appointment-block-content strong,
+.bm-planning-panel .compact-session-info strong {
+  font-size: 15.5px;
+}
+
+.bm-planning-panel .session-content span,
+.bm-planning-panel .session-content small,
+.bm-planning-panel .appointment-block-content span,
+.bm-planning-panel .appointment-block-content small,
+.bm-planning-panel .compact-session-info span {
+  font-size: 13px;
+}
+
+.bm-planning-panel .session-actions button {
+  min-width: 46px;
+  height: 38px;
+  font-size: 14px;
+}
+
+.bm-workspace .compact-queue-card {
+  max-height: none;
+  padding: 18px;
+}
+
+.bm-workspace .compact-queue-header h2 {
+  font-size: 21px;
+}
+
+.bm-workspace .compact-queue-header button,
+.bm-workspace .compact-show-more,
+.bm-workspace .compact-close-session {
+  font-size: 13px;
+  min-height: 36px;
+}
+
+.bm-workspace .compact-queue-counters span,
+.bm-workspace .compact-ticket small {
+  font-size: 13px;
+}
+
+.bm-workspace .compact-ticket {
+  padding: 14px;
+}
+
+.bm-workspace .compact-ticket-topline strong {
+  font-size: 16px;
+}
+
+.bm-workspace .compact-ticket-service {
+  font-size: 15px;
+}
+
+/* Sur une tablette plus étroite, on garde le menu lisible et on évite de réduire les textes. */
+@media (max-width: 1180px) {
+  .bm-app-shell {
+    grid-template-columns: 108px minmax(916px, 1fr);
+  }
+
+  .bm-sidebar {
+    width: 108px;
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .bm-nav-item,
+  .bm-nav-item.active {
+    width: 92px;
+    min-height: 64px;
+  }
+
+  .bm-nav-item {
+    font-size: 12px;
+  }
+
+  .bm-workspace {
+    grid-template-columns: minmax(0, 1fr) 295px;
+  }
+
+  .bm-planning-toolbar {
+    grid-template-columns: minmax(220px, 1fr) minmax(280px, 1.2fr) 112px 112px;
+  }
+
+  .bm-primary-actions {
+    grid-column: 1 / -1;
+  }
+}
