@@ -7,6 +7,7 @@ import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
 import { InstituteDashboard } from "./components/InstituteDashboard";
+import { NewTicketWorkflow, type NewTicketWorkflowResult } from "./components/NewTicketWorkflow";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
 import type {
@@ -39,7 +40,7 @@ export default function App() {
   const [selectedTicketId, setSelectedTicketId] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [identifiedEmployeeId, setIdentifiedEmployeeId] = useState("");
-  const [ticketServiceMap, setTicketServiceMap] = useState<Record<string, string>>({});
+  const [ticketServiceMap, setTicketServiceMap] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
@@ -47,6 +48,7 @@ export default function App() {
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | null>(null);
+  const [ticketWorkflowOpen, setTicketWorkflowOpen] = useState(false);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -80,6 +82,11 @@ export default function App() {
     if (ticket?.assigned_employee_id) {
       setSelectedEmployeeId(ticket.assigned_employee_id);
     }
+
+    const nextServiceId = getNextPendingTicketServiceId(ticket, ticketServiceMap);
+    if (nextServiceId) {
+      setSelectedServiceId(nextServiceId);
+    }
   }
 
   function handleEmployeeSelection(employeeId: string) {
@@ -102,7 +109,7 @@ export default function App() {
     if (!selectedEmployeeId) setSelectedEmployeeId(employeeId);
 
     if (afterIdentityAction === "newTicket") {
-      setActiveDrawer("newTicket");
+      setTicketWorkflowOpen(true);
     }
 
     setAfterIdentityAction(null);
@@ -210,11 +217,35 @@ export default function App() {
         institute_id: selectedInstituteId,
         service_id: selectedServiceId,
       });
-      setTicketServiceMap((current) => ({ ...current, [created.id]: selectedServiceId }));
+      setTicketServiceMap((current) => ({ ...current, [created.id]: [selectedServiceId] }));
       setSelectedTicketId(created.id);
       await refreshOperationalData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de créer le ticket");
+    }
+  }
+
+  async function handleCreateWorkflowTicket(result: NewTicketWorkflowResult) {
+    if (!selectedInstituteId || result.selectedServiceIds.length === 0) return;
+
+    const firstServiceId = result.selectedServiceIds[0];
+
+    setError(null);
+    try {
+      const created = await apiPost<QueueTicket>("/tickets", {
+        institute_id: selectedInstituteId,
+        service_id: firstServiceId,
+        service_ids: result.selectedServiceIds,
+        created_by_id: identifiedEmployeeId || undefined,
+      });
+
+      setSelectedServiceId(firstServiceId);
+      setTicketServiceMap((current) => ({ ...current, [created.id]: result.selectedServiceIds }));
+      setSelectedTicketId(created.id);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de valider le nouveau ticket");
+      throw err;
     }
   }
 
@@ -250,9 +281,13 @@ export default function App() {
       return;
     }
 
-    const serviceId = ticketServiceMap[selectedTicketId] || selectedServiceId;
+    const selectedTicketServiceIds = getTicketServiceIds(selectedTicket, ticketServiceMap);
+    const serviceId = selectedTicketServiceIds.includes(selectedServiceId)
+      ? selectedServiceId
+      : getNextPendingTicketServiceId(selectedTicket, ticketServiceMap);
+
     if (!serviceId) {
-      setError("Choisis une prestation avant de démarrer la session.");
+      setError("Choisis une prestation du ticket avant de démarrer la session.");
       return;
     }
 
@@ -592,6 +627,15 @@ export default function App() {
           />
         </ActionDrawer>
 
+        <NewTicketWorkflow
+          open={ticketWorkflowOpen}
+          creatorEmployee={identifiedEmployee}
+          categories={categories}
+          services={services}
+          onClose={() => setTicketWorkflowOpen(false)}
+          onValidate={handleCreateWorkflowTicket}
+        />
+
         <EmployeeIdentityModal
           open={identityModalOpen}
           employees={employees}
@@ -603,6 +647,29 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+
+function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Record<string, string[]>) {
+  if (!ticket) return [];
+
+  if (ticket.lines && ticket.lines.length > 0) {
+    return ticket.lines.map((line) => line.service_id);
+  }
+
+  return fallbackMap[ticket.id] || [];
+}
+
+function getNextPendingTicketServiceId(ticket: QueueTicket | undefined, fallbackMap: Record<string, string[]>) {
+  if (!ticket) return "";
+
+  const pendingLine = ticket.lines?.find((line) => line.status !== "completed" && line.status !== "in_progress");
+  if (pendingLine) return pendingLine.service_id;
+
+  const activeLine = ticket.lines?.find((line) => line.status === "in_progress");
+  if (activeLine) return activeLine.service_id;
+
+  return fallbackMap[ticket.id]?.[0] || "";
 }
 
 function formatAvailabilityHeadline(availability?: PlanningAvailability) {

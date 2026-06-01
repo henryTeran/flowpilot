@@ -34,10 +34,23 @@ def _first_line_duration(db: Session, ticket_id: str, fallback_minutes: int) -> 
     return line.duration_minutes if line else fallback_minutes
 
 
+def _payload_service_ids(payload: TicketCreate) -> list[str]:
+    """Retourne les prestations du ticket en conservant la compatibilité service_id."""
+    service_ids: list[str] = []
+    if payload.service_ids:
+        service_ids.extend(payload.service_ids)
+    elif payload.service_id:
+        service_ids.append(payload.service_id)
+
+    # On supprime les valeurs vides, mais on garde les doublons éventuels si le métier
+    # permet plus tard deux fois la même prestation dans un même ticket.
+    return [service_id for service_id in service_ids if service_id]
+
+
 def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int):
     """
     Estime le début du prochain ticket selon :
-    - les collaboratrices disponibles ou occupées ;
+    - les collaboratrices disponibles ;
     - les sessions planning déjà en cours ;
     - les tickets encore en file d'attente.
     """
@@ -91,10 +104,18 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
 
 
 def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
-    service = get_service(db, payload.service_id)
-    if not service:
-        raise not_found("Prestation introuvable")
+    service_ids = _payload_service_ids(payload)
+    if not service_ids:
+        raise business_error("Ajoute au moins une prestation au ticket")
 
+    services = []
+    for service_id in service_ids:
+        service = get_service(db, service_id)
+        if not service:
+            raise not_found(f"Prestation introuvable : {service_id}")
+        services.append(service)
+
+    total_duration = sum(service.duration_min for service in services)
     now = utcnow()
     ticket = QueueTicket(
         id=new_id("qt"),
@@ -104,22 +125,25 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         subscription_id=payload.subscription_id,
         status="waiting",
         arrival_time=now,
-        estimated_start_time=estimate_start_time(db, payload.institute_id, service.duration_min),
+        estimated_start_time=estimate_start_time(db, payload.institute_id, total_duration),
         created_by_id=payload.created_by_id,
     )
     saved = save_ticket(db, ticket)
 
-    line = TicketLine(
-        id=new_id("tl"),
-        ticket_id=saved.id,
-        service_id=service.id,
-        quantity=1,
-        unit_price=service.price_passage,
-        total=service.price_passage,
-        duration_minutes=service.duration_min,
-        revenue_category="care",
-    )
-    save_ticket_line(db, line)
+    for service in services:
+        unit_price = service.price_passage
+        line = TicketLine(
+            id=new_id("tl"),
+            ticket_id=saved.id,
+            service_id=service.id,
+            quantity=1,
+            unit_price=unit_price,
+            total=unit_price,
+            duration_minutes=service.duration_min,
+            revenue_category="care",
+        )
+        save_ticket_line(db, line)
+
     return saved
 
 

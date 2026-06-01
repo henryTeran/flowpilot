@@ -10,7 +10,7 @@ interface QueuePanelProps {
   selectedServiceId: string;
   selectedTicketId: string;
   selectedEmployeeId: string;
-  ticketServiceMap: Record<string, string>;
+  ticketServiceMap: Record<string, string[]>;
   onCategoryChange: (id: string) => void;
   onServiceChange: (id: string) => void;
   onTicketChange: (id: string) => void;
@@ -51,8 +51,11 @@ export function QueuePanel({
     : services;
 
   const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId);
-  const selectedTicketServiceId = selectedTicket ? ticketServiceMap[selectedTicket.id] : undefined;
-  const selectedTicketService = services.find((service) => service.id === selectedTicketServiceId);
+  const selectedTicketServiceIds = getTicketServiceIds(selectedTicket, ticketServiceMap);
+  const selectedTicketServices = selectedTicketServiceIds
+    .map((serviceId) => services.find((service) => service.id === serviceId))
+    .filter(Boolean) as Service[];
+  const selectedTicketService = services.find((service) => service.id === selectedServiceId) || selectedTicketServices[0];
   const selectedService = services.find((service) => service.id === selectedServiceId);
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId);
   const selectedTicketIsActionable = Boolean(selectedTicket && ACTIONABLE_TICKET_STATUSES.has(selectedTicket.status));
@@ -206,10 +209,27 @@ export function QueuePanel({
           })}
         </select>
 
-        <div className="selected-summary">
-          <span>Prestation</span>
-          <strong>{selectedTicketService?.name || selectedService?.name || "Choisir une prestation"}</strong>
-        </div>
+        {selectedTicket && selectedTicketServices.length > 1 ? (
+          <>
+            <label>Prestation à démarrer</label>
+            <select value={selectedServiceId} onChange={(event) => onServiceChange(event.target.value)}>
+              {selectedTicketServices.map((service) => {
+                const line = selectedTicket.lines?.find((item) => item.service_id === service.id);
+                const disabled = line?.status === "completed" || line?.status === "in_progress";
+                return (
+                  <option key={service.id} value={service.id} disabled={disabled}>
+                    {service.name} · {line?.status === "completed" ? "terminée" : line?.status === "in_progress" ? "en cours" : `${service.duration_min} min`}
+                  </option>
+                );
+              })}
+            </select>
+          </>
+        ) : (
+          <div className="selected-summary">
+            <span>Prestation</span>
+            <strong>{selectedTicketService?.name || selectedService?.name || "Choisir une prestation"}</strong>
+          </div>
+        )}
 
         {selectedTicket && !selectedTicketIsActionable && (
           <p className="inline-warning">
@@ -249,7 +269,7 @@ interface TicketGroupProps {
   services: Service[];
   employees: Employee[];
   selectedTicketId: string;
-  ticketServiceMap: Record<string, string>;
+  ticketServiceMap: Record<string, string[]>;
   onTicketChange: (id: string) => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
@@ -278,7 +298,10 @@ function TicketGroup({
         <div className="ticket-group-empty">{empty}</div>
       ) : (
         tickets.map((ticket) => {
-          const service = services.find((item) => item.id === ticketServiceMap[ticket.id]);
+          const ticketServices = getTicketServiceIds(ticket, ticketServiceMap)
+            .map((serviceId) => services.find((item) => item.id === serviceId))
+            .filter(Boolean) as Service[];
+          const serviceLabel = formatTicketServices(ticketServices);
           const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
           const isLocked = ticket.status === "in_progress" || ticket.status === "completed";
           const canCancel = CANCELLABLE_TICKET_STATUSES.has(ticket.status);
@@ -299,7 +322,10 @@ function TicketGroup({
                 <span>{formatTicketWait(ticket)}</span>
               </div>
               <div className="ticket-card-body">
-                <span>{service?.name || "Prestation à confirmer"}</span>
+                <span>{serviceLabel || "Prestation à confirmer"}</span>
+                {ticketServices.length > 1 && (
+                  <small>{ticketServices.length} prestations dans le ticket</small>
+                )}
                 <small>
                   {employee ? `Affecté à ${employee.first_name}` : "Non affecté"}
                 </small>
@@ -338,6 +364,23 @@ function TicketGroup({
       )}
     </div>
   );
+}
+
+
+function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Record<string, string[]>) {
+  if (!ticket) return [];
+
+  if (ticket.lines && ticket.lines.length > 0) {
+    return ticket.lines.map((line) => line.service_id);
+  }
+
+  return fallbackMap[ticket.id] || [];
+}
+
+function formatTicketServices(ticketServices: Service[]) {
+  if (ticketServices.length === 0) return "";
+  if (ticketServices.length === 1) return ticketServices[0].name;
+  return ticketServices.map((service) => service.name).join(" + ");
 }
 
 function formatTicketWait(ticket: QueueTicket) {

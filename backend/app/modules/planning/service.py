@@ -116,6 +116,51 @@ def _has_current_employee_appointment(
     return _get_current_employee_appointment(db, institute_id, employee_id, now) is not None
 
 
+
+def _ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
+    return list(
+        db.scalars(
+            select(TicketLine)
+            .where(TicketLine.ticket_id == ticket_id)
+            .order_by(TicketLine.id)
+        ).all()
+    )
+
+
+def _line_sessions(db: Session, line_id: str) -> list[ServiceSession]:
+    return list(
+        db.scalars(
+            select(ServiceSession).where(ServiceSession.ticket_line_id == line_id)
+        ).all()
+    )
+
+
+def _line_is_completed(db: Session, line_id: str) -> bool:
+    return any(session.status == "completed" for session in _line_sessions(db, line_id))
+
+
+def _line_has_active_session(db: Session, line_id: str) -> bool:
+    return any(session.status in ACTIVE_SESSION_STATUSES for session in _line_sessions(db, line_id))
+
+
+def _next_pending_line_for_service(db: Session, ticket_id: str, service_id: str) -> TicketLine | None:
+    """Retourne la prochaine ligne non terminée pour cette prestation.
+
+    Cela permet d'avoir un ticket avec plusieurs prestations. Si une première
+    prestation du ticket est terminée, on peut démarrer la suivante sans clore
+    tout le ticket.
+    """
+    lines = [line for line in _ticket_lines(db, ticket_id) if line.service_id == service_id]
+    for line in lines:
+        if not _line_is_completed(db, line.id) and not _line_has_active_session(db, line.id):
+            return line
+    return None
+
+
+def _ticket_all_lines_completed(db: Session, ticket_id: str) -> bool:
+    lines = _ticket_lines(db, ticket_id)
+    return bool(lines) and all(_line_is_completed(db, line.id) for line in lines)
+
 def get_day_planning(db: Session, institute_id: str) -> PlanningDayRead:
     now = utcnow()
     employees = list_by_institute(db, institute_id)
@@ -268,22 +313,9 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     if employee.status != "available":
         raise business_error("Cette collaboratrice n'est pas disponible")
 
-    line = db.scalars(
-        select(TicketLine).where(
-            TicketLine.ticket_id == ticket.id,
-            TicketLine.service_id == service.id,
-        )
-    ).first()
-
-    if line:
-        existing_session = db.scalars(
-            select(ServiceSession).where(
-                ServiceSession.ticket_line_id == line.id,
-                ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
-            )
-        ).first()
-        if existing_session:
-            raise business_error("Ce ticket possède déjà une prestation en cours")
+    line = _next_pending_line_for_service(db, ticket.id, service.id)
+    if not line:
+        raise business_error("Cette prestation du ticket est déjà en cours ou terminée")
 
     active_employee_session = _get_active_employee_session(
         db=db,
@@ -370,7 +402,11 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
         if line:
             ticket = get_ticket(db, line.ticket_id)
             if ticket:
-                ticket.status = "completed"
+                if _ticket_all_lines_completed(db, ticket.id):
+                    ticket.status = "completed"
+                else:
+                    # Ticket multi-prestations : on garde le ticket actif pour démarrer la suite.
+                    ticket.status = "assigned"
                 db.add(ticket)
 
     db.add(session)

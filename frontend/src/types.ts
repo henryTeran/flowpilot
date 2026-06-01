@@ -38,6 +38,18 @@ export interface Service {
   status: string;
 }
 
+export interface TicketLine {
+  id: string;
+  ticket_id: string;
+  service_id: string;
+  quantity: number;
+  unit_price?: number | null;
+  total?: number | null;
+  duration_minutes: number;
+  revenue_category: string;
+  status?: "pending" | "in_progress" | "completed" | string;
+}
+
 export interface QueueTicket {
   id: string;
   institute_id: string;
@@ -49,6 +61,7 @@ export interface QueueTicket {
   estimated_start_time?: string | null;
   assigned_employee_id?: string | null;
   created_by_id?: string | null;
+  lines?: TicketLine[];
 }
 
 export interface ServiceSession {

@@ -5,7 +5,7 @@ interface CompactQueuePanelProps {
   services: Service[];
   employees: Employee[];
   selectedTicketId: string;
-  ticketServiceMap: Record<string, string>;
+  ticketServiceMap: Record<string, string[]>;
   onTicketSelect: (ticketId: string) => void;
   onOpenTickets: () => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
@@ -48,7 +48,10 @@ export function CompactQueuePanel({
       ) : (
         <div className="compact-ticket-list">
           {visibleTickets.map((ticket) => {
-            const service = services.find((item) => item.id === ticketServiceMap[ticket.id]);
+            const ticketServices = getTicketServiceIds(ticket, ticketServiceMap)
+              .map((serviceId) => services.find((item) => item.id === serviceId))
+              .filter(Boolean) as Service[];
+            const serviceLabel = formatTicketServices(ticketServices);
             const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
 
             return (
@@ -66,7 +69,8 @@ export function CompactQueuePanel({
                   <strong>{ticket.ticket_number}</strong>
                   <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
                 </div>
-                <span className="compact-ticket-service">{service?.name || "Prestation"}</span>
+                <span className="compact-ticket-service">{serviceLabel || "Prestation"}</span>
+                {ticketServices.length > 1 && <small>{ticketServices.length} prestations</small>}
                 <small>{employee ? employee.first_name : formatTicketWait(ticket)}</small>
 
                 {ticket.status === "in_progress" && ticket.assigned_employee_id && (
@@ -94,6 +98,23 @@ export function CompactQueuePanel({
       )}
     </aside>
   );
+}
+
+
+function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Record<string, string[]>) {
+  if (!ticket) return [];
+
+  if (ticket.lines && ticket.lines.length > 0) {
+    return ticket.lines.map((line) => line.service_id);
+  }
+
+  return fallbackMap[ticket.id] || [];
+}
+
+function formatTicketServices(ticketServices: Service[]) {
+  if (ticketServices.length === 0) return "";
+  if (ticketServices.length === 1) return ticketServices[0].name;
+  return ticketServices.map((service) => service.name).join(" + ");
 }
 
 function formatTicketWait(ticket: QueueTicket) {
