@@ -5,7 +5,7 @@ import { AppointmentPanel } from "./components/AppointmentPanel";
 import { BodyMinuteSidebar } from "./components/BodyMinuteSidebar";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
-import { EmployeeIdentityModal } from "./components/EmployeeIdentityModal";
+import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
 import { InstituteDashboard } from "./components/InstituteDashboard";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
@@ -45,6 +45,8 @@ export default function App() {
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "appointments" | "dashboard" | "demo" | null>(null);
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
+  const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
+  const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | null>(null);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -89,9 +91,26 @@ export default function App() {
     setSelectedEmployeeId(employeeId);
   }
 
+  function openIdentity(context: IdentityContext, afterAction: "newTicket" | null = null) {
+    setIdentityContext(context);
+    setAfterIdentityAction(afterAction);
+    setIdentityModalOpen(true);
+  }
+
   function handleIdentifyEmployee(employeeId: string) {
     setIdentifiedEmployeeId(employeeId);
     if (!selectedEmployeeId) setSelectedEmployeeId(employeeId);
+
+    if (afterIdentityAction === "newTicket") {
+      setActiveDrawer("newTicket");
+    }
+
+    setAfterIdentityAction(null);
+  }
+
+  function closeIdentityModal() {
+    setIdentityModalOpen(false);
+    setAfterIdentityAction(null);
   }
 
   const loadStaticData = useCallback(async () => {
@@ -390,7 +409,7 @@ export default function App() {
               ))}
             </select>
 
-            <button type="button" className="bm-identity-button" onClick={() => setIdentityModalOpen(true)}>
+            <button type="button" className="bm-identity-button" onClick={() => openIdentity("general")}>
               {identifiedEmployee ? `Identifiée : ${identifiedEmployee.first_name}` : "Je m’identifie"}
             </button>
 
@@ -429,7 +448,7 @@ export default function App() {
           </div>
 
           <div className="bm-primary-actions">
-            <button type="button" className="bm-main-action" onClick={() => setActiveDrawer("newTicket")}>
+            <button type="button" className="bm-main-action" onClick={() => openIdentity("create_ticket", "newTicket")}>
               Créer nouveau ticket
             </button>
             <button type="button" className="bm-secondary-action" onClick={() => setActiveDrawer("appointments")}>
@@ -479,7 +498,7 @@ export default function App() {
         <ActionDrawer
           open={activeDrawer === "newTicket"}
           title="Créer un nouveau ticket"
-          subtitle="Accès depuis le planning, puis workflow ticket BodyMinute-like."
+          subtitle={identifiedEmployee ? `Créateur identifié : ${identifiedEmployee.first_name}` : "Identification collaboratrice obligatoire avant création."}
           onClose={() => setActiveDrawer(null)}
         >
           <QueuePanel
@@ -577,8 +596,9 @@ export default function App() {
           open={identityModalOpen}
           employees={employees}
           identifiedEmployeeId={identifiedEmployeeId}
+          context={identityContext}
           onIdentify={handleIdentifyEmployee}
-          onClose={() => setIdentityModalOpen(false)}
+          onClose={closeIdentityModal}
         />
       </div>
     </div>
