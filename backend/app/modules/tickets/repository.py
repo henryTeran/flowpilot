@@ -4,13 +4,27 @@ from sqlalchemy.orm import Session
 from app.modules.tickets.models import QueueTicket, TicketLine
 
 
+ACTIVE_TICKET_STATUSES = [
+    "waiting",
+    "assigned",
+    "in_progress",
+    "ready_for_checkout",
+    "in_checkout",
+]
+
+
 def list_waiting_tickets(db: Session, institute_id: str) -> list[QueueTicket]:
+    """Retourne les tickets visibles dans le flux opérationnel.
+
+    Le nom est conservé pour compatibilité avec les routes existantes, mais la
+    liste contient aussi les tickets en caisse depuis le pivot métier.
+    """
     return list(
         db.scalars(
             select(QueueTicket)
             .where(
                 QueueTicket.institute_id == institute_id,
-                QueueTicket.status.in_(["waiting", "assigned", "in_progress"]),
+                QueueTicket.status.in_(ACTIVE_TICKET_STATUSES),
             )
             .order_by(QueueTicket.arrival_time)
         ).all()

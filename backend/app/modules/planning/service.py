@@ -317,6 +317,9 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     if not line:
         raise business_error("Cette prestation du ticket est déjà en cours ou terminée")
 
+    # La ligne garde la collaboratrice exécutante pour les chiffres / primes.
+    line.performed_by_employee_id = employee.id
+
     active_employee_session = _get_active_employee_session(
         db=db,
         institute_id=ticket.institute_id,
@@ -370,6 +373,7 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
 
     db.add(ticket)
     db.add(employee)
+    db.add(line)
     db.add(session)
     db.commit()
     db.refresh(session)
@@ -403,7 +407,10 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
             ticket = get_ticket(db, line.ticket_id)
             if ticket:
                 if _ticket_all_lines_completed(db, ticket.id):
-                    ticket.status = "completed"
+                    # Pivot métier BodyMinute : après la dernière prestation,
+                    # le ticket ne devient pas une vente automatiquement.
+                    # Il passe en caisse et doit être encaissé après nouvelle identification.
+                    ticket.status = "ready_for_checkout"
                 else:
                     # Ticket multi-prestations : on garde le ticket actif pour démarrer la suite.
                     ticket.status = "assigned"

@@ -3,6 +3,7 @@ import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
 import { BodyMinuteSidebar } from "./components/BodyMinuteSidebar";
+import { CheckoutPanel } from "./components/CheckoutPanel";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
@@ -19,6 +20,7 @@ import type {
   InstituteDashboardRead,
   PlanningAvailability,
   PlanningDay,
+  PaymentMethod,
   QueueTicket,
   Service,
   ServiceCategory,
@@ -40,14 +42,16 @@ export default function App() {
   const [selectedTicketId, setSelectedTicketId] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [identifiedEmployeeId, setIdentifiedEmployeeId] = useState("");
+  const [selectedCheckoutTicketId, setSelectedCheckoutTicketId] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("cb");
   const [ticketServiceMap, setTicketServiceMap] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
-  const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "appointments" | "dashboard" | "demo" | null>(null);
+  const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
-  const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | null>(null);
+  const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
   const [ticketWorkflowOpen, setTicketWorkflowOpen] = useState(false);
 
   const selectedInstitute = useMemo(
@@ -58,6 +62,11 @@ export default function App() {
   const selectedTicket = useMemo(
     () => tickets.find((ticket) => ticket.id === selectedTicketId),
     [tickets, selectedTicketId]
+  );
+
+  const selectedCheckoutTicket = useMemo(
+    () => tickets.find((ticket) => ticket.id === selectedCheckoutTicketId),
+    [tickets, selectedCheckoutTicketId]
   );
 
   const identifiedEmployee = useMemo(
@@ -98,18 +107,30 @@ export default function App() {
     setSelectedEmployeeId(employeeId);
   }
 
-  function openIdentity(context: IdentityContext, afterAction: "newTicket" | null = null) {
+  function openIdentity(context: IdentityContext, afterAction: "newTicket" | "checkout" | null = null) {
     setIdentityContext(context);
     setAfterIdentityAction(afterAction);
     setIdentityModalOpen(true);
   }
 
-  function handleIdentifyEmployee(employeeId: string) {
+  async function handleIdentifyEmployee(employeeId: string) {
     setIdentifiedEmployeeId(employeeId);
     if (!selectedEmployeeId) setSelectedEmployeeId(employeeId);
 
     if (afterIdentityAction === "newTicket") {
       setTicketWorkflowOpen(true);
+    }
+
+    if (afterIdentityAction === "checkout" && selectedCheckoutTicketId) {
+      try {
+        await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/start`, {
+          employee_id: employeeId,
+        });
+        setActiveDrawer("checkout");
+        await refreshOperationalData();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Impossible d’ouvrir l’encaissement");
+      }
     }
 
     setAfterIdentityAction(null);
@@ -207,7 +228,10 @@ export default function App() {
     if (selectedTicketId && !tickets.some((ticket) => ticket.id === selectedTicketId)) {
       setSelectedTicketId("");
     }
-  }, [tickets, selectedTicketId]);
+    if (selectedCheckoutTicketId && !tickets.some((ticket) => ticket.id === selectedCheckoutTicketId)) {
+      setSelectedCheckoutTicketId("");
+    }
+  }, [tickets, selectedTicketId, selectedCheckoutTicketId]);
 
   async function handleCreateTicket() {
     if (!selectedInstituteId || !selectedServiceId) return;
@@ -363,6 +387,33 @@ export default function App() {
       await refreshOperationalData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de modifier le statut collaboratrice");
+    }
+  }
+
+  function handleOpenCheckout(ticketId: string) {
+    setSelectedTicketId(ticketId);
+    setSelectedCheckoutTicketId(ticketId);
+    openIdentity("checkout", "checkout");
+  }
+
+  async function handlePayCheckout() {
+    if (!selectedCheckoutTicketId || !identifiedEmployeeId) {
+      setError("Identifie la collaboratrice qui encaisse avant de valider le paiement.");
+      return;
+    }
+
+    setError(null);
+    try {
+      await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/pay`, {
+        employee_id: identifiedEmployeeId,
+        payment_method: selectedPaymentMethod,
+      });
+      setSelectedCheckoutTicketId("");
+      setSelectedTicketId("");
+      setActiveDrawer(null);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de valider le paiement");
     }
   }
 
@@ -527,6 +578,7 @@ export default function App() {
             onTicketSelect={handleTicketSelection}
             onOpenTickets={() => setActiveDrawer("tickets")}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            onStartCheckout={handleOpenCheckout}
           />
         </main>
 
@@ -556,6 +608,7 @@ export default function App() {
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            onStartCheckout={handleOpenCheckout}
           />
         </ActionDrawer>
 
@@ -585,6 +638,25 @@ export default function App() {
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            onStartCheckout={handleOpenCheckout}
+          />
+        </ActionDrawer>
+
+        <ActionDrawer
+          open={activeDrawer === "checkout"}
+          title="Encaissement"
+          subtitle={identifiedEmployee ? `Collaboratrice identifiée : ${identifiedEmployee.first_name}` : "Ré-identification obligatoire avant paiement."}
+          onClose={() => setActiveDrawer(null)}
+        >
+          <CheckoutPanel
+            ticket={selectedCheckoutTicket}
+            services={services}
+            employees={employees}
+            cashierEmployee={identifiedEmployee}
+            selectedPaymentMethod={selectedPaymentMethod}
+            onPaymentMethodChange={setSelectedPaymentMethod}
+            onPay={handlePayCheckout}
+            onClose={() => setActiveDrawer(null)}
           />
         </ActionDrawer>
 

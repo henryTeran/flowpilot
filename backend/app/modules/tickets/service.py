@@ -16,6 +16,7 @@ from app.shared.time import utcnow
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
 ASSIGNABLE_EMPLOYEE_STATUSES = {"available"}
+PAYMENT_METHODS = {"cb", "especes", "cheque", "carte_cadeau", "mixte"}
 
 
 def _ensure_aware(value: datetime) -> datetime:
@@ -45,6 +46,24 @@ def _payload_service_ids(payload: TicketCreate) -> list[str]:
     # On supprime les valeurs vides, mais on garde les doublons éventuels si le métier
     # permet plus tard deux fois la même prestation dans un même ticket.
     return [service_id for service_id in service_ids if service_id]
+
+
+def _ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
+    return list(
+        db.scalars(
+            select(TicketLine)
+            .where(TicketLine.ticket_id == ticket_id)
+            .order_by(TicketLine.id)
+        ).all()
+    )
+
+
+def _ticket_total(db: Session, ticket_id: str) -> float:
+    total = 0.0
+    for line in _ticket_lines(db, ticket_id):
+        if line.total is not None:
+            total += float(line.total)
+    return total
 
 
 def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int):
@@ -116,6 +135,7 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         services.append(service)
 
     total_duration = sum(service.duration_min for service in services)
+    total_amount = sum(float(service.price_passage or 0) for service in services)
     now = utcnow()
     ticket = QueueTicket(
         id=new_id("qt"),
@@ -127,6 +147,7 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         arrival_time=now,
         estimated_start_time=estimate_start_time(db, payload.institute_id, total_duration),
         created_by_id=payload.created_by_id,
+        total_amount=total_amount,
     )
     saved = save_ticket(db, ticket)
 
@@ -158,7 +179,7 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
         raise business_error("La collaboratrice ne fait pas partie de cet institut")
 
     if ticket.status not in {"waiting", "assigned"}:
-        raise business_error("Ce ticket est déjà en cours, terminé ou annulé")
+        raise business_error("Ce ticket est déjà en prestation, en caisse, payé ou annulé")
 
     if ticket.status == "assigned" and ticket.assigned_employee_id and ticket.assigned_employee_id != employee.id:
         raise business_error("Ce ticket est déjà affecté à une autre collaboratrice")
@@ -179,16 +200,87 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     if ticket.status == "cancelled":
         return ticket
 
-    if ticket.status == "completed":
-        raise business_error("Ce ticket est déjà terminé")
+    if ticket.status in {"paid", "completed"}:
+        raise business_error("Ce ticket est déjà payé")
 
     if ticket.status == "in_progress":
         raise business_error("Ce ticket est en cours : termine d'abord la prestation depuis le planning")
 
-    if ticket.status not in {"waiting", "assigned"}:
+    if ticket.status not in {"waiting", "assigned", "ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être annulé dans son état actuel")
 
     ticket.status = "cancelled"
     ticket.assigned_employee_id = None
     ticket.estimated_start_time = None
     return save_ticket(db, ticket)
+
+
+def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
+    """Démarre l'encaissement après ré-identification collaboratrice.
+
+    Règle BodyMinute : la personne qui a créé le ticket n'est pas forcément celle
+    qui encaisse. L'encaissement doit donc enregistrer une nouvelle identité.
+    """
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise not_found("Ticket introuvable")
+
+    employee = get_employee(db, employee_id)
+    if not employee:
+        raise not_found("Collaboratrice introuvable")
+    if employee.institute_id != ticket.institute_id:
+        raise business_error("La collaboratrice ne fait pas partie de cet institut")
+
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Le ticket doit être prêt pour la caisse avant encaissement")
+
+    if ticket.status == "in_checkout" and ticket.checkout_employee_id and ticket.checkout_employee_id != employee.id:
+        raise business_error("Ce ticket est déjà ouvert en caisse par une autre collaboratrice")
+
+    ticket.status = "in_checkout"
+    ticket.checkout_employee_id = employee.id
+    ticket.checkout_started_at = ticket.checkout_started_at or utcnow()
+    ticket.total_amount = _ticket_total(db, ticket.id)
+    return save_ticket(db, ticket)
+
+
+def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_method: str) -> QueueTicket:
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise not_found("Ticket introuvable")
+
+    employee = get_employee(db, employee_id)
+    if not employee:
+        raise not_found("Collaboratrice introuvable")
+    if employee.institute_id != ticket.institute_id:
+        raise business_error("La collaboratrice ne fait pas partie de cet institut")
+
+    if payment_method not in PAYMENT_METHODS:
+        raise business_error("Mode de paiement invalide")
+
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Ce ticket ne peut pas être payé dans son état actuel")
+
+    if ticket.checkout_employee_id and ticket.checkout_employee_id != employee.id:
+        raise business_error("La collaboratrice identifiée en caisse doit valider le paiement")
+
+    # Filet de sécurité : si une ligne n'a pas encore d'exécutante, on l'attribue
+    # à la collaboratrice qui encaisse. Dans le flux normal, elle est déjà remplie
+    # au démarrage de la prestation.
+    for line in _ticket_lines(db, ticket.id):
+        if not line.performed_by_employee_id:
+            line.performed_by_employee_id = employee.id
+            db.add(line)
+
+    ticket.status = "paid"
+    ticket.checkout_employee_id = ticket.checkout_employee_id or employee.id
+    ticket.checkout_started_at = ticket.checkout_started_at or utcnow()
+    ticket.paid_employee_id = employee.id
+    ticket.paid_at = utcnow()
+    ticket.payment_method = payment_method
+    ticket.total_amount = _ticket_total(db, ticket.id)
+
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return ticket

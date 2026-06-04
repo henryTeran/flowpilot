@@ -20,10 +20,12 @@ interface QueuePanelProps {
   onStartSession: () => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onStartCheckout: (ticketId: string) => void;
 }
 
 const ACTIONABLE_TICKET_STATUSES = new Set(["waiting", "assigned"]);
-const CANCELLABLE_TICKET_STATUSES = new Set(["waiting", "assigned"]);
+const CANCELLABLE_TICKET_STATUSES = new Set(["waiting", "assigned", "ready_for_checkout"]);
+const CHECKOUT_TICKET_STATUSES = new Set(["ready_for_checkout", "in_checkout"]);
 
 export function QueuePanel({
   tickets,
@@ -45,6 +47,7 @@ export function QueuePanel({
   onStartSession,
   onCancelTicket,
   onFinishActiveEmployeeSession,
+  onStartCheckout,
 }: QueuePanelProps) {
   const filteredServices = selectedCategoryId
     ? services.filter((service) => service.category_id === selectedCategoryId)
@@ -77,6 +80,7 @@ export function QueuePanel({
   const waitingTickets = tickets.filter((ticket) => ticket.status === "waiting");
   const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
+  const checkoutTickets = tickets.filter((ticket) => CHECKOUT_TICKET_STATUSES.has(ticket.status));
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
 
   return (
@@ -93,7 +97,7 @@ export function QueuePanel({
             <p className="eyebrow">Accueil</p>
             <h2>Créer un ticket</h2>
           </div>
-          <span className="counter-badge">{waitingTickets.length + assignedTickets.length} à traiter</span>
+          <span className="counter-badge">{waitingTickets.length + assignedTickets.length + checkoutTickets.length} à traiter</span>
         </div>
 
         <label>Catégorie</label>
@@ -149,6 +153,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onStartCheckout={onStartCheckout}
             />
 
             <TicketGroup
@@ -162,6 +167,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onStartCheckout={onStartCheckout}
             />
 
             <TicketGroup
@@ -175,6 +181,21 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onStartCheckout={onStartCheckout}
+            />
+
+            <TicketGroup
+              title="En caisse"
+              tickets={checkoutTickets}
+              empty="Aucun ticket prêt à encaisser."
+              services={services}
+              employees={employees}
+              selectedTicketId={selectedTicketId}
+              ticketServiceMap={ticketServiceMap}
+              onTicketChange={onTicketChange}
+              onCancelTicket={onCancelTicket}
+              onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onStartCheckout={onStartCheckout}
             />
           </div>
         )}
@@ -273,6 +294,7 @@ interface TicketGroupProps {
   onTicketChange: (id: string) => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onStartCheckout: (ticketId: string) => void;
 }
 
 function TicketGroup({
@@ -286,6 +308,7 @@ function TicketGroup({
   onTicketChange,
   onCancelTicket,
   onFinishActiveEmployeeSession,
+  onStartCheckout,
 }: TicketGroupProps) {
   return (
     <div className="ticket-group">
@@ -332,7 +355,18 @@ function TicketGroup({
               </div>
               <div className="ticket-card-footer">
                 <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
-                {canCancel ? (
+                {CHECKOUT_TICKET_STATUSES.has(ticket.status) ? (
+                  <button
+                    className="ticket-mini-button"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onStartCheckout(ticket.id);
+                    }}
+                  >
+                    Encaisser
+                  </button>
+                ) : canCancel ? (
                   <button
                     className="ticket-mini-button"
                     type="button"
@@ -431,6 +465,9 @@ function translateStatus(status: string) {
     assigned: "Affecté",
     in_progress: "En cours",
     completed: "Terminé",
+    ready_for_checkout: "En caisse",
+    in_checkout: "Caisse ouverte",
+    paid: "Payé",
     cancelled: "Annulé",
   };
   return labels[status] || status;

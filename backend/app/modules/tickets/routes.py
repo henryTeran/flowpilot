@@ -8,8 +8,21 @@ from app.database.session import get_db
 from app.modules.planning.models import ServiceSession
 from app.modules.tickets.models import QueueTicket, TicketLine
 from app.modules.tickets.repository import list_waiting_tickets
-from app.modules.tickets.schemas import QueueTicketRead, TicketAssign, TicketCreate, TicketLineRead
-from app.modules.tickets.service import assign_ticket, cancel_ticket, create_queue_ticket
+from app.modules.tickets.schemas import (
+    QueueTicketRead,
+    TicketAssign,
+    TicketCheckoutStart,
+    TicketCreate,
+    TicketLineRead,
+    TicketPaymentComplete,
+)
+from app.modules.tickets.service import (
+    assign_ticket,
+    cancel_ticket,
+    complete_payment,
+    create_queue_ticket,
+    start_checkout,
+)
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
@@ -57,6 +70,12 @@ def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
         estimated_start_time=ticket.estimated_start_time,
         assigned_employee_id=ticket.assigned_employee_id,
         created_by_id=ticket.created_by_id,
+        checkout_employee_id=ticket.checkout_employee_id,
+        checkout_started_at=ticket.checkout_started_at,
+        paid_employee_id=ticket.paid_employee_id,
+        paid_at=ticket.paid_at,
+        payment_method=ticket.payment_method,
+        total_amount=_to_float(ticket.total_amount),
         lines=[
             TicketLineRead(
                 id=line.id,
@@ -67,6 +86,7 @@ def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
                 total=_to_float(line.total),
                 duration_minutes=line.duration_minutes,
                 revenue_category=line.revenue_category,
+                performed_by_employee_id=line.performed_by_employee_id,
                 status=_line_status(db, line.id),
             )
             for line in lines
@@ -94,4 +114,24 @@ def patch_assign_ticket(ticket_id: str, payload: TicketAssign, db: Session = Dep
 @router.patch("/{ticket_id}/cancel", response_model=QueueTicketRead)
 def patch_cancel_ticket(ticket_id: str, db: Session = Depends(get_db)) -> QueueTicketRead:
     ticket = cancel_ticket(db, ticket_id)
+    return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/checkout/start", response_model=QueueTicketRead)
+def patch_start_checkout(
+    ticket_id: str,
+    payload: TicketCheckoutStart,
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    ticket = start_checkout(db, ticket_id, payload.employee_id)
+    return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/checkout/pay", response_model=QueueTicketRead)
+def patch_complete_payment(
+    ticket_id: str,
+    payload: TicketPaymentComplete,
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method)
     return _read_ticket(db, ticket)

@@ -24,6 +24,15 @@ class TicketAssign(BaseModel):
     employee_id: str
 
 
+class TicketCheckoutStart(BaseModel):
+    employee_id: str
+
+
+class TicketPaymentComplete(BaseModel):
+    employee_id: str
+    payment_method: str = "cb"
+
+
 class TicketLineRead(BaseModel):
     id: str
     ticket_id: str
@@ -33,6 +42,7 @@ class TicketLineRead(BaseModel):
     total: float | None
     duration_minutes: int
     revenue_category: str
+    performed_by_employee_id: str | None = None
     # Champ calculé côté route : pending / in_progress / completed.
     status: str = "pending"
 
@@ -50,6 +60,12 @@ class QueueTicketRead(BaseModel):
     estimated_start_time: datetime | None
     assigned_employee_id: str | None
     created_by_id: str | None
+    checkout_employee_id: str | None = None
+    checkout_started_at: datetime | None = None
+    paid_employee_id: str | None = None
+    paid_at: datetime | None = None
+    payment_method: str | None = None
+    total_amount: float | None = None
     lines: list[TicketLineRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)

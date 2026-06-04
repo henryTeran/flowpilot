@@ -47,6 +47,7 @@ export interface TicketLine {
   total?: number | null;
   duration_minutes: number;
   revenue_category: string;
+  performed_by_employee_id?: string | null;
   status?: "pending" | "in_progress" | "completed" | string;
 }
 
@@ -61,6 +62,12 @@ export interface QueueTicket {
   estimated_start_time?: string | null;
   assigned_employee_id?: string | null;
   created_by_id?: string | null;
+  checkout_employee_id?: string | null;
+  checkout_started_at?: string | null;
+  paid_employee_id?: string | null;
+  paid_at?: string | null;
+  payment_method?: string | null;
+  total_amount?: number | null;
   lines?: TicketLine[];
 }
 
@@ -162,3 +169,6 @@ export interface AppointmentCreatePayload {
 }
 
 export type AppointmentAction = "arrive" | "start" | "complete" | "no-show" | "cancel";
+
+
+export type PaymentMethod = "cb" | "especes" | "cheque" | "carte_cadeau" | "mixte";

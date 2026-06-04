@@ -9,6 +9,7 @@ interface CompactQueuePanelProps {
   onTicketSelect: (ticketId: string) => void;
   onOpenTickets: () => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onStartCheckout: (ticketId: string) => void;
 }
 
 export function CompactQueuePanel({
@@ -20,11 +21,13 @@ export function CompactQueuePanel({
   onTicketSelect,
   onOpenTickets,
   onFinishActiveEmployeeSession,
+  onStartCheckout,
 }: CompactQueuePanelProps) {
   const waitingTickets = tickets.filter((ticket) => ticket.status === "waiting");
   const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
-  const activeTickets = [...waitingTickets, ...assignedTickets, ...inProgressTickets];
+  const checkoutTickets = tickets.filter((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status));
+  const activeTickets = [...waitingTickets, ...assignedTickets, ...inProgressTickets, ...checkoutTickets];
   const visibleTickets = activeTickets.slice(0, 6);
 
   return (
@@ -41,6 +44,7 @@ export function CompactQueuePanel({
         <span><strong>{waitingTickets.length}</strong> à prendre</span>
         <span><strong>{assignedTickets.length}</strong> affecté(s)</span>
         <span><strong>{inProgressTickets.length}</strong> en cours</span>
+        <span><strong>{checkoutTickets.length}</strong> en caisse</span>
       </div>
 
       {visibleTickets.length === 0 ? (
@@ -73,7 +77,18 @@ export function CompactQueuePanel({
                 {ticketServices.length > 1 && <small>{ticketServices.length} prestations</small>}
                 <small>{employee ? employee.first_name : formatTicketWait(ticket)}</small>
 
-                {ticket.status === "in_progress" && ticket.assigned_employee_id && (
+                {["ready_for_checkout", "in_checkout"].includes(ticket.status) ? (
+                  <button
+                    type="button"
+                    className="compact-close-session"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onStartCheckout(ticket.id);
+                    }}
+                  >
+                    Encaisser
+                  </button>
+                ) : ticket.status === "in_progress" && ticket.assigned_employee_id && (
                   <button
                     type="button"
                     className="compact-close-session"
@@ -132,6 +147,9 @@ function translateStatus(status: string) {
     assigned: "Affecté",
     in_progress: "En cours",
     completed: "Terminé",
+    ready_for_checkout: "En caisse",
+    in_checkout: "Caisse ouverte",
+    paid: "Payé",
     cancelled: "Annulé",
   };
   return labels[status] || status;
