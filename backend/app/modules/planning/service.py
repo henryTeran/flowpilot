@@ -401,6 +401,12 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
     if not session:
         raise not_found("Session introuvable")
 
+    if session.status == "completed":
+        raise business_error("Cette prestation est déjà terminée")
+
+    if session.status not in ACTIVE_SESSION_STATUSES:
+        raise business_error("Cette prestation ne peut pas être terminée dans son état actuel")
+
     session.real_end_time = utcnow()
     session.status = "completed"
 
