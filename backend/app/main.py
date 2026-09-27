@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME,
         debug=settings.APP_DEBUG,
         version="0.1.0",
-        description="MVP backend for BodyMinute Flow Manager.",
+        description="MVP backend for FlowPilot Institut Manager.",
     )
 
     app.add_middleware(

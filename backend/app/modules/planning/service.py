@@ -127,39 +127,34 @@ def _ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
     )
 
 
-def _line_sessions(db: Session, line_id: str) -> list[ServiceSession]:
-    return list(
-        db.scalars(
-            select(ServiceSession).where(ServiceSession.ticket_line_id == line_id)
-        ).all()
-    )
+def _ticket_total_duration(db: Session, ticket_id: str) -> int:
+    """Durée cumulée des prestations d'un ticket.
 
-
-def _line_is_completed(db: Session, line_id: str) -> bool:
-    return any(session.status == "completed" for session in _line_sessions(db, line_id))
-
-
-def _line_has_active_session(db: Session, line_id: str) -> bool:
-    return any(session.status in ACTIVE_SESSION_STATUSES for session in _line_sessions(db, line_id))
-
-
-def _next_pending_line_for_service(db: Session, ticket_id: str, service_id: str) -> TicketLine | None:
-    """Retourne la prochaine ligne non terminée pour cette prestation.
-
-    Cela permet d'avoir un ticket avec plusieurs prestations. Si une première
-    prestation du ticket est terminée, on peut démarrer la suivante sans clore
-    tout le ticket.
+    Règle produit : une cliente entre en cabine avec la collaboratrice pour
+    l'ensemble des prestations du ticket. Le planning réserve donc un seul bloc.
     """
-    lines = [line for line in _ticket_lines(db, ticket_id) if line.service_id == service_id]
-    for line in lines:
-        if not _line_is_completed(db, line.id) and not _line_has_active_session(db, line.id):
-            return line
-    return None
+    return sum(line.duration_minutes for line in _ticket_lines(db, ticket_id))
 
 
-def _ticket_all_lines_completed(db: Session, ticket_id: str) -> bool:
-    lines = _ticket_lines(db, ticket_id)
-    return bool(lines) and all(_line_is_completed(db, line.id) for line in lines)
+def _representative_ticket_line(db: Session, ticket_id: str) -> TicketLine | None:
+    return db.scalars(
+        select(TicketLine)
+        .where(TicketLine.ticket_id == ticket_id)
+        .order_by(TicketLine.id)
+    ).first()
+
+
+def _ticket_has_active_session(db: Session, ticket_id: str) -> bool:
+    line_ids = [line.id for line in _ticket_lines(db, ticket_id)]
+    if not line_ids:
+        return False
+
+    return db.scalars(
+        select(ServiceSession).where(
+            ServiceSession.ticket_line_id.in_(line_ids),
+            ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+        )
+    ).first() is not None
 
 def get_day_planning(db: Session, institute_id: str) -> PlanningDayRead:
     now = utcnow()
@@ -288,7 +283,13 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
     )
 
 
-def start_service_session(db: Session, ticket_id: str, employee_id: str, service_id: str) -> ServiceSession:
+def start_service_session(db: Session, ticket_id: str, employee_id: str, service_id: str | None = None) -> ServiceSession:
+    """Démarre une séance complète pour un ticket multi-prestations.
+
+    Correction métier : la collaboratrice ne démarre pas les prestations une par
+    une. Elle prend la cliente, entre en cabine, réalise toutes les prestations
+    du ticket, puis corrige éventuellement le ticket au moment de l'encaissement.
+    """
     ticket = get_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
@@ -297,15 +298,11 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     if not employee:
         raise not_found("Collaboratrice introuvable")
 
-    service = get_service(db, service_id)
-    if not service:
-        raise not_found("Prestation introuvable")
-
     if employee.institute_id != ticket.institute_id:
         raise business_error("Collaboratrice hors institut")
 
     if ticket.status not in {"waiting", "assigned"}:
-        raise business_error("Ce ticket est déjà en cours, terminé ou annulé")
+        raise business_error("Ce ticket est déjà en cours, en caisse, payé ou annulé")
 
     if ticket.assigned_employee_id and ticket.assigned_employee_id != employee.id:
         raise business_error("Ce ticket est déjà affecté à une autre collaboratrice")
@@ -313,23 +310,22 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     if employee.status != "available":
         raise business_error("Cette collaboratrice n'est pas disponible")
 
-    line = _next_pending_line_for_service(db, ticket.id, service.id)
-    if not line:
-        raise business_error("Cette prestation du ticket est déjà en cours ou terminée")
+    lines = _ticket_lines(db, ticket.id)
+    if not lines:
+        raise business_error("Ce ticket ne contient aucune prestation")
 
-    # La ligne garde la collaboratrice exécutante pour les chiffres / primes.
-    line.performed_by_employee_id = employee.id
+    if _ticket_has_active_session(db, ticket.id):
+        raise business_error("Ce ticket est déjà en cabine")
 
     active_employee_session = _get_active_employee_session(
         db=db,
         institute_id=ticket.institute_id,
         employee_id=employee.id,
-        exclude_ticket_line_id=line.id if line else None,
     )
     if active_employee_session:
         planned_end = _ensure_aware(active_employee_session.planned_end_time)
-        now = utcnow()
-        if planned_end <= now:
+        now_check = utcnow()
+        if planned_end <= now_check:
             raise business_error(
                 f"{employee.first_name} a déjà une prestation en retard. Termine-la avant d'en démarrer une autre."
             )
@@ -337,8 +333,24 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
             f"{employee.first_name} est déjà occupée jusqu’à {planned_end.strftime('%H:%M')}"
         )
 
+    total_duration = _ticket_total_duration(db, ticket.id)
+    if total_duration <= 0:
+        raise business_error("La durée totale du ticket est invalide")
+
+    representative_line = _representative_ticket_line(db, ticket.id)
+    if not representative_line:
+        raise business_error("Impossible de déterminer la prestation principale du ticket")
+
+    # Le champ service_id de ServiceSession reste obligatoire dans le modèle.
+    # On utilise la première ligne comme prestation représentative, mais la durée
+    # de la session correspond bien au cumul de toutes les prestations.
+    representative_service_id = representative_line.service_id
+    representative_service = get_service(db, representative_service_id)
+    if not representative_service:
+        raise not_found("Prestation principale introuvable")
+
     now = utcnow()
-    planned_end_time = now + timedelta(minutes=service.duration_min)
+    planned_end_time = now + timedelta(minutes=total_duration)
 
     active_appointments = list(
         db.scalars(
@@ -355,15 +367,20 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
                 f"{employee.first_name} a un rendez-vous planifié sur ce créneau. Choisis une autre collaboratrice."
             )
 
+    for line in lines:
+        # Toutes les lignes sont attribuées à la collaboratrice qui prend la cliente en cabine.
+        line.performed_by_employee_id = employee.id
+        db.add(line)
+
     session = ServiceSession(
         id=new_id("sess"),
-        ticket_line_id=line.id if line else None,
+        ticket_line_id=representative_line.id,
         institute_id=ticket.institute_id,
         employee_id=employee.id,
-        service_id=service.id,
+        service_id=representative_service_id,
         start_time=now,
         planned_end_time=planned_end_time,
-        duration_minutes=service.duration_min,
+        duration_minutes=total_duration,
         status="in_progress",
     )
 
@@ -373,7 +390,6 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
 
     db.add(ticket)
     db.add(employee)
-    db.add(line)
     db.add(session)
     db.commit()
     db.refresh(session)
@@ -406,14 +422,9 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
         if line:
             ticket = get_ticket(db, line.ticket_id)
             if ticket:
-                if _ticket_all_lines_completed(db, ticket.id):
-                    # Pivot métier BodyMinute : après la dernière prestation,
-                    # le ticket ne devient pas une vente automatiquement.
-                    # Il passe en caisse et doit être encaissé après nouvelle identification.
-                    ticket.status = "ready_for_checkout"
-                else:
-                    # Ticket multi-prestations : on garde le ticket actif pour démarrer la suite.
-                    ticket.status = "assigned"
+                # Session unique par ticket : quand la séance est terminée,
+                # le ticket complet passe en caisse.
+                ticket.status = "ready_for_checkout"
                 db.add(ticket)
 
     db.add(session)

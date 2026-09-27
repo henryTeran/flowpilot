@@ -203,7 +203,7 @@ export function QueuePanel({
 
       <section className="panel-card">
         <p className="eyebrow">Action rapide</p>
-        <h2>Démarrer une prestation</h2>
+        <h2>Démarrer la séance</h2>
 
         <label>Ticket sélectionné</label>
         <select value={selectedTicketId} onChange={(event) => onTicketChange(event.target.value)}>
@@ -230,37 +230,23 @@ export function QueuePanel({
           })}
         </select>
 
-        {selectedTicket && selectedTicketServices.length > 1 ? (
-          <>
-            <label>Prestation à démarrer</label>
-            <select value={selectedServiceId} onChange={(event) => onServiceChange(event.target.value)}>
-              {selectedTicketServices.map((service) => {
-                const line = selectedTicket.lines?.find((item) => item.service_id === service.id);
-                const disabled = line?.status === "completed" || line?.status === "in_progress";
-                return (
-                  <option key={service.id} value={service.id} disabled={disabled}>
-                    {service.name} · {line?.status === "completed" ? "terminée" : line?.status === "in_progress" ? "en cours" : `${service.duration_min} min`}
-                  </option>
-                );
-              })}
-            </select>
-          </>
-        ) : (
-          <div className="selected-summary">
-            <span>Prestation</span>
-            <strong>{selectedTicketService?.name || selectedService?.name || "Choisir une prestation"}</strong>
-          </div>
-        )}
+        <div className="selected-summary selected-summary-stack">
+          <span>Séance complète</span>
+          <strong>{formatTicketSessionLabel(selectedTicketServices, selectedTicketService || selectedService)}</strong>
+          {selectedTicketServices.length > 1 && (
+            <small>La collaboratrice démarre le ticket complet : {sumDuration(selectedTicketServices)} min cumulées</small>
+          )}
+        </div>
 
         {selectedTicket && !selectedTicketIsActionable && (
           <p className="inline-warning">
-            Ce ticket est {translateStatus(selectedTicket.status).toLowerCase()} : il se clôture depuis le bloc planning, pas depuis l’action rapide.
+            Ce ticket est {translateStatus(selectedTicket.status).toLowerCase()} : il se termine depuis le bloc planning, puis passe en caisse.
           </p>
         )}
 
         {selectedEmployee && selectedEmployee.status !== "available" && (
           <p className="inline-warning">
-            {selectedEmployee.first_name} est {translateStatus(selectedEmployee.status).toLowerCase()} : termine ou libère la prestation avant d’en démarrer une autre.
+            {selectedEmployee.first_name} est {translateStatus(selectedEmployee.status).toLowerCase()} : termine ou libère la séance avant d’en démarrer une autre.
           </p>
         )}
 
@@ -275,7 +261,7 @@ export function QueuePanel({
             Affecter
           </button>
           <button className="primary-button" onClick={onStartSession} disabled={!canStartSession}>
-            Démarrer
+            Démarrer séance
           </button>
         </div>
       </section>
@@ -409,6 +395,16 @@ function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Recor
   }
 
   return fallbackMap[ticket.id] || [];
+}
+
+function formatTicketSessionLabel(ticketServices: Service[], fallback?: Service) {
+  if (ticketServices.length === 0) return fallback?.name || "Choisir un ticket";
+  if (ticketServices.length === 1) return `${ticketServices[0].name} · ${ticketServices[0].duration_min} min`;
+  return `${ticketServices.length} prestations · ${sumDuration(ticketServices)} min`;
+}
+
+function sumDuration(ticketServices: Service[]) {
+  return ticketServices.reduce((sum, service) => sum + service.duration_min, 0);
 }
 
 function formatTicketServices(ticketServices: Service[]) {

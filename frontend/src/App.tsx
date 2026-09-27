@@ -2,22 +2,23 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
-import { BodyMinuteSidebar } from "./components/BodyMinuteSidebar";
+import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
+import { ChiffresPanel } from "./components/ChiffresPanel";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
-import { InstituteDashboard } from "./components/InstituteDashboard";
 import { NewTicketWorkflow, type NewTicketWorkflowResult } from "./components/NewTicketWorkflow";
 import { PlanningBoard } from "./components/PlanningBoard";
 import { QueuePanel } from "./components/QueuePanel";
+import { TicketsHomePanel } from "./components/TicketsHomePanel";
 import type {
   Appointment,
   AppointmentAction,
   AppointmentCreatePayload,
   Employee,
   Institute,
-  InstituteDashboardRead,
+  ChiffresSummary,
   PlanningAvailability,
   PlanningDay,
   PaymentMethod,
@@ -35,7 +36,8 @@ export default function App() {
   const [tickets, setTickets] = useState<QueueTicket[]>([]);
   const [planning, setPlanning] = useState<PlanningDay | undefined>();
   const [availability, setAvailability] = useState<PlanningAvailability | undefined>();
-  const [dashboard, setDashboard] = useState<InstituteDashboardRead | undefined>();
+  const [chiffres, setChiffres] = useState<ChiffresSummary | undefined>();
+  const [chiffresLoading, setChiffresLoading] = useState(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
@@ -49,6 +51,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -83,6 +86,8 @@ export default function App() {
     () => appointments.filter((appointment) => appointment.status === "completed").length,
     [appointments]
   );
+
+  const ticketStats = useMemo(() => computeTicketStats(tickets), [tickets]);
 
   function handleTicketSelection(ticketId: string) {
     setSelectedTicketId(ticketId);
@@ -172,12 +177,12 @@ export default function App() {
     if (!selectedInstituteId) return;
     setError(null);
     try {
-      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, dashboardResponse, appointmentsResponse] = await Promise.all([
+      const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, chiffresResponse, appointmentsResponse] = await Promise.all([
         apiGet<Employee[]>(`/employees?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<PlanningDay>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/today`),
         apiGet<PlanningAvailability>(`/planning/institutes/${encodeURIComponent(selectedInstituteId)}/availability`),
-        apiGet<InstituteDashboardRead>(`/dashboard/institutes/${encodeURIComponent(selectedInstituteId)}/live`),
+        apiGet<ChiffresSummary>(`/tickets/chiffres?institute_id=${encodeURIComponent(selectedInstituteId)}`),
         apiGet<Appointment[]>(`/appointments?institute_id=${encodeURIComponent(selectedInstituteId)}`),
       ]);
 
@@ -185,7 +190,7 @@ export default function App() {
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
       setAvailability(availabilityResponse);
-      setDashboard(dashboardResponse);
+      setChiffres(chiffresResponse);
       setAppointments(appointmentsResponse);
       if (!selectedEmployeeId && employeesResponse.length > 0) {
         setSelectedEmployeeId(employeesResponse[0].id);
@@ -306,12 +311,10 @@ export default function App() {
     }
 
     const selectedTicketServiceIds = getTicketServiceIds(selectedTicket, ticketServiceMap);
-    const serviceId = selectedTicketServiceIds.includes(selectedServiceId)
-      ? selectedServiceId
-      : getNextPendingTicketServiceId(selectedTicket, ticketServiceMap);
+    const serviceId = selectedTicketServiceIds[0] || selectedServiceId;
 
     if (!serviceId) {
-      setError("Choisis une prestation du ticket avant de démarrer la session.");
+      setError("Ce ticket ne contient aucune prestation.");
       return;
     }
 
@@ -331,7 +334,7 @@ export default function App() {
       setSelectedTicketId("");
       await refreshOperationalData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Impossible de démarrer la prestation");
+      setError(err instanceof Error ? err.message : "Impossible de démarrer la séance");
     }
   }
 
@@ -394,6 +397,32 @@ export default function App() {
     setSelectedTicketId(ticketId);
     setSelectedCheckoutTicketId(ticketId);
     openIdentity("checkout", "checkout");
+  }
+
+  async function handleAddCheckoutService(serviceId: string) {
+    if (!selectedCheckoutTicketId || !serviceId) return;
+
+    setError(null);
+    try {
+      await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/lines/add`, {
+        service_id: serviceId,
+      });
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible d’ajouter la prestation");
+    }
+  }
+
+  async function handleRemoveCheckoutLine(lineId: string) {
+    if (!selectedCheckoutTicketId || !lineId) return;
+
+    setError(null);
+    try {
+      await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/lines/${lineId}/remove`);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de retirer la prestation");
+    }
   }
 
   async function handlePayCheckout() {
@@ -467,19 +496,37 @@ export default function App() {
     }
   }
 
+  async function handleRefreshChiffres() {
+    if (!selectedInstituteId) return;
+
+    setChiffresLoading(true);
+    setError(null);
+    try {
+      const response = await apiGet<ChiffresSummary>(
+        `/tickets/chiffres?institute_id=${encodeURIComponent(selectedInstituteId)}`
+      );
+      setChiffres(response);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de charger les chiffres");
+    } finally {
+      setChiffresLoading(false);
+    }
+  }
+
   return (
     <div className="bm-app-shell">
-      <BodyMinuteSidebar
-        activeItem="Accueil"
-        onOpenTickets={() => setActiveDrawer("tickets")}
-        onOpenDashboard={() => setActiveDrawer("dashboard")}
+      <FlowPilotSidebar
+        activeItem={mainView === "chiffres" ? "Chiffres" : mainView === "tickets" ? "Tickets" : "Accueil"}
+        onOpenAccueil={() => { setActiveDrawer(null); setMainView("planning"); }}
+        onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
+        onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
       />
 
       <div className="bm-content-shell">
         <header className="bm-top-strip">
           <div className="bm-top-left">
-            <p>Accueil / Planning</p>
-            <h1>Planning institut</h1>
+            <p>{getTopBreadcrumb(mainView)}</p>
+            <h1>{getTopTitle(mainView)}</h1>
           </div>
 
           <div className="bm-top-controls">
@@ -508,79 +555,114 @@ export default function App() {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
-        <section className="bm-planning-toolbar">
-          <div className="bm-institute-summary">
-            <span>Institut</span>
-            <strong>{selectedInstitute?.name || "Aucun institut"}</strong>
-            <small>{selectedInstitute?.address || selectedInstitute?.city || "Adresse non renseignée"}</small>
-          </div>
-
-          <div className="bm-toolbar-stat">
-            <span>Prochaine dispo</span>
-            <strong>{formatAvailabilityHeadline(availability)}</strong>
-            <small>{formatAvailabilityDetail(availability)}</small>
-          </div>
-
-          <div className="bm-toolbar-stat compact">
-            <span>Tickets</span>
-            <strong>{tickets.length}</strong>
-            <small>actif(s)</small>
-          </div>
-
-          <div className="bm-toolbar-stat compact">
-            <span>RDV</span>
-            <strong>{activeAppointmentsToday}</strong>
-            <small>{completedAppointmentsToday} terminé(s)</small>
-          </div>
-
-          <div className="bm-primary-actions">
-            <button type="button" className="bm-main-action" onClick={() => openIdentity("create_ticket", "newTicket")}>
-              Créer nouveau ticket
-            </button>
-            <button type="button" className="bm-secondary-action" onClick={() => setActiveDrawer("appointments")}>
-              RDV sous appel
-            </button>
-          </div>
-        </section>
-
-        <main className="bm-workspace">
-          <section className="bm-planning-panel">
-            <div className="bm-section-title">
-              <div>
-                <span>Visualisation journée</span>
-                <h2>Collaboratrices, prestations, RDV et disponibilité</h2>
+        {mainView === "planning" && (
+          <>
+            <section className="bm-planning-toolbar">
+              <div className="bm-institute-summary">
+                <span>Institut</span>
+                <strong>{selectedInstitute?.name || "Aucun institut"}</strong>
+                <small>{selectedInstitute?.address || selectedInstitute?.city || "Adresse non renseignée"}</small>
               </div>
-              <div className="bm-section-actions">
-                <button type="button" onClick={() => void refreshOperationalData()}>Rafraîchir</button>
-                <button type="button" onClick={() => setActiveDrawer("demo")}>Démo</button>
-              </div>
-            </div>
 
-            <PlanningBoard
-              planning={planning}
-              employees={employees}
+              <div className="bm-toolbar-stat">
+                <span>Prochaine dispo</span>
+                <strong>{formatAvailabilityHeadline(availability)}</strong>
+                <small>{formatAvailabilityDetail(availability)}</small>
+              </div>
+
+              <div className="bm-toolbar-stat compact">
+                <span>Tickets</span>
+                <strong>{tickets.length}</strong>
+                <small>actif(s)</small>
+              </div>
+
+              <div className="bm-toolbar-stat compact">
+                <span>RDV</span>
+                <strong>{activeAppointmentsToday}</strong>
+                <small>{completedAppointmentsToday} terminé(s)</small>
+              </div>
+
+              <div className="bm-primary-actions">
+                <button type="button" className="bm-main-action" onClick={() => setTicketWorkflowOpen(true)}>
+                  Créer nouveau ticket
+                </button>
+                <button type="button" className="bm-secondary-action" onClick={() => setActiveDrawer("appointments")}>
+                  RDV sous appel
+                </button>
+              </div>
+            </section>
+
+            <main className="bm-workspace">
+              <section className="bm-planning-panel">
+                <div className="bm-section-title">
+                  <div>
+                    <span>Visualisation journée</span>
+                    <h2>Collaboratrices, prestations, RDV et disponibilité</h2>
+                  </div>
+                  <div className="bm-section-actions">
+                    <button type="button" onClick={() => void refreshOperationalData()}>Rafraîchir</button>
+                    <button type="button" onClick={() => setActiveDrawer("demo")}>Démo</button>
+                  </div>
+                </div>
+
+                <PlanningBoard
+                  planning={planning}
+                  employees={employees}
+                  services={services}
+                  appointments={appointments}
+                  availability={availability}
+                  onFinishSession={handleFinishSession}
+                  onExtendSession={handleExtendSession}
+                  onChangeEmployeeStatus={handleChangeEmployeeStatus}
+                  onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+                />
+              </section>
+
+              <CompactQueuePanel
+                tickets={tickets}
+                services={services}
+                employees={employees}
+                selectedTicketId={selectedTicketId}
+                ticketServiceMap={ticketServiceMap}
+                onTicketSelect={handleTicketSelection}
+                onOpenTickets={() => setActiveDrawer("tickets")}
+                onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+                onStartCheckout={handleOpenCheckout}
+              />
+            </main>
+          </>
+        )}
+
+        {mainView === "tickets" && (
+          <main className="bm-workspace bm-workspace-full">
+            <TicketsHomePanel
+              tickets={tickets}
               services={services}
-              appointments={appointments}
-              availability={availability}
-              onFinishSession={handleFinishSession}
-              onExtendSession={handleExtendSession}
-              onChangeEmployeeStatus={handleChangeEmployeeStatus}
-              onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+              employees={employees}
+              ticketStats={ticketStats}
+              onCreateTicket={() => setTicketWorkflowOpen(true)}
+              onRefresh={refreshOperationalData}
+              onManageTicket={(ticket) => {
+                handleTicketSelection(ticket.id);
+                if (isCheckoutTicket(ticket.status)) {
+                  handleOpenCheckout(ticket.id);
+                } else {
+                  setMainView("planning");
+                }
+              }}
             />
-          </section>
+          </main>
+        )}
 
-          <CompactQueuePanel
-            tickets={tickets}
-            services={services}
-            employees={employees}
-            selectedTicketId={selectedTicketId}
-            ticketServiceMap={ticketServiceMap}
-            onTicketSelect={handleTicketSelection}
-            onOpenTickets={() => setActiveDrawer("tickets")}
-            onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
-            onStartCheckout={handleOpenCheckout}
-          />
-        </main>
+        {mainView === "chiffres" && (
+          <main className="bm-workspace bm-workspace-full">
+            <ChiffresPanel
+              chiffres={chiffres}
+              loading={chiffresLoading}
+              onRefresh={handleRefreshChiffres}
+            />
+          </main>
+        )}
 
         <ActionDrawer
           open={activeDrawer === "newTicket"}
@@ -655,8 +737,12 @@ export default function App() {
             cashierEmployee={identifiedEmployee}
             selectedPaymentMethod={selectedPaymentMethod}
             onPaymentMethodChange={setSelectedPaymentMethod}
+            onAddService={handleAddCheckoutService}
+            onRemoveLine={handleRemoveCheckoutLine}
             onPay={handlePayCheckout}
             onClose={() => setActiveDrawer(null)}
+            onCancelTicket={handleCancelTicket}
+            onReidentify={() => openIdentity("checkout", "checkout")}
           />
         </ActionDrawer>
 
@@ -677,15 +763,6 @@ export default function App() {
         </ActionDrawer>
 
         <ActionDrawer
-          open={activeDrawer === "dashboard"}
-          title="Chiffres"
-          subtitle="Indicateurs opérationnels provisoires avant module chiffres complet."
-          onClose={() => setActiveDrawer(null)}
-        >
-          <InstituteDashboard dashboard={dashboard} />
-        </ActionDrawer>
-
-        <ActionDrawer
           open={activeDrawer === "demo"}
           title="Mode démonstration"
           subtitle="Réinitialiser ou générer une journée de test."
@@ -702,8 +779,10 @@ export default function App() {
         <NewTicketWorkflow
           open={ticketWorkflowOpen}
           creatorEmployee={identifiedEmployee}
+          ticketStats={ticketStats}
           categories={categories}
           services={services}
+          onRequestIdentity={() => openIdentity("create_ticket")}
           onClose={() => setTicketWorkflowOpen(false)}
           onValidate={handleCreateWorkflowTicket}
         />
@@ -721,6 +800,55 @@ export default function App() {
   );
 }
 
+
+function computeTicketStats(tickets: QueueTicket[]) {
+  const waitingStatuses = new Set(["waiting", "assigned", "in_service", "in_progress"]);
+  const checkoutStatuses = new Set(["ready_for_checkout", "in_checkout", "checkout"]);
+  const paidStatuses = new Set(["paid", "completed"]);
+
+  return tickets.reduce(
+    (stats, ticket) => {
+      const amount = ticket.total_amount ?? ticket.lines?.reduce((sum, line) => sum + (line.total ?? 0), 0) ?? 0;
+
+      if (checkoutStatuses.has(ticket.status)) {
+        stats.checkoutCount += 1;
+        stats.checkoutAmount += amount;
+      } else if (paidStatuses.has(ticket.status)) {
+        stats.salesCount += 1;
+        stats.salesAmount += amount;
+      } else if (waitingStatuses.has(ticket.status)) {
+        stats.waitingCount += 1;
+        stats.waitingAmount += amount;
+      }
+
+      return stats;
+    },
+    {
+      waitingCount: 0,
+      waitingAmount: 0,
+      checkoutCount: 0,
+      checkoutAmount: 0,
+      salesCount: 0,
+      salesAmount: 0,
+    }
+  );
+}
+
+function isCheckoutTicket(status: string) {
+  return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
+}
+
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres") {
+  if (view === "tickets") return "Accueil / Tickets";
+  if (view === "chiffres") return "Accueil / Chiffres";
+  return "Accueil / Planning";
+}
+
+function getTopTitle(view: "planning" | "tickets" | "chiffres") {
+  if (view === "tickets") return "Tickets";
+  if (view === "chiffres") return "Chiffres";
+  return "Planning institut";
+}
 
 function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Record<string, string[]>) {
   if (!ticket) return [];

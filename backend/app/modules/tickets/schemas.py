@@ -7,7 +7,7 @@ class TicketCreate(BaseModel):
     institute_id: str
     # Compatibilité avec l'ancien workflow : un seul service_id.
     service_id: str | None = None
-    # Nouveau workflow BodyMinute-like : plusieurs prestations dans un même ticket.
+    # Nouveau workflow multi-prestations : plusieurs prestations dans un même ticket.
     service_ids: list[str] = Field(default_factory=list)
     customer_id: str | None = None
     subscription_id: str | None = None
@@ -31,6 +31,10 @@ class TicketCheckoutStart(BaseModel):
 class TicketPaymentComplete(BaseModel):
     employee_id: str
     payment_method: str = "cb"
+
+
+class TicketLineAdd(BaseModel):
+    service_id: str
 
 
 class TicketLineRead(BaseModel):
@@ -73,3 +77,27 @@ class QueueTicketRead(BaseModel):
 
 class TicketWithLinesRead(QueueTicketRead):
     lines: list[TicketLineRead] = Field(default_factory=list)
+
+
+class EmployeeChiffresRead(BaseModel):
+    """Ligne du module Chiffres, proche du logiciel caisse actuel."""
+
+    employee_id: str
+    employee_name: str
+    soins: float = 0.0
+    ventes: float = 0.0
+    contrats: float = 0.0
+    pourboires: float = 0.0
+    moyenne: float = 0.0
+    total: float = 0.0
+    tickets: int = 0
+    prestations: int = 0
+
+
+class ChiffresSummaryRead(BaseModel):
+    institute_id: str
+    generated_at: datetime
+    period_start: datetime
+    period_end: datetime
+    rows: list[EmployeeChiffresRead]
+    totals: EmployeeChiffresRead

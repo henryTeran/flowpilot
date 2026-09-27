@@ -25,7 +25,7 @@ export function TopBar({
   return (
     <header className="topbar">
       <div>
-        <p className="eyebrow">BodyMinute Flow Manager</p>
+        <p className="eyebrow">FlowPilot Institut Manager</p>
         <h1>Planning temps réel</h1>
       </div>
 

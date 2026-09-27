@@ -14,8 +14,8 @@ export function Sidebar() {
       <div className="brand-card">
         <div className="brand-mark">BM</div>
         <div>
-          <strong>BodyMinute</strong>
-          <span>Flow Manager</span>
+          <strong>FlowPilot</strong>
+          <span>Institut Manager</span>
         </div>
       </div>
 

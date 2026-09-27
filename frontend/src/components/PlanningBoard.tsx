@@ -151,8 +151,12 @@ export function PlanningBoard({
 
                     const sessionMeta = getSessionMeta(session);
                     const canEdit = ACTIVE_STATUSES.has(session.status);
-                    const serviceName = service?.name || "Prestation";
-                    const detailText = `${serviceName} · ${session.duration_minutes} min · ${sessionMeta.label} · ${sessionMeta.timeLabel}`;
+                    const isFullTicketSession = Boolean(service && session.duration_minutes > service.duration_min);
+                    const serviceName = isFullTicketSession ? "Séance complète" : service?.name || "Prestation";
+                    const serviceDetail = isFullTicketSession
+                      ? `${service?.name || "Prestation"} + autres prestations`
+                      : service?.name || "Prestation";
+                    const detailText = `${serviceName} · ${serviceDetail} · ${session.duration_minutes} min · ${sessionMeta.label} · ${sessionMeta.timeLabel}`;
                     const isCompact = block.width < 10 || session.duration_minutes <= 15;
                     const isMicro = block.width < 5;
 
@@ -168,13 +172,13 @@ export function PlanningBoard({
                       >
                         <div className="session-content">
                           <strong>{serviceName}</strong>
-                          <span>{session.duration_minutes} min · {sessionMeta.label}</span>
+                          <span>{isFullTicketSession ? serviceDetail : `${session.duration_minutes} min`} · {sessionMeta.label}</span>
                           <small>{sessionMeta.timeLabel}</small>
                         </div>
 
                         {isCompact && (
                           <div className="compact-session-info" aria-hidden="true">
-                            <strong>{getShortServiceName(serviceName)}</strong>
+                            <strong>{isFullTicketSession ? "Séance" : getShortServiceName(serviceName)}</strong>
                             <span>{session.duration_minutes} min</span>
                           </div>
                         )}

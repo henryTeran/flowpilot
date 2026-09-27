@@ -30,9 +30,14 @@ def _generate_ticket_number(db: Session, institute_id: str) -> str:
     return f"T-{count:03d}"
 
 
-def _first_line_duration(db: Session, ticket_id: str, fallback_minutes: int) -> int:
-    line = db.scalars(select(TicketLine).where(TicketLine.ticket_id == ticket_id)).first()
-    return line.duration_minutes if line else fallback_minutes
+def _ticket_duration(db: Session, ticket_id: str, fallback_minutes: int = 0) -> int:
+    """Durée totale d'un ticket multi-prestations.
+
+    Règle produit : la collaboratrice entre en cabine une seule fois.
+    Le planning doit donc réserver une seule séance avec le cumul des durées.
+    """
+    total = sum(line.duration_minutes for line in _ticket_lines(db, ticket_id))
+    return total or fallback_minutes
 
 
 def _payload_service_ids(payload: TicketCreate) -> list[str]:
@@ -116,7 +121,7 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
 
     for ticket in queue:
         employee_id = min(availability_by_employee, key=lambda item: availability_by_employee[item])
-        duration = _first_line_duration(db, ticket.id, service_duration_minutes)
+        duration = _ticket_duration(db, ticket.id, service_duration_minutes)
         availability_by_employee[employee_id] = availability_by_employee[employee_id] + timedelta(minutes=duration)
 
     return min(availability_by_employee.values())
@@ -215,10 +220,76 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     return save_ticket(db, ticket)
 
 
+def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> QueueTicket:
+    """Ajoute une prestation au moment de l'encaissement.
+
+    Cas terrain : pendant la séance, la cliente demande une prestation en plus.
+    La collaboratrice ne sort pas de cabine pour modifier le ticket. Elle corrige
+    le ticket juste avant d'encaisser.
+    """
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise not_found("Ticket introuvable")
+
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Les prestations se modifient à l'encaissement, après la séance")
+
+    service = get_service(db, service_id)
+    if not service:
+        raise not_found("Prestation introuvable")
+
+    performer_id = ticket.assigned_employee_id or ticket.checkout_employee_id or ticket.paid_employee_id
+    unit_price = service.price_passage
+    line = TicketLine(
+        id=new_id("tl"),
+        ticket_id=ticket.id,
+        service_id=service.id,
+        quantity=1,
+        unit_price=unit_price,
+        total=unit_price,
+        duration_minutes=service.duration_min,
+        revenue_category="care",
+        performed_by_employee_id=performer_id,
+    )
+
+    db.add(line)
+    ticket.total_amount = _ticket_total(db, ticket.id) + float(unit_price or 0)
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+
+def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> QueueTicket:
+    """Retire une prestation non réalisée avant le paiement."""
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise not_found("Ticket introuvable")
+
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Les prestations se modifient uniquement à l'encaissement")
+
+    line = db.get(TicketLine, line_id)
+    if not line or line.ticket_id != ticket.id:
+        raise not_found("Ligne de prestation introuvable")
+
+    lines = _ticket_lines(db, ticket.id)
+    if len(lines) <= 1:
+        raise business_error("Impossible de supprimer la dernière prestation du ticket")
+
+    db.delete(line)
+    db.flush()
+    ticket.total_amount = _ticket_total(db, ticket.id)
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+
 def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
     """Démarre l'encaissement après ré-identification collaboratrice.
 
-    Règle BodyMinute : la personne qui a créé le ticket n'est pas forcément celle
+    Règle produit : la personne qui a créé le ticket n'est pas forcément celle
     qui encaisse. L'encaissement doit donc enregistrer une nouvelle identité.
     """
     ticket = get_ticket(db, ticket_id)
@@ -284,3 +355,142 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
     db.commit()
     db.refresh(ticket)
     return ticket
+
+
+def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
+    """Calcule le module Chiffres par collaboratrice.
+
+    Règle métier validée avec le client : les chiffres ne sont pas
+    imputés à la personne qui a créé le ticket, mais à la collaboratrice qui a
+    réalisé la prestation. Si une ligne n'a pas d'exécutante, on utilise la
+    collaboratrice qui a validé l'encaissement comme filet de sécurité.
+    """
+    from app.modules.tickets.schemas import EmployeeChiffresRead, ChiffresSummaryRead
+
+    now = utcnow()
+    period_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    period_end = period_start + timedelta(days=1)
+
+    employees = list_by_institute(db, institute_id)
+    employee_names = {employee.id: employee.first_name for employee in employees}
+
+    rows_by_employee: dict[str, dict] = {
+        employee.id: {
+            "employee_id": employee.id,
+            "employee_name": employee.first_name,
+            "soins": 0.0,
+            "ventes": 0.0,
+            "contrats": 0.0,
+            "pourboires": 0.0,
+            "tickets": set(),
+            "prestations": 0,
+        }
+        for employee in employees
+    }
+
+    paid_tickets = list(
+        db.scalars(
+            select(QueueTicket).where(
+                QueueTicket.institute_id == institute_id,
+                QueueTicket.status == "paid",
+                QueueTicket.paid_at >= period_start,
+                QueueTicket.paid_at < period_end,
+            )
+        ).all()
+    )
+
+    for ticket in paid_tickets:
+        lines = _ticket_lines(db, ticket.id)
+        for line in lines:
+            employee_id = line.performed_by_employee_id or ticket.paid_employee_id or ticket.checkout_employee_id
+            if not employee_id:
+                continue
+
+            if employee_id not in rows_by_employee:
+                rows_by_employee[employee_id] = {
+                    "employee_id": employee_id,
+                    "employee_name": employee_names.get(employee_id, "Collaboratrice"),
+                    "soins": 0.0,
+                    "ventes": 0.0,
+                    "contrats": 0.0,
+                    "pourboires": 0.0,
+                    "tickets": set(),
+                    "prestations": 0,
+                }
+
+            amount = float(line.total or 0)
+            category = (line.revenue_category or "care").lower()
+            target = rows_by_employee[employee_id]
+
+            if category in {"care", "soin", "soins", "prestation"}:
+                target["soins"] += amount
+                target["prestations"] += int(line.quantity or 1)
+            elif category in {"sale", "vente", "ventes", "product", "produit"}:
+                target["ventes"] += amount
+            elif category in {"contract", "contrat", "contrats", "subscription", "abonnement"}:
+                target["contrats"] += amount
+            elif category in {"tip", "tips", "pourboire", "pourboires"}:
+                target["pourboires"] += amount
+            else:
+                # Par défaut, une ligne inconnue reste dans Soins pour ne pas perdre le CA.
+                target["soins"] += amount
+                target["prestations"] += int(line.quantity or 1)
+
+            target["tickets"].add(ticket.id)
+
+    rows: list[EmployeeChiffresRead] = []
+    total_soins = total_ventes = total_contrats = total_pourboires = 0.0
+    total_tickets: set[str] = set()
+    total_prestations = 0
+
+    for employee_id, item in rows_by_employee.items():
+        total = item["soins"] + item["ventes"] + item["contrats"] + item["pourboires"]
+        ticket_count = len(item["tickets"])
+        prestations_count = int(item["prestations"])
+        moyenne = total / ticket_count if ticket_count else 0.0
+
+        total_soins += item["soins"]
+        total_ventes += item["ventes"]
+        total_contrats += item["contrats"]
+        total_pourboires += item["pourboires"]
+        total_tickets.update(item["tickets"])
+        total_prestations += prestations_count
+
+        rows.append(
+            EmployeeChiffresRead(
+                employee_id=employee_id,
+                employee_name=item["employee_name"],
+                soins=round(item["soins"], 2),
+                ventes=round(item["ventes"], 2),
+                contrats=round(item["contrats"], 2),
+                pourboires=round(item["pourboires"], 2),
+                moyenne=round(moyenne, 2),
+                total=round(total, 2),
+                tickets=ticket_count,
+                prestations=prestations_count,
+            )
+        )
+
+    rows = sorted(rows, key=lambda row: row.employee_name.lower())
+    grand_total = total_soins + total_ventes + total_contrats + total_pourboires
+    grand_ticket_count = len(total_tickets)
+
+    return ChiffresSummaryRead(
+        institute_id=institute_id,
+        generated_at=now,
+        period_start=period_start,
+        period_end=period_end,
+        rows=rows,
+        totals=EmployeeChiffresRead(
+            employee_id="total",
+            employee_name="TOTAL",
+            soins=round(total_soins, 2),
+            ventes=round(total_ventes, 2),
+            contrats=round(total_contrats, 2),
+            pourboires=round(total_pourboires, 2),
+            moyenne=round(grand_total / grand_ticket_count, 2) if grand_ticket_count else 0.0,
+            total=round(grand_total, 2),
+            tickets=grand_ticket_count,
+            prestations=total_prestations,
+        ),
+    )

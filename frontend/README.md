@@ -1,4 +1,4 @@
-# Frontend BodyMinute Flow Manager
+# Frontend FlowPilot Institut Manager
 
 Interface React/TypeScript du MVP.
 

@@ -1,4 +1,4 @@
-# BodyMinute Flow Manager - Starter MVP
+# FlowPilot Institut Manager - Starter MVP
 
 Socle technique initial pour démarrer le développement du MVP.
 

@@ -13,20 +13,31 @@ export interface NewTicketWorkflowResult {
   passageType: string;
 }
 
+type TicketStats = {
+  waitingCount: number;
+  waitingAmount: number;
+  checkoutCount: number;
+  checkoutAmount: number;
+  salesCount: number;
+  salesAmount: number;
+};
+
 interface NewTicketWorkflowProps {
   open: boolean;
   creatorEmployee?: Employee;
+  ticketStats?: TicketStats;
   categories: ServiceCategory[];
   services: Service[];
+  onRequestIdentity?: () => void;
   onClose: () => void;
   onValidate: (result: NewTicketWorkflowResult) => Promise<void> | void;
 }
 
 const identificationModes = [
-  { code: "scan", label: "Scan carte", help: "Carte abonnée / MultiPass" },
-  { code: "passage_bm", label: "Passage BM", help: "Cliente de passage" },
-  { code: "nc", label: "NC", help: "Nouvelle cliente" },
-  { code: "gift_card", label: "Carte cadeau", help: "Bon / code cadeau" },
+  { code: "scan", label: "Scanner carte", help: "Carte abonnée / MultiPass", icon: "▥" },
+  { code: "passage_bm", label: "Passage BM", help: "Cliente de passage", icon: "body\nminute" },
+  { code: "nc", label: "NC", help: "Nouvelle cliente", icon: "□" },
+  { code: "gift_card", label: "Carte cadeau", help: "Bon / code cadeau", icon: "▤" },
 ];
 
 const passageTypes = [
@@ -42,8 +53,10 @@ const stepLabels = ["Cliente", "Passage", "Prestations", "Validation"];
 export function NewTicketWorkflow({
   open,
   creatorEmployee,
+  ticketStats,
   categories,
   services,
+  onRequestIdentity,
   onClose,
   onValidate,
 }: NewTicketWorkflowProps) {
@@ -123,82 +136,62 @@ export function NewTicketWorkflow({
 
   return (
     <div className="bm-ticket-screen" role="dialog" aria-modal="true" aria-labelledby="bm-ticket-title">
-      <section className="bm-ticket-window">
-        <header className="bm-ticket-header">
+      <section className="bm-ticket-window bm-ticket-window-clone">
+        <header className="bm-ticket-header bm-new-ticket-header-clone">
           <button type="button" className="bm-ticket-back" onClick={resetAndClose}>
-            Retour
+            ‹
           </button>
 
-          <div className="bm-ticket-title-block">
+          <div className="bm-ticket-title-block clone-title">
             <h2 id="bm-ticket-title">Nouveau Ticket</h2>
-            <p>
-              {creatorEmployee
-                ? `Création par ${creatorEmployee.first_name}`
-                : "Identification collaboratrice requise"}
-            </p>
           </div>
 
-          <div className="bm-ticket-steps" aria-label="Étapes nouveau ticket">
-            {stepLabels.map((label, index) => (
-              <button
-                key={label}
-                type="button"
-                className={`bm-ticket-step ${index === step ? "active" : ""} ${index < step ? "done" : ""}`}
-                onClick={() => setStep(index)}
-              >
-                <span>{index + 1}</span>
-                {label}
-              </button>
-            ))}
+          <div className="bm-new-ticket-counter-row">
+            <SmallCounter title="En attente" count={ticketStats?.waitingCount ?? 0} amount={ticketStats?.waitingAmount ?? 0} active />
+            <SmallCounter title="En caisse" count={ticketStats?.checkoutCount ?? 0} amount={ticketStats?.checkoutAmount ?? 0} />
+            <SmallCounter title="Ventes" count={ticketStats?.salesCount ?? 0} amount={ticketStats?.salesAmount ?? 0} />
           </div>
         </header>
 
-        <main className="bm-ticket-content">
+        <main className="bm-ticket-content bm-new-ticket-content-clone">
           {step === 0 && (
-            <section className="bm-ticket-stage bm-ticket-customer-stage">
-              <div className="bm-ticket-stage-title">
-                <span>Étape 1</span>
-                <h3>Identifier la cliente</h3>
-                <p>Rechercher une cliente existante ou créer un passage rapide.</p>
+            <section className="bm-ticket-stage bm-ticket-customer-stage clone-customer-stage">
+              <div className="bm-ticket-identification-strip">
+                <div className="bm-dash-placeholder">-</div>
+                <button type="button" className="bm-identify-pill-inline" onClick={onRequestIdentity}>
+                  {creatorEmployee ? `${creatorEmployee.first_name} identifié(e)` : "Je m’identifie"}
+                  <span>⌕</span>
+                </button>
               </div>
 
-              <div className="bm-customer-form">
-                <label>
-                  Nom
-                  <input
-                    value={customerLastName}
-                    onChange={(event) => setCustomerLastName(event.target.value)}
-                    placeholder="Nom de famille"
-                  />
-                </label>
-                <label>
-                  Prénom
-                  <input
-                    value={customerFirstName}
-                    onChange={(event) => setCustomerFirstName(event.target.value)}
-                    placeholder="Prénom"
-                  />
-                </label>
-                <label>
-                  Téléphone
-                  <input
-                    value={customerPhone}
-                    onChange={(event) => setCustomerPhone(event.target.value)}
-                    placeholder="Téléphone"
-                  />
-                </label>
+              <div className="bm-customer-form clone-customer-form">
+                <input
+                  value={customerLastName}
+                  onChange={(event) => setCustomerLastName(event.target.value)}
+                  placeholder="Nom"
+                />
+                <input
+                  value={customerFirstName}
+                  onChange={(event) => setCustomerFirstName(event.target.value)}
+                  placeholder="Prénom"
+                />
+                <input
+                  value={customerPhone}
+                  onChange={(event) => setCustomerPhone(event.target.value)}
+                  placeholder="Numéro de téléphone"
+                />
               </div>
 
-              <div className="bm-identification-mode-grid">
+              <div className="bm-identification-mode-grid clone-identification-grid">
                 {identificationModes.map((mode) => (
                   <button
                     key={mode.code}
                     type="button"
-                    className={`bm-identification-mode ${identificationMode === mode.code ? "active" : ""}`}
+                    className={`bm-identification-mode clone-identification-card ${identificationMode === mode.code ? "active" : ""}`}
                     onClick={() => setIdentificationMode(mode.code)}
                   >
+                    <span className="bm-mode-icon">{mode.icon}</span>
                     <strong>{mode.label}</strong>
-                    <span>{mode.help}</span>
                   </button>
                 ))}
               </div>
@@ -208,9 +201,9 @@ export function NewTicketWorkflow({
           {step === 1 && (
             <section className="bm-ticket-stage">
               <div className="bm-ticket-stage-title">
-                <span>Étape 2</span>
-                <h3>Choisir le type de passage</h3>
-                <p>Le type choisi influence les prix et les avantages appliqués au ticket.</p>
+                <span>Type de passage</span>
+                <h3>Choisir le passage ou l’abonnement</h3>
+                <p>Cette étape reprend le choix Passage, Contrat, SKIN ou VIP du logiciel actuel.</p>
               </div>
 
               <div className="bm-passage-grid">
@@ -234,8 +227,8 @@ export function NewTicketWorkflow({
               <div className="bm-service-blue-area">
                 <div className="bm-service-blue-header">
                   <div>
-                    <span>Étape 3</span>
-                    <h3>Sélection des prestations</h3>
+                    <span>Sélection prestations</span>
+                    <h3>Ajouter une ou plusieurs prestations</h3>
                   </div>
                   <strong>{selectedServices.length} prestation(s)</strong>
                 </div>
@@ -277,9 +270,9 @@ export function NewTicketWorkflow({
           {step === 3 && (
             <section className="bm-ticket-stage bm-ticket-summary-stage">
               <div className="bm-ticket-stage-title">
-                <span>Étape 4</span>
-                <h3>Valider le ticket</h3>
-                <p>Contrôler la cliente, le passage et les prestations avant de mettre le ticket en attente.</p>
+                <span>Validation</span>
+                <h3>Contrôler le ticket avant mise en attente</h3>
+                <p>La facturation demandera une nouvelle identification de la collaboratrice qui a réalisé la prestation.</p>
               </div>
 
               <div className="bm-ticket-summary-grid">
@@ -296,7 +289,7 @@ export function NewTicketWorkflow({
                 <article>
                   <span>Créatrice ticket</span>
                   <strong>{creatorEmployee?.first_name || "Non identifiée"}</strong>
-                  <small>La facturation demandera une nouvelle identification.</small>
+                  <small>Identification possible avant validation.</small>
                 </article>
               </div>
 
@@ -318,6 +311,20 @@ export function NewTicketWorkflow({
         </main>
 
         <footer className="bm-ticket-footer">
+          <div className="bm-ticket-progress-clone" aria-label="Étapes nouveau ticket">
+            {stepLabels.map((label, index) => (
+              <button
+                key={label}
+                type="button"
+                className={`bm-ticket-step ${index === step ? "active" : ""} ${index < step ? "done" : ""}`}
+                onClick={() => setStep(index)}
+              >
+                <span>{index + 1}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="bm-ticket-total">
             <span>{selectedServices.length} prestation(s)</span>
             <strong>Total {formatPrice(total)}</strong>
@@ -345,6 +352,18 @@ export function NewTicketWorkflow({
         </footer>
       </section>
     </div>
+  );
+}
+
+function SmallCounter({ title, count, amount, active = false }: { title: string; count: number; amount: number; active?: boolean }) {
+  return (
+    <article className={`bm-new-ticket-counter ${active ? "active" : ""}`}>
+      <span>{count}</span>
+      <div>
+        <strong>{title}</strong>
+        <small>{formatPrice(amount)}</small>
+      </div>
+    </article>
   );
 }
 

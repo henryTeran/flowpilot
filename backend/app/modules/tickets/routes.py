@@ -9,18 +9,23 @@ from app.modules.planning.models import ServiceSession
 from app.modules.tickets.models import QueueTicket, TicketLine
 from app.modules.tickets.repository import list_waiting_tickets
 from app.modules.tickets.schemas import (
+    ChiffresSummaryRead,
     QueueTicketRead,
     TicketAssign,
     TicketCheckoutStart,
     TicketCreate,
+    TicketLineAdd,
     TicketLineRead,
     TicketPaymentComplete,
 )
 from app.modules.tickets.service import (
+    add_checkout_ticket_line,
     assign_ticket,
     cancel_ticket,
     complete_payment,
     create_queue_ticket,
+    get_chiffres_by_employee,
+    remove_checkout_ticket_line,
     start_checkout,
 )
 
@@ -37,10 +42,21 @@ def _to_float(value):
     return float(value)
 
 
-def _line_status(db: Session, line_id: str) -> str:
+def _line_status(db: Session, ticket: QueueTicket, line: TicketLine) -> str:
+    """Statut d'une ligne dans un ticket à session unique.
+
+    Le planning démarre le ticket complet, pas les lignes une par une.
+    Une seule session peut donc représenter toutes les prestations du ticket.
+    """
+    if ticket.status == "in_progress" and line.performed_by_employee_id:
+        return "in_progress"
+
+    if ticket.status in {"ready_for_checkout", "in_checkout", "paid"} and line.performed_by_employee_id:
+        return "completed"
+
     sessions = list(
         db.scalars(
-            select(ServiceSession).where(ServiceSession.ticket_line_id == line_id)
+            select(ServiceSession).where(ServiceSession.ticket_line_id == line.id)
         ).all()
     )
     if any(session.status in ACTIVE_SESSION_STATUSES for session in sessions):
@@ -87,11 +103,16 @@ def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
                 duration_minutes=line.duration_minutes,
                 revenue_category=line.revenue_category,
                 performed_by_employee_id=line.performed_by_employee_id,
-                status=_line_status(db, line.id),
+                status=_line_status(db, ticket, line),
             )
             for line in lines
         ],
     )
+
+
+@router.get("/chiffres", response_model=ChiffresSummaryRead)
+def get_chiffres(institute_id: str, db: Session = Depends(get_db)) -> ChiffresSummaryRead:
+    return get_chiffres_by_employee(db, institute_id)
 
 
 @router.get("/waiting", response_model=list[QueueTicketRead])
@@ -124,6 +145,26 @@ def patch_start_checkout(
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     ticket = start_checkout(db, ticket_id, payload.employee_id)
+    return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/checkout/lines/add", response_model=QueueTicketRead)
+def patch_add_checkout_line(
+    ticket_id: str,
+    payload: TicketLineAdd,
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    ticket = add_checkout_ticket_line(db, ticket_id, payload.service_id)
+    return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/checkout/lines/{line_id}/remove", response_model=QueueTicketRead)
+def patch_remove_checkout_line(
+    ticket_id: str,
+    line_id: str,
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    ticket = remove_checkout_ticket_line(db, ticket_id, line_id)
     return _read_ticket(db, ticket)
 
 

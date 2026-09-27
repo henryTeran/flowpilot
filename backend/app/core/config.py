@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "BodyMinute Flow Manager"
+    APP_NAME: str = "FlowPilot Institut Manager"
     APP_ENV: str = "local"
     APP_DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-    DATABASE_URL: str = "postgresql+psycopg2://bodyminute:bodyminute@localhost:5432/bodyminute_flow"
+    DATABASE_URL: str = "postgresql+psycopg2://flowpilot:flowpilot@localhost:5432/flowpilot_flow"
     REDIS_URL: str = "redis://localhost:6379/0"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 

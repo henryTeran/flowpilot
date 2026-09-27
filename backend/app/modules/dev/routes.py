@@ -26,11 +26,11 @@ DEMO_INSTITUTE_ID = "demo-institute-geneve"
 @router.post("/init-demo-data")
 def init_demo_data(db: Session = Depends(get_db)):
     """Seed minimal pour tester le MVP localement."""
-    company = db.get(Company, "demo-company-bodyminute")
+    company = db.get(Company, "demo-company-flowpilot")
     if not company:
         company = Company(
-            id="demo-company-bodyminute",
-            name="BodyMinute Demo",
+            id="demo-company-flowpilot",
+            name="FlowPilot Demo",
             status="active",
         )
         db.add(company)
@@ -62,7 +62,7 @@ def init_demo_data(db: Session = Depends(get_db)):
         institute = Institute(
             id=DEMO_INSTITUTE_ID,
             region_id=region.id,
-            name="BodyMinute Genève Demo",
+            name="FlowPilot Genève Demo",
             city="Genève",
             address="Rue de démonstration 1",
             timezone="Europe/Zurich",
@@ -151,11 +151,11 @@ def init_demo_data(db: Session = Depends(get_db)):
                 employee.status = "available"
             db.add(employee)
 
-    if not get_user_by_email(db, "accueil@bodyminute.demo"):
+    if not get_user_by_email(db, "accueil@flowpilot.demo"):
         db.add(
             User(
                 id="user-accueil-demo",
-                email="accueil@bodyminute.demo",
+                email="accueil@flowpilot.demo",
                 password_hash=hash_password("demo1234"),
                 role="accueil",
                 status="active",
@@ -168,7 +168,7 @@ def init_demo_data(db: Session = Depends(get_db)):
     return ok(
         {
             "institute_id": institute.id,
-            "login": "accueil@bodyminute.demo",
+            "login": "accueil@flowpilot.demo",
             "password": "demo1234",
         },
         "Données de démonstration initialisées",

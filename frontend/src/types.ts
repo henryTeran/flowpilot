@@ -172,3 +172,25 @@ export type AppointmentAction = "arrive" | "start" | "complete" | "no-show" | "c
 
 
 export type PaymentMethod = "cb" | "especes" | "cheque" | "carte_cadeau" | "mixte";
+
+export interface EmployeeChiffres {
+  employee_id: string;
+  employee_name: string;
+  soins: number;
+  ventes: number;
+  contrats: number;
+  pourboires: number;
+  moyenne: number;
+  total: number;
+  tickets: number;
+  prestations: number;
+}
+
+export interface ChiffresSummary {
+  institute_id: string;
+  generated_at: string;
+  period_start: string;
+  period_end: string;
+  rows: EmployeeChiffres[];
+  totals: EmployeeChiffres;
+}

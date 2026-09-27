@@ -17,28 +17,31 @@ const menuItems: MenuItem[] = [
   { label: "Rechercher", icon: <SearchIcon /> },
 ];
 
-interface BodyMinuteSidebarProps {
+interface FlowPilotSidebarProps {
   activeItem?: string;
+  onOpenAccueil?: () => void;
   onOpenTickets: () => void;
   onOpenDashboard: () => void;
 }
 
-export function BodyMinuteSidebar({
+export function FlowPilotSidebar({
   activeItem = "Accueil",
+  onOpenAccueil,
   onOpenTickets,
   onOpenDashboard,
-}: BodyMinuteSidebarProps) {
+}: FlowPilotSidebarProps) {
   function handleClick(label: string) {
+    if (label === "Accueil") onOpenAccueil?.();
     if (label === "Tickets") onOpenTickets();
     if (label === "Chiffres") onOpenDashboard();
   }
 
   return (
-    <aside className="bm-sidebar" aria-label="Navigation BodyMinute">
-      <div className="bm-brand-panel" aria-label="BodyMinute">
+    <aside className="bm-sidebar" aria-label="Navigation FlowPilot">
+      <div className="bm-brand-panel" aria-label="FlowPilot">
         <div className="bm-real-logo">
-          <span>body</span>
-          <span>minute</span>
+          <span>flow</span>
+          <span>pilot</span>
         </div>
       </div>
 

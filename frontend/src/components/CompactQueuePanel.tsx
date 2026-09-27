@@ -73,8 +73,8 @@ export function CompactQueuePanel({
                   <strong>{ticket.ticket_number}</strong>
                   <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
                 </div>
-                <span className="compact-ticket-service">{serviceLabel || "Prestation"}</span>
-                {ticketServices.length > 1 && <small>{ticketServices.length} prestations</small>}
+                <span className="compact-ticket-service">{serviceLabel || "Séance"}</span>
+                {ticketServices.length > 1 && <small>{ticketServices.length} prestations · durée cumulée</small>}
                 <small>{employee ? employee.first_name : formatTicketWait(ticket)}</small>
 
                 {["ready_for_checkout", "in_checkout"].includes(ticket.status) ? (
@@ -129,11 +129,12 @@ function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Recor
 function formatTicketServices(ticketServices: Service[]) {
   if (ticketServices.length === 0) return "";
   if (ticketServices.length === 1) return ticketServices[0].name;
-  return ticketServices.map((service) => service.name).join(" + ");
+  const duration = ticketServices.reduce((sum, service) => sum + service.duration_min, 0);
+  return `${ticketServices.length} prestations · ${duration} min`;
 }
 
 function formatTicketWait(ticket: QueueTicket) {
-  if (ticket.status === "in_progress") return "En cours";
+  if (ticket.status === "in_progress") return "En cabine";
   if (!ticket.estimated_start_time) return "Attente à calculer";
   const diffMs = new Date(ticket.estimated_start_time).getTime() - Date.now();
   const minutes = Math.max(0, Math.ceil(diffMs / 60000));
@@ -145,7 +146,7 @@ function translateStatus(status: string) {
   const labels: Record<string, string> = {
     waiting: "À prendre",
     assigned: "Affecté",
-    in_progress: "En cours",
+    in_progress: "En cabine",
     completed: "Terminé",
     ready_for_checkout: "En caisse",
     in_checkout: "Caisse ouverte",

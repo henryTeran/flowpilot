@@ -1,25 +1,25 @@
 services:
   postgres:
     image: postgres:16
-    container_name: bodyminute_postgres
+    container_name: flowpilot_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: bodyminute
-      POSTGRES_PASSWORD: bodyminute
-      POSTGRES_DB: bodyminute_flow
+      POSTGRES_USER: flowpilot
+      POSTGRES_PASSWORD: flowpilot
+      POSTGRES_DB: flowpilot_flow
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bodyminute -d bodyminute_flow"]
+      test: ["CMD-SHELL", "pg_isready -U flowpilot -d flowpilot_flow"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7
-    container_name: bodyminute_redis
+    container_name: flowpilot_redis
     restart: unless-stopped
     ports:
       - "6380:6379"
@@ -27,7 +27,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: bodyminute_backend
+    container_name: flowpilot_backend
     restart: unless-stopped
     env_file:
       - .env
