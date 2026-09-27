@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 0
-CURRENT_CHECKPOINT = 0B — Durcissement transitions critiques + tests ciblés
+CURRENT_CHECKPOINT = 0C — Idempotence création de ticket
 
 CORE_WORKFLOW = PASS
 TEST_ENVIRONMENT = PASS
@@ -8,36 +8,32 @@ FINISH_SERVICE_GUARD = PASS
 PAYMENT_GUARD = PASS
 WORKFLOW_TARGETED_TESTS = PASS
 ANALYTICS_SINGLE_COUNT = PASS
-CREATE_TICKET_IDEMPOTENCE = DEFERRED_WITH_EVIDENCE
+CREATE_TICKET_IDEMPOTENCE = PASS
 PERMISSIONS = BLOCKED
 refund = NOT_IMPLEMENTED
 
 TESTS =
-- Suites ciblées ajoutées:
-	backend/tests/conftest.py
+- Tests ciblés 0C:
 	backend/tests/test_ticket_workflow.py
-	backend/tests/test_planning_workflow.py
-	backend/tests/test_checkout_workflow.py
-	backend/tests/test_smoke.py
 - Exécution validée:
-	py -3.13 -m pytest tests/test_smoke.py tests/test_ticket_workflow.py tests/test_planning_workflow.py tests/test_checkout_workflow.py -q
-	Résultat: 20 passed, 2 warnings.
+	py -3.13 -m pytest tests/test_ticket_workflow.py -q
+	Résultat: 6 passed, 2 warnings.
 
 EVIDENCE =
-- Idempotence création ticket:
-	test_create_ticket_replay_creates_distinct_tickets_current_behavior confirme qu'un rejeu crée 2 tickets distincts.
-- Permissions:
-	Les routes critiques workflow ne sont pas protégées via dépendance auth/role côté route; wiring permission non finalisable sans décision d'architecture auth globale.
+- Même idempotency_key = même ticket retourné.
+- Clés différentes = tickets distincts.
+- Mécanisme minimal robuste : idempotency_key + contrainte DB unique (institute_id, idempotency_key).
+- Permissions hors scope: non touché.
 
 BLOCKERS =
-- Aucun blocker technique bloquant le checkpoint 0B.
-- Sujet permissions restant hors scope minimal de ce checkpoint (nécessite cadrage auth/RBAC transversal).
+- Aucune régression 0C détectée.
+- Permissions / refund / AI restent hors périmètre.
 
 NEXT_STEP =
-- CHECKPOINT 0C — Décider et implémenter stratégie d'idempotence création ticket (idempotency key/client_request_id + contrainte DB), puis lancer câblage permissions route-level de façon homogène.
+- Aucune étape supplémentaire : fin de la phase 0C.
 
 WORKING_TREE =
-- Changements préexistants préservés hors scope checkpoint 0B:
+- Changements préexistants préservés hors scope 0C:
 	.env.example
 	backend/app/core/config.py
 	backend/app/main.py

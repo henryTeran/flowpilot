@@ -80,11 +80,38 @@ def test_assign_unavailable_employee_rejected(client: TestClient):
     assert response.status_code == 400
 
 
-def test_create_ticket_replay_creates_distinct_tickets_current_behavior(client: TestClient):
+def test_create_ticket_replay_with_same_idempotency_key_returns_same_ticket(client: TestClient):
+    institute_id, _, services = _bootstrap_reference_data(client)
+    service_id = services[0]["id"]
+    idempotency_key = "ticket-replay-123"
+
+    first = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id, "idempotency_key": idempotency_key},
+    )
+    second = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id, "idempotency_key": idempotency_key},
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.json()["id"] == second.json()["id"]
+
+
+def test_create_ticket_with_different_idempotency_keys_creates_distinct_tickets(client: TestClient):
     institute_id, _, services = _bootstrap_reference_data(client)
     service_id = services[0]["id"]
 
-    ticket_1 = _create_ticket(client, institute_id, service_id)
-    ticket_2 = _create_ticket(client, institute_id, service_id)
+    first = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id, "idempotency_key": "ticket-a"},
+    )
+    second = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id, "idempotency_key": "ticket-b"},
+    )
 
-    assert ticket_1["id"] != ticket_2["id"]
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.json()["id"] != second.json()["id"]

@@ -39,6 +39,15 @@ def get_ticket(db: Session, ticket_id: str) -> QueueTicket | None:
     return db.get(QueueTicket, ticket_id)
 
 
+def get_ticket_by_idempotency_key(db: Session, institute_id: str, idempotency_key: str) -> QueueTicket | None:
+    return db.scalars(
+        select(QueueTicket).where(
+            QueueTicket.institute_id == institute_id,
+            QueueTicket.idempotency_key == idempotency_key,
+        )
+    ).first()
+
+
 def save_ticket(db: Session, ticket: QueueTicket) -> QueueTicket:
     db.add(ticket)
     db.commit()

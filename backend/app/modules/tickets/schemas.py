@@ -12,6 +12,7 @@ class TicketCreate(BaseModel):
     customer_id: str | None = None
     subscription_id: str | None = None
     created_by_id: str | None = None
+    idempotency_key: str | None = None
 
     @model_validator(mode="after")
     def require_at_least_one_service(self):

@@ -7,7 +7,13 @@ from app.modules.employees.repository import get_employee, list_by_institute
 from app.modules.planning.models import ServiceSession
 from app.modules.services.repository import get_service
 from app.modules.tickets.models import QueueTicket, TicketLine
-from app.modules.tickets.repository import get_ticket, list_waiting_tickets, save_ticket, save_ticket_line
+from app.modules.tickets.repository import (
+    get_ticket,
+    get_ticket_by_idempotency_key,
+    list_waiting_tickets,
+    save_ticket,
+    save_ticket_line,
+)
 from app.modules.tickets.schemas import TicketCreate
 from app.shared.exceptions import business_error, not_found
 from app.shared.ids import new_id
@@ -128,6 +134,11 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
 
 
 def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
+    if payload.idempotency_key:
+        existing_ticket = get_ticket_by_idempotency_key(db, payload.institute_id, payload.idempotency_key)
+        if existing_ticket:
+            return existing_ticket
+
     service_ids = _payload_service_ids(payload)
     if not service_ids:
         raise business_error("Ajoute au moins une prestation au ticket")
@@ -146,6 +157,7 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         id=new_id("qt"),
         institute_id=payload.institute_id,
         ticket_number=_generate_ticket_number(db, payload.institute_id),
+        idempotency_key=payload.idempotency_key,
         customer_id=payload.customer_id,
         subscription_id=payload.subscription_id,
         status="waiting",

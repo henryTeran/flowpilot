@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -8,10 +8,14 @@ from app.database.base import Base
 
 class QueueTicket(Base):
     __tablename__ = "queue_tickets"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_queue_ticket_institute_idempotency"),
+    )
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
     ticket_number: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
     customer_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     subscription_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     status: Mapped[str] = mapped_column(String(40), default="waiting", nullable=False, index=True)
