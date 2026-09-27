@@ -1,10 +1,12 @@
-# FlowPilot Institut Manager - Starter MVP
+# FlowPilot Institut Manager
 
-Socle technique initial pour démarrer le développement du MVP.
+Plateforme de pilotage institut orientée performance opérationnelle, expérience collaboratrice et expérience cliente premium.
 
-## Objectif de cette version
+## Vision produit
 
-Cette base couvre la Phase 1 du développement :
+L'objectif n'est plus de reproduire un logiciel existant, mais de livrer une solution plus complète, plus intelligente et plus agréable à utiliser.
+
+Cette base couvre le socle de la Phase 1 :
 
 - Backend FastAPI modulaire
 - PostgreSQL
@@ -34,6 +36,11 @@ Puis ouvrir :
 
 - API : http://localhost:8000
 - Documentation Swagger : http://localhost:8000/docs
+
+Paramètres utiles d'architecture:
+
+- `AUTO_CREATE_SCHEMA_ON_STARTUP=true` pour bootstrap local rapide
+- `AUTO_CREATE_SCHEMA_ON_STARTUP=false` en environnement de production (migrations Alembic)
 
 ## Initialiser des données de test
 
@@ -70,4 +77,25 @@ backend/app/
 
 ## Prochaine étape
 
-La prochaine étape logique est la Phase 2 : créer le frontend React/TypeScript avec la vue planning horizontal, le curseur Maintenant et la file d'attente.
+La prochaine étape logique est la Phase 2 premium :
+
+- Design system moderne (tokens, composants UI cohérents, responsive tablette + desktop)
+- UX orientée rapidité en institut (moins de clics, états clairs, feedback immédiat)
+- Fonctions enrichies (analyse activité, productivité, qualité de service)
+
+## Documentation
+
+- Master plan:
+  docs/product/FLOWPILOT_MASTER_PLAN.md
+
+- Product vision:
+  docs/product/PRODUCT_VISION.md
+
+- Architecture:
+  docs/architecture/ARCHITECTURE_FOUNDATIONS.md
+
+- Architecture decisions:
+  docs/adr/
+
+- Current project status:
+  PROJECT_STATUS.md
