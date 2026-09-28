@@ -5,13 +5,18 @@ from app.database.session import get_db
 from app.modules.employees.repository import list_by_institute
 from app.modules.employees.schemas import EmployeeCreate, EmployeeRead, EmployeeStatusUpdate
 from app.modules.employees.service import change_employee_status, create_employee
+from app.shared.pagination import PaginationParams, pagination_params
 
 router = APIRouter(prefix="/employees", tags=["employees"])
 
 
 @router.get("", response_model=list[EmployeeRead])
-def list_employees(institute_id: str, db: Session = Depends(get_db)) -> list[EmployeeRead]:
-    return list_by_institute(db, institute_id)
+def list_employees(
+    institute_id: str,
+    pagination: PaginationParams = Depends(pagination_params),
+    db: Session = Depends(get_db),
+) -> list[EmployeeRead]:
+    return list_by_institute(db, institute_id, limit=pagination.limit, offset=pagination.offset)
 
 
 @router.post("", response_model=EmployeeRead)

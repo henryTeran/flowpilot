@@ -4,14 +4,28 @@ from sqlalchemy.orm import Session
 from app.modules.services.models import Service, ServiceCategory
 
 
-def list_categories(db: Session) -> list[ServiceCategory]:
-    return list(db.scalars(select(ServiceCategory).order_by(ServiceCategory.name)).all())
+def list_categories(db: Session, limit: int | None = None, offset: int | None = None) -> list[ServiceCategory]:
+    stmt = select(ServiceCategory).order_by(ServiceCategory.name)
+    if limit is not None:
+        stmt = stmt.limit(limit)
+    if offset is not None:
+        stmt = stmt.offset(offset)
+    return list(db.scalars(stmt).all())
 
 
-def list_services(db: Session, category_id: str | None = None) -> list[Service]:
+def list_services(
+    db: Session,
+    category_id: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+) -> list[Service]:
     stmt = select(Service).where(Service.status == "active").order_by(Service.name)
     if category_id:
         stmt = stmt.where(Service.category_id == category_id)
+    if limit is not None:
+        stmt = stmt.limit(limit)
+    if offset is not None:
+        stmt = stmt.offset(offset)
     return list(db.scalars(stmt).all())
 
 

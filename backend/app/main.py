@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.errors import configure_exception_handlers
 from app.core.http import configure_http_middleware
 from app.database.base import Base
 from app.database.session import engine
@@ -33,6 +34,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     configure_http_middleware(app)
+    configure_exception_handlers(app)
 
     @app.on_event("startup")
     def on_startup() -> None:

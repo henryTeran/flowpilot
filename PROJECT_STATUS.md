@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 1
-CURRENT_CHECKPOINT = 1B — Alembic migrations & production schema guard
+CURRENT_CHECKPOINT = 1C — Standardized API errors & reusable pagination
 
 CORE_WORKFLOW = PASS
 TEST_ENVIRONMENT = PASS
@@ -119,6 +119,21 @@ PHASE_1B_CHECKS =
 - Startup path + guard:
 	py -3.13 -m pytest tests/test_smoke.py tests/test_startup_schema_guard.py -q
 	Résultat: 2 passed, 4 warnings.
+
+PHASE_1C =
+- ERROR_HANDLING = PASS
+	files: backend/app/core/errors.py, backend/app/main.py
+	behavior: format d'erreur API unifié `error.code/message/request_id` pour HTTP errors, validation (422) et erreurs non gérées (500).
+	status-codes: conservés selon les exceptions existantes.
+	security: pas d'exposition d'exception interne sur 500.
+- PAGINATION = PASS
+	files: backend/app/shared/pagination.py, backend/app/modules/institutes/*, backend/app/modules/employees/*, backend/app/modules/services/*
+	behavior: contrat réutilisable `limit/offset` (default=50, max=100, validations Query).
+	scope: appliqué uniquement aux endpoints liste sûrs (`institutes`, `employees`, `services/categories`, `services/catalog`).
+
+PHASE_1C_CHECKS =
+- py -3.13 -m pytest tests/test_api_foundations_1c.py tests/test_ticket_workflow.py tests/test_planning_workflow.py tests/test_checkout_workflow.py -q
+	Résultat: 30 passed, 2 warnings.
 
 WORKING_TREE =
 - Changements vérifiés 0D:
