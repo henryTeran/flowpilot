@@ -4,124 +4,128 @@ Date: 2026-09-28
 
 ## Positionnement
 
-FlowPilot doit devenir un logiciel institut nouvelle génération:
+FlowPilot est une plateforme d'opération institut orientée walk-in first, capable de supporter aussi le booking hybride.
 
-- plus complet sur l'opérationnel quotidien
-- plus rapide à utiliser en situation réelle
-- plus élégant visuellement qu'une solution legacy
-- plus intelligent sur l'aide à la décision
+Le produit est conçu pour les instituts où :
+
+- les clients arrivent souvent sans rendez-vous ;
+- la réception doit connaître rapidement la capacité réelle disponible ;
+- les collaborateurs ne doivent pas être interrompus pour répondre à des questions de disponibilité ;
+- le planning doit refléter en temps réel les changements d'activité ;
+- l'exploitation doit rester fluide même avec une coexistence de clients walk-in et de clients avec réservation.
 
 ## Promesse produit
 
-"Réduire la charge mentale des équipes institut tout en augmentant la qualité de service et la performance business."
+"Offrir une estimation fiable du temps d'attente, une visibilité opérationnelle en temps réel, et une expérience premium à l'accueil, au planning et à l'encaissement."
+
+## Objectif métier
+
+FlowPilot vise à centraliser le cœur opérationnel d'un institut :
+
+- accueil client ;
+- gestion de la file d'attente ;
+- gestion des disponibilités ;
+- affectation des collaborateurs et ressources ;
+- suivi en cours de service ;
+- recalcul immédiat du temps d'attente et de la capacité ;
+- convergence entre flow walk-in et flow réservation.
+
+## Principes product
+
+1. Walk-in first
+- la file d'attente et le temps d'attente sont des priorités opérationnelles majeures ;
+- l'accueil doit pouvoir créer un ticket anonyme sans friction ;
+- la queue doit être exploitable même sans renseignements complets sur le client.
+
+2. Hybrid booking
+- les rendez-vous restent nécessaires pour certains services ou ressources ;
+- les réservations et les walk-ins partagent le même moteur opérationnel.
+
+3. Reliable operational visibility
+- l'équipe doit voir immédiatement la capacité disponible ;
+- les temps d'attente doivent reposer sur des règles métier déterministes ;
+- les dépassements, extensions et pauses doivent recalculer l'état du système.
+
+4. Premium operational UX
+- l'expérience ne doit pas être lourde ni confuse pour le staff ;
+- les décisions doivent être lisibles et rapides ;
+- le flux est pensé pour réduire les interruptions internes et les erreurs d'assignation.
+
+## Valeur ajoutée stratégique
+
+FlowPilot ne ressemble pas à un outil de réservation isolé. Il s'adresse à une réalité de terrain plus complexe :
+
+- client walk-in sans rendez-vous ;
+- réservation sur ressources spécifiques ;
+- file d'attente variable ;
+- service pouvant être prolongé ;
+- disponibilité réelle dépendant des états collaborateurs, ressources et services actifs ;
+- besoin d'un pilotage opérationnel en temps réel.
+
+Le produit combine donc :
+
+- fiabilité opérationnelle ;
+- qualité d'expérience client ;
+- visibilité pour la réception ;
+- flexibilité pour le staff ;
+- architecture prête pour l'intégration progressive et l'extension premium.
 
 ## Piliers stratégiques
 
 1. Excellence UX
-- parcours centrés tâches réelles (planning, ticket, encaissement, RDV)
-- minimisation des actions et erreurs
-- feedback instantané sur chaque action critique
+- parcours centrés sur les tâches opérationnelles réelles
+- minimisation des actions inutiles et des erreurs
+- feedback instantané sur les états critiques
 
-2. Excellence UI
-- identité visuelle premium, moderne et mémorable
-- hiérarchie visuelle claire (priorités, urgences, statuts)
-- composants cohérents sur desktop et tablette
+2. Excellence métier
+- support du walk-in et du booking dans un même système
+- logique de disponibilité déterministe
+- règles de priorité, conflit et recalcul intégrées au cœur du produit
 
-3. Excellence métier
-- couverture complète du flux institut: accueil -> prestation -> encaissement -> pilotage
-- gestion fine des rôles, exceptions et cas limites
-- robustesse et traçabilité des opérations
+3. Excellence data
+- temps d'attente, capacité, occupation et disponibilité visibles
+- indicateurs temps réel utiles pour la décision
+- analyse de performance par collaborateur, service et créneau
 
-4. Excellence data
-- indicateurs temps réel utiles (pas seulement décoratifs)
-- alertes proactives (retards, surcharge, goulots)
-- analyse de performance par collaboratrice, service et plage horaire
+4. Excellence architecture
+- modularité pour évoluer sans dette technique bloquante
+- sécurité by design pour les flux sensibles
+- support du mode shadow / intégration progressive
 
-5. Excellence architecture
-- modularité stricte pour itérer vite sans dette technique bloquante
-- sécurité by design sur tous les flux sensibles
-- scalabilité horizontale pour absorber la croissance multi-instituts
+## Cibles fonctionnelles
 
-## Cibles fonctionnelles (V2+)
+### Opérations temps réel
+- file d'attente priorisée ;
+- estimation du temps d'attente ;
+- recalcul après extension, pause, fin de service ou arrivée ;
+- assignation compatible avec les ressources et l'état du collaborateur.
 
-1. Opérations temps réel
-- timeline planning enrichie (capacité, retards, conflits)
-- assignation intelligente avec suggestions
-- file d'attente priorisée automatiquement
+### Hybrid scheduling
+- walk-in first avec ticket anonyme ;
+- réservations spécifiques avec ressources impliquées ;
+- coexistence des flux de travail sans rupture de logique opérationnelle.
 
-2. CRM léger intégré
-- historique client consolidé
-- préférences, fréquence, comportement d'achat
-- rappels intelligents post-prestation
+### Pilotage business
+- visibilité temps réel sur charge, occupation et conflits ;
+- identification des goulots de capacité ;
+- réduction des interruptions et des erreurs de planification.
 
-3. Pilotage business
-- chiffres live actionnables
-- comparatifs jour/semaine/mois
-- détection des pertes de revenu (annulations, no-show, temps morts)
-
-4. Qualité de service
-- contrôle des temps d'attente
-- suivi satisfaction simplifié
-- workflows anti-erreur à l'encaissement
-
-## Direction UX/UI
-
-1. Style visuel
-- interface lumineuse, premium, nette
-- densité d'information maîtrisée
-- micro-interactions utiles, pas décoratives
-
-2. Ergonomie
-- actions critiques toujours visibles
-- raccourcis pour tâches répétitives
-- navigation stable, prédictible, rapide
-
-3. Accessibilité
-- contrastes et taille de typo lisibles en institut
-- zones cliquables adaptées au tactile
-- états d'erreur explicites et guidés
-
-## Plan d'exécution recommandé
-
-1. Sprint 1 - Fondations design
-- définir tokens design (couleurs, typo, espacements, rayons, ombres)
-- harmoniser boutons, cards, formulaires, badges statuts
-- formaliser les règles responsive tablette/desktop
-
-2. Sprint 2 - Refonte des écrans coeur
-- planning institut
-- création ticket multi-prestations
-- encaissement
-- chiffres
-
-3. Sprint 3 - Intelligence opérationnelle
-- alertes retards et surcharge
-- suggestions d'assignation
-- indicateurs temps réel prioritaires
-
-4. Sprint 4 - Finition premium
-- animation de transitions clés
-- polish visuel
-- optimisation performances UI
-- tests UX sur scénarios réels
-
-5. Sprint transversal - Architecture robuste
-- architecture en couches (domain, application, infrastructure)
-- observabilité complète (logs structurés, métriques, traces)
-- sécurité applicative et gouvernance des accès
-- stratégie tests automatisés (unitaires, intégration, e2e)
+### Qualité de service
+- contrôle du temps d'attente ;
+- réduction des ambiguïtés réception / planning ;
+- parcours premium pour la gestion quotidienne de l'institut.
 
 ## KPI de succès
 
-- temps moyen pour créer et affecter un ticket
-- temps moyen de passage en caisse
-- taux d'erreur opérationnelle
-- taux d'utilisation des fonctionnalités clés
+- temps moyen de réponse à l'accueil pour un walk-in
+- précision de l'estimation de temps d'attente
+- taux de conflits d'assignation évités
+- temps moyen pour affecter un client à un créneau
+- taux d'occupation réel vs planifié
 - satisfaction équipe institut
 - disponibilité applicative
 - latence p95 des endpoints critiques
-- taux d'incidents sécurité
 
 ## Décision de cap
 
-Ce projet n'est plus un clone. FlowPilot devient un produit original, premium et orienté impact métier.
+FlowPilot est un produit original, premium et orienté performance opérationnelle. Il n'est ni un simple ticketing de réception, ni un simple agenda de rendez-vous : il est conçu comme un moteur de flux et de capacité pour un institut hybride, en temps réel, avec une logique métier déterministe et fiable.

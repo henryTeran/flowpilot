@@ -5,7 +5,7 @@ Statut: Référence d'implémentation
 
 ## Objectif
 
-Construire une application modulable, scalable, robuste et sécurisée, prête à évoluer vers une plateforme multi-instituts.
+Construire une application modulable, scalable et robuste, centrée sur le cœur opérationnel de l'institut : queue, disponibilité, réservations et recalcul temps réel.
 
 ## Principes non négociables
 
@@ -36,6 +36,84 @@ Construire une application modulable, scalable, robuste et sécurisée, prête �
 - métriques techniques et métier
 - corrélation requête -> action -> impact métier
 
+## Operational core
+
+Le cœur métier de FlowPilot est un moteur unique qui unifie :
+
+```text
+Walk-in Queue ─┐
+               │
+Appointments ──┼──> Flow & Capacity Engine
+               │
+Resources ─────┘
+                     ↓
+                 Scheduling
+                     ↓
+              Realtime Planning
+```
+
+Le moteur de flux et de capacité combine :
+
+- walk-in queue ;
+- appointments ;
+- collaborateurs disponibles / occupés / en pause / absents ;
+- disponibilités de ressources ;
+- durées standards de service ;
+- services actifs ;
+- extensions de service ;
+- pauses ;
+- compétences ;
+- salles, cabines, machines, équipements ;
+- réservations existantes ;
+- contraintes métier et règles de conflit.
+
+Il produit :
+
+- prochain créneau disponible ;
+- temps d'attente estimé ;
+- priorité de queue ;
+- disponibilité collaborateur ;
+- disponibilité ressource ;
+- options d'assignation ;
+- impact d'un changement d'état ou d'extension de service.
+
+Ces calculs appartiennent au domaine FlowPilot et ne doivent pas être négociés par le LLM.
+
+## Waiting time engine
+
+Le temps d'attente doit reposer sur des données de domaine déterministes, notamment :
+
+```text
+remaining active service time
++ queued workload
++ collaborator availability
++ service duration
++ breaks
++ booked appointments
++ resource constraints
+```
+
+Le calcul n'est pas arbitraire et ne dépend pas de scores cachés ou de logique linguistique. Il doit être traçable, stable et conforme au niveau métier.
+
+## Shadow / Integration layer
+
+FlowPilot doit supporter une intégration progressive avec un système existant sans imposer d'implémentation lourde dès le départ.
+
+```text
+integrations/
+```
+
+Responsabilités futures possibles :
+
+- CSV import ;
+- CSV export ;
+- external API sync ;
+- reconciliation ;
+- legacy connectors ;
+- adapters de données.
+
+Le mode shadow signifie que FlowPilot peut fonctionner sans intégration profonde à un POS ou système legacy, en parallèle, puis se brancher progressivement.
+
 ## Cible backend
 
 Architecture en couches:
@@ -50,6 +128,40 @@ Règles:
 - la couche API ne contient pas de logique métier complexe
 - la logique métier ne dépend pas de FastAPI ni SQLAlchemy directement
 - l'accès aux données passe par des ports/repositories
+
+## Modules opérationnels cibles
+
+### queue
+- cycle de vie du walk-in ;
+- position dans la file ;
+- priorité ;
+- tickets anonymes ;
+- suivi d'attente.
+
+### scheduling
+- disponibilité ;
+- règles de conflit ;
+- options d'assignation ;
+- moteur de capacité.
+
+### booking
+- rendez-vous ;
+- cycle de vie de réservation ;
+- contraintes de réservation ;
+- coexistence avec la charge walk-in.
+
+### resources
+- salles ;
+- cabines ;
+- machines ;
+- équipements ;
+- compétences et exigences de service.
+
+### realtime
+- propagation temps réel ;
+- reconnexion ;
+- diffusion de mises à jour ;
+- synchronisation de planning en direct.
 
 ## Cible frontend
 

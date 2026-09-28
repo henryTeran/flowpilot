@@ -64,9 +64,10 @@ L'objectif est de construire un véritable :
 Faire fonctionner l'institut.
 
 ```text
+Walk-in Queue
 Planning
 Clients
-Réservations
+Réservations hybrides
 Prestations
 Tickets
 Encaissement
@@ -124,21 +125,21 @@ Les modèles IA ne constituent pas l'intelligence métier principale de FlowPilo
 La responsabilité reste ainsi :
 
 ```text
-Règles métier          -> FlowPilot
-Permissions            -> FlowPilot
-Calculs                -> FlowPilot
-Scores                 -> FlowPilot
-Workflows              -> FlowPilot
-Optimisation           -> FlowPilot
-Données                -> FlowPilot
-Validation             -> FlowPilot
-Décisions critiques    -> FlowPilot + humain
+Règles métier                -> FlowPilot
+Permissions                  -> FlowPilot
+Calculs                     -> FlowPilot
+Scores                      -> FlowPilot
+Workflows                   -> FlowPilot
+Optimisation                -> FlowPilot
+Données                     -> FlowPilot
+Validation                  -> FlowPilot
+Décisions critiques         -> FlowPilot + humain
 
-Compréhension langage  -> LLM
-Génération texte       -> LLM
-Synthèse               -> LLM
-Conversation           -> LLM
-Speech-to-text         -> provider vocal
+Compréhension langage       -> LLM
+Génération texte            -> LLM
+Synthèse                    -> LLM
+Conversation                -> LLM
+Speech-to-text              -> provider vocal
 ```
 
 Principe :
@@ -146,6 +147,31 @@ Principe :
 ```text
 LLM != intelligence métier
 ```
+
+### Règle d'alignement opérationnel
+
+```text
+WaitingTimeEngine / CapacityEngine
+= déterministe FlowPilot domain logic
+
+JV
+= analyse métier structurée et preuve
+
+BASE
+= orchestration
+
+LLM
+= langage, synthèse et explication
+```
+
+Exemple de principe :
+
+```text
+CAUSES = FlowPilot / JV
+LANGUAGE = LLM
+```
+
+Le LLM ne calcule jamais le temps d'attente officiel ni la disponibilité officielle.
 
 ---
 
@@ -252,6 +278,8 @@ FLOWPILOT
 │   ├── Calculations
 │   ├── Scoring
 │   ├── Optimizers
+│   ├── WaitingTimeEngine
+│   ├── CapacityEngine
 │   └── Permissions
 │
 ├── AI PLATFORM
@@ -977,95 +1005,108 @@ RBAC_CONTEXT = PASS
 
 ---
 
-# 24. Phase 3 — Client 360
+# 24. Phase 3 — Flow & Queue Domain
 
-Créer le CRM métier central.
+Le cœur opérationnel de FlowPilot doit être orienté walk-in first.
 
-## Client
+## Flux principal 1 — WALK-IN FLOW
 
-- identité ;
-- coordonnées ;
-- préférences ;
-- notes ;
-- tags ;
-- consentements ;
-- historique ;
-- dépenses ;
-- fréquence ;
-- no-show ;
-- rebooking ;
-- produits ;
-- prestations ;
-- photos ;
-- documents.
+```text
+arrival
+→ anonymous ticket
+→ queue
+→ estimated wait
+→ assignment
+→ service
+→ checkout
+```
 
-## Beauty Record
+## Flux principal 2 — APPOINTMENT FLOW
 
-- allergies ;
-- contre-indications ;
-- grossesse ;
-- traitements pertinents ;
-- sensibilité ;
-- phototype ;
-- réactions ;
-- paramètres machines ;
-- observations ;
-- photos avant/après ;
-- consentements.
+```text
+booking
+→ reserved collaborator/resource
+→ service
+→ checkout
+```
+
+Les deux flux convergent vers le même moteur opérationnel.
+
+### Règles métier additives
+
+- les tickets walk-in peuvent rester anonymes ;
+- name/email/phone ne sont pas obligatoires pour un ticket walk-in basique ;
+- la durée de service est une donnée essentielle de planification ;
+- les états collaborateurs doivent inclure au minimum :
+  AVAILABLE, BUSY, PAUSE, ABSENT ;
+- l'extension d'un service actif déclenche un recalcul de capacité et de temps d'attente ;
+- une assignation walk-in ne doit pas créer de conflit avec un rendez-vous imminent ;
+- un service dépendant d'une ressource ne peut pas être planifié si la ressource requise n'est pas disponible.
 
 ## Gate
 
 ```text
-CLIENT_360 = PASS
-CLIENT_HISTORY = PASS
-CONSENTS = PASS
-BEAUTY_RECORD = PASS
-RBAC_CLIENT_DATA = PASS
+WALK_IN_FLOW = PASS
+ANONYMOUS_TICKETS = PASS
+QUEUE_LIFECYCLE = PASS
+COLLABORATOR_STATES = PASS
+WAITING_TIME_FOUNDATION = PASS
 ```
 
 ---
 
-# 25. Phase 4 — Booking Engine
+# 25. Phase 4 — Scheduling & Capacity Engine
 
-Disponibilité :
+Le cœur métier est le moteur Flow & Capacity Engine.
+
+Il combine :
 
 ```text
-employee availability
+walk-in queue
 +
-employee skills
+appointments
 +
-service duration
+collaborator availability
 +
-room availability
+collaborator status
 +
-equipment availability
+standard service durations
 +
-buffers
+active services
 +
-opening hours
+service extensions
 +
-existing appointments
+breaks
 +
-business rules
+skills
++
+rooms
++
+machines
++
+equipment
++
+existing bookings
 ```
 
-Fonctions :
+Il produit :
 
-- création ;
-- modification ;
-- annulation ;
-- confirmation ;
-- réservation cliente ;
-- contraintes.
+- next available slot ;
+- estimated wait time ;
+- queue priority ;
+- collaborator availability ;
+- resource availability ;
+- assignment options.
 
 ## Gate
 
 ```text
-BOOKING_CREATE = PASS
-BOOKING_MOVE = PASS
-BOOKING_CANCEL = PASS
+FLOW_CAPACITY_ENGINE = PASS
+WAITING_TIME_ENGINE = PASS
 AVAILABILITY_ENGINE = PASS
-CONFLICT_PREVENTION = PASS
+QUEUE_ASSIGNMENT = PASS
+SERVICE_EXTENSION_IMPACT = PASS
+CONFLICT_HANDLING = PASS
 ```
 
 ---
@@ -1101,7 +1142,34 @@ RESOURCE_CONFLICT = PASS
 
 ---
 
-# 27. Phase 6 — Live Operations
+# 27. Phase 6 — Hybrid Booking Engine
+
+Le booking devient hybride et coexiste avec la charge walk-in.
+
+Fonctions :
+
+- création de rendez-vous ;
+- modification ;
+- annulation ;
+- confirmation ;
+- réservation cliente ;
+- contraintes de ressource ;
+- déplacement / annulation d'un RDV sans générer de conflit avec la file d'attente.
+
+## Gate
+
+```text
+HYBRID_BOOKING = PASS
+BOOKING_CREATE = PASS
+BOOKING_MOVE = PASS
+BOOKING_CANCEL = PASS
+RESOURCE_RESERVATION = PASS
+COEXISTENCE_WALKIN_BOOKING = PASS
+```
+
+---
+
+# 28. Phase 7 — Live Operations
 
 États possibles :
 
@@ -1122,6 +1190,8 @@ Actions opérationnelles :
 ARRIVED
 START
 FINISH
+PAUSE
+EXTEND
 PAY
 ```
 
@@ -1134,11 +1204,12 @@ LIVE_BOARD = PASS
 REALTIME_SYNC = PASS
 RECONNECT = PASS
 TABLET_UX = PASS
+LIVE_RECALCULATION = PASS
 ```
 
 ---
 
-# 28. Phase 7 — Commerce
+# 29. Phase 8 — Commerce
 
 Ajouter :
 
@@ -1180,7 +1251,7 @@ LOYALTY = PASS
 
 ---
 
-# 29. Phase 8 — Payments
+# 30. Phase 9 — Payments
 
 Abstraction :
 
@@ -1222,7 +1293,7 @@ WEBHOOK_IDEMPOTENCE = PASS
 
 ---
 
-# 30. Phase 9 — Inventory
+# 31. Phase 10 — Inventory
 
 Distinguer :
 
@@ -1262,7 +1333,7 @@ REORDER = PASS
 
 ---
 
-# 31. Phase 10 — Workforce
+# 32. Phase 11 — Workforce
 
 Employee 360 :
 
@@ -1292,7 +1363,7 @@ COMMISSIONS = PASS
 
 ---
 
-# 32. Phase 11 — CRM & Customer Lifecycle
+# 33. Phase 12 — CRM & Customer Lifecycle
 
 États :
 
@@ -1333,7 +1404,7 @@ AUTOMATION_EVENTS = PASS
 
 ---
 
-# 33. Phase 12 — Marketing
+# 34. Phase 13 — Marketing
 
 Créer :
 
@@ -1369,7 +1440,7 @@ CAMPAIGN_AUDIT = PASS
 
 ---
 
-# 34. Phase 13 — Revenue Intelligence
+# 35. Phase 14 — Revenue Intelligence
 
 Créer Revenue Guardian.
 
@@ -1406,7 +1477,7 @@ OPPORTUNITY_ENGINE = PASS
 
 ---
 
-# 35. Phase 14 — Smart Waitlist
+# 36. Phase 15 — Smart Waitlist
 
 Matching selon :
 
@@ -1430,7 +1501,7 @@ AUTO_SLOT_DETECTION = PASS
 
 ---
 
-# 36. Phase 15 — Scheduling Optimizer
+# 37. Phase 16 — Scheduling Optimizer
 
 Créer un moteur déterministe.
 
@@ -1471,7 +1542,7 @@ EXPLANATION_EVIDENCE = PASS
 
 ---
 
-# 37. Phase 16 — BASE Foundation
+# 38. Phase 17 — BASE Foundation
 
 Créer :
 
@@ -1524,7 +1595,7 @@ BASE_AUDIT = PASS
 
 ---
 
-# 38. Phase 17 — JV
+# 39. Phase 18 — JV
 
 Responsabilités :
 
@@ -1547,7 +1618,7 @@ JV_PROVIDER_INDEPENDENCE = PASS
 
 ---
 
-# 39. Phase 18 — AI Provider Layer
+# 40. Phase 19 — AI Provider Layer
 
 Interfaces :
 
@@ -1582,7 +1653,7 @@ FAKE_PROVIDER_TESTS = PASS
 
 ---
 
-# 40. Phase 19 — FlowPilot Copilot
+# 41. Phase 20 — FlowPilot Copilot
 
 Capacités initiales :
 
@@ -1625,7 +1696,7 @@ COPILOT_EXECUTE_GUARDED = PASS
 
 ---
 
-# 41. Phase 20 — Voice
+# 42. Phase 21 — Voice
 
 Pipeline :
 
@@ -1657,7 +1728,7 @@ VOICE_BASE_INTEGRATION = PASS
 
 ---
 
-# 42. Phase 21 — No-Show Risk
+# 43. Phase 22 — No-Show Risk
 
 Commencer avec des règles déterministes.
 
@@ -1689,7 +1760,7 @@ NOSHOW_POLICY = PASS
 
 ---
 
-# 43. Phase 22 — Retention Engine
+# 44. Phase 23 — Retention Engine
 
 Identifier :
 
@@ -1713,7 +1784,7 @@ AT_RISK_DETECTION = PASS
 
 ---
 
-# 44. Phase 23 — Forecasting
+# 45. Phase 24 — Forecasting
 
 Ajouter progressivement :
 
@@ -1744,7 +1815,7 @@ INVENTORY_FORECAST = PASS
 
 ---
 
-# 45. Phase 24 — Multi-Institut
+# 46. Phase 25 — Multi-Institut
 
 Lorsque le socle est stable :
 
@@ -1767,7 +1838,7 @@ TENANT_SECURITY = PASS
 
 ---
 
-# 46. Phase 25 — Production Readiness
+# 47. Phase 26 — Production Readiness
 
 Avant production :
 
@@ -1800,7 +1871,7 @@ PRODUCTION_READY = PASS
 
 ---
 
-# 47. Stratégie de tests
+# 48. Stratégie de tests
 
 Chaque module doit posséder selon pertinence :
 
@@ -1826,7 +1897,7 @@ Parcours métier réels.
 
 ---
 
-# 48. Tests permanents de non-régression
+# 49. Tests permanents de non-régression
 
 Conserver des tests spécifiques pour :
 
@@ -1847,7 +1918,7 @@ package over-consumption
 
 ---
 
-# 49. Sécurité
+# 50. Sécurité
 
 Principes :
 
@@ -1866,7 +1937,7 @@ Principes :
 
 ---
 
-# 50. Observabilité
+# 51. Observabilité
 
 Prévoir progressivement :
 
@@ -1892,7 +1963,7 @@ Sentry
 
 ---
 
-# 51. Prompts IA
+# 52. Prompts IA
 
 Les prompts ne doivent pas être dispersés dans les routes.
 
@@ -1916,7 +1987,7 @@ Ils ne constituent jamais une règle métier officielle.
 
 ---
 
-# 52. Git Strategy
+# 53. Git Strategy
 
 Éviter l'accumulation massive de fichiers modifiés.
 
@@ -1953,7 +2024,7 @@ Ne pas faire :
 
 ---
 
-# 53. Règles Git pour Codex
+# 54. Règles Git pour Codex
 
 Avant toute tâche :
 
@@ -1971,7 +2042,7 @@ Ne jamais écraser silencieusement le travail préexistant.
 
 ---
 
-# 54. Format de checkpoint obligatoire
+# 55. Format de checkpoint obligatoire
 
 Après une étape importante :
 
@@ -2011,7 +2082,7 @@ NEXT_STEP
 
 ---
 
-# 55. Anti-Scope-Creep
+# 56. Anti-Scope-Creep
 
 Pendant une phase, ne pas implémenter arbitrairement une phase future.
 
@@ -2026,7 +2097,7 @@ Les autres idées vont dans le backlog.
 
 ---
 
-# 56. Organisation documentaire officielle
+# 57. Organisation documentaire officielle
 
 Structure minimale :
 
@@ -2043,7 +2114,8 @@ docs/
     ├── ADR-001-modular-monolith.md
     ├── ADR-002-provider-independent-ai.md
     ├── ADR-003-base-jv-architecture.md
-    └── ADR-004-human-approval-ai-actions.md
+    ├── ADR-004-human-approval-ai-actions.md
+    └── ADR-005-walk-in-first-hybrid-flow.md
 ```
 
 À la racine :
@@ -2055,7 +2127,7 @@ README.md
 
 ---
 
-# 57. Source de vérité
+# 58. Source de vérité
 
 Ordre d'autorité officiel :
 
@@ -2075,7 +2147,7 @@ le document supérieur prévaut jusqu'à correction explicite de l'incohérence.
 
 ---
 
-# 58. Rôle de chaque document
+# 59. Rôle de chaque document
 
 ## FLOWPILOT_MASTER_PLAN.md
 
@@ -2153,7 +2225,7 @@ Répond :
 
 ---
 
-# 59. ADR
+# 60. ADR
 
 Dossier :
 
@@ -2168,21 +2240,22 @@ ADR-001-modular-monolith.md
 ADR-002-provider-independent-ai.md
 ADR-003-base-jv-architecture.md
 ADR-004-human-approval-ai-actions.md
+ADR-005-walk-in-first-hybrid-flow.md
 ```
 
 ADR futurs possibles :
 
 ```text
-ADR-005-multi-tenant-foundation.md
-ADR-006-payment-provider-abstraction.md
-ADR-007-domain-events.md
+ADR-006-multi-tenant-foundation.md
+ADR-007-payment-provider-abstraction.md
+ADR-008-domain-events.md
 ```
 
 Ne créer un ADR que pour une décision réellement structurante.
 
 ---
 
-# 60. Archives documentaires
+# 61. Archives documentaires
 
 Si d'anciens documents deviennent obsolètes mais doivent être conservés :
 
@@ -2196,7 +2269,7 @@ Les documents archivés ne doivent pas être utilisés automatiquement par Codex
 
 ---
 
-# 61. Règle de lecture pour Codex
+# 62. Règle de lecture pour Codex
 
 Codex ne doit pas systématiquement lire toute la documentation.
 
@@ -2226,7 +2299,7 @@ Objectif :
 
 ---
 
-# 62. Format recommandé des prompts Codex
+# 63. Format recommandé des prompts Codex
 
 ```text
 FLOWPILOT CHECKPOINT
@@ -2282,7 +2355,7 @@ NEXT_STEP
 
 ---
 
-# 63. Definition of Done
+# 64. Definition of Done
 
 Une fonctionnalité n'est DONE que si les critères pertinents sont satisfaits :
 
@@ -2302,7 +2375,7 @@ Une fonctionnalité n'est DONE que si les critères pertinents sont satisfaits :
 
 ---
 
-# 64. Priorité immédiate
+# 65. Priorité immédiate
 
 Avant tout nouveau développement fonctionnel :
 
@@ -2372,7 +2445,7 @@ Les briques commerciales, data et IA viennent ensuite progressivement.
 
 ---
 
-# 65. État initial de référence
+# 66. État initial de référence
 
 ```text
 VISION = VALIDATED
@@ -2400,7 +2473,7 @@ PHASE_0 = NEXT
 
 ---
 
-# 66. Prochain checkpoint
+# 67. Prochain checkpoint
 
 Après création de la structure documentaire :
 
