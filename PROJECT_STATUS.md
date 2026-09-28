@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 1
-CURRENT_CHECKPOINT = 1C — Standardized API errors & reusable pagination
+CURRENT_CHECKPOINT = 1D — Structured backend logging
 
 CORE_WORKFLOW = PASS
 TEST_ENVIRONMENT = PASS
@@ -151,3 +151,22 @@ WORKING_TREE =
 	frontend/src/components/Sidebar.tsx (suppression)
 	frontend/src/components/TopBar.tsx (suppression)
 	frontend/src/styles.css
+
+PHASE_1D =
+- STRUCTURED_LOGGING = PASS
+	files: backend/app/core/logging_config.py, backend/app/core/http.py
+	behavior: configuration centralisée des logs applicatifs en JSON UTC avec timestamp, level, message, logger et request_id lorsqu'il existe.
+- REQUEST_CORRELATION = PASS
+	behavior: middleware HTTP journalise request_id, méthode, route modèle, statut et durée; X-Request-ID fourni est conservé. Logs applicatifs et erreurs non gérées héritent du même contexte.
+- SECURITY = PASS
+	behavior: aucun header Authorization, query string, corps brut ni valeur d'exception dans les nouveaux logs; route inconnue masquée.
+	scope: logs techniques seulement, sans audit trail, télémétrie externe ou provider dédié.
+
+PHASE_1D_CHECKS =
+- DATABASE_URL=sqlite:// conda run --no-capture-output -n applyflow python -m pytest tests/test_structured_logging_1d.py tests/test_smoke.py -q
+	Résultat: 5 passed, 3 warnings (dépréciations existantes).
+- Phase 1C baseline avant modification: 6 passed sur test_api_foundations_1c.py + test_smoke.py.
+- Suite globale non lancée conformément au scope 1D.
+
+NEXT_STEP_1D =
+- Poursuivre la prochaine étape du plan dans un lot distinct; aucune implémentation commencée.
