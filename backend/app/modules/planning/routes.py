@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
 from app.modules.planning.schemas import (
     ExtendSession,
@@ -22,22 +23,42 @@ router = APIRouter(prefix="/planning", tags=["planning"])
 
 
 @router.get("/institutes/{institute_id}/today", response_model=PlanningDayRead)
-def get_today_planning(institute_id: str, db: Session = Depends(get_db)) -> PlanningDayRead:
+def get_today_planning(
+    institute_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> PlanningDayRead:
+    require_same_institute(current_user, institute_id)
     return get_day_planning(db, institute_id)
 
 
 @router.get("/institutes/{institute_id}/availability", response_model=PlanningAvailabilityRead)
-def get_availability(institute_id: str, db: Session = Depends(get_db)) -> PlanningAvailabilityRead:
+def get_availability(
+    institute_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> PlanningAvailabilityRead:
+    require_same_institute(current_user, institute_id)
     return get_institute_availability(db, institute_id)
 
 
 @router.post("/sessions/start", response_model=ServiceSessionRead)
-def post_start_session(payload: StartSession, db: Session = Depends(get_db)) -> ServiceSessionRead:
+def post_start_session(
+    payload: StartSession,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> ServiceSessionRead:
+    require_same_institute(current_user, None)
     return start_service_session(db, payload.ticket_id, payload.employee_id, payload.service_id)
 
 
 @router.patch("/sessions/{session_id}/finish", response_model=ServiceSessionRead)
-def patch_finish_session(session_id: str, db: Session = Depends(get_db)) -> ServiceSessionRead:
+def patch_finish_session(
+    session_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> ServiceSessionRead:
+    require_same_institute(current_user, None)
     return finish_service_session(db, session_id)
 
 
@@ -45,8 +66,10 @@ def patch_finish_session(session_id: str, db: Session = Depends(get_db)) -> Serv
 def patch_finish_active_employee_session(
     institute_id: str,
     employee_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
+    require_same_institute(current_user, institute_id)
     return finish_active_employee_session(db, institute_id, employee_id)
 
 
@@ -54,6 +77,8 @@ def patch_finish_active_employee_session(
 def patch_extend_session(
     session_id: str,
     payload: ExtendSession,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
+    require_same_institute(current_user, None)
     return extend_service_session(db, session_id, payload.minutes)

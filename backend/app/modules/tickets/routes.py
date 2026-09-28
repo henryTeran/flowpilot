@@ -1,9 +1,10 @@
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
 from app.modules.planning.models import ServiceSession
 from app.modules.tickets.models import QueueTicket, TicketLine
@@ -111,29 +112,56 @@ def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
 
 
 @router.get("/chiffres", response_model=ChiffresSummaryRead)
-def get_chiffres(institute_id: str, db: Session = Depends(get_db)) -> ChiffresSummaryRead:
+def get_chiffres(
+    institute_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> ChiffresSummaryRead:
+    require_same_institute(current_user, institute_id)
     return get_chiffres_by_employee(db, institute_id)
 
 
 @router.get("/waiting", response_model=list[QueueTicketRead])
-def get_waiting_tickets(institute_id: str, db: Session = Depends(get_db)) -> list[QueueTicketRead]:
+def get_waiting_tickets(
+    institute_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> list[QueueTicketRead]:
+    require_same_institute(current_user, institute_id)
     return [_read_ticket(db, ticket) for ticket in list_waiting_tickets(db, institute_id)]
 
 
 @router.post("", response_model=QueueTicketRead)
-def post_ticket(payload: TicketCreate, db: Session = Depends(get_db)) -> QueueTicketRead:
+def post_ticket(
+    payload: TicketCreate,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    if current_user.get("institute_id") and payload.institute_id != current_user["institute_id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Institut non autorisé")
     ticket = create_queue_ticket(db, payload)
     return _read_ticket(db, ticket)
 
 
 @router.patch("/{ticket_id}/assign", response_model=QueueTicketRead)
-def patch_assign_ticket(ticket_id: str, payload: TicketAssign, db: Session = Depends(get_db)) -> QueueTicketRead:
+def patch_assign_ticket(
+    ticket_id: str,
+    payload: TicketAssign,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = assign_ticket(db, ticket_id, payload.employee_id)
     return _read_ticket(db, ticket)
 
 
 @router.patch("/{ticket_id}/cancel", response_model=QueueTicketRead)
-def patch_cancel_ticket(ticket_id: str, db: Session = Depends(get_db)) -> QueueTicketRead:
+def patch_cancel_ticket(
+    ticket_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = cancel_ticket(db, ticket_id)
     return _read_ticket(db, ticket)
 
@@ -142,8 +170,10 @@ def patch_cancel_ticket(ticket_id: str, db: Session = Depends(get_db)) -> QueueT
 def patch_start_checkout(
     ticket_id: str,
     payload: TicketCheckoutStart,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = start_checkout(db, ticket_id, payload.employee_id)
     return _read_ticket(db, ticket)
 
@@ -152,8 +182,10 @@ def patch_start_checkout(
 def patch_add_checkout_line(
     ticket_id: str,
     payload: TicketLineAdd,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = add_checkout_ticket_line(db, ticket_id, payload.service_id)
     return _read_ticket(db, ticket)
 
@@ -162,8 +194,10 @@ def patch_add_checkout_line(
 def patch_remove_checkout_line(
     ticket_id: str,
     line_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = remove_checkout_ticket_line(db, ticket_id, line_id)
     return _read_ticket(db, ticket)
 
@@ -172,7 +206,9 @@ def patch_remove_checkout_line(
 def patch_complete_payment(
     ticket_id: str,
     payload: TicketPaymentComplete,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
+    require_same_institute(current_user, None)
     ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method)
     return _read_ticket(db, ticket)

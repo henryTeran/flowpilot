@@ -1,5 +1,19 @@
 from fastapi.testclient import TestClient
 
+from app.core.security import create_access_token
+
+
+def _auth_headers(role: str = "accueil", institute_id: str | None = None) -> dict[str, str]:
+    return {"Authorization": f"Bearer {create_access_token(subject='test-user', extra_claims={'role': role, 'institute_id': institute_id})}"}
+
+
+def _unauthorized_headers(institute_id: str | None = None) -> dict[str, str]:
+    return _auth_headers(role="collaboratrice", institute_id=institute_id)
+
+
+def _wrong_institute_headers(institute_id: str) -> dict[str, str]:
+    return _auth_headers(role="accueil", institute_id=f"other-{institute_id}")
+
 
 def _bootstrap_reference_data(client: TestClient) -> tuple[str, list[dict], list[dict]]:
     response = client.post("/api/v1/dev/init-demo-data")
@@ -16,6 +30,7 @@ def _create_ticket(client: TestClient, institute_id: str, service_id: str) -> di
     response = client.post(
         "/api/v1/tickets",
         json={"institute_id": institute_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
     )
     assert response.status_code == 200
     return response.json()
@@ -29,11 +44,15 @@ def _start_and_finish_ticket(client: TestClient, ticket_id: str, employee_id: st
             "employee_id": employee_id,
             "service_id": service_id,
         },
+        headers=_auth_headers(role="accueil", institute_id=None),
     )
     assert start.status_code == 200
     session_id = start.json()["id"]
 
-    finish = client.patch(f"/api/v1/planning/sessions/{session_id}/finish")
+    finish = client.patch(
+        f"/api/v1/planning/sessions/{session_id}/finish",
+        headers=_auth_headers(role="accueil", institute_id=None),
+    )
     assert finish.status_code == 200
 
 
@@ -41,6 +60,7 @@ def _start_checkout(client: TestClient, ticket_id: str, employee_id: str):
     return client.patch(
         f"/api/v1/tickets/{ticket_id}/checkout/start",
         json={"employee_id": employee_id},
+        headers=_auth_headers(role="accueil", institute_id=None),
     )
 
 
@@ -48,6 +68,7 @@ def _pay(client: TestClient, ticket_id: str, employee_id: str, method: str = "cb
     return client.patch(
         f"/api/v1/tickets/{ticket_id}/checkout/pay",
         json={"employee_id": employee_id, "payment_method": method},
+        headers=_auth_headers(role="accueil", institute_id=None),
     )
 
 
@@ -150,14 +171,20 @@ def test_paid_ticket_contributes_once_to_revenue(client: TestClient):
     first_payment = _pay(client, ticket["id"], employee_id, "cb")
     assert first_payment.status_code == 200
 
-    chiffres_before = client.get(f"/api/v1/tickets/chiffres?institute_id={institute_id}")
+    chiffres_before = client.get(
+        f"/api/v1/tickets/chiffres?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
     assert chiffres_before.status_code == 200
     total_before = chiffres_before.json()["totals"]["total"]
 
     replay_payment = _pay(client, ticket["id"], employee_id, "cb")
     assert replay_payment.status_code == 400
 
-    chiffres_after = client.get(f"/api/v1/tickets/chiffres?institute_id={institute_id}")
+    chiffres_after = client.get(
+        f"/api/v1/tickets/chiffres?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
     assert chiffres_after.status_code == 200
     total_after = chiffres_after.json()["totals"]["total"]
 
