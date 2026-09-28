@@ -1,5 +1,5 @@
-CURRENT_PHASE = PHASE 0
-CURRENT_CHECKPOINT = 0D — Permissions workflow (closure reviewed)
+CURRENT_PHASE = PHASE 1
+CURRENT_CHECKPOINT = 1B — Alembic migrations & production schema guard
 
 CORE_WORKFLOW = PASS
 TEST_ENVIRONMENT = PASS
@@ -100,6 +100,25 @@ PHASE_1A_AUDIT =
 PHASE_1A_CHECKS =
 - py -3.13 -m pytest tests/test_smoke.py -q
 	Résultat: 1 passed, 2 warnings.
+
+PHASE_1B =
+- MIGRATIONS = PASS
+	files: backend/alembic.ini, backend/migrations/env.py, backend/migrations/versions/3ba965fb2922_initial_schema.py
+	behavior: outillage Alembic ajouté + migration initiale générée depuis le schéma SQLAlchemy actuel.
+- PROD_SCHEMA_GUARD = PASS
+	files: backend/app/main.py, backend/app/core/config.py
+	behavior: AUTO_CREATE_SCHEMA_ON_STARTUP bloqué en environnement production-like; garde faible SECRET_KEY hors local/dev/test.
+- LOCAL_BOOTSTRAP = PASS
+	files: backend/app/main.py
+	behavior: bootstrap SQLAlchemy local/dev conservé via AUTO_CREATE_SCHEMA_ON_STARTUP=true.
+
+PHASE_1B_CHECKS =
+- Migration sur base vide:
+	DATABASE_URL=sqlite:///./phase1b_upgrade_check.db ; py -3.13 -m alembic upgrade head
+	Résultat: PASS
+- Startup path + guard:
+	py -3.13 -m pytest tests/test_smoke.py tests/test_startup_schema_guard.py -q
+	Résultat: 2 passed, 4 warnings.
 
 WORKING_TREE =
 - Changements vérifiés 0D:

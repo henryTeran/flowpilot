@@ -38,6 +38,15 @@ def create_app() -> FastAPI:
     def on_startup() -> None:
         # Mode bootstrap local uniquement. En production, utiliser Alembic.
         if settings.AUTO_CREATE_SCHEMA_ON_STARTUP:
+            if settings.is_production_like_env:
+                raise RuntimeError(
+                    "AUTO_CREATE_SCHEMA_ON_STARTUP est interdit en production. "
+                    "Utiliser les migrations Alembic."
+                )
+            if not settings.is_local_like_env and settings.has_weak_secret_key:
+                raise RuntimeError(
+                    "Refus du bootstrap SQLAlchemy: SECRET_KEY faible/default hors environnement local/dev/test."
+                )
             Base.metadata.create_all(bind=engine)
 
     @app.get("/health", tags=["health"])

@@ -25,5 +25,22 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
+    @property
+    def app_env_normalized(self) -> str:
+        return self.APP_ENV.strip().lower()
+
+    @property
+    def is_local_like_env(self) -> bool:
+        return self.app_env_normalized in {"local", "dev", "development", "test"}
+
+    @property
+    def is_production_like_env(self) -> bool:
+        return self.app_env_normalized in {"prod", "production"}
+
+    @property
+    def has_weak_secret_key(self) -> bool:
+        weak_defaults = {"change-me", "change-me-in-production"}
+        return self.SECRET_KEY in weak_defaults or len(self.SECRET_KEY) < 16
+
 
 settings = Settings()
