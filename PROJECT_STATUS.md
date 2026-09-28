@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 0
-CURRENT_CHECKPOINT = 0D — Permissions workflow
+CURRENT_CHECKPOINT = 0D — Permissions workflow (closure reviewed)
 
 CORE_WORKFLOW = PASS
 TEST_ENVIRONMENT = PASS
@@ -11,6 +11,13 @@ ANALYTICS_SINGLE_COUNT = PASS
 CREATE_TICKET_IDEMPOTENCE = PASS
 PERMISSIONS = PASS
 refund = NOT_IMPLEMENTED
+partial_payment = NOT_IMPLEMENTED
+payment_failure_handling = NOT_IMPLEMENTED
+
+TICKETS = PASS
+PLANNING = PASS
+CHECKOUT = PASS
+ANALYTICS = PASS
 
 TESTS =
 - Tests ciblés 0D:
@@ -20,6 +27,9 @@ TESTS =
 - Exécution validée:
 	py -3.13 -m pytest tests/test_ticket_workflow.py tests/test_planning_workflow.py tests/test_checkout_workflow.py -q
 	Résultat: 25 passed, 2 warnings in 15.01s.
+- Revalidation clôture Phase 0:
+	py -3.13 -m pytest tests/test_ticket_workflow.py tests/test_planning_workflow.py tests/test_checkout_workflow.py -q
+	Résultat: 25 passed, 2 warnings in 11.78s.
 - Les warnings restent sur des dépréciations FastAPI `on_event`, sans régression fonctionnelle.
 
 EVIDENCE =
@@ -30,11 +40,16 @@ EVIDENCE =
 
 BLOCKERS =
 - Aucune régression 0D détectée dans le lot ciblé.
-- Aucune étape supplémentaire hors périmètre de 0D avant validation de commit.
+- Aucun blocage technique pour la clôture Phase 0 selon le scope Master Plan.
+
+DEFERRED_ITEMS =
+- refund: defer to Payments phase (Phase 8)
+- partial payment: defer to Payments phase (Phase 8)
+- payment failure handling: defer to Payments phase (Phase 8)
 
 NEXT_STEP =
-- Commit de la correction 0D: `fix(auth): enforce workflow permissions`.
-- Ne pas avancer vers 0E ni vers des fonctionnalités hors périmètre.
+- Clôturer officiellement la Phase 0.
+- Préparer la Phase 1 (fondations techniques) sans implémentation immédiate.
 
 WORKING_TREE =
 - Changements vérifiés 0D:
