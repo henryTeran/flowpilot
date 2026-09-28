@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.http import configure_http_middleware
 from app.database.base import Base
 from app.database.session import engine
 from app.modules.appointments.routes import router as appointments_router
@@ -31,11 +32,13 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    configure_http_middleware(app)
 
     @app.on_event("startup")
     def on_startup() -> None:
-        # Pour le démarrage MVP local. En production, remplacer par Alembic.
-        Base.metadata.create_all(bind=engine)
+        # Mode bootstrap local uniquement. En production, utiliser Alembic.
+        if settings.AUTO_CREATE_SCHEMA_ON_STARTUP:
+            Base.metadata.create_all(bind=engine)
 
     @app.get("/health", tags=["health"])
     def health() -> dict[str, str]:

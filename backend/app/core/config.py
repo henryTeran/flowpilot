@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg2://flowpilot:flowpilot@localhost:5432/flowpilot_flow"
     REDIS_URL: str = "redis://localhost:6379/0"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    AUTO_CREATE_SCHEMA_ON_STARTUP: bool = True
+    ENABLE_SECURITY_HEADERS: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
