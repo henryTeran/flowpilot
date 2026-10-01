@@ -358,6 +358,30 @@ export default function App() {
     }
   }
 
+  async function handleFinishSessionAndCheckout(sessionId: string) {
+    const targetTicket = planning?.rows
+      .flatMap((row) => row.sessions)
+      .find((session) => session.id === sessionId)?.ticket_line_id
+      ? tickets.find((ticket) =>
+          ticket.lines?.some((line) => line.id === planning?.rows
+            .flatMap((row) => row.sessions)
+            .find((session) => session.id === sessionId)?.ticket_line_id)
+        )
+      : undefined;
+
+    setError(null);
+    try {
+      await apiPatch(`/planning/sessions/${sessionId}/finish`);
+      await refreshOperationalData();
+
+      if (targetTicket) {
+        handleOpenCheckout(targetTicket.id);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de terminer la prestation et ouvrir la caisse");
+    }
+  }
+
   async function handleFinishActiveEmployeeSession(employeeId: string) {
     if (!selectedInstituteId) return;
 
@@ -628,6 +652,7 @@ export default function App() {
                   appointments={appointments}
                   availability={availability}
                   onFinishSession={handleFinishSession}
+                  onFinishAndOpenCheckout={handleFinishSessionAndCheckout}
                   onExtendSession={handleExtendSession}
                   onChangeEmployeeStatus={handleChangeEmployeeStatus}
                   onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}

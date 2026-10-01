@@ -8,6 +8,7 @@ interface PlanningBoardProps {
   appointments: Appointment[];
   availability?: PlanningAvailability;
   onFinishSession: (sessionId: string) => void;
+  onFinishAndOpenCheckout: (sessionId: string) => void;
   onExtendSession: (sessionId: string, minutes: number) => void;
   onChangeEmployeeStatus: (employeeId: string, status: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
@@ -26,6 +27,7 @@ export function PlanningBoard({
   appointments,
   availability,
   onFinishSession,
+  onFinishAndOpenCheckout,
   onExtendSession,
   onChangeEmployeeStatus,
   onFinishActiveEmployeeSession,
@@ -211,6 +213,15 @@ export function PlanningBoard({
                               }}
                             >
                               Fin
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onFinishAndOpenCheckout(session.id);
+                              }}
+                            >
+                              Fin + caisse
                             </button>
                           </div>
                         )}
