@@ -484,6 +484,19 @@ export default function App() {
         employee_id: identifiedEmployeeId,
         payment_method: selectedPaymentMethod,
       });
+
+      const refreshedTickets = await apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId ?? "")}`);
+      setTickets(refreshedTickets);
+
+      const nextCheckoutTicket = resolveNextCheckoutTicket(refreshedTickets, identifiedEmployeeId);
+      if (nextCheckoutTicket) {
+        setSelectedCheckoutTicketId(nextCheckoutTicket.id);
+        setSelectedTicketId(nextCheckoutTicket.id);
+        setActiveDrawer("checkout");
+        await refreshOperationalData();
+        return;
+      }
+
       setSelectedCheckoutTicketId("");
       setSelectedTicketId("");
       setActiveDrawer(null);
