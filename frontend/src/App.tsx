@@ -87,6 +87,16 @@ export default function App() {
     [appointments]
   );
 
+  const checkoutCount = useMemo(
+    () => tickets.filter((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status)).length,
+    [tickets]
+  );
+
+  const delayedEmployeesCount = useMemo(
+    () => employees.filter((employee) => employee.status === "delayed").length,
+    [employees]
+  );
+
   const ticketStats = useMemo(() => computeTicketStats(tickets), [tickets]);
 
   function handleTicketSelection(ticketId: string) {
@@ -580,6 +590,12 @@ export default function App() {
                 <span>RDV</span>
                 <strong>{activeAppointmentsToday}</strong>
                 <small>{completedAppointmentsToday} terminé(s)</small>
+              </div>
+
+              <div className="bm-toolbar-stat compact">
+                <span>À encaisser</span>
+                <strong>{checkoutCount}</strong>
+                <small>{delayedEmployeesCount} retard(s)</small>
               </div>
 
               <div className="bm-primary-actions">
