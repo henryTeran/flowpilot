@@ -49,24 +49,33 @@ def change_employee_status(db: Session, employee_id: str, status: str) -> Employ
     if not employee:
         raise not_found("Collaboratrice introuvable")
 
-    if status == "available":
-        active_session = db.scalars(
-            select(ServiceSession).where(
-                ServiceSession.employee_id == employee.id,
-                ServiceSession.institute_id == employee.institute_id,
-                ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
-            )
-        ).first()
+    active_session = db.scalars(
+        select(ServiceSession).where(
+            ServiceSession.employee_id == employee.id,
+            ServiceSession.institute_id == employee.institute_id,
+            ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+        )
+    ).first()
+    current_appointment = _get_current_employee_appointment(db, employee)
+
+    if status in {"available", "pause", "absent", "offline"}:
         if active_session:
             raise business_error(
-                "Impossible de rendre cette collaboratrice disponible : une prestation est encore en cours. Clique d’abord sur Fin."
+                "Impossible de modifier le statut de cette collaboratrice : une prestation est encore en cours. Termine-la d’abord."
             )
-
-        current_appointment = _get_current_employee_appointment(db, employee)
         if current_appointment:
             raise business_error(
-                "Impossible de rendre cette collaboratrice disponible : un rendez-vous sous appel est en cours."
+                "Impossible de modifier le statut de cette collaboratrice : un rendez-vous sous appel est en cours."
             )
+
+    if status == "available":
+        employee.status = status
+        return save_employee(db, employee)
+
+    if status in {"pause", "absent", "offline"} and (active_session or current_appointment):
+        raise business_error(
+            "Cette collaboratrice est encore occupée et ne peut pas changer vers un statut hors service."
+        )
 
     employee.status = status
     return save_employee(db, employee)

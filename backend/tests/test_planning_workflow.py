@@ -108,6 +108,24 @@ def test_start_unavailable_employee_rejected(client: TestClient):
     assert start.status_code == 400
 
 
+def test_employee_cannot_be_placed_on_pause_while_busy(client: TestClient):
+    institute_id, employees, services = _bootstrap_reference_data(client)
+    employee_id = employees[0]["id"]
+    service_id = services[0]["id"]
+
+    ticket = _create_ticket(client, institute_id, service_id)
+    start_response = _start_session(client, ticket["id"], employee_id, service_id)
+    assert start_response.status_code == 200
+
+    response = client.patch(
+        f"/api/v1/employees/{employee_id}/status",
+        json={"status": "pause"},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+
+    assert response.status_code == 400
+
+
 def test_finish_service_success(client: TestClient):
     institute_id, employees, services = _bootstrap_reference_data(client)
     employee_id = employees[0]["id"]
