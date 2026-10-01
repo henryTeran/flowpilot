@@ -1,7 +1,7 @@
 CURRENT_PHASE = PHASE 1
-CURRENT_CHECKPOINT = AUDIT_TRAIL_BASELINE
+CURRENT_CHECKPOINT = PHASE1_CLOSURE_GATE_POSTGRES
 
-STATUS = PASS
+STATUS = PARTIAL
 
 GATES:
 - REALITY_AUDIT = PASS
@@ -30,15 +30,15 @@ TESTS:
 - frontend npm run build = PASS
 
 LAST_COMMITS:
+- 735f13b feat(audit): add baseline audit trail for sensitive ticket actions
+- 70afb62 feat(security): harden production config and cors policy by environment
 - 27ac532 feat(ops): add readiness endpoint with database reachability check
 - 17c3bfb feat(security): add login rate limiting with standardized 429 responses
-- b9df504 docs(roadmap): reconcile phase order with walk-in-first core
-- f2431f2 refonte ui: suppression style clone v1 et navigation modernisee
 
 BLOCKERS:
-- Validation PostgreSQL/Alembic bloquee localement (driver psycopg2 indisponible en Python 3.13 dans cette machine: pg_config manquant, ModuleNotFoundError psycopg2).
+- Validation PostgreSQL/Alembic bloquee localement: service PostgreSQL inaccessible sur localhost:5432 (connection refused / auth failure pour user flowpilot). Driver psycopg2 valide dans backend/.venv.
 
 NEXT_STEP:
-- Lever le blocage migration PostgreSQL (runtime/driver) puis executer `alembic current` et `alembic upgrade head` sur PostgreSQL pour fermer le gate Phase 1.
+- Demarrer/configurer PostgreSQL local conforme (.env), puis executer `alembic current` et `alembic upgrade head` pour fermer le gate Phase 1 et lancer Phase 2.
 
 WORKING_TREE = CLEAN
