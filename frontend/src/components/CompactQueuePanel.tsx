@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Employee, QueueTicket, Service } from "../types";
 
-type CompactQueueFilter = "all" | "waiting" | "assigned" | "in_progress" | "checkout";
+type CompactQueueFilter = "all" | "waiting" | "assigned" | "in_progress" | "checkout" | "delayed";
 
 interface CompactQueuePanelProps {
   tickets: QueueTicket[];
@@ -33,6 +33,12 @@ export function CompactQueuePanel({
   const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status));
+  const delayedTickets = tickets.filter((ticket) => {
+    if (!ticket.assigned_employee_id) return false;
+
+    const assignedEmployee = employees.find((employee) => employee.id === ticket.assigned_employee_id);
+    return assignedEmployee?.status === "delayed" && ["assigned", "in_progress", "ready_for_checkout", "in_checkout"].includes(ticket.status);
+  });
   const activeTickets = [...waitingTickets, ...assignedTickets, ...inProgressTickets, ...checkoutTickets];
 
   const filteredTickets = useMemo(() => {
@@ -40,14 +46,18 @@ export function CompactQueuePanel({
 
     const nextTickets = filter === "all"
       ? activeTickets
-      : activeTickets.filter((ticket) => ticket.status === filter || (filter === "checkout" && ["ready_for_checkout", "in_checkout"].includes(ticket.status)));
+      : filter === "checkout"
+        ? activeTickets.filter((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status))
+        : filter === "delayed"
+          ? delayedTickets
+          : activeTickets.filter((ticket) => ticket.status === filter);
 
     const searchedTickets = normalizedSearch
       ? nextTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
       : nextTickets;
 
     return [...searchedTickets].sort((left, right) => compareTicketPriority(left, right));
-  }, [activeTickets, employees, filter, searchTerm, services, ticketServiceMap]);
+  }, [activeTickets, delayedTickets, employees, filter, searchTerm, services, ticketServiceMap]);
 
   const visibleTickets = filteredTickets.slice(0, 6);
 
@@ -66,6 +76,7 @@ export function CompactQueuePanel({
         <span><strong>{assignedTickets.length}</strong> affecté(s)</span>
         <span><strong>{inProgressTickets.length}</strong> en cours</span>
         <span><strong>{checkoutTickets.length}</strong> en caisse</span>
+        <span><strong>{delayedTickets.length}</strong> retard(s)</span>
       </div>
 
       <label className="compact-search-field" aria-label="Rechercher un ticket">
@@ -85,6 +96,7 @@ export function CompactQueuePanel({
           { id: "assigned", label: "Affectés" },
           { id: "in_progress", label: "En cours" },
           { id: "checkout", label: "Caisse" },
+          { id: "delayed", label: "Retards" },
         ].map((chip) => (
           <button
             key={chip.id}
