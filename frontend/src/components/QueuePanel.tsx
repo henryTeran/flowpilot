@@ -66,6 +66,7 @@ export function QueuePanel({
   const selectedTicketIsActionable = Boolean(selectedTicket && ACTIONABLE_TICKET_STATUSES.has(selectedTicket.status));
   const selectedTicketIsWaiting = selectedTicket?.status === "waiting";
   const selectedTicketIsAssigned = selectedTicket?.status === "assigned";
+  const selectedTicketIsReadyForCheckout = Boolean(selectedTicket && CHECKOUT_TICKET_STATUSES.has(selectedTicket.status));
   const lockedEmployeeId = selectedTicket?.assigned_employee_id || "";
   const isLockedToAnotherEmployee = Boolean(
     lockedEmployeeId && selectedEmployeeId && lockedEmployeeId !== selectedEmployeeId,
@@ -305,12 +306,20 @@ export function QueuePanel({
         )}
 
         <div className="button-row">
-          <button className="secondary-button" onClick={onAssignTicket} disabled={!canAssignTicket}>
-            Affecter
-          </button>
-          <button className="primary-button" onClick={onStartSession} disabled={!canStartSession}>
-            Démarrer séance
-          </button>
+          {selectedTicketIsReadyForCheckout && selectedTicket ? (
+            <button className="primary-button" onClick={() => onStartCheckout(selectedTicket.id)}>
+              Encaisser ce ticket
+            </button>
+          ) : (
+            <>
+              <button className="secondary-button" onClick={onAssignTicket} disabled={!canAssignTicket}>
+                Affecter
+              </button>
+              <button className="primary-button" onClick={onStartSession} disabled={!canStartSession}>
+                Démarrer séance
+              </button>
+            </>
+          )}
         </div>
       </section>
     </aside>
