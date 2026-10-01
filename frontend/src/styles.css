@@ -4093,7 +4093,7 @@ body {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .bm-service-category-row button {
@@ -4110,6 +4110,54 @@ body {
 .bm-service-category-row button.active {
   border-color: #d889b0;
   background: #bd78a0;
+}
+
+.bm-service-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bm-service-search {
+  flex: 1;
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #ffffff;
+  background: rgba(9, 27, 62, 0.2);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.bm-service-search::placeholder {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.bm-service-clear {
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.bm-service-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 132px;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .bm-service-tile-grid {

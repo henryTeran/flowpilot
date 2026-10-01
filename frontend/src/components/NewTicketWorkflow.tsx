@@ -68,6 +68,7 @@ export function NewTicketWorkflow({
   const [passageType, setPassageType] = useState("passage");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+  const [serviceSearch, setServiceSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const usableCategories = useMemo(() => {
@@ -80,6 +81,16 @@ export function NewTicketWorkflow({
     if (!activeCategoryId) return services;
     return services.filter((service) => service.category_id === activeCategoryId);
   }, [activeCategoryId, services]);
+
+  const filteredServices = useMemo(() => {
+    const query = serviceSearch.trim().toLowerCase();
+    if (!query) return visibleServices;
+
+    return visibleServices.filter((service) => {
+      const haystack = `${service.name} ${service.category_id}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [serviceSearch, visibleServices]);
 
   const selectedServices = useMemo(
     () => selectedServiceIds.map((id) => services.find((service) => service.id === id)).filter(Boolean) as Service[],
@@ -131,6 +142,7 @@ export function NewTicketWorkflow({
     setPassageType("passage");
     setSelectedCategoryId("");
     setSelectedServiceIds([]);
+    setServiceSearch("");
     onClose();
   }
 
@@ -246,23 +258,45 @@ export function NewTicketWorkflow({
                   ))}
                 </div>
 
-                <div className="bm-service-tile-grid">
-                  {visibleServices.map((service) => {
-                    const selected = selectedServiceIds.includes(service.id);
-                    return (
-                      <button
-                        key={service.id}
-                        type="button"
-                        className={`bm-service-tile ${selected ? "selected" : ""}`}
-                        onClick={() => toggleService(service.id)}
-                      >
-                        <strong>{service.name}</strong>
-                        <span>{formatDuration(service)}</span>
-                        <small>{formatPrice(getDisplayPrice(service, passageType))}</small>
-                      </button>
-                    );
-                  })}
+                <div className="bm-service-filter-row">
+                  <input
+                    className="bm-service-search"
+                    type="search"
+                    value={serviceSearch}
+                    onChange={(event) => setServiceSearch(event.target.value)}
+                    placeholder="Rechercher une prestation"
+                    aria-label="Rechercher une prestation"
+                  />
+                  {serviceSearch && (
+                    <button type="button" className="bm-service-clear" onClick={() => setServiceSearch("")}>
+                      Effacer
+                    </button>
+                  )}
                 </div>
+
+                {filteredServices.length === 0 ? (
+                  <div className="bm-service-empty-state">
+                    Aucune prestation ne correspond à la recherche dans cette catégorie.
+                  </div>
+                ) : (
+                  <div className="bm-service-tile-grid">
+                    {filteredServices.map((service) => {
+                      const selected = selectedServiceIds.includes(service.id);
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          className={`bm-service-tile ${selected ? "selected" : ""}`}
+                          onClick={() => toggleService(service.id)}
+                        >
+                          <strong>{service.name}</strong>
+                          <span>{formatDuration(service)}</span>
+                          <small>{formatPrice(getDisplayPrice(service, passageType))}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </section>
           )}
