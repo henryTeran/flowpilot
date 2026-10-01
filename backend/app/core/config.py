@@ -1,4 +1,4 @@
-from functools import cached_property
+from urllib.parse import urlparse
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,9 +24,21 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    @cached_property
+    @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def cors_allow_methods(self) -> list[str]:
+        if self.is_production_like_env:
+            return ["GET", "POST", "PATCH", "OPTIONS"]
+        return ["*"]
+
+    @property
+    def cors_allow_headers(self) -> list[str]:
+        if self.is_production_like_env:
+            return ["Authorization", "Content-Type", "X-Request-ID"]
+        return ["*"]
 
     @property
     def app_env_normalized(self) -> str:
@@ -44,6 +56,34 @@ class Settings(BaseSettings):
     def has_weak_secret_key(self) -> bool:
         weak_defaults = {"change-me", "change-me-in-production"}
         return self.SECRET_KEY in weak_defaults or len(self.SECRET_KEY) < 16
+
+    def validate_runtime_security(self) -> None:
+        if not self.is_production_like_env:
+            return
+
+        if self.APP_DEBUG:
+            raise RuntimeError("APP_DEBUG must be false in production.")
+
+        if self.has_weak_secret_key:
+            raise RuntimeError("SECRET_KEY is weak or default in production.")
+
+        if not self.ENABLE_RATE_LIMITING:
+            raise RuntimeError("ENABLE_RATE_LIMITING must be true in production.")
+
+        if not self.cors_origins_list:
+            raise RuntimeError("CORS_ORIGINS cannot be empty in production.")
+
+        for origin in self.cors_origins_list:
+            if origin == "*":
+                raise RuntimeError("CORS wildcard is forbidden in production.")
+
+            parsed = urlparse(origin)
+            if parsed.scheme != "https":
+                raise RuntimeError("CORS origins must use HTTPS in production.")
+
+            hostname = (parsed.hostname or "").lower()
+            if hostname in {"localhost", "127.0.0.1"}:
+                raise RuntimeError("Localhost CORS origins are forbidden in production.")
 
 
 settings = Settings()

@@ -40,6 +40,8 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
+    settings.validate_runtime_security()
+
     app = FastAPI(
         title=settings.APP_NAME,
         debug=settings.APP_DEBUG,
@@ -52,8 +54,8 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=settings.cors_allow_methods,
+        allow_headers=settings.cors_allow_headers,
     )
     configure_http_middleware(app)
     configure_exception_handlers(app)

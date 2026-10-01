@@ -13,6 +13,9 @@ def test_app_uses_fastapi_lifespan_for_startup_bootstrap():
 
 def test_production_blocks_auto_create_schema(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(settings, "APP_ENV", "production")
+    monkeypatch.setattr(settings, "APP_DEBUG", False)
+    monkeypatch.setattr(settings, "SECRET_KEY", "flowpilot-super-secret-key")
+    monkeypatch.setattr(settings, "CORS_ORIGINS", "https://app.flowpilot.test")
     monkeypatch.setattr(settings, "AUTO_CREATE_SCHEMA_ON_STARTUP", True)
 
     with pytest.raises(RuntimeError, match="AUTO_CREATE_SCHEMA_ON_STARTUP"):

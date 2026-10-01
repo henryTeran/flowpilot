@@ -30,6 +30,9 @@ backend/.coverage
 backend/htmlcov/
 backend/.venv/
 backend/venv/
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
 
 # =========================
 # OS / Editor

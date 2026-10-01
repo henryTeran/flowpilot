@@ -75,3 +75,15 @@ def test_login_rate_limit_isolated_per_client_fingerprint(client: TestClient, mo
     assert first_ip_attempt.status_code == 401
     assert blocked_first_ip.status_code == 429
     assert second_ip_attempt.status_code == 401
+
+
+def test_rate_limit_is_not_applied_to_non_auth_endpoints(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(settings, "ENABLE_RATE_LIMITING", True)
+    monkeypatch.setattr(settings, "RATE_LIMIT_AUTH_MAX_REQUESTS", 1)
+    monkeypatch.setattr(settings, "RATE_LIMIT_AUTH_WINDOW_SECONDS", 60)
+
+    first = client.post("/api/v1/dev/init-demo-data")
+    second = client.post("/api/v1/dev/init-demo-data")
+
+    assert first.status_code == 200
+    assert second.status_code == 200
