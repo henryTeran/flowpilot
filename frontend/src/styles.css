@@ -1908,6 +1908,13 @@ select {
   font-weight: 800;
 }
 
+.employee-action-warning {
+  background: #fff7ed !important;
+  color: #9a4d00 !important;
+  border-color: #fed7aa !important;
+  font-weight: 800;
+}
+
 .ticket-mini-button.danger {
   background: #ffe4e6;
   color: #9f1239;

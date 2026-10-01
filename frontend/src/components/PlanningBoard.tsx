@@ -113,6 +113,16 @@ export function PlanningBoard({
                         Clôturer
                       </button>
                     )}
+                    {displayStatus === "delayed" && (
+                      <button
+                        type="button"
+                        className="employee-action-warning"
+                        onClick={() => onChangeEmployeeStatus(row.employee_id, "available")}
+                        title="Sortir la collaboratrice du statut retard pour reprendre le flux"
+                      >
+                        Libérer
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onChangeEmployeeStatus(row.employee_id, "pause")}
