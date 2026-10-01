@@ -1,8 +1,9 @@
 from collections.abc import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.errors import configure_exception_handlers
@@ -60,6 +61,21 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["health"])
     def health() -> dict[str, str]:
         return {"status": "ok", "service": settings.APP_NAME}
+
+    @app.get("/ready", tags=["health"])
+    def ready() -> dict[str, str]:
+        try:
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
+        except Exception as exc:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "code": "service_unavailable",
+                    "message": "Database unavailable",
+                },
+            ) from exc
+        return {"status": "ready", "service": settings.APP_NAME}
 
     prefix = settings.API_V1_PREFIX
     app.include_router(auth_router, prefix=prefix)
