@@ -118,6 +118,28 @@ select {
   width: 100%;
 }
 
+.queue-search-wrapper,
+.compact-search-field {
+  display: block;
+  margin-top: 8px;
+}
+
+.queue-search,
+.compact-queue-search {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #ecd6e0;
+  border-radius: 12px;
+  padding: 0 12px;
+  color: #3d2633;
+  background: #fff;
+}
+
+.queue-search::placeholder,
+.compact-queue-search::placeholder {
+  color: #9a7d8d;
+}
+
 .section-title-row {
   display: flex;
   align-items: flex-start;

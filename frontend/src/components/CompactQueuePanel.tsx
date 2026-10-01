@@ -27,6 +27,7 @@ export function CompactQueuePanel({
   onStartCheckout,
 }: CompactQueuePanelProps) {
   const [filter, setFilter] = useState<CompactQueueFilter>("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const waitingTickets = tickets.filter((ticket) => ticket.status === "waiting");
   const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
@@ -35,9 +36,18 @@ export function CompactQueuePanel({
   const activeTickets = [...waitingTickets, ...assignedTickets, ...inProgressTickets, ...checkoutTickets];
 
   const filteredTickets = useMemo(() => {
-    const nextTickets = filter === "all" ? activeTickets : activeTickets.filter((ticket) => ticket.status === filter || (filter === "checkout" && ["ready_for_checkout", "in_checkout"].includes(ticket.status)));
-    return [...nextTickets].sort((left, right) => compareTicketPriority(left, right));
-  }, [activeTickets, filter]);
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    const nextTickets = filter === "all"
+      ? activeTickets
+      : activeTickets.filter((ticket) => ticket.status === filter || (filter === "checkout" && ["ready_for_checkout", "in_checkout"].includes(ticket.status)));
+
+    const searchedTickets = normalizedSearch
+      ? nextTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : nextTickets;
+
+    return [...searchedTickets].sort((left, right) => compareTicketPriority(left, right));
+  }, [activeTickets, employees, filter, searchTerm, services, ticketServiceMap]);
 
   const visibleTickets = filteredTickets.slice(0, 6);
 
@@ -57,6 +67,16 @@ export function CompactQueuePanel({
         <span><strong>{inProgressTickets.length}</strong> en cours</span>
         <span><strong>{checkoutTickets.length}</strong> en caisse</span>
       </div>
+
+      <label className="compact-search-field" aria-label="Rechercher un ticket">
+        <input
+          className="compact-queue-search"
+          type="search"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Ticket, prestation, collaboratrice…"
+        />
+      </label>
 
       <div className="compact-filter-row" aria-label="Filtrer la file d’attente">
         {[
@@ -154,6 +174,28 @@ function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Recor
   }
 
   return fallbackMap[ticket.id] || [];
+}
+
+function matchesTicketSearch(
+  ticket: QueueTicket,
+  services: Service[],
+  employees: Employee[],
+  fallbackMap: Record<string, string[]>,
+  searchTerm: string,
+) {
+  const ticketServices = getTicketServiceIds(ticket, fallbackMap)
+    .map((serviceId) => services.find((service) => service.id === serviceId))
+    .filter(Boolean) as Service[];
+  const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
+  const haystack = [
+    ticket.ticket_number,
+    ticket.status,
+    translateStatus(ticket.status),
+    ...ticketServices.map((service) => service.name),
+    employee?.first_name ?? "",
+  ].join(" ").toLowerCase();
+
+  return haystack.includes(searchTerm);
 }
 
 function formatTicketServices(ticketServices: Service[]) {

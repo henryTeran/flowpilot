@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Employee, PlanningAvailability, QueueTicket, Service, ServiceCategory } from "../types";
 
 interface QueuePanelProps {
@@ -49,6 +50,7 @@ export function QueuePanel({
   onFinishActiveEmployeeSession,
   onStartCheckout,
 }: QueuePanelProps) {
+  const [searchTerm, setSearchTerm] = useState("");
   const filteredServices = selectedCategoryId
     ? services.filter((service) => service.category_id === selectedCategoryId)
     : services;
@@ -82,6 +84,23 @@ export function QueuePanel({
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => CHECKOUT_TICKET_STATUSES.has(ticket.status));
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
+  const filteredWaitingTickets = normalizedSearch
+    ? waitingTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+    : waitingTickets;
+  const filteredAssignedTickets = normalizedSearch
+    ? assignedTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+    : assignedTickets;
+  const filteredInProgressTickets = normalizedSearch
+    ? inProgressTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+    : inProgressTickets;
+  const filteredCheckoutTickets = normalizedSearch
+    ? checkoutTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+    : checkoutTickets;
+  const filteredActionableTickets = normalizedSearch
+    ? actionableTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+    : actionableTickets;
 
   return (
     <aside className="queue-panel">
@@ -138,14 +157,24 @@ export function QueuePanel({
           </div>
         </div>
 
+        <label className="queue-search-wrapper">
+          <input
+            className="queue-search"
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Recherche rapide"
+          />
+        </label>
+
         {tickets.length === 0 ? (
           <div className="empty-state">Aucun ticket actif.</div>
         ) : (
           <div className="ticket-list ticket-list-grouped">
             <TicketGroup
               title="À prendre"
-              tickets={waitingTickets}
-              empty="Aucune cliente en attente."
+              tickets={filteredWaitingTickets}
+              empty={normalizedSearch ? "Aucun ticket ne correspond à la recherche." : "Aucune cliente en attente."}
               services={services}
               employees={employees}
               selectedTicketId={selectedTicketId}
@@ -158,8 +187,8 @@ export function QueuePanel({
 
             <TicketGroup
               title="Affectés"
-              tickets={assignedTickets}
-              empty="Aucun ticket affecté."
+              tickets={filteredAssignedTickets}
+              empty={normalizedSearch ? "Aucun ticket ne correspond à la recherche." : "Aucun ticket affecté."}
               services={services}
               employees={employees}
               selectedTicketId={selectedTicketId}
@@ -172,8 +201,8 @@ export function QueuePanel({
 
             <TicketGroup
               title="En prestation"
-              tickets={inProgressTickets}
-              empty="Aucune prestation en cours depuis la file."
+              tickets={filteredInProgressTickets}
+              empty={normalizedSearch ? "Aucun ticket ne correspond à la recherche." : "Aucune prestation en cours depuis la file."}
               services={services}
               employees={employees}
               selectedTicketId={selectedTicketId}
@@ -186,8 +215,8 @@ export function QueuePanel({
 
             <TicketGroup
               title="En caisse"
-              tickets={checkoutTickets}
-              empty="Aucun ticket prêt à encaisser."
+              tickets={filteredCheckoutTickets}
+              empty={normalizedSearch ? "Aucun ticket ne correspond à la recherche." : "Aucun ticket prêt à encaisser."}
               services={services}
               employees={employees}
               selectedTicketId={selectedTicketId}
@@ -208,7 +237,7 @@ export function QueuePanel({
         <label>Ticket sélectionné</label>
         <select value={selectedTicketId} onChange={(event) => onTicketChange(event.target.value)}>
           <option value="">Choisir un ticket</option>
-          {actionableTickets.map((ticket) => (
+          {filteredActionableTickets.map((ticket) => (
             <option key={ticket.id} value={ticket.id}>{ticket.ticket_number} · {translateStatus(ticket.status)}</option>
           ))}
         </select>
@@ -395,6 +424,28 @@ function getTicketServiceIds(ticket: QueueTicket | undefined, fallbackMap: Recor
   }
 
   return fallbackMap[ticket.id] || [];
+}
+
+function matchesTicketSearch(
+  ticket: QueueTicket,
+  services: Service[],
+  employees: Employee[],
+  fallbackMap: Record<string, string[]>,
+  searchTerm: string,
+) {
+  const ticketServices = getTicketServiceIds(ticket, fallbackMap)
+    .map((serviceId) => services.find((service) => service.id === serviceId))
+    .filter(Boolean) as Service[];
+  const employee = employees.find((item) => item.id === ticket.assigned_employee_id);
+  const haystack = [
+    ticket.ticket_number,
+    ticket.status,
+    translateStatus(ticket.status),
+    ...ticketServices.map((service) => service.name),
+    employee?.first_name ?? "",
+  ].join(" ").toLowerCase();
+
+  return haystack.includes(searchTerm);
 }
 
 function formatTicketSessionLabel(ticketServices: Service[], fallback?: Service) {
