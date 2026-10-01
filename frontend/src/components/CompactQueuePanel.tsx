@@ -1,4 +1,7 @@
+import { useMemo, useState } from "react";
 import type { Employee, QueueTicket, Service } from "../types";
+
+type CompactQueueFilter = "all" | "waiting" | "assigned" | "in_progress" | "checkout";
 
 interface CompactQueuePanelProps {
   tickets: QueueTicket[];
@@ -23,12 +26,20 @@ export function CompactQueuePanel({
   onFinishActiveEmployeeSession,
   onStartCheckout,
 }: CompactQueuePanelProps) {
+  const [filter, setFilter] = useState<CompactQueueFilter>("all");
+
   const waitingTickets = tickets.filter((ticket) => ticket.status === "waiting");
   const assignedTickets = tickets.filter((ticket) => ticket.status === "assigned");
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status));
   const activeTickets = [...waitingTickets, ...assignedTickets, ...inProgressTickets, ...checkoutTickets];
-  const visibleTickets = activeTickets.slice(0, 6);
+
+  const filteredTickets = useMemo(() => {
+    const nextTickets = filter === "all" ? activeTickets : activeTickets.filter((ticket) => ticket.status === filter || (filter === "checkout" && ["ready_for_checkout", "in_checkout"].includes(ticket.status)));
+    return [...nextTickets].sort((left, right) => compareTicketPriority(left, right));
+  }, [activeTickets, filter]);
+
+  const visibleTickets = filteredTickets.slice(0, 6);
 
   return (
     <aside className="compact-queue-card">
@@ -45,6 +56,25 @@ export function CompactQueuePanel({
         <span><strong>{assignedTickets.length}</strong> affecté(s)</span>
         <span><strong>{inProgressTickets.length}</strong> en cours</span>
         <span><strong>{checkoutTickets.length}</strong> en caisse</span>
+      </div>
+
+      <div className="compact-filter-row" aria-label="Filtrer la file d’attente">
+        {[
+          { id: "all", label: "Tout" },
+          { id: "waiting", label: "À prendre" },
+          { id: "assigned", label: "Affectés" },
+          { id: "in_progress", label: "En cours" },
+          { id: "checkout", label: "Caisse" },
+        ].map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            className={`compact-filter-button ${filter === chip.id ? "active" : ""}`}
+            onClick={() => setFilter(chip.id as CompactQueueFilter)}
+          >
+            {chip.label}
+          </button>
+        ))}
       </div>
 
       {visibleTickets.length === 0 ? (
@@ -106,9 +136,9 @@ export function CompactQueuePanel({
         </div>
       )}
 
-      {activeTickets.length > visibleTickets.length && (
+      {filteredTickets.length > visibleTickets.length && (
         <button type="button" className="compact-show-more" onClick={onOpenTickets}>
-          Voir {activeTickets.length - visibleTickets.length} ticket(s) de plus
+          Voir {filteredTickets.length - visibleTickets.length} ticket(s) de plus
         </button>
       )}
     </aside>
@@ -154,4 +184,17 @@ function translateStatus(status: string) {
     cancelled: "Annulé",
   };
   return labels[status] || status;
+}
+
+function compareTicketPriority(left: QueueTicket, right: QueueTicket) {
+  const priority = { waiting: 0, assigned: 1, in_progress: 2, ready_for_checkout: 3, in_checkout: 4 };
+  const leftPriority = priority[left.status as keyof typeof priority] ?? 99;
+  const rightPriority = priority[right.status as keyof typeof priority] ?? 99;
+
+  if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+
+  const leftTime = left.estimated_start_time ? new Date(left.estimated_start_time).getTime() : Number.MAX_SAFE_INTEGER;
+  const rightTime = right.estimated_start_time ? new Date(right.estimated_start_time).getTime() : Number.MAX_SAFE_INTEGER;
+
+  return leftTime - rightTime;
 }

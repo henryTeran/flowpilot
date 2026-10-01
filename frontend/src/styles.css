@@ -2022,6 +2022,29 @@ select {
   color: #b83270;
 }
 
+.compact-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.compact-filter-button {
+  border: 1px solid #f4d9e5;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #714866;
+  background: #fff7fb;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.compact-filter-button.active {
+  border-color: #d54880;
+  color: #ffffff;
+  background: linear-gradient(135deg, #d54880 0%, #b22a72 100%);
+}
+
 .compact-ticket-list {
   display: flex;
   flex-direction: column;
