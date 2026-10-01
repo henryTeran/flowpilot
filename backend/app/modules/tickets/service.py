@@ -22,6 +22,7 @@ from app.shared.time import utcnow
 
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
+ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived", "in_progress"]
 ASSIGNABLE_EMPLOYEE_STATUSES = {"available"}
 PAYMENT_METHODS = {"cb", "especes", "cheque", "carte_cadeau", "mixte"}
 
@@ -78,6 +79,30 @@ def _ticket_total(db: Session, ticket_id: str) -> float:
     return total
 
 
+def _has_active_employee_blocker(db: Session, institute_id: str, employee_id: str, now: datetime | None = None) -> bool:
+    now = now or utcnow()
+
+    has_active_session = db.scalars(
+        select(ServiceSession).where(
+            ServiceSession.institute_id == institute_id,
+            ServiceSession.employee_id == employee_id,
+            ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+        )
+    ).first() is not None
+
+    has_active_appointment = db.scalars(
+        select(Appointment).where(
+            Appointment.institute_id == institute_id,
+            Appointment.employee_id == employee_id,
+            Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+            Appointment.start_time <= now,
+            Appointment.end_time > now,
+        )
+    ).first() is not None
+
+    return has_active_session or has_active_appointment
+
+
 def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int):
     """
     Estime le début du prochain ticket selon :
@@ -90,6 +115,7 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
         employee
         for employee in list_by_institute(db, institute_id)
         if employee.status in ASSIGNABLE_EMPLOYEE_STATUSES
+        and not _has_active_employee_blocker(db, institute_id, employee.id, now)
     ]
 
     if not employees:
@@ -204,6 +230,9 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
 
     if employee.status not in ASSIGNABLE_EMPLOYEE_STATUSES:
         raise business_error("La collaboratrice n'est pas disponible pour recevoir un ticket")
+
+    if _has_active_employee_blocker(db, ticket.institute_id, employee.id):
+        raise business_error("La collaboratrice est encore occupée par une prestation ou un rendez-vous en cours")
 
     ticket.status = "assigned"
     ticket.assigned_employee_id = employee.id

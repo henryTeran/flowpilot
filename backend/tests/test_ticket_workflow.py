@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 
 import app.main as main_module
 from app.core.security import create_access_token
+from app.modules.appointments.models import Appointment
 from app.modules.planning.models import ServiceSession
+from app.shared.ids import new_id
+from app.shared.time import utcnow
 
 
 def _auth_headers(role: str = "accueil", institute_id: str | None = None) -> dict[str, str]:
@@ -230,6 +233,37 @@ def test_assign_ticket_rejected_when_employee_has_active_delayed_session(client:
     second_ticket = _create_ticket(client, institute_id, service_id)
     response = client.patch(
         f"/api/v1/tickets/{second_ticket['id']}/assign",
+        json={"employee_id": employee_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+
+    assert response.status_code == 400
+
+
+def test_assign_ticket_rejected_when_employee_has_active_appointment(client: TestClient):
+    institute_id, employees, services = _bootstrap_reference_data(client)
+    service_id = services[0]["id"]
+    employee_id = employees[0]["id"]
+
+    appointment = Appointment(
+        id=new_id("apt"),
+        institute_id=institute_id,
+        service_id=service_id,
+        employee_id=employee_id,
+        customer_name="Client test",
+        phone=None,
+        start_time=utcnow() - timedelta(minutes=15),
+        end_time=utcnow() + timedelta(minutes=30),
+        status="in_progress",
+    )
+
+    with Session(main_module.engine) as db:
+        db.add(appointment)
+        db.commit()
+
+    ticket = _create_ticket(client, institute_id, service_id)
+    response = client.patch(
+        f"/api/v1/tickets/{ticket['id']}/assign",
         json={"employee_id": employee_id},
         headers=_auth_headers(role="accueil", institute_id=institute_id),
     )
