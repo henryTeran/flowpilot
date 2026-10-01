@@ -359,23 +359,28 @@ export default function App() {
   }
 
   async function handleFinishSessionAndCheckout(sessionId: string) {
-    const targetTicket = planning?.rows
-      .flatMap((row) => row.sessions)
-      .find((session) => session.id === sessionId)?.ticket_line_id
-      ? tickets.find((ticket) =>
-          ticket.lines?.some((line) => line.id === planning?.rows
-            .flatMap((row) => row.sessions)
-            .find((session) => session.id === sessionId)?.ticket_line_id)
-        )
-      : undefined;
-
     setError(null);
     try {
       await apiPatch(`/planning/sessions/${sessionId}/finish`);
       await refreshOperationalData();
 
-      if (targetTicket) {
-        handleOpenCheckout(targetTicket.id);
+      const nextCheckoutTicket =
+        tickets.find((ticket) => ticket.assigned_employee_id === identifiedEmployeeId && ["ready_for_checkout", "in_checkout"].includes(ticket.status)) ??
+        tickets.find((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status));
+
+      if (nextCheckoutTicket) {
+        setSelectedTicketId(nextCheckoutTicket.id);
+        setSelectedCheckoutTicketId(nextCheckoutTicket.id);
+        if (identifiedEmployeeId) {
+          setActiveDrawer("checkout");
+          return;
+        }
+      }
+
+      if (identifiedEmployeeId) {
+        setActiveDrawer("checkout");
+      } else {
+        handleOpenCheckout("");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de terminer la prestation et ouvrir la caisse");
@@ -430,6 +435,12 @@ export default function App() {
   function handleOpenCheckout(ticketId: string) {
     setSelectedTicketId(ticketId);
     setSelectedCheckoutTicketId(ticketId);
+
+    if (identifiedEmployeeId) {
+      setActiveDrawer("checkout");
+      return;
+    }
+
     openIdentity("checkout", "checkout");
   }
 
