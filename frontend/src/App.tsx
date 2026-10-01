@@ -576,8 +576,8 @@ export default function App() {
   return (
     <div className="bm-app-shell">
       <FlowPilotSidebar
-        activeItem={mainView === "chiffres" ? "Chiffres" : mainView === "tickets" ? "Tickets" : "Accueil"}
-        onOpenAccueil={() => { setActiveDrawer(null); setMainView("planning"); }}
+        activeItem={mainView === "chiffres" ? "dashboard" : mainView === "tickets" ? "tickets" : "planning"}
+        onOpenPlanning={() => { setActiveDrawer(null); setMainView("planning"); }}
         onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
       />

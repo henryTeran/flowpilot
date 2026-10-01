@@ -80,7 +80,7 @@ export function CheckoutPanel({
 
           <div className="bm-cash-top-actions">
             <button type="button" className="bm-cash-top-primary">
-              Impression ticket en attente
+              Imprimer un recu provisoire
             </button>
             <button
               type="button"
@@ -88,35 +88,35 @@ export function CheckoutPanel({
               onClick={() => onCancelTicket?.(ticket.id)}
               disabled={!onCancelTicket || ticket.status === "paid"}
             >
-              Annuler le ticket
+              Clore en annulation
             </button>
           </div>
         </header>
 
         <section className="bm-customer-cash-card">
           <div className="bm-customer-avatar">
-            <span>👤</span>
-            <small>0 points</small>
+            <span>CL</span>
+            <small>Dossier</small>
           </div>
 
           <div className="bm-customer-cash-info">
-            <h2>{ticket.customer_id ? `Cliente ${ticket.customer_id}` : "CLIENTE DE PASSAGE"}</h2>
+            <h2>{ticket.customer_id ? `Cliente ${ticket.customer_id}` : "Cliente de passage"}</h2>
             <div className="bm-customer-meta-grid">
-              <span><strong>N° Abonné</strong>—</span>
-              <span><strong>Typ</strong>PASSAGE</span>
-              <span><strong>Fin de l’abonnement</strong>—</span>
-              <span><strong>Institut</strong>—</span>
-              <span><strong>Rum</strong>{ticket.ticket_number}</span>
+              <span><strong>Reference</strong>{ticket.customer_id || "—"}</span>
+              <span><strong>Segment</strong>{ticket.customer_id ? "Fidelisee" : "Passage"}</span>
+              <span><strong>Arrivee</strong>{formatShortTime(ticket.arrival_time)}</span>
+              <span><strong>Origine</strong>File institut</span>
+              <span><strong>Dossier</strong>{ticket.ticket_number}</span>
             </div>
           </div>
 
           <button type="button" className="bm-subscription-link">
-            Voir l’abonnement
+            Ouvrir la fiche cliente
           </button>
         </section>
 
         <section className="bm-cash-action-row">
-          <button type="button">▦ Produit gratuit</button>
+          <button type="button">▦ Appliquer remise</button>
           <div className="bm-cash-add-service">
             <span>＋ Ajouter prestation</span>
             <select value={serviceToAdd} onChange={(event) => setServiceToAdd(event.target.value)} disabled={!canEditLines}>
@@ -131,8 +131,8 @@ export function CheckoutPanel({
               Ajouter
             </button>
           </div>
-          <button type="button">▧ Scanner un produit</button>
-          <button type="button">▥ Utiliser carte cadeau</button>
+          <button type="button">▧ Ajouter article</button>
+          <button type="button">▥ Bon cadeau</button>
         </section>
 
         <section className="bm-cash-lines-card">
@@ -184,8 +184,7 @@ export function CheckoutPanel({
         </section>
 
         <footer className="bm-cash-footer-note">
-          À partir d’aujourd’hui : <strong>2 produits achetés le 3ème OFFERT</strong> toute l’année pour vos abonnées.
-          N’hésitez pas à les gâter ! <span>(Sur le produit le moins cher)</span>
+          Controle avant paiement: verifier les prestations, la duree et les montants du ticket.
         </footer>
       </main>
 
@@ -212,7 +211,7 @@ export function CheckoutPanel({
         </div>
 
         <button type="button" className="bm-gift-sale-button">
-          Vente carte cadeau
+          Creer un bon cadeau
         </button>
 
         <div className="bm-cash-payments-rounds">
@@ -238,7 +237,7 @@ export function CheckoutPanel({
         </label>
 
         <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee}>
-          Encaisser
+          Enregistrer le paiement
         </button>
 
         <small className="bm-side-helper">

@@ -1,39 +1,40 @@
 import type { ReactNode } from "react";
 
 type MenuItem = {
+  id: string;
   label: string;
   icon: ReactNode;
 };
 
 const menuItems: MenuItem[] = [
-  { label: "Accueil", icon: <HomeIcon /> },
-  { label: "Tickets", icon: <TicketIcon /> },
-  { label: "Abonnement", icon: <CardIcon /> },
-  { label: "Paramètres", icon: <SettingsIcon /> },
-  { label: "Promos Institut", icon: <TagIcon /> },
-  { label: "Chiffres", icon: <GridIcon /> },
-  { label: "FAQ", icon: <HelpIcon /> },
-  { label: "Tuto/Challenge", icon: <ScreenIcon /> },
-  { label: "Rechercher", icon: <SearchIcon /> },
+  { id: "planning", label: "Planning", icon: <HomeIcon /> },
+  { id: "tickets", label: "Flux tickets", icon: <TicketIcon /> },
+  { id: "dashboard", label: "Pilotage", icon: <GridIcon /> },
+  { id: "clients", label: "Clientes", icon: <CardIcon /> },
+  { id: "offres", label: "Offres", icon: <TagIcon /> },
+  { id: "aide", label: "Aide", icon: <HelpIcon /> },
+  { id: "formation", label: "Formation", icon: <ScreenIcon /> },
+  { id: "recherche", label: "Recherche", icon: <SearchIcon /> },
+  { id: "parametres", label: "Parametres", icon: <SettingsIcon /> },
 ];
 
 interface FlowPilotSidebarProps {
   activeItem?: string;
-  onOpenAccueil?: () => void;
+  onOpenPlanning?: () => void;
   onOpenTickets: () => void;
   onOpenDashboard: () => void;
 }
 
 export function FlowPilotSidebar({
-  activeItem = "Accueil",
-  onOpenAccueil,
+  activeItem = "planning",
+  onOpenPlanning,
   onOpenTickets,
   onOpenDashboard,
 }: FlowPilotSidebarProps) {
-  function handleClick(label: string) {
-    if (label === "Accueil") onOpenAccueil?.();
-    if (label === "Tickets") onOpenTickets();
-    if (label === "Chiffres") onOpenDashboard();
+  function handleClick(itemId: string) {
+    if (itemId === "planning") onOpenPlanning?.();
+    if (itemId === "tickets") onOpenTickets();
+    if (itemId === "dashboard") onOpenDashboard();
   }
 
   return (
@@ -48,10 +49,10 @@ export function FlowPilotSidebar({
       <nav className="bm-nav" aria-label="Navigation principale">
         {menuItems.map((item) => (
           <button
-            key={item.label}
+            key={item.id}
             type="button"
-            className={`bm-nav-item ${activeItem === item.label ? "active" : ""}`}
-            onClick={() => handleClick(item.label)}
+            className={`bm-nav-item ${activeItem === item.id ? "active" : ""}`}
+            onClick={() => handleClick(item.id)}
             aria-label={item.label}
           >
             <span className="bm-nav-icon">{item.icon}</span>
