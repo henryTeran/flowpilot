@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { shouldOfferDelayedReleaseAction } from "../queue-utils";
 import type { Employee, PlanningAvailability, QueueTicket, Service, ServiceCategory } from "../types";
 
 interface QueuePanelProps {
@@ -21,6 +22,7 @@ interface QueuePanelProps {
   onStartSession: () => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onChangeEmployeeStatus: (employeeId: string, status: string) => void;
   onStartCheckout: (ticketId: string) => void;
 }
 
@@ -48,6 +50,7 @@ export function QueuePanel({
   onStartSession,
   onCancelTicket,
   onFinishActiveEmployeeSession,
+  onChangeEmployeeStatus,
   onStartCheckout,
 }: QueuePanelProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -194,6 +197,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onChangeEmployeeStatus={onChangeEmployeeStatus}
               onStartCheckout={onStartCheckout}
             />
 
@@ -208,6 +212,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onChangeEmployeeStatus={onChangeEmployeeStatus}
               onStartCheckout={onStartCheckout}
             />
 
@@ -222,6 +227,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onChangeEmployeeStatus={onChangeEmployeeStatus}
               onStartCheckout={onStartCheckout}
             />
 
@@ -236,6 +242,7 @@ export function QueuePanel({
               onTicketChange={onTicketChange}
               onCancelTicket={onCancelTicket}
               onFinishActiveEmployeeSession={onFinishActiveEmployeeSession}
+              onChangeEmployeeStatus={onChangeEmployeeStatus}
               onStartCheckout={onStartCheckout}
             />
           </div>
@@ -347,6 +354,7 @@ interface TicketGroupProps {
   onTicketChange: (id: string) => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onChangeEmployeeStatus: (employeeId: string, status: string) => void;
   onStartCheckout: (ticketId: string) => void;
 }
 
@@ -361,6 +369,7 @@ function TicketGroup({
   onTicketChange,
   onCancelTicket,
   onFinishActiveEmployeeSession,
+  onChangeEmployeeStatus,
   onStartCheckout,
 }: TicketGroupProps) {
   return (
@@ -413,7 +422,18 @@ function TicketGroup({
                   )}
                   <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
                 </div>
-                {CHECKOUT_TICKET_STATUSES.has(ticket.status) ? (
+                {shouldOfferDelayedReleaseAction(ticket, employee) ? (
+                  <button
+                    className="ticket-mini-button warning"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onChangeEmployeeStatus(ticket.assigned_employee_id!, "available");
+                    }}
+                  >
+                    Libérer
+                  </button>
+                ) : CHECKOUT_TICKET_STATUSES.has(ticket.status) ? (
                   <button
                     className="ticket-mini-button"
                     type="button"

@@ -681,6 +681,7 @@ export default function App() {
                 onTicketSelect={handleTicketSelection}
                 onOpenTickets={() => setActiveDrawer("tickets")}
                 onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+                onChangeEmployeeStatus={handleChangeEmployeeStatus}
                 onStartCheckout={handleOpenCheckout}
               />
             </main>
@@ -744,6 +745,7 @@ export default function App() {
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            onChangeEmployeeStatus={handleChangeEmployeeStatus}
             onStartCheckout={handleOpenCheckout}
           />
         </ActionDrawer>
@@ -774,6 +776,7 @@ export default function App() {
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
+            onChangeEmployeeStatus={handleChangeEmployeeStatus}
             onStartCheckout={handleOpenCheckout}
           />
         </ActionDrawer>

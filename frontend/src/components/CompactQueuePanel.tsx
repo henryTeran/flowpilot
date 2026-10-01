@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { shouldOfferDelayedReleaseAction } from "../queue-utils";
 import type { Employee, QueueTicket, Service } from "../types";
 
 type CompactQueueFilter = "all" | "waiting" | "assigned" | "in_progress" | "checkout" | "delayed";
@@ -12,6 +13,7 @@ interface CompactQueuePanelProps {
   onTicketSelect: (ticketId: string) => void;
   onOpenTickets: () => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
+  onChangeEmployeeStatus: (employeeId: string, status: string) => void;
   onStartCheckout: (ticketId: string) => void;
 }
 
@@ -24,6 +26,7 @@ export function CompactQueuePanel({
   onTicketSelect,
   onOpenTickets,
   onFinishActiveEmployeeSession,
+  onChangeEmployeeStatus,
   onStartCheckout,
 }: CompactQueuePanelProps) {
   const [filter, setFilter] = useState<CompactQueueFilter>("all");
@@ -139,7 +142,18 @@ export function CompactQueuePanel({
                 {ticketServices.length > 1 && <small>{ticketServices.length} prestations · durée cumulée</small>}
                 <small>{employee ? employee.first_name : formatTicketWait(ticket)}</small>
 
-                {["ready_for_checkout", "in_checkout"].includes(ticket.status) ? (
+                {shouldOfferDelayedReleaseAction(ticket, employee) ? (
+                  <button
+                    type="button"
+                    className="compact-close-session warning"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onChangeEmployeeStatus(ticket.assigned_employee_id!, "available");
+                    }}
+                  >
+                    Libérer
+                  </button>
+                ) : ["ready_for_checkout", "in_checkout"].includes(ticket.status) ? (
                   <button
                     type="button"
                     className="compact-close-session"

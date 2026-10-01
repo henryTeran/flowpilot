@@ -1921,6 +1921,16 @@ select {
   border: 1px solid #fecdd3;
 }
 
+.ticket-mini-button.warning,
+.compact-close-session.warning {
+  background: #fff7ed;
+  color: #9a4d00;
+  border: 1px solid #fed7aa;
+  font-weight: 800;
+}
+
+.ticket-mini-button.warning:hover,
+.compact-close-session.warning:hover,
 .ticket-mini-button.danger:hover,
 .employee-action-danger:hover {
   filter: brightness(0.98);
