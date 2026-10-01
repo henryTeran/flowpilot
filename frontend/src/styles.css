@@ -1084,6 +1084,13 @@ select {
   margin-top: 4px;
 }
 
+.ticket-card-footer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;

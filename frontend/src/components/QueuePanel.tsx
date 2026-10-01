@@ -88,21 +88,31 @@ export function QueuePanel({
   const availableEmployees = employees.filter((employee) => employee.status === "available");
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  const filteredWaitingTickets = normalizedSearch
-    ? waitingTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
-    : waitingTickets;
-  const filteredAssignedTickets = normalizedSearch
-    ? assignedTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
-    : assignedTickets;
-  const filteredInProgressTickets = normalizedSearch
-    ? inProgressTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
-    : inProgressTickets;
-  const filteredCheckoutTickets = normalizedSearch
-    ? checkoutTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
-    : checkoutTickets;
-  const filteredActionableTickets = normalizedSearch
-    ? actionableTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
-    : actionableTickets;
+  const filteredWaitingTickets = sortQueueTickets(
+    normalizedSearch
+      ? waitingTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : waitingTickets,
+  );
+  const filteredAssignedTickets = sortQueueTickets(
+    normalizedSearch
+      ? assignedTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : assignedTickets,
+  );
+  const filteredInProgressTickets = sortQueueTickets(
+    normalizedSearch
+      ? inProgressTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : inProgressTickets,
+  );
+  const filteredCheckoutTickets = sortQueueTickets(
+    normalizedSearch
+      ? checkoutTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : checkoutTickets,
+  );
+  const filteredActionableTickets = sortQueueTickets(
+    normalizedSearch
+      ? actionableTickets.filter((ticket) => matchesTicketSearch(ticket, services, employees, ticketServiceMap, normalizedSearch))
+      : actionableTickets,
+  );
 
   return (
     <aside className="queue-panel">
@@ -397,7 +407,12 @@ function TicketGroup({
                 </small>
               </div>
               <div className="ticket-card-footer">
-                <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
+                <div className="ticket-card-footer-tags">
+                  {CHECKOUT_TICKET_STATUSES.has(ticket.status) && (
+                    <span className="status-badge status-badge-ready_for_checkout">Prioritaire caisse</span>
+                  )}
+                  <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
+                </div>
                 {CHECKOUT_TICKET_STATUSES.has(ticket.status) ? (
                   <button
                     className="ticket-mini-button"
@@ -474,6 +489,30 @@ function matchesTicketSearch(
   ].join(" ").toLowerCase();
 
   return haystack.includes(searchTerm);
+}
+
+function sortQueueTickets(tickets: QueueTicket[]) {
+  return [...tickets].sort((left, right) => {
+    const leftPriority = getTicketQueuePriority(left);
+    const rightPriority = getTicketQueuePriority(right);
+
+    if (leftPriority !== rightPriority) {
+      return rightPriority - leftPriority;
+    }
+
+    const leftArrival = new Date(left.arrival_time).getTime();
+    const rightArrival = new Date(right.arrival_time).getTime();
+    return leftArrival - rightArrival;
+  });
+}
+
+function getTicketQueuePriority(ticket: QueueTicket) {
+  if (ticket.status === "in_checkout") return 60;
+  if (ticket.status === "ready_for_checkout") return 55;
+  if (ticket.status === "in_progress") return 45;
+  if (ticket.status === "assigned") return 35;
+  if (ticket.status === "waiting") return 25;
+  return 0;
 }
 
 function formatTicketSessionLabel(ticketServices: Service[], fallback?: Service) {
