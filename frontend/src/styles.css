@@ -1463,6 +1463,43 @@ select {
   font: inherit;
 }
 
+.appointment-quick-employee-block,
+.quick-employee-block {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-employee-label {
+  color: #9f426c;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quick-employee-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-employee-chip {
+  border: 1px solid #f1d7e4;
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: #6f3753;
+  background: #fff8fb;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-employee-chip.active {
+  color: #fff;
+  border-color: #d54880;
+  background: linear-gradient(135deg, #d54880, #b22a72);
+}
+
 .appointment-search-wrapper {
   display: block;
   margin-top: 4px;

@@ -84,6 +84,7 @@ export function QueuePanel({
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => CHECKOUT_TICKET_STATUSES.has(ticket.status));
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
+  const availableEmployees = employees.filter((employee) => employee.status === "available");
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   const filteredWaitingTickets = normalizedSearch
@@ -258,6 +259,24 @@ export function QueuePanel({
             );
           })}
         </select>
+
+        {availableEmployees.length > 0 && (
+          <div className="quick-employee-block">
+            <span className="quick-employee-label">Prochaine dispo</span>
+            <div className="quick-employee-list">
+              {availableEmployees.slice(0, 4).map((employee) => (
+                <button
+                  key={employee.id}
+                  type="button"
+                  className={`quick-employee-chip ${selectedEmployeeId === employee.id ? "active" : ""}`}
+                  onClick={() => onEmployeeChange(employee.id)}
+                >
+                  {employee.first_name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="selected-summary selected-summary-stack">
           <span>Séance complète</span>

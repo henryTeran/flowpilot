@@ -54,6 +54,7 @@ export function AppointmentPanel({
 
   const activeAppointments = sortedAppointments.filter((appointment) => ACTIVE_APPOINTMENT_STATUSES.has(appointment.status));
   const historyAppointments = sortedAppointments.filter((appointment) => FINAL_APPOINTMENT_STATUSES.has(appointment.status));
+  const availableQuickEmployees = availableEmployees.slice(0, 4);
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const visibleActiveAppointments = normalizedSearch
     ? activeAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch))
@@ -142,6 +143,24 @@ export function AppointmentPanel({
               ))}
             </select>
           </label>
+
+          {availableQuickEmployees.length > 0 && (
+            <div className="appointment-quick-employee-block">
+              <span className="quick-employee-label">Prochaine dispo</span>
+              <div className="quick-employee-list">
+                {availableQuickEmployees.map((employee) => (
+                  <button
+                    key={employee.id}
+                    type="button"
+                    className={`quick-employee-chip ${employeeId === employee.id ? "active" : ""}`}
+                    onClick={() => setEmployeeId(employee.id)}
+                  >
+                    {employee.first_name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <label>
             Date
