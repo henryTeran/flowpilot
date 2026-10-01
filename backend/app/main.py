@@ -1,5 +1,8 @@
+from collections.abc import AsyncIterator
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.errors import configure_exception_handlers
@@ -18,12 +21,30 @@ from app.modules.services.routes import router as services_router
 from app.modules.tickets.routes import router as tickets_router
 
 
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Mode bootstrap local uniquement. En production, utiliser Alembic.
+    if settings.AUTO_CREATE_SCHEMA_ON_STARTUP:
+        if settings.is_production_like_env:
+            raise RuntimeError(
+                "AUTO_CREATE_SCHEMA_ON_STARTUP est interdit en production. "
+                "Utiliser les migrations Alembic."
+            )
+        if not settings.is_local_like_env and settings.has_weak_secret_key:
+            raise RuntimeError(
+                "Refus du bootstrap SQLAlchemy: SECRET_KEY faible/default hors environnement local/dev/test."
+            )
+        Base.metadata.create_all(bind=engine)
+    yield
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
         debug=settings.APP_DEBUG,
         version="0.1.0",
         description="MVP backend for FlowPilot Institut Manager.",
+        lifespan=lifespan,
     )
 
     app.add_middleware(
@@ -35,21 +56,6 @@ def create_app() -> FastAPI:
     )
     configure_http_middleware(app)
     configure_exception_handlers(app)
-
-    @app.on_event("startup")
-    def on_startup() -> None:
-        # Mode bootstrap local uniquement. En production, utiliser Alembic.
-        if settings.AUTO_CREATE_SCHEMA_ON_STARTUP:
-            if settings.is_production_like_env:
-                raise RuntimeError(
-                    "AUTO_CREATE_SCHEMA_ON_STARTUP est interdit en production. "
-                    "Utiliser les migrations Alembic."
-                )
-            if not settings.is_local_like_env and settings.has_weak_secret_key:
-                raise RuntimeError(
-                    "Refus du bootstrap SQLAlchemy: SECRET_KEY faible/default hors environnement local/dev/test."
-                )
-            Base.metadata.create_all(bind=engine)
 
     @app.get("/health", tags=["health"])
     def health() -> dict[str, str]:

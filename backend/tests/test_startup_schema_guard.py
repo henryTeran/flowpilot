@@ -5,6 +5,12 @@ from app.core.config import settings
 from app.main import create_app
 
 
+def test_app_uses_fastapi_lifespan_for_startup_bootstrap():
+    app = create_app()
+
+    assert app.router.lifespan_context is not None
+
+
 def test_production_blocks_auto_create_schema(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(settings, "APP_ENV", "production")
     monkeypatch.setattr(settings, "AUTO_CREATE_SCHEMA_ON_STARTUP", True)
