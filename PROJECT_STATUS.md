@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 1
-CURRENT_CHECKPOINT = CORS_AND_CONFIG_HARDENING
+CURRENT_CHECKPOINT = AUDIT_TRAIL_BASELINE
 
 STATUS = PASS
 
@@ -15,6 +15,8 @@ GATES:
 - CORS_POLICY_BY_ENV = PASS
 - PROD_SECRET_CONFIG_HARDENING = PASS
 - RATE_LIMIT_SENSITIVE_SCOPE = PASS
+- AUDIT_TRAIL_BASELINE = PASS
+- POSTGRES_ALEMBIC_VALIDATION = BLOCKED
 
 TESTS:
 - backend/tests/test_structured_logging_1d.py = PASS
@@ -24,6 +26,7 @@ TESTS:
 - backend/tests/test_rate_limit_1e.py = PASS
 - backend/tests/test_readiness_1f.py = PASS
 - backend/tests/test_config_hardening_1g.py = PASS
+- backend/tests/test_audit_trail_1h.py = PASS
 - frontend npm run build = PASS
 
 LAST_COMMITS:
@@ -33,9 +36,9 @@ LAST_COMMITS:
 - f2431f2 refonte ui: suppression style clone v1 et navigation modernisee
 
 BLOCKERS:
-- Aucun blocage technique immediat
+- Validation PostgreSQL/Alembic bloquee localement (driver psycopg2 indisponible en Python 3.13 dans cette machine: pg_config manquant, ModuleNotFoundError psycopg2).
 
 NEXT_STEP:
-- Valider les migrations Alembic contre PostgreSQL local (sans Docker indisponible), poser une baseline audit trail minimal, puis executer gate de cloture Phase 1.
+- Lever le blocage migration PostgreSQL (runtime/driver) puis executer `alembic current` et `alembic upgrade head` sur PostgreSQL pour fermer le gate Phase 1.
 
 WORKING_TREE = CLEAN

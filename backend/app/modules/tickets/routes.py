@@ -1,9 +1,10 @@
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.audit import log_audit_event
 from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
 from app.modules.planning.models import ServiceSession
@@ -145,6 +146,7 @@ def post_ticket(
 
 @router.patch("/{ticket_id}/assign", response_model=QueueTicketRead)
 def patch_assign_ticket(
+    request: Request,
     ticket_id: str,
     payload: TicketAssign,
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
@@ -152,17 +154,33 @@ def patch_assign_ticket(
 ) -> QueueTicketRead:
     require_same_institute(current_user, None)
     ticket = assign_ticket(db, ticket_id, payload.employee_id)
+    log_audit_event(
+        request=request,
+        current_user=current_user,
+        action="ticket.assigned",
+        target_type="ticket",
+        target_id=ticket_id,
+        metadata={"employee_id": payload.employee_id},
+    )
     return _read_ticket(db, ticket)
 
 
 @router.patch("/{ticket_id}/cancel", response_model=QueueTicketRead)
 def patch_cancel_ticket(
+    request: Request,
     ticket_id: str,
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     require_same_institute(current_user, None)
     ticket = cancel_ticket(db, ticket_id)
+    log_audit_event(
+        request=request,
+        current_user=current_user,
+        action="ticket.cancelled",
+        target_type="ticket",
+        target_id=ticket_id,
+    )
     return _read_ticket(db, ticket)
 
 
@@ -204,6 +222,7 @@ def patch_remove_checkout_line(
 
 @router.patch("/{ticket_id}/checkout/pay", response_model=QueueTicketRead)
 def patch_complete_payment(
+    request: Request,
     ticket_id: str,
     payload: TicketPaymentComplete,
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
@@ -211,4 +230,15 @@ def patch_complete_payment(
 ) -> QueueTicketRead:
     require_same_institute(current_user, None)
     ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method)
+    log_audit_event(
+        request=request,
+        current_user=current_user,
+        action="ticket.payment_completed",
+        target_type="ticket",
+        target_id=ticket_id,
+        metadata={
+            "employee_id": payload.employee_id,
+            "payment_method": payload.payment_method,
+        },
+    )
     return _read_ticket(db, ticket)

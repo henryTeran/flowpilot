@@ -28,6 +28,11 @@ class JsonLogFormatter(logging.Formatter):
             value = getattr(record, field, None)
             if value is not None:
                 payload[field] = value
+
+        for field, value in record.__dict__.items():
+            if field.startswith("audit_") and value is not None:
+                payload[field] = value
+
         return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
 
 
