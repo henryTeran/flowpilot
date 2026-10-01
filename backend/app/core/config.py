@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
     AUTO_CREATE_SCHEMA_ON_STARTUP: bool = True
     ENABLE_SECURITY_HEADERS: bool = True
+    ENABLE_RATE_LIMITING: bool = True
+    RATE_LIMIT_AUTH_WINDOW_SECONDS: int = 60
+    RATE_LIMIT_AUTH_MAX_REQUESTS: int = 5
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -9,7 +9,7 @@ def _request_id_from(request: Request) -> str | None:
     return getattr(request.state, "request_id", None) or request.headers.get("X-Request-ID")
 
 
-def _error_response(
+def build_error_response(
     request: Request,
     status_code: int,
     code: str,
@@ -38,18 +38,18 @@ def configure_exception_handlers(app: FastAPI) -> None:
         else:
             code = f"http_{exc.status_code}"
             message = str(detail) if detail else "Request failed"
-        return _error_response(request, exc.status_code, code, message)
+        return build_error_response(request, exc.status_code, code, message)
 
     @app.exception_handler(StarletteHTTPException)
     async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
-        return _error_response(request, exc.status_code, f"http_{exc.status_code}", str(exc.detail))
+        return build_error_response(request, exc.status_code, f"http_{exc.status_code}", str(exc.detail))
 
     @app.exception_handler(RequestValidationError)
     async def request_validation_exception_handler(
         request: Request,
         exc: RequestValidationError,
     ) -> JSONResponse:
-        return _error_response(
+        return build_error_response(
             request,
             422,
             "validation_error",
@@ -59,4 +59,4 @@ def configure_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-        return _error_response(request, 500, "internal_error", "Internal server error")
+        return build_error_response(request, 500, "internal_error", "Internal server error")
