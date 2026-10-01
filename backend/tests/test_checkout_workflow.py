@@ -103,6 +103,27 @@ def test_payment_success(client: TestClient):
     assert payment.json()["status"] == "paid"
 
 
+def test_payment_clears_stale_assignment_and_keeps_employee_available(client: TestClient):
+    institute_id, employees, services = _bootstrap_reference_data(client)
+    employee_id = employees[0]["id"]
+    service_id = services[0]["id"]
+
+    ticket = _create_ticket(client, institute_id, service_id)
+    _start_and_finish_ticket(client, ticket["id"], employee_id, service_id)
+    _start_checkout(client, ticket["id"], employee_id)
+
+    payment = _pay(client, ticket["id"], employee_id, "cb")
+    assert payment.status_code == 200
+    payload = payment.json()
+
+    assert payload["status"] == "paid"
+    assert payload["assigned_employee_id"] is None
+
+    refreshed_employee = client.get(f"/api/v1/employees?institute_id={institute_id}").json()
+    employee = next(item for item in refreshed_employee if item["id"] == employee_id)
+    assert employee["status"] == "available"
+
+
 def test_double_payment_rejected(client: TestClient):
     institute_id, employees, services = _bootstrap_reference_data(client)
     employee_id = employees[0]["id"]

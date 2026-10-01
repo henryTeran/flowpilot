@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.modules.appointments.models import Appointment
 from app.modules.employees.repository import get_employee, list_by_institute
 from app.modules.planning.models import ServiceSession
 from app.modules.services.repository import get_service
@@ -358,10 +359,37 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
     ticket.status = "paid"
     ticket.checkout_employee_id = ticket.checkout_employee_id or employee.id
     ticket.checkout_started_at = ticket.checkout_started_at or utcnow()
+    ticket.assigned_employee_id = None
     ticket.paid_employee_id = employee.id
     ticket.paid_at = utcnow()
     ticket.payment_method = payment_method
     ticket.total_amount = _ticket_total(db, ticket.id)
+
+    current_employee = get_employee(db, employee.id)
+    if current_employee:
+        current_appointment = db.scalars(
+            select(Appointment)
+            .where(
+                Appointment.institute_id == current_employee.institute_id,
+                Appointment.employee_id == current_employee.id,
+                Appointment.status.in_(["scheduled", "confirmed", "arrived", "in_progress"]),
+                Appointment.start_time <= utcnow(),
+                Appointment.end_time > utcnow(),
+            )
+            .order_by(Appointment.end_time.asc())
+        ).first()
+        active_session = db.scalars(
+            select(ServiceSession)
+            .where(
+                ServiceSession.institute_id == current_employee.institute_id,
+                ServiceSession.employee_id == current_employee.id,
+                ServiceSession.status.in_(["planned", "in_progress", "extended", "delayed"]),
+            )
+            .order_by(ServiceSession.planned_end_time.desc())
+        ).first()
+        if not current_appointment and not active_session and current_employee.status == "busy":
+            current_employee.status = "available"
+            db.add(current_employee)
 
     db.add(ticket)
     db.commit()

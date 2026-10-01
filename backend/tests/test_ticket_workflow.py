@@ -1,6 +1,11 @@
-from fastapi.testclient import TestClient
+from datetime import timedelta
 
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+import app.main as main_module
 from app.core.security import create_access_token
+from app.modules.planning.models import ServiceSession
 
 
 def _auth_headers(role: str = "accueil", institute_id: str | None = None) -> dict[str, str]:
@@ -199,6 +204,37 @@ def test_ticket_assign_rejects_unauthorized_role(client: TestClient):
     )
 
     assert response.status_code == 403
+
+
+def test_assign_ticket_rejected_when_employee_has_active_delayed_session(client: TestClient):
+    institute_id, employees, services = _bootstrap_reference_data(client)
+    service_id = services[0]["id"]
+    employee_id = employees[0]["id"]
+
+    first_ticket = _create_ticket(client, institute_id, service_id)
+    start_response = client.post(
+        "/api/v1/planning/sessions/start",
+        json={"ticket_id": first_ticket["id"], "employee_id": employee_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert start_response.status_code == 200
+
+    with Session(main_module.engine) as db:
+        session = db.query(ServiceSession).filter_by(employee_id=employee_id).first()
+        assert session is not None
+        session.status = "delayed"
+        session.planned_end_time = session.start_time - timedelta(minutes=5)
+        db.add(session)
+        db.commit()
+
+    second_ticket = _create_ticket(client, institute_id, service_id)
+    response = client.patch(
+        f"/api/v1/tickets/{second_ticket['id']}/assign",
+        json={"employee_id": employee_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+
+    assert response.status_code == 400
 
 
 def test_planning_start_rejects_unauthorized_role(client: TestClient):
