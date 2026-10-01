@@ -31,6 +31,7 @@ export function AppointmentPanel({
   const [employeeId, setEmployeeId] = useState(availableEmployees[0]?.id || "");
   const [date, setDate] = useState(initialSlot.date);
   const [time, setTime] = useState(initialSlot.time);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -53,6 +54,13 @@ export function AppointmentPanel({
 
   const activeAppointments = sortedAppointments.filter((appointment) => ACTIVE_APPOINTMENT_STATUSES.has(appointment.status));
   const historyAppointments = sortedAppointments.filter((appointment) => FINAL_APPOINTMENT_STATUSES.has(appointment.status));
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const visibleActiveAppointments = normalizedSearch
+    ? activeAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch))
+    : activeAppointments;
+  const visibleHistoryAppointments = normalizedSearch
+    ? historyAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch))
+    : historyAppointments;
 
   async function handleSubmit() {
     if (!instituteId || !serviceId || !employeeId || !customerName.trim() || !date || !time) return;
@@ -168,14 +176,26 @@ export function AppointmentPanel({
             <p className="eyebrow">Agenda du jour</p>
             <h2>RDV actifs</h2>
           </div>
-          <span className="counter-badge violet">{activeAppointments.length} actif(s)</span>
+          <span className="counter-badge violet">{visibleActiveAppointments.length} actif(s)</span>
         </div>
 
-        {activeAppointments.length === 0 ? (
-          <div className="empty-state">Aucun rendez-vous actif aujourd’hui.</div>
+        <label className="appointment-search-wrapper" aria-label="Rechercher un rendez-vous">
+          <input
+            className="appointment-search"
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Client, prestation, collaboratrice…"
+          />
+        </label>
+
+        {visibleActiveAppointments.length === 0 ? (
+          <div className="empty-state">
+            {normalizedSearch ? "Aucun rendez-vous ne correspond à la recherche." : "Aucun rendez-vous actif aujourd’hui."}
+          </div>
         ) : (
           <div className="appointment-list">
-            {activeAppointments.map((appointment) => (
+            {visibleActiveAppointments.map((appointment) => (
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}
@@ -190,12 +210,12 @@ export function AppointmentPanel({
 
         <div className="appointment-history-header">
           <p className="eyebrow">Historique RDV</p>
-          <span>{historyAppointments.length} clôturé(s) / annulé(s)</span>
+          <span>{visibleHistoryAppointments.length} clôturé(s) / annulé(s)</span>
         </div>
 
-        {historyAppointments.length > 0 && (
+        {visibleHistoryAppointments.length > 0 && (
           <div className="appointment-list history">
-            {historyAppointments.map((appointment) => (
+            {visibleHistoryAppointments.map((appointment) => (
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}
@@ -211,6 +231,25 @@ export function AppointmentPanel({
       </div>
     </section>
   );
+}
+
+function matchesAppointmentSearch(
+  appointment: Appointment,
+  employees: Employee[],
+  services: Service[],
+  searchTerm: string,
+) {
+  const employee = employees.find((item) => item.id === appointment.employee_id);
+  const service = services.find((item) => item.id === appointment.service_id);
+  const haystack = [
+    appointment.customer_name,
+    appointment.status,
+    service?.name ?? "",
+    employee?.first_name ?? "",
+    formatTime(appointment.start_time),
+  ].join(" ").toLowerCase();
+
+  return haystack.includes(searchTerm);
 }
 
 function AppointmentCard({

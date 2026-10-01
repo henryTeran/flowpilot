@@ -1451,7 +1451,8 @@ select {
 }
 
 .appointment-grid-form input,
-.appointment-grid-form select {
+.appointment-grid-form select,
+.appointment-search {
   min-height: 42px;
   width: 100%;
   border: 1px solid #ecd6e0;
@@ -1460,6 +1461,15 @@ select {
   color: #3d2633;
   background: #fff;
   font: inherit;
+}
+
+.appointment-search-wrapper {
+  display: block;
+  margin-top: 4px;
+}
+
+.appointment-search::placeholder {
+  color: #9a7d8d;
 }
 
 .appointment-form-footer {
