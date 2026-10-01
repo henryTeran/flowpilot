@@ -10,6 +10,7 @@ import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
 import { NewTicketWorkflow, type NewTicketWorkflowResult } from "./components/NewTicketWorkflow";
 import { PlanningBoard } from "./components/PlanningBoard";
+import { resolveNextCheckoutTicket } from "./checkout-utils";
 import { QueuePanel } from "./components/QueuePanel";
 import { TicketsHomePanel } from "./components/TicketsHomePanel";
 import type {
@@ -362,11 +363,10 @@ export default function App() {
     setError(null);
     try {
       await apiPatch(`/planning/sessions/${sessionId}/finish`);
-      await refreshOperationalData();
+      const refreshedTickets = await apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId ?? "")}`);
+      setTickets(refreshedTickets);
 
-      const nextCheckoutTicket =
-        tickets.find((ticket) => ticket.assigned_employee_id === identifiedEmployeeId && ["ready_for_checkout", "in_checkout"].includes(ticket.status)) ??
-        tickets.find((ticket) => ["ready_for_checkout", "in_checkout"].includes(ticket.status));
+      const nextCheckoutTicket = resolveNextCheckoutTicket(refreshedTickets, identifiedEmployeeId);
 
       if (nextCheckoutTicket) {
         setSelectedTicketId(nextCheckoutTicket.id);
@@ -382,6 +382,8 @@ export default function App() {
       } else {
         handleOpenCheckout("");
       }
+
+      await refreshOperationalData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de terminer la prestation et ouvrir la caisse");
     }
