@@ -2423,12 +2423,12 @@ Multi-Tenant Foundations
 ↓
 
 PHASE 3
-Client 360
+Flow & Queue Domain
 
 ↓
 
 PHASE 4
-Booking Engine
+Scheduling & Capacity Engine
 
 ↓
 
@@ -2438,7 +2438,17 @@ Resources & Skills
 ↓
 
 PHASE 6
+Hybrid Booking
+
+↓
+
+PHASE 7
 Live Operations
+
+↓
+
+PHASE 8
+Client 360
 ```
 
 Les briques commerciales, data et IA viennent ensuite progressivement.
