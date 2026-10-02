@@ -33,13 +33,6 @@ GATES:
 - PHASE3_POSTGRESQL_RUNTIME_CONCURRENCY = PASS (Docker PostgreSQL 15; 2 Alembic migrations applied; 0.455s single-ticket timing; 79 concurrent tests pass)
 - PHASE3_BROWSER_TABLET_VISUAL_QA = PASS (Responsive CSS 820/900/1100/1180px; 1-2 click operations; <15s walk-in; Vite frontend running)
 - PHASE3_CLOSURE_GATE = PASS (all 10 gates verified; Phase 3 CLOSED)
-- PHASE4A_AVAILABILITY_ENGINE = PASS (5 deterministic rules implemented; 17 tests pass)
-- AVAILABILITY_ENGINE = PASS (AvailabilityReason, AvailabilitySlot, AvailabilityResult models)
-- DETERMINISTIC_RULES = PASS (employee status, active sessions, current/future appointments, tenant scoping)
-- APPOINTMENT_CONFLICT_AWARE = PASS (checks current appointments, bounds availability_until by next appointment)
-- TENANT_SAFE = PASS (cross-institute isolation enforced; employee.institute_id scoping on all queries)
-- TESTS = PASS (17 tests: single employee, pool, edge cases, full workflow; 2.28s runtime)
-- REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
 - STRUCTURED_LOGGING = PASS
@@ -78,6 +71,7 @@ TESTS:
 - backend tenant-isolation consolidated bundle = PASS (44 passed)
 - backend tenant-isolation+rbac consolidated bundle = PASS (48 passed)
 - backend/tests/test_availability_engine_4a.py = PASS (17 tests; Phase 4A deterministic availability)
+- backend/tests/test_assignment_options_4b.py = PASS (10 tests; Phase 4B queue assignment with service duration)
 - frontend npm run build = PASS
 - Alembic PostgreSQL upgrade validation = PASS (head 3ba965fb2922)
 
@@ -121,8 +115,12 @@ PHASE 4A SUMMARY:
 - ✅ Tenant safety verified (institute_id scoping on all queries; cross-institute requests return OFFLINE)
 
 PHASE 4B NEXT:
-- Queue assignment endpoint (GET /tickets/{ticket_id}/assignment_options)
-- Availability pool integration with queue UI
-- Show operators: available employees first, then by estimated_start_time
-
-WORKING_TREE = CLEAN
+PHASE 4B SUMMARY:
+- ✅ Queue assignment options endpoint (GET /tickets/{ticket_id}/assignment-options)
+- ✅ AVAILABLE != ASSIGNABLE principle (service duration must fit before next appointment)
+- ✅ Leverage Phase 4A availability engine and pool
+- ✅ Deterministic sorting (assignable first, then by available_from, stable by employee_id)
+- ✅ Tenant scoping verified (institute_id isolation; cross-institute queries raise ValueError)
+- ✅ Comprehensive test suite (10 tests: immediately assignable, service fits/doesn't fit, busy/unavailable, tenant isolation, ordering, multi-service)
+- ✅ Service duration model (cumulative minutes from ticket lines)
+- ✅ Projected end time calculation (available_from + service_duration)

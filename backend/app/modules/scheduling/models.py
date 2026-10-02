@@ -80,16 +80,26 @@ class AvailabilityResult:
 
 @dataclass
 class AssignmentOption:
-    """Assignment option for a ticket: which employee can take it, when, how long to wait."""
+    """
+    Assignment option for a ticket: whether an employee can take it, when, and why.
+    
+    Key principle: AVAILABLE != ASSIGNABLE
+    An employee may be available now but the service duration may not fit before
+    the next appointment. This model captures both availability and assignability.
+    """
     
     employee_id: str
     employee_name: str
     institute_id: str
     ticket_id: str
-    service_id: str
-    estimated_start_time: datetime  # When this employee would start the service
-    estimated_wait_minutes: int  # How long client waits (0 if now)
-    reason: str  # e.g., "available now", "busy until 14:45"
+    assignable: bool  # Can the full service duration fit in available window?
+    available_from: datetime  # When employee becomes available
+    available_until: datetime | None  # When employee will become unavailable (if known)
+    service_duration_minutes: int  # Total service duration for this ticket
+    projected_end_time: datetime | None  # When service would end if assigned now (if assignable)
+    reason: str  # Why: "available_now", "busy_until_14:45", "service_does_not_fit", etc.
+    blocking_appointment_id: str | None = None  # Appointment blocking if not assignable
+    blocking_session_id: str | None = None  # Session blocking if not assignable
     
     def to_dict(self) -> dict:
         return {
@@ -97,8 +107,12 @@ class AssignmentOption:
             "employee_name": self.employee_name,
             "institute_id": self.institute_id,
             "ticket_id": self.ticket_id,
-            "service_id": self.service_id,
-            "estimated_start_time": self.estimated_start_time.isoformat(),
-            "estimated_wait_minutes": self.estimated_wait_minutes,
+            "assignable": self.assignable,
+            "available_from": self.available_from.isoformat(),
+            "available_until": self.available_until.isoformat() if self.available_until else None,
+            "service_duration_minutes": self.service_duration_minutes,
+            "projected_end_time": self.projected_end_time.isoformat() if self.projected_end_time else None,
             "reason": self.reason,
+            "blocking_appointment_id": self.blocking_appointment_id,
+            "blocking_session_id": self.blocking_session_id,
         }
