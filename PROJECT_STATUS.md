@@ -1,7 +1,7 @@
 CURRENT_PHASE = PHASE 3
-CURRENT_CHECKPOINT = PHASE3C_FAST_WALK_IN
+CURRENT_CHECKPOINT = PHASE3_CLOSURE_REVIEW
 
-STATUS = PASS
+STATUS = BLOCKED
 
 GATES:
 - PHASE_0 = CLOSED
@@ -25,6 +25,10 @@ GATES:
 - PHASE3_POSTGRESQL_SQL_COMPILATION = PASS
 - PHASE3_LIVE_API = PASS (operator login, anonymous arrival and exact creation replay)
 - PHASE3_LIVE_AUTHENTICATED_WEBSOCKET = PASS
+- PHASE3_IMPLEMENTATION_CHECKPOINTS = PASS (3A, 3B, 3C separately committed)
+- PHASE3_POSTGRESQL_RUNTIME_CONCURRENCY = BLOCKED (no responding local PostgreSQL instance)
+- PHASE3_BROWSER_TABLET_VISUAL_QA = BLOCKED (CUA reports no available browser)
+- PHASE3_CLOSURE_GATE = BLOCKED (implementation green; runtime/visual verification outstanding)
 - REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
@@ -67,6 +71,9 @@ TESTS:
 - Alembic PostgreSQL upgrade validation = PASS (head 3ba965fb2922)
 
 LAST_COMMITS:
+- c60f43a feat(flow): enable fast authenticated anonymous arrivals
+- 543242b feat(flow): formalize atomic queue lifecycle and replay-safe transitions
+- 3f35e51 docs(flow): audit phase 3 queue domain and record green baseline
 - 735f13b feat(audit): add baseline audit trail for sensitive ticket actions
 - 70afb62 feat(security): harden production config and cors policy by environment
 - 27ac532 feat(ops): add readiness endpoint with database reachability check
@@ -78,10 +85,17 @@ LAST_COMMITS:
 - 1d0a96a feat(security): enforce tenant scope on institutes tickets and planning
 
 BLOCKERS:
-- Aucun blocker critique actif.
+- PostgreSQL runtime gate: Docker Desktop was launched, but Docker API requests
+  did not respond and were stopped after multiple attempts. No local PostgreSQL
+  service/binaries were found. SQLite migrations and PostgreSQL SQL compilation
+  pass; PostgreSQL execution and concurrent institute-lock behavior are unverified.
+- Browser/tablet gate: the browser tool reports no available browser. Automated
+  DOM tests pass; real layout and operator timing under 15 seconds are unverified.
 
 NEXT_STEP:
-- Phase 3 closure review: PostgreSQL runtime/migration/concurrency verification
-  and real browser/tablet visual validation. Full Waiting Time Engine deferred.
+- Restore a responding PostgreSQL test instance and browser surface, verify the
+  new migration and concurrent creation/assignment, then validate desktop/tablet
+  layout and fast anonymous arrival. Close Phase 3 only after these checks pass.
+- Full Waiting Time Engine remains deferred. Phases 0, 1 and 2 stay closed.
 
 WORKING_TREE = CLEAN
