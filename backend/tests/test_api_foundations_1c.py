@@ -15,7 +15,7 @@ def _bootstrap_reference_data(client: TestClient) -> str:
     response = client.post("/api/v1/dev/init-demo-data")
     assert response.status_code == 200
 
-    institutes = client.get("/api/v1/institutes").json()
+    institutes = client.get("/api/v1/institutes", headers=_auth_headers(role="accueil", institute_id=None)).json()
     return institutes[0]["id"]
 
 
@@ -80,7 +80,10 @@ def test_employees_pagination_limit_offset(client: TestClient):
 
 
 def test_pagination_max_limit_validation(client: TestClient):
-    response = client.get("/api/v1/institutes?limit=999")
+    response = client.get(
+        "/api/v1/institutes?limit=999",
+        headers=_auth_headers(role="accueil", institute_id=None),
+    )
 
     assert response.status_code == 422
     payload = response.json()

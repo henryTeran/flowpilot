@@ -16,7 +16,10 @@ def _bootstrap_reference_data(client) -> tuple[str, str, str]:
     response = client.post("/api/v1/dev/init-demo-data")
     assert response.status_code == 200
 
-    institute_id = client.get("/api/v1/institutes").json()[0]["id"]
+    institute_id = client.get(
+        "/api/v1/institutes",
+        headers=_auth_headers(role="accueil", institute_id=None),
+    ).json()[0]["id"]
     employee_id = client.get(
         f"/api/v1/employees?institute_id={institute_id}",
         headers=_auth_headers(role="accueil", institute_id=institute_id),
@@ -84,4 +87,99 @@ def test_employee_status_update_blocks_cross_institute_access(client):
         headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
     )
 
+    assert blocked_response.status_code == 403
+
+
+def test_institutes_list_is_scoped_by_token_institute(client):
+    institute_id, _, _ = _bootstrap_reference_data(client)
+
+    scoped_response = client.get(
+        "/api/v1/institutes",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+
+    assert scoped_response.status_code == 200
+    scoped_payload = scoped_response.json()
+    assert len(scoped_payload) == 1
+    assert scoped_payload[0]["id"] == institute_id
+
+
+def test_institute_detail_blocks_cross_institute_access(client):
+    institute_id, _, _ = _bootstrap_reference_data(client)
+
+    blocked_response = client.get(
+        f"/api/v1/institutes/{institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
+    )
+    assert blocked_response.status_code == 403
+
+    allowed_response = client.get(
+        f"/api/v1/institutes/{institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert allowed_response.status_code == 200
+    assert allowed_response.json()["id"] == institute_id
+
+
+def test_ticket_assign_blocks_cross_institute_access(client):
+    institute_id, employee_id, service_id = _bootstrap_reference_data(client)
+
+    ticket_response = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert ticket_response.status_code == 200
+    ticket_id = ticket_response.json()["id"]
+
+    blocked_response = client.patch(
+        f"/api/v1/tickets/{ticket_id}/assign",
+        json={"employee_id": employee_id},
+        headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
+    )
+    assert blocked_response.status_code == 403
+
+
+def test_planning_start_blocks_cross_institute_access(client):
+    institute_id, employee_id, service_id = _bootstrap_reference_data(client)
+
+    ticket_response = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert ticket_response.status_code == 200
+    ticket_id = ticket_response.json()["id"]
+
+    blocked_response = client.post(
+        "/api/v1/planning/sessions/start",
+        json={"ticket_id": ticket_id, "employee_id": employee_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
+    )
+    assert blocked_response.status_code == 403
+
+
+def test_planning_finish_blocks_cross_institute_access(client):
+    institute_id, employee_id, service_id = _bootstrap_reference_data(client)
+
+    ticket_response = client.post(
+        "/api/v1/tickets",
+        json={"institute_id": institute_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert ticket_response.status_code == 200
+    ticket_id = ticket_response.json()["id"]
+
+    start_response = client.post(
+        "/api/v1/planning/sessions/start",
+        json={"ticket_id": ticket_id, "employee_id": employee_id, "service_id": service_id},
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
+    assert start_response.status_code == 200
+    session_id = start_response.json()["id"]
+
+    blocked_response = client.patch(
+        f"/api/v1/planning/sessions/{session_id}/finish",
+        headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
+    )
     assert blocked_response.status_code == 403

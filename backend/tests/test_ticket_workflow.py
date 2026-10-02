@@ -31,7 +31,10 @@ def _bootstrap_reference_data(client: TestClient) -> tuple[str, list[dict], list
     response = client.post("/api/v1/dev/init-demo-data")
     assert response.status_code == 200
 
-    institutes = client.get("/api/v1/institutes").json()
+    institutes = client.get(
+        "/api/v1/institutes",
+        headers=_auth_headers(role="accueil", institute_id=None),
+    ).json()
     institute_id = institutes[0]["id"]
     employees = client.get(
         f"/api/v1/employees?institute_id={institute_id}",

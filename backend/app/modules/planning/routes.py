@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
+from app.modules.planning.repository import get_session
 from app.modules.planning.schemas import (
     ExtendSession,
     PlanningAvailabilityRead,
@@ -18,8 +19,29 @@ from app.modules.planning.service import (
     get_institute_availability,
     start_service_session,
 )
+from app.modules.tickets.repository import get_ticket
 
 router = APIRouter(prefix="/planning", tags=["planning"])
+
+
+def _require_ticket_scope(
+    ticket_id: str,
+    current_user: dict[str, str | None],
+    db: Session,
+) -> None:
+    ticket = get_ticket(db, ticket_id)
+    if ticket:
+        require_same_institute(current_user, ticket.institute_id)
+
+
+def _require_session_scope(
+    session_id: str,
+    current_user: dict[str, str | None],
+    db: Session,
+) -> None:
+    session = get_session(db, session_id)
+    if session:
+        require_same_institute(current_user, session.institute_id)
 
 
 @router.get("/institutes/{institute_id}/today", response_model=PlanningDayRead)
@@ -48,7 +70,7 @@ def post_start_session(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
-    require_same_institute(current_user, None)
+    _require_ticket_scope(payload.ticket_id, current_user, db)
     return start_service_session(db, payload.ticket_id, payload.employee_id, payload.service_id)
 
 
@@ -58,7 +80,7 @@ def patch_finish_session(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
-    require_same_institute(current_user, None)
+    _require_session_scope(session_id, current_user, db)
     return finish_service_session(db, session_id)
 
 
@@ -80,5 +102,5 @@ def patch_extend_session(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
-    require_same_institute(current_user, None)
+    _require_session_scope(session_id, current_user, db)
     return extend_service_session(db, session_id, payload.minutes)

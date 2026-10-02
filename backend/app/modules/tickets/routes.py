@@ -9,7 +9,7 @@ from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
 from app.modules.planning.models import ServiceSession
 from app.modules.tickets.models import QueueTicket, TicketLine
-from app.modules.tickets.repository import list_waiting_tickets
+from app.modules.tickets.repository import get_ticket, list_waiting_tickets
 from app.modules.tickets.schemas import (
     ChiffresSummaryRead,
     QueueTicketRead,
@@ -42,6 +42,16 @@ def _to_float(value):
     if isinstance(value, Decimal):
         return float(value)
     return float(value)
+
+
+def _require_ticket_access(
+    ticket_id: str,
+    current_user: dict[str, str | None],
+    db: Session,
+) -> None:
+    ticket = get_ticket(db, ticket_id)
+    if ticket:
+        require_same_institute(current_user, ticket.institute_id)
 
 
 def _line_status(db: Session, ticket: QueueTicket, line: TicketLine) -> str:
@@ -152,7 +162,7 @@ def patch_assign_ticket(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = assign_ticket(db, ticket_id, payload.employee_id)
     log_audit_event(
         request=request,
@@ -172,7 +182,7 @@ def patch_cancel_ticket(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = cancel_ticket(db, ticket_id)
     log_audit_event(
         request=request,
@@ -191,7 +201,7 @@ def patch_start_checkout(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = start_checkout(db, ticket_id, payload.employee_id)
     return _read_ticket(db, ticket)
 
@@ -203,7 +213,7 @@ def patch_add_checkout_line(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = add_checkout_ticket_line(db, ticket_id, payload.service_id)
     return _read_ticket(db, ticket)
 
@@ -215,7 +225,7 @@ def patch_remove_checkout_line(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = remove_checkout_ticket_line(db, ticket_id, line_id)
     return _read_ticket(db, ticket)
 
@@ -228,7 +238,7 @@ def patch_complete_payment(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
-    require_same_institute(current_user, None)
+    _require_ticket_access(ticket_id, current_user, db)
     ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method)
     log_audit_event(
         request=request,
