@@ -6,17 +6,21 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "tsc && vite build",
+    "test": "node --import tsx --test src/queue-utils.test.js src/checkout-utils.test.js tests/flow-workflow.test.tsx",
     "preview": "vite preview --host 0.0.0.0 --port 4173"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
+    "@types/jsdom": "^30.0.0",
     "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "@types/react-dom": "latest",
+    "jsdom": "^29.1.1",
+    "tsx": "^4.23.15"
   }
 }

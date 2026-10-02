@@ -207,12 +207,16 @@ def patch_cancel_ticket(
 
 @router.patch("/{ticket_id}/unassign", response_model=QueueTicketRead)
 def patch_unassign_ticket(
+    request: Request,
     ticket_id: str,
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     _require_ticket_access(ticket_id, current_user, db)
-    return _read_ticket(db, unassign_ticket(db, ticket_id))
+    ticket = unassign_ticket(db, ticket_id)
+    log_audit_event(request=request, current_user=current_user, action="ticket.unassigned",
+                    target_type="ticket", target_id=ticket_id)
+    return _read_ticket(db, ticket)
 
 
 @router.get("/{ticket_id}/events", response_model=list[QueueEventRead])

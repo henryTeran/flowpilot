@@ -1,4 +1,5 @@
 from pathlib import Path
+from io import StringIO
 
 from alembic import command
 from alembic.autogenerate import compare_metadata
@@ -14,7 +15,8 @@ def test_queue_migration_preserves_legacy_ticket_and_matches_models(tmp_path, mo
     url = f"sqlite:///{tmp_path / 'migration.db'}"
     monkeypatch.setattr(settings, "DATABASE_URL", url)
     backend = Path(__file__).resolve().parents[1]
-    config = Config(str(backend / "alembic.ini"))
+    # Do not load CLI logging configuration inside the application test process.
+    config = Config()
     config.set_main_option("script_location", str(backend / "migrations"))
     command.upgrade(config, "3ba965fb2922")
     engine = create_engine(url)
@@ -33,3 +35,17 @@ def test_queue_migration_preserves_legacy_ticket_and_matches_models(tmp_path, mo
         assert conn.execute(text("SELECT status FROM queue_tickets WHERE id='legacy'")).scalar_one() == "waiting"
     command.upgrade(config, "head")
     engine.dispose()
+
+
+def test_queue_migration_compiles_for_postgresql(monkeypatch):
+    monkeypatch.setattr(settings, "DATABASE_URL", "postgresql://test:test@localhost/unused")
+    backend = Path(__file__).resolve().parents[1]
+    output = StringIO()
+    config = Config(output_buffer=output)
+    config.set_main_option("script_location", str(backend / "migrations"))
+    command.upgrade(config, "3ba965fb2922:head", sql=True)
+    sql = output.getvalue()
+    assert "TIMESTAMP WITH TIME ZONE" in sql
+    assert "CREATE TABLE queue_events" in sql
+    assert "REFERENCES queue_tickets" in sql
+    assert "SERIAL" in sql

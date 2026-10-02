@@ -59,6 +59,11 @@ export interface QueueTicket {
   subscription_id?: string | null;
   status: string;
   arrival_time: string;
+  queue_position?: number | null;
+  assignment_state?: "unassigned" | "assigned" | "in_service" | "completed";
+  standard_duration_minutes?: number;
+  assigned_at?: string | null;
+  cancelled_at?: string | null;
   estimated_start_time?: string | null;
   assigned_employee_id?: string | null;
   created_by_id?: string | null;

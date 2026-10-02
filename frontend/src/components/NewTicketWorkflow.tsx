@@ -60,7 +60,7 @@ export function NewTicketWorkflow({
   onClose,
   onValidate,
 }: NewTicketWorkflowProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(2);
   const [customerLastName, setCustomerLastName] = useState("");
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -112,7 +112,7 @@ export function NewTicketWorkflow({
 
   async function submitTicket() {
     const firstServiceId = selectedServiceIds[0];
-    if (!firstServiceId) return;
+    if (!firstServiceId || submitting) return;
 
     setSubmitting(true);
     try {
@@ -128,13 +128,15 @@ export function NewTicketWorkflow({
         passageType,
       });
       resetAndClose();
+    } catch {
+      // The parent displays the API error. Keep this arrival open for retry.
     } finally {
       setSubmitting(false);
     }
   }
 
   function resetAndClose() {
-    setStep(0);
+    setStep(2);
     setCustomerLastName("");
     setCustomerFirstName("");
     setCustomerPhone("");
@@ -368,7 +370,7 @@ export function NewTicketWorkflow({
             <button type="button" className="bm-ticket-light-button" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
               Précédent
             </button>
-            {step < 3 ? (
+            {step < 2 ? (
               <button type="button" className="bm-ticket-primary-button" onClick={() => setStep(Math.min(3, step + 1))}>
                 Continuer
               </button>
@@ -379,7 +381,7 @@ export function NewTicketWorkflow({
                 onClick={() => void submitTicket()}
                 disabled={selectedServiceIds.length === 0 || submitting}
               >
-                {submitting ? "Validation..." : "Valider ticket"}
+                {submitting ? "Validation..." : "Ajouter à la file"}
               </button>
             )}
           </div>

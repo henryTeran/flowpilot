@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getAccessToken } from "./api/session";
+import { createArrivalIntent, compareQueueArrival } from "./queue-utils";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
@@ -57,6 +59,9 @@ export default function App() {
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
   const [ticketWorkflowOpen, setTicketWorkflowOpen] = useState(false);
+  const arrivalIntent = useRef(createArrivalIntent());
+  const workflowIntent = useRef(createArrivalIntent());
+  const arrivalSubmitting = useRef(false);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -224,7 +229,7 @@ export default function App() {
   useEffect(() => {
     if (!selectedInstituteId) return;
     setRealtimeStatus("connecting");
-    const socket = new WebSocket(`${WS_BASE_URL}/institutes/${selectedInstituteId}/planning`);
+    const socket = new WebSocket(`${WS_BASE_URL}/institutes/${encodeURIComponent(selectedInstituteId)}/planning?token=${encodeURIComponent(getAccessToken() || "")}`);
     const pingInterval = window.setInterval(() => {
       if (socket.readyState === WebSocket.OPEN) socket.send("ping");
     }, 20000);
@@ -250,18 +255,24 @@ export default function App() {
   }, [tickets, selectedTicketId, selectedCheckoutTicketId]);
 
   async function handleCreateTicket() {
-    if (!selectedInstituteId || !selectedServiceId) return;
+    if (!selectedInstituteId || !selectedServiceId || arrivalSubmitting.current) return;
+    arrivalSubmitting.current = true;
     setError(null);
     try {
       const created = await apiPost<QueueTicket>("/tickets", {
         institute_id: selectedInstituteId,
         service_id: selectedServiceId,
+        idempotency_key: arrivalIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: [selectedServiceId] }),
       });
+      arrivalIntent.current.complete();
+      setTickets((current) => [...current.filter((ticket) => ticket.id !== created.id), created].sort(compareQueueArrival));
       setTicketServiceMap((current) => ({ ...current, [created.id]: [selectedServiceId] }));
       setSelectedTicketId(created.id);
       await refreshOperationalData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de créer le ticket");
+    } finally {
+      arrivalSubmitting.current = false;
     }
   }
 
@@ -277,7 +288,10 @@ export default function App() {
         service_id: firstServiceId,
         service_ids: result.selectedServiceIds,
         created_by_id: identifiedEmployeeId || undefined,
+        idempotency_key: workflowIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: result.selectedServiceIds, created_by_id: identifiedEmployeeId || undefined }),
       });
+      workflowIntent.current.complete();
+      setTickets((current) => [...current.filter((ticket) => ticket.id !== created.id), created].sort(compareQueueArrival));
 
       setSelectedServiceId(firstServiceId);
       setTicketServiceMap((current) => ({ ...current, [created.id]: result.selectedServiceIds }));
@@ -286,6 +300,17 @@ export default function App() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de valider le nouveau ticket");
       throw err;
+    }
+  }
+
+  async function handleUnassignTicket() {
+    if (!selectedTicketId) return;
+    setError(null);
+    try {
+      await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/unassign`);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de remettre le ticket en attente");
     }
   }
 
@@ -735,7 +760,7 @@ export default function App() {
         <ActionDrawer
           open={activeDrawer === "newTicket"}
           title="Créer un nouveau ticket"
-          subtitle={identifiedEmployee ? `Créateur identifié : ${identifiedEmployee.first_name}` : "Identification collaboratrice obligatoire avant création."}
+          subtitle={identifiedEmployee ? `Créateur identifié : ${identifiedEmployee.first_name}` : "Choisissez une prestation pour créer un passage anonyme."}
           onClose={() => setActiveDrawer(null)}
         >
           <QueuePanel
@@ -755,6 +780,7 @@ export default function App() {
             onEmployeeChange={handleEmployeeSelection}
             onCreateTicket={handleCreateTicket}
             onAssignTicket={handleAssignTicket}
+            onUnassignTicket={handleUnassignTicket}
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
@@ -786,6 +812,7 @@ export default function App() {
             onEmployeeChange={handleEmployeeSelection}
             onCreateTicket={handleCreateTicket}
             onAssignTicket={handleAssignTicket}
+            onUnassignTicket={handleUnassignTicket}
             onStartSession={handleStartSession}
             onCancelTicket={handleCancelTicket}
             onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
@@ -853,7 +880,7 @@ export default function App() {
           categories={categories}
           services={services}
           onRequestIdentity={() => openIdentity("create_ticket")}
-          onClose={() => setTicketWorkflowOpen(false)}
+          onClose={() => { workflowIntent.current.complete(); setTicketWorkflowOpen(false); }}
           onValidate={handleCreateWorkflowTicket}
         />
 

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 3
-CURRENT_CHECKPOINT = PHASE3B_DOMAIN_FOUNDATION
+CURRENT_CHECKPOINT = PHASE3C_FAST_WALK_IN
 
 STATUS = PASS
 
@@ -18,6 +18,13 @@ GATES:
 - CREATION_ATOMICITY = PASS (fault-injected line failure leaves no partial ticket)
 - PHASE3_BACKEND_REGRESSION = PASS (77 tests + 1 migration test)
 - PHASE3_SQLITE_MIGRATION = PASS (upgrade/downgrade/upgrade; legacy preservation; model parity)
+- WALK_IN_FLOW = PASS (service selection then direct submit; immediate local queue insertion)
+- WAITING_TIME_FOUNDATION = PASS (duration snapshots and transactional lifecycle facts)
+- PHASE3_FRONTEND = PASS (9 tests; production build; dependency audit: 0 vulnerabilities)
+- PHASE3_COMPLETE_BACKEND_SUITE = PASS (79 tests)
+- PHASE3_POSTGRESQL_SQL_COMPILATION = PASS
+- PHASE3_LIVE_API = PASS (operator login, anonymous arrival and exact creation replay)
+- PHASE3_LIVE_AUTHENTICATED_WEBSOCKET = PASS
 - REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
@@ -74,7 +81,7 @@ BLOCKERS:
 - Aucun blocker critique actif.
 
 NEXT_STEP:
-- Phase 3C: fast anonymous arrival, stable frontend retry keys, immediate queue
-  visibility, and authenticated HTTP/WebSocket integration. Complete closure checks.
+- Phase 3 closure review: PostgreSQL runtime/migration/concurrency verification
+  and real browser/tablet visual validation. Full Waiting Time Engine deferred.
 
 WORKING_TREE = CLEAN

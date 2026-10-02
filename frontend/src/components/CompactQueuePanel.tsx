@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { shouldOfferDelayedReleaseAction } from "../queue-utils";
+import { shouldOfferDelayedReleaseAction, compareQueueArrival } from "../queue-utils";
 import type { Employee, QueueTicket, Service } from "../types";
 
 type CompactQueueFilter = "all" | "waiting" | "assigned" | "in_progress" | "checkout" | "delayed";
@@ -135,7 +135,7 @@ export function CompactQueuePanel({
                 }}
               >
                 <div className="compact-ticket-topline">
-                  <strong>{ticket.ticket_number}</strong>
+                  <strong>{ticket.ticket_number}{ticket.queue_position ? ` · #${ticket.queue_position}` : ""}</strong>
                   <span className={`status-badge status-badge-${ticket.status}`}>{translateStatus(ticket.status)}</span>
                 </div>
                 <span className="compact-ticket-service">{serviceLabel || "Séance"}</span>
@@ -255,14 +255,5 @@ function translateStatus(status: string) {
 }
 
 function compareTicketPriority(left: QueueTicket, right: QueueTicket) {
-  const priority = { waiting: 0, assigned: 1, in_progress: 2, ready_for_checkout: 3, in_checkout: 4 };
-  const leftPriority = priority[left.status as keyof typeof priority] ?? 99;
-  const rightPriority = priority[right.status as keyof typeof priority] ?? 99;
-
-  if (leftPriority !== rightPriority) return leftPriority - rightPriority;
-
-  const leftTime = left.estimated_start_time ? new Date(left.estimated_start_time).getTime() : Number.MAX_SAFE_INTEGER;
-  const rightTime = right.estimated_start_time ? new Date(right.estimated_start_time).getTime() : Number.MAX_SAFE_INTEGER;
-
-  return leftTime - rightTime;
+  return compareQueueArrival(left, right);
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { shouldOfferDelayedReleaseAction } from "../queue-utils";
+import { shouldOfferDelayedReleaseAction, compareQueueArrival } from "../queue-utils";
 import type { Employee, PlanningAvailability, QueueTicket, Service, ServiceCategory } from "../types";
 
 interface QueuePanelProps {
@@ -19,6 +19,7 @@ interface QueuePanelProps {
   onEmployeeChange: (id: string) => void;
   onCreateTicket: () => void;
   onAssignTicket: () => void;
+  onUnassignTicket: () => void;
   onStartSession: () => void;
   onCancelTicket: (ticketId: string) => void;
   onFinishActiveEmployeeSession: (employeeId: string) => void;
@@ -47,6 +48,7 @@ export function QueuePanel({
   onEmployeeChange,
   onCreateTicket,
   onAssignTicket,
+  onUnassignTicket,
   onStartSession,
   onCancelTicket,
   onFinishActiveEmployeeSession,
@@ -74,7 +76,8 @@ export function QueuePanel({
   const isLockedToAnotherEmployee = Boolean(
     lockedEmployeeId && selectedEmployeeId && lockedEmployeeId !== selectedEmployeeId,
   );
-  const employeeCanStart = Boolean(selectedEmployee && selectedEmployee.status === "available");
+  const reservedElsewhere = (employeeId: string) => tickets.some((ticket) => ticket.status === "assigned" && ticket.assigned_employee_id === employeeId && ticket.id !== selectedTicketId);
+  const employeeCanStart = Boolean(selectedEmployee && selectedEmployee.status === "available" && !reservedElsewhere(selectedEmployee.id));
   const canAssignTicket = Boolean(selectedTicketIsWaiting && selectedEmployeeId && employeeCanStart);
   const canStartSession = Boolean(
     selectedTicketIsActionable &&
@@ -88,7 +91,7 @@ export function QueuePanel({
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => CHECKOUT_TICKET_STATUSES.has(ticket.status));
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
-  const availableEmployees = employees.filter((employee) => employee.status === "available");
+  const availableEmployees = employees.filter((employee) => employee.status === "available" && !reservedElsewhere(employee.id));
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   const filteredWaitingTickets = sortQueueTickets(
@@ -269,7 +272,7 @@ export function QueuePanel({
         >
           <option value="">Choisir une collaboratrice</option>
           {employees.map((employee) => {
-            const disabled = employee.status !== "available" || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
+            const disabled = employee.status !== "available" || reservedElsewhere(employee.id) || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
             return (
               <option key={employee.id} value={employee.id} disabled={disabled}>
                 {employee.first_name} · {translateStatus(employee.status)}
@@ -332,6 +335,9 @@ export function QueuePanel({
               <button className="secondary-button" onClick={onAssignTicket} disabled={!canAssignTicket}>
                 Affecter
               </button>
+              {selectedTicketIsAssigned && <button className="secondary-button" onClick={onUnassignTicket}>
+                Remettre en attente
+              </button>}
               <button className="primary-button" onClick={onStartSession} disabled={!canStartSession}>
                 Démarrer séance
               </button>
@@ -403,7 +409,7 @@ function TicketGroup({
               }}
             >
               <div className="ticket-card-topline">
-                <strong>{ticket.ticket_number}</strong>
+                <strong>{ticket.ticket_number}{ticket.queue_position ? ` · #${ticket.queue_position}` : ""}</strong>
                 <span>{formatTicketWait(ticket)}</span>
               </div>
               <div className="ticket-card-body">
@@ -512,27 +518,7 @@ function matchesTicketSearch(
 }
 
 function sortQueueTickets(tickets: QueueTicket[]) {
-  return [...tickets].sort((left, right) => {
-    const leftPriority = getTicketQueuePriority(left);
-    const rightPriority = getTicketQueuePriority(right);
-
-    if (leftPriority !== rightPriority) {
-      return rightPriority - leftPriority;
-    }
-
-    const leftArrival = new Date(left.arrival_time).getTime();
-    const rightArrival = new Date(right.arrival_time).getTime();
-    return leftArrival - rightArrival;
-  });
-}
-
-function getTicketQueuePriority(ticket: QueueTicket) {
-  if (ticket.status === "in_checkout") return 60;
-  if (ticket.status === "ready_for_checkout") return 55;
-  if (ticket.status === "in_progress") return 45;
-  if (ticket.status === "assigned") return 35;
-  if (ticket.status === "waiting") return 25;
-  return 0;
+  return [...tickets].sort(compareQueueArrival);
 }
 
 function formatTicketSessionLabel(ticketServices: Service[], fallback?: Service) {

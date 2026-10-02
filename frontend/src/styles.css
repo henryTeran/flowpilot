@@ -6636,3 +6636,11 @@ body {
       grid-template-columns: 1fr !important;
     }
   }
+/* Authenticated operator session: one login per shift, no client identity gate. */
+.flow-login-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f4f7fb; }
+.flow-login-card { width: min(100%, 420px); display: grid; gap: 14px; padding: 32px; background: white; border: 1px solid #dce4ee; border-radius: 20px; box-shadow: 0 16px 48px #163f6b12; }
+.flow-login-card h1 { margin: 0; color: #173c65; font-size: 27px; }
+.flow-login-card p { margin: 0; line-height: 1.5; }
+.flow-login-card input { width: 100%; min-height: 44px; border: 1px solid #b5c5d8; border-radius: 8px; padding: 10px 12px; font: inherit; }
+.flow-login-card [role="alert"] { color: #a12b2b; }
+.flow-session-exit { position: fixed; bottom: 12px; left: 14px; z-index: 30; border: 1px solid #c8d6e6; border-radius: 8px; background: white; color: #173c65; padding: 8px 12px; cursor: pointer; font-size: 12px; }
