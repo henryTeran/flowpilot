@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+import json
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.modules.appointments.models import Appointment
@@ -8,12 +11,13 @@ from app.modules.employees.repository import get_employee, list_by_institute
 from app.modules.planning.models import ServiceSession
 from app.modules.services.repository import get_service
 from app.modules.tickets.models import QueueTicket, TicketLine
+from app.modules.tickets.events import record_event, transition_ticket
 from app.modules.tickets.repository import (
     get_ticket,
     get_ticket_by_idempotency_key,
-    list_waiting_tickets,
     save_ticket,
-    save_ticket_line,
+    lock_institute,
+    lock_ticket,
 )
 from app.modules.tickets.schemas import TicketCreate
 from app.shared.exceptions import business_error, not_found
@@ -34,8 +38,13 @@ def _ensure_aware(value: datetime) -> datetime:
 
 
 def _generate_ticket_number(db: Session, institute_id: str) -> str:
-    count = len(list_waiting_tickets(db, institute_id)) + 1
-    return f"T-{count:03d}"
+    numbers = db.scalars(select(QueueTicket.ticket_number).where(
+        QueueTicket.institute_id == institute_id,
+    )).all()
+    # Include historical tickets; seeded legacy numbers remain valid.
+    last = max((int(number[2:]) for number in numbers
+                if number.startswith("T-") and number[2:].isdigit()), default=0)
+    return f"T-{last + 1:03d}"
 
 
 def _ticket_duration(db: Session, ticket_id: str, fallback_minutes: int = 0) -> int:
@@ -44,7 +53,7 @@ def _ticket_duration(db: Session, ticket_id: str, fallback_minutes: int = 0) -> 
     Règle produit : la collaboratrice entre en cabine une seule fois.
     Le planning doit donc réserver une seule séance avec le cumul des durées.
     """
-    total = sum(line.duration_minutes for line in _ticket_lines(db, ticket_id))
+    total = sum(line.duration_minutes * line.quantity for line in _ticket_lines(db, ticket_id))
     return total or fallback_minutes
 
 
@@ -148,7 +157,7 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
                 QueueTicket.institute_id == institute_id,
                 QueueTicket.status.in_(["waiting", "assigned"]),
             )
-            .order_by(QueueTicket.arrival_time)
+            .order_by(QueueTicket.arrival_time, QueueTicket.id)
         ).all()
     )
 
@@ -160,11 +169,36 @@ def estimate_start_time(db: Session, institute_id: str, service_duration_minutes
     return min(availability_by_employee.values())
 
 
+def _creation_fingerprint(payload: TicketCreate) -> str:
+    data = {"service_ids": sorted(_payload_service_ids(payload)), "customer_id": payload.customer_id,
+            "subscription_id": payload.subscription_id, "created_by_id": payload.created_by_id}
+    return sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
+
+
+def _validate_creation_replay(db: Session, ticket: QueueTicket, payload: TicketCreate) -> QueueTicket:
+    if ticket.creation_fingerprint:
+        if ticket.creation_fingerprint != _creation_fingerprint(payload):
+            raise business_error("La cle de rejeu appartient a un autre ticket")
+        return ticket
+    if (sorted(line.service_id for line in _ticket_lines(db, ticket.id)) != sorted(_payload_service_ids(payload))
+            or ticket.customer_id != payload.customer_id
+            or ticket.subscription_id != payload.subscription_id
+            or ticket.created_by_id != payload.created_by_id):
+        raise business_error("La cle de rejeu appartient a un autre ticket")
+    return ticket
+
+
 def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
+    lock_institute(db, payload.institute_id)
     if payload.idempotency_key:
         existing_ticket = get_ticket_by_idempotency_key(db, payload.institute_id, payload.idempotency_key)
         if existing_ticket:
-            return existing_ticket
+            return _validate_creation_replay(db, existing_ticket, payload)
+
+    if payload.created_by_id:
+        creator = get_employee(db, payload.created_by_id)
+        if not creator or creator.institute_id != payload.institute_id:
+            raise business_error("Createur du ticket hors institut")
 
     service_ids = _payload_service_ids(payload)
     if not service_ids:
@@ -175,6 +209,8 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         service = get_service(db, service_id)
         if not service:
             raise not_found(f"Prestation introuvable : {service_id}")
+        if service.duration_min <= 0:
+            raise business_error("La duree standard de la prestation est invalide")
         services.append(service)
 
     total_duration = sum(service.duration_min for service in services)
@@ -185,6 +221,7 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         institute_id=payload.institute_id,
         ticket_number=_generate_ticket_number(db, payload.institute_id),
         idempotency_key=payload.idempotency_key,
+        creation_fingerprint=_creation_fingerprint(payload),
         customer_id=payload.customer_id,
         subscription_id=payload.subscription_id,
         status="waiting",
@@ -193,27 +230,51 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         created_by_id=payload.created_by_id,
         total_amount=total_amount,
     )
-    saved = save_ticket(db, ticket)
+    try:
+        db.add(ticket)
+        db.flush()
+        for service in services:
+            db.add(TicketLine(
+                id=new_id("tl"), ticket_id=ticket.id, service_id=service.id,
+                quantity=1, unit_price=service.price_passage, total=service.price_passage,
+                duration_minutes=service.duration_min, revenue_category="care",
+            ))
+        record_event(db, ticket, "queue.arrived", None, payload.created_by_id)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        if payload.idempotency_key:
+            existing = get_ticket_by_idempotency_key(db, payload.institute_id, payload.idempotency_key)
+            if existing:
+                return _validate_creation_replay(db, existing, payload)
+        raise
+    db.refresh(ticket)
+    return ticket
 
-    for service in services:
-        unit_price = service.price_passage
-        line = TicketLine(
-            id=new_id("tl"),
-            ticket_id=saved.id,
-            service_id=service.id,
-            quantity=1,
-            unit_price=unit_price,
-            total=unit_price,
-            duration_minutes=service.duration_min,
-            revenue_category="care",
-        )
-        save_ticket_line(db, line)
 
-    return saved
+def ensure_employee_queue_capacity(db: Session, ticket: QueueTicket, employee_id: str) -> None:
+    reserved = db.scalar(select(QueueTicket.id).where(
+        QueueTicket.institute_id == ticket.institute_id,
+        QueueTicket.assigned_employee_id == employee_id,
+        QueueTicket.status == "assigned",
+        QueueTicket.id != ticket.id,
+    ))
+    if reserved:
+        raise business_error("La collaboratrice a deja un ticket affecte")
+    now = utcnow()
+    end = now + timedelta(minutes=_ticket_duration(db, ticket.id))
+    appointment = db.scalar(select(Appointment.id).where(
+        Appointment.institute_id == ticket.institute_id,
+        Appointment.employee_id == employee_id,
+        Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+        Appointment.start_time < end, Appointment.end_time > now,
+    ))
+    if appointment:
+        raise business_error("La prestation chevauche un rendez-vous planifie")
 
 
 def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
     employee = get_employee(db, employee_id)
@@ -221,6 +282,9 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
         raise not_found("Collaboratrice introuvable")
     if employee.institute_id != ticket.institute_id:
         raise business_error("La collaboratrice ne fait pas partie de cet institut")
+
+    if ticket.status == "assigned" and ticket.assigned_employee_id == employee.id:
+        return ticket
 
     if ticket.status not in {"waiting", "assigned"}:
         raise business_error("Ce ticket est déjà en prestation, en caisse, payé ou annulé")
@@ -234,13 +298,27 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
     if _has_active_employee_blocker(db, ticket.institute_id, employee.id):
         raise business_error("La collaboratrice est encore occupée par une prestation ou un rendez-vous en cours")
 
-    ticket.status = "assigned"
+    ensure_employee_queue_capacity(db, ticket, employee.id)
+    transition_ticket(db, ticket, "assigned", "queue.assigned", employee.id)
     ticket.assigned_employee_id = employee.id
+    ticket.assigned_at = utcnow()
+    return save_ticket(db, ticket)
+
+
+def unassign_ticket(db: Session, ticket_id: str) -> QueueTicket:
+    ticket = lock_ticket(db, ticket_id)
+    if ticket.status == "waiting" and ticket.assigned_employee_id is None:
+        return ticket
+    if ticket.status != "assigned":
+        raise business_error("Seul un ticket affecte peut retourner en attente")
+    transition_ticket(db, ticket, "waiting", "queue.unassigned", ticket.assigned_employee_id)
+    ticket.assigned_employee_id = None
+    ticket.assigned_at = None
     return save_ticket(db, ticket)
 
 
 def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -256,8 +334,10 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     if ticket.status not in {"waiting", "assigned", "ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être annulé dans son état actuel")
 
-    ticket.status = "cancelled"
+    transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
     ticket.assigned_employee_id = None
+    ticket.assigned_at = None
+    ticket.cancelled_at = utcnow()
     ticket.estimated_start_time = None
     return save_ticket(db, ticket)
 
@@ -334,7 +414,7 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
     Règle produit : la personne qui a créé le ticket n'est pas forcément celle
     qui encaisse. L'encaissement doit donc enregistrer une nouvelle identité.
     """
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -350,7 +430,9 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
     if ticket.status == "in_checkout" and ticket.checkout_employee_id and ticket.checkout_employee_id != employee.id:
         raise business_error("Ce ticket est déjà ouvert en caisse par une autre collaboratrice")
 
-    ticket.status = "in_checkout"
+    if ticket.status == "in_checkout" and ticket.checkout_employee_id == employee.id:
+        return ticket
+    transition_ticket(db, ticket, "in_checkout", "queue.checkout_started", employee.id)
     ticket.checkout_employee_id = employee.id
     ticket.checkout_started_at = ticket.checkout_started_at or utcnow()
     ticket.total_amount = _ticket_total(db, ticket.id)
@@ -358,7 +440,7 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
 
 
 def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_method: str) -> QueueTicket:
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -370,6 +452,10 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
 
     if payment_method not in PAYMENT_METHODS:
         raise business_error("Mode de paiement invalide")
+
+    if (ticket.status == "paid" and ticket.paid_employee_id == employee.id
+            and ticket.payment_method == payment_method):
+        return ticket
 
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être payé dans son état actuel")
@@ -385,10 +471,11 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
             line.performed_by_employee_id = employee.id
             db.add(line)
 
-    ticket.status = "paid"
+    transition_ticket(db, ticket, "paid", "queue.paid", employee.id)
     ticket.checkout_employee_id = ticket.checkout_employee_id or employee.id
     ticket.checkout_started_at = ticket.checkout_started_at or utcnow()
     ticket.assigned_employee_id = None
+    ticket.assigned_at = None
     ticket.paid_employee_id = employee.id
     ticket.paid_at = utcnow()
     ticket.payment_method = payment_method

@@ -16,7 +16,9 @@ from app.modules.planning.schemas import (
 )
 from app.modules.services.repository import get_service
 from app.modules.tickets.models import QueueTicket, TicketLine
-from app.modules.tickets.repository import get_ticket
+from app.modules.tickets.repository import get_ticket, lock_ticket, lock_institute
+from app.modules.tickets.events import transition_ticket, record_event
+from app.modules.tickets.service import ensure_employee_queue_capacity
 from app.shared.exceptions import business_error, not_found
 from app.shared.ids import new_id
 from app.shared.time import utcnow
@@ -133,7 +135,7 @@ def _ticket_total_duration(db: Session, ticket_id: str) -> int:
     Règle produit : une cliente entre en cabine avec la collaboratrice pour
     l'ensemble des prestations du ticket. Le planning réserve donc un seul bloc.
     """
-    return sum(line.duration_minutes for line in _ticket_lines(db, ticket_id))
+    return sum(line.duration_minutes * line.quantity for line in _ticket_lines(db, ticket_id))
 
 
 def _representative_ticket_line(db: Session, ticket_id: str) -> TicketLine | None:
@@ -290,7 +292,7 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     une. Elle prend la cliente, entre en cabine, réalise toutes les prestations
     du ticket, puis corrige éventuellement le ticket au moment de l'encaissement.
     """
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -301,6 +303,11 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     if employee.institute_id != ticket.institute_id:
         raise business_error("Collaboratrice hors institut")
 
+    if ticket.status == "in_progress" and ticket.assigned_employee_id == employee.id:
+        existing = _get_active_employee_session(db, ticket.institute_id, employee.id)
+        if existing and existing.ticket_line_id in {line.id for line in _ticket_lines(db, ticket.id)}:
+            return existing
+
     if ticket.status not in {"waiting", "assigned"}:
         raise business_error("Ce ticket est déjà en cours, en caisse, payé ou annulé")
 
@@ -309,6 +316,8 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
 
     if employee.status != "available":
         raise business_error("Cette collaboratrice n'est pas disponible")
+
+    ensure_employee_queue_capacity(db, ticket, employee.id)
 
     lines = _ticket_lines(db, ticket.id)
     if not lines:
@@ -384,8 +393,10 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
         status="in_progress",
     )
 
-    ticket.status = "in_progress"
+    transition_ticket(db, ticket, "in_progress", "queue.service_started", employee.id)
     ticket.assigned_employee_id = employee.id
+    ticket.assigned_at = ticket.assigned_at or now
+    ticket.estimated_start_time = None
     employee.status = "busy"
 
     db.add(ticket)
@@ -401,8 +412,11 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
     if not session:
         raise not_found("Session introuvable")
 
+    lock_institute(db, session.institute_id)
+    db.refresh(session)
+
     if session.status == "completed":
-        raise business_error("Cette prestation est déjà terminée")
+        return session
 
     if session.status not in ACTIVE_SESSION_STATUSES:
         raise business_error("Cette prestation ne peut pas être terminée dans son état actuel")
@@ -430,7 +444,8 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
             if ticket:
                 # Session unique par ticket : quand la séance est terminée,
                 # le ticket complet passe en caisse.
-                ticket.status = "ready_for_checkout"
+                db.refresh(ticket)
+                transition_ticket(db, ticket, "ready_for_checkout", "queue.service_finished", session.employee_id)
                 db.add(ticket)
 
     db.add(session)
@@ -478,9 +493,20 @@ def extend_service_session(db: Session, session_id: str, minutes: int) -> Servic
     if not session:
         raise not_found("Session introuvable")
 
+    lock_institute(db, session.institute_id)
+    db.refresh(session)
+    if session.status not in ACTIVE_SESSION_STATUSES:
+        raise business_error("Seule une prestation active peut etre prolongee")
+
     session.planned_end_time = _ensure_aware(session.planned_end_time) + timedelta(minutes=minutes)
     session.duration_minutes += minutes
     session.status = "extended"
+
+    if session.ticket_line_id:
+        line = db.get(TicketLine, session.ticket_line_id)
+        ticket = get_ticket(db, line.ticket_id) if line else None
+        if ticket:
+            record_event(db, ticket, "queue.service_extended", ticket.status, session.employee_id)
 
     db.add(session)
     db.commit()

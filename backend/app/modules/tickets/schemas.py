@@ -12,7 +12,7 @@ class TicketCreate(BaseModel):
     customer_id: str | None = None
     subscription_id: str | None = None
     created_by_id: str | None = None
-    idempotency_key: str | None = None
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=120)
 
     @model_validator(mode="after")
     def require_at_least_one_service(self):
@@ -64,6 +64,11 @@ class QueueTicketRead(BaseModel):
     arrival_time: datetime
     estimated_start_time: datetime | None
     assigned_employee_id: str | None
+    assigned_at: datetime | None = None
+    cancelled_at: datetime | None = None
+    queue_position: int | None = None
+    assignment_state: str = "unassigned"
+    standard_duration_minutes: int = 0
     created_by_id: str | None
     checkout_employee_id: str | None = None
     checkout_started_at: datetime | None = None
@@ -72,6 +77,19 @@ class QueueTicketRead(BaseModel):
     payment_method: str | None = None
     total_amount: float | None = None
     lines: list[TicketLineRead] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QueueEventRead(BaseModel):
+    id: int
+    institute_id: str
+    ticket_id: str
+    event_type: str
+    previous_status: str | None
+    status: str
+    employee_id: str | None
+    occurred_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 

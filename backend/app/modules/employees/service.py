@@ -9,6 +9,8 @@ from app.modules.employees.models import Employee
 from app.modules.employees.repository import get_employee, save_employee
 from app.modules.employees.schemas import EmployeeCreate
 from app.modules.planning.models import ServiceSession
+from app.modules.tickets.models import QueueTicket
+from app.modules.tickets.repository import lock_institute
 from app.shared.exceptions import business_error, not_found
 from app.shared.ids import new_id
 from app.shared.time import utcnow
@@ -48,6 +50,15 @@ def change_employee_status(db: Session, employee_id: str, status: str) -> Employ
     employee = get_employee(db, employee_id)
     if not employee:
         raise not_found("Collaboratrice introuvable")
+
+    lock_institute(db, employee.institute_id)
+    db.refresh(employee)
+    if status != "available" and db.scalar(select(QueueTicket.id).where(
+        QueueTicket.institute_id == employee.institute_id,
+        QueueTicket.assigned_employee_id == employee.id,
+        QueueTicket.status == "assigned",
+    )):
+        raise business_error("Libere le ticket affecte avant de modifier le statut")
 
     active_session = db.scalars(
         select(ServiceSession).where(

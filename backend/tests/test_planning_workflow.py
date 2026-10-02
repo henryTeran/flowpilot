@@ -68,7 +68,7 @@ def test_start_service_success(client: TestClient):
     assert payload["status"] == "in_progress"
 
 
-def test_double_start_rejected(client: TestClient):
+def test_double_start_returns_existing_session(client: TestClient):
     institute_id, employees, services = _bootstrap_reference_data(client)
     employee_id = employees[0]["id"]
     service_id = services[0]["id"]
@@ -78,7 +78,8 @@ def test_double_start_rejected(client: TestClient):
     assert first.status_code == 200
 
     second = _start_session(client, ticket["id"], employee_id, service_id)
-    assert second.status_code == 400
+    assert second.status_code == 200
+    assert second.json()["id"] == first.json()["id"]
 
 
 def test_start_invalid_ticket_state_rejected(client: TestClient):
@@ -176,7 +177,8 @@ def test_double_finish_is_safe(client: TestClient):
         f"/api/v1/planning/sessions/{session_id}/finish",
         headers=_auth_headers(role="accueil", institute_id=institute_id),
     )
-    assert second_finish.status_code == 400
+    assert second_finish.status_code == 200
+    assert second_finish.json()["real_end_time"] == first_finish.json()["real_end_time"]
 
 
 def test_finish_unknown_or_non_active_session_rejected(client: TestClient):

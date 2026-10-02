@@ -1,4 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
+from typing import Literal
+
+EmployeeStatus = Literal["available", "busy", "pause", "absent", "offline"]
 
 
 class EmployeeCreate(BaseModel):
@@ -6,7 +9,7 @@ class EmployeeCreate(BaseModel):
     first_name: str = Field(min_length=2, max_length=120)
     code: str | None = None
     skills: list[str] = Field(default_factory=list)
-    status: str = "available"
+    status: EmployeeStatus = "available"
 
 
 class EmployeeRead(BaseModel):

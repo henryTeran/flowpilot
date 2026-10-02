@@ -320,6 +320,8 @@ def create_demo_day(institute_id: str = DEMO_INSTITUTE_ID, db: Session = Depends
 
 
 def _reset_operational_data(db: Session, institute_id: str) -> None:
+    from app.modules.tickets.models import QueueEvent
+    db.query(QueueEvent).filter(QueueEvent.institute_id == institute_id).delete(synchronize_session=False)
     ticket_ids = select(QueueTicket.id).where(QueueTicket.institute_id == institute_id)
 
     db.execute(delete(ServiceSession).where(ServiceSession.institute_id == institute_id))

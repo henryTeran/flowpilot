@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 3
-CURRENT_CHECKPOINT = PHASE3A_REALITY_AUDIT
+CURRENT_CHECKPOINT = PHASE3B_DOMAIN_FOUNDATION
 
 STATUS = PASS
 
@@ -9,6 +9,15 @@ GATES:
 - PHASE_2 = CLOSED
 - PHASE3_REALITY_AUDIT = PASS (docs/architecture/PHASE3_FLOW_QUEUE_AUDIT.md)
 - PHASE3_BASELINE = PASS (64 backend tests; 4 frontend tests; production build)
+- ANONYMOUS_TICKETS = PASS
+- QUEUE_LIFECYCLE = PASS (FIFO arrival/id order and compact one-based positions)
+- ASSIGNMENT_RESERVATIONS = PASS (release, cancellation, imminent appointments)
+- COLLABORATOR_STATES = PASS
+- QUEUE_EVENTS = PASS (durable facts committed with ticket transitions)
+- REPLAY_SAFETY = PASS (creation fingerprint; assignment/start/finish/checkout/payment)
+- CREATION_ATOMICITY = PASS (fault-injected line failure leaves no partial ticket)
+- PHASE3_BACKEND_REGRESSION = PASS (77 tests + 1 migration test)
+- PHASE3_SQLITE_MIGRATION = PASS (upgrade/downgrade/upgrade; legacy preservation; model parity)
 - REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
@@ -65,7 +74,7 @@ BLOCKERS:
 - Aucun blocker critique actif.
 
 NEXT_STEP:
-- Phase 3B: atomic walk-in creation, deterministic queue order, lifecycle events,
-  assignment reservations, cancellation and replay safety. Reuse existing models.
+- Phase 3C: fast anonymous arrival, stable frontend retry keys, immediate queue
+  visibility, and authenticated HTTP/WebSocket integration. Complete closure checks.
 
 WORKING_TREE = CLEAN

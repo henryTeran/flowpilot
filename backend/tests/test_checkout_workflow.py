@@ -133,7 +133,7 @@ def test_payment_clears_stale_assignment_and_keeps_employee_available(client: Te
     assert employee["status"] == "available"
 
 
-def test_double_payment_rejected(client: TestClient):
+def test_double_payment_returns_existing_receipt(client: TestClient):
     institute_id, employees, services = _bootstrap_reference_data(client)
     employee_id = employees[0]["id"]
     service_id = services[0]["id"]
@@ -146,7 +146,8 @@ def test_double_payment_rejected(client: TestClient):
     assert first.status_code == 200
 
     second = _pay(client, ticket["id"], employee_id, "cb")
-    assert second.status_code == 400
+    assert second.status_code == 200
+    assert second.json()["paid_at"] == first.json()["paid_at"]
 
 
 def test_payment_before_checkout_state_rejected(client: TestClient):
@@ -209,7 +210,8 @@ def test_paid_ticket_contributes_once_to_revenue(client: TestClient):
     total_before = chiffres_before.json()["totals"]["total"]
 
     replay_payment = _pay(client, ticket["id"], employee_id, "cb")
-    assert replay_payment.status_code == 400
+    assert replay_payment.status_code == 200
+    assert replay_payment.json()["paid_at"] == first_payment.json()["paid_at"]
 
     chiffres_after = client.get(
         f"/api/v1/tickets/chiffres?institute_id={institute_id}",

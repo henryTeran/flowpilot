@@ -8,11 +8,15 @@ from app.core.audit import log_audit_event
 from app.core.permissions import require_same_institute, require_ticket_manager
 from app.database.session import get_db
 from app.modules.planning.models import ServiceSession
-from app.modules.tickets.models import QueueTicket, TicketLine
-from app.modules.tickets.repository import get_ticket, list_waiting_tickets
+from app.modules.tickets.models import QueueEvent, QueueTicket, TicketLine
+from app.modules.tickets.domain import assignment_state
+from app.modules.tickets.repository import get_ticket, list_waiting_tickets, queue_positions
+from app.shared.pagination import PaginationParams, pagination_params
+from app.shared.exceptions import not_found
 from app.modules.tickets.schemas import (
     ChiffresSummaryRead,
     QueueTicketRead,
+    QueueEventRead,
     TicketAssign,
     TicketCheckoutStart,
     TicketCreate,
@@ -29,6 +33,7 @@ from app.modules.tickets.service import (
     get_chiffres_by_employee,
     remove_checkout_ticket_line,
     start_checkout,
+    unassign_ticket,
 )
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])
@@ -78,7 +83,7 @@ def _line_status(db: Session, ticket: QueueTicket, line: TicketLine) -> str:
     return "pending"
 
 
-def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
+def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | None = None) -> QueueTicketRead:
     lines = list(
         db.scalars(
             select(TicketLine)
@@ -97,6 +102,11 @@ def _read_ticket(db: Session, ticket: QueueTicket) -> QueueTicketRead:
         arrival_time=ticket.arrival_time,
         estimated_start_time=ticket.estimated_start_time,
         assigned_employee_id=ticket.assigned_employee_id,
+        assigned_at=ticket.assigned_at,
+        cancelled_at=ticket.cancelled_at,
+        queue_position=(positions if positions is not None else queue_positions(db, ticket.institute_id)).get(ticket.id),
+        assignment_state=assignment_state(ticket.status, ticket.assigned_employee_id),
+        standard_duration_minutes=sum(line.duration_minutes * line.quantity for line in lines),
         created_by_id=ticket.created_by_id,
         checkout_employee_id=ticket.checkout_employee_id,
         checkout_started_at=ticket.checkout_started_at,
@@ -139,7 +149,8 @@ def get_waiting_tickets(
     db: Session = Depends(get_db),
 ) -> list[QueueTicketRead]:
     require_same_institute(current_user, institute_id)
-    return [_read_ticket(db, ticket) for ticket in list_waiting_tickets(db, institute_id)]
+    positions = queue_positions(db, institute_id)
+    return [_read_ticket(db, ticket, positions) for ticket in list_waiting_tickets(db, institute_id)]
 
 
 @router.post("", response_model=QueueTicketRead)
@@ -192,6 +203,32 @@ def patch_cancel_ticket(
         target_id=ticket_id,
     )
     return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/unassign", response_model=QueueTicketRead)
+def patch_unassign_ticket(
+    ticket_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    _require_ticket_access(ticket_id, current_user, db)
+    return _read_ticket(db, unassign_ticket(db, ticket_id))
+
+
+@router.get("/{ticket_id}/events", response_model=list[QueueEventRead])
+def get_queue_events(
+    ticket_id: str,
+    pagination: PaginationParams = Depends(pagination_params),
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> list[QueueEvent]:
+    ticket = get_ticket(db, ticket_id)
+    if ticket is None:
+        raise not_found("Ticket introuvable")
+    require_same_institute(current_user, ticket.institute_id)
+    return list(db.scalars(select(QueueEvent).where(
+        QueueEvent.institute_id == ticket.institute_id, QueueEvent.ticket_id == ticket_id,
+    ).order_by(QueueEvent.id).limit(pagination.limit).offset(pagination.offset)).all())
 
 
 @router.patch("/{ticket_id}/checkout/start", response_model=QueueTicketRead)

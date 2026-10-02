@@ -16,6 +16,7 @@ class QueueTicket(Base):
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
     ticket_number: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    creation_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
     customer_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     subscription_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     status: Mapped[str] = mapped_column(String(40), default="waiting", nullable=False, index=True)
@@ -24,6 +25,8 @@ class QueueTicket(Base):
 
     # Collaboratrice à qui le ticket est affecté pendant la prestation.
     assigned_employee_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Collaboratrice / réception qui a créé le ticket après l'écran "Je m'identifie".
     created_by_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
@@ -37,6 +40,19 @@ class QueueTicket(Base):
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     payment_method: Mapped[str | None] = mapped_column(String(40), nullable=True)
     total_amount: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+
+
+class QueueEvent(Base):
+    __tablename__ = "queue_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    ticket_id: Mapped[str] = mapped_column(ForeignKey("queue_tickets.id"), nullable=False, index=True)
+    event_type: Mapped[str] = mapped_column(String(60), nullable=False)
+    previous_status: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False)
+    employee_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class TicketLine(Base):
