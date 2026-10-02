@@ -36,7 +36,7 @@ LAST_COMMITS:
 - 17c3bfb feat(security): add login rate limiting with standardized 429 responses
 
 BLOCKERS:
-- Validation PostgreSQL/Alembic bloquee localement: service PostgreSQL inaccessible sur localhost:5432 (connection refused / auth failure pour user flowpilot). Driver psycopg2 valide dans backend/.venv.
+- Validation PostgreSQL/Alembic bloquee localement: Docker Desktop Linux Engine indisponible (pipe dockerDesktopLinuxEngine absente) et aucun service Windows PostgreSQL detecte. Driver psycopg2 valide dans backend/.venv, mais aucune instance PostgreSQL locale exploitable pour executer alembic sur base reelle.
 
 NEXT_STEP:
 - Demarrer/configurer PostgreSQL local conforme (.env), puis executer `alembic current` et `alembic upgrade head` pour fermer le gate Phase 1 et lancer Phase 2.
