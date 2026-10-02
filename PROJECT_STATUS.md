@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 2
-CURRENT_CHECKPOINT = PHASE2_TENANT_ISOLATION_BASELINE_A
+CURRENT_CHECKPOINT = PHASE2_TENANT_ISOLATION_BASELINE_B
 
 STATUS = IN_PROGRESS
 
@@ -18,6 +18,7 @@ GATES:
 - AUDIT_TRAIL_BASELINE = PASS
 - POSTGRES_ALEMBIC_VALIDATION = PASS
 - TENANT_ISOLATION_APPOINTMENTS_DASHBOARD = PASS
+- TENANT_ISOLATION_EMPLOYEES = PASS
 
 TESTS:
 - backend/tests/test_structured_logging_1d.py = PASS
@@ -31,6 +32,7 @@ TESTS:
 - backend targeted security+workflow bundle = PASS (37 passed)
 - backend/tests/test_tenant_isolation_2a.py = PASS
 - backend tenant-isolation regression bundle = PASS (32 passed)
+- backend tenant-isolation+workflow regression bundle = PASS (38 passed)
 - frontend npm run build = PASS
 - Alembic PostgreSQL upgrade validation = PASS (head 3ba965fb2922)
 
@@ -41,11 +43,12 @@ LAST_COMMITS:
 - 17c3bfb feat(security): add login rate limiting with standardized 429 responses
 - 0e7915a chore(status): document phase 1 postgres gate blocked by local infra
 - 6266fa7 chore(status): close phase 1 technical foundations
+- 8a60f43 feat(security): enforce tenant isolation on appointments and dashboard
 
 BLOCKERS:
 - Aucun blocker Phase 1: gate PostgreSQL/Alembic valide sur conteneur PostgreSQL jetable local (port 55432) avec `backend/.venv` et URL PostgreSQL explicite IPv4.
 
 NEXT_STEP:
-- Continuer Phase 2 tenant isolation: appliquer le scope institut sur employees (list/create/status), institutes list selon token et autres endpoints metier restants, puis etendre les tests d'isolation croisee.
+- Continuer Phase 2 tenant isolation: appliquer le scope institut sur institutes list selon token et finaliser les endpoints metier restants, puis etendre les tests d'isolation croisee.
 
 WORKING_TREE = CLEAN

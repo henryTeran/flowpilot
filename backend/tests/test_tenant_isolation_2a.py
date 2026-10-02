@@ -17,7 +17,10 @@ def _bootstrap_reference_data(client) -> tuple[str, str, str]:
     assert response.status_code == 200
 
     institute_id = client.get("/api/v1/institutes").json()[0]["id"]
-    employee_id = client.get(f"/api/v1/employees?institute_id={institute_id}").json()[0]["id"]
+    employee_id = client.get(
+        f"/api/v1/employees?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    ).json()[0]["id"]
     service_id = client.get("/api/v1/services/catalog").json()[0]["id"]
     return institute_id, employee_id, service_id
 
@@ -70,3 +73,15 @@ def test_dashboard_live_blocks_cross_institute_access(client):
         headers=_auth_headers(role="accueil", institute_id=institute_id),
     )
     assert allowed_response.status_code == 200
+
+
+def test_employee_status_update_blocks_cross_institute_access(client):
+    institute_id, employee_id, _ = _bootstrap_reference_data(client)
+
+    blocked_response = client.patch(
+        f"/api/v1/employees/{employee_id}/status",
+        json={"status": "pause"},
+        headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
+    )
+
+    assert blocked_response.status_code == 403

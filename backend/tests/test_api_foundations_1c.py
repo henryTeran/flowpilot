@@ -50,7 +50,10 @@ def test_validation_error_format_is_predictable(client: TestClient):
 def test_employees_pagination_defaults(client: TestClient):
     institute_id = _bootstrap_reference_data(client)
 
-    response = client.get(f"/api/v1/employees?institute_id={institute_id}")
+    response = client.get(
+        f"/api/v1/employees?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    )
 
     assert response.status_code == 200
     payload = response.json()
@@ -61,8 +64,9 @@ def test_employees_pagination_defaults(client: TestClient):
 def test_employees_pagination_limit_offset(client: TestClient):
     institute_id = _bootstrap_reference_data(client)
 
-    first_page = client.get(f"/api/v1/employees?institute_id={institute_id}&limit=1&offset=0")
-    second_page = client.get(f"/api/v1/employees?institute_id={institute_id}&limit=1&offset=1")
+    headers = _auth_headers(role="accueil", institute_id=institute_id)
+    first_page = client.get(f"/api/v1/employees?institute_id={institute_id}&limit=1&offset=0", headers=headers)
+    second_page = client.get(f"/api/v1/employees?institute_id={institute_id}&limit=1&offset=1", headers=headers)
 
     assert first_page.status_code == 200
     assert second_page.status_code == 200

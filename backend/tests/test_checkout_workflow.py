@@ -21,7 +21,10 @@ def _bootstrap_reference_data(client: TestClient) -> tuple[str, list[dict], list
 
     institutes = client.get("/api/v1/institutes").json()
     institute_id = institutes[0]["id"]
-    employees = client.get(f"/api/v1/employees?institute_id={institute_id}").json()
+    employees = client.get(
+        f"/api/v1/employees?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    ).json()
     services = client.get("/api/v1/services/catalog").json()
     return institute_id, employees, services
 
@@ -119,7 +122,10 @@ def test_payment_clears_stale_assignment_and_keeps_employee_available(client: Te
     assert payload["status"] == "paid"
     assert payload["assigned_employee_id"] is None
 
-    refreshed_employee = client.get(f"/api/v1/employees?institute_id={institute_id}").json()
+    refreshed_employee = client.get(
+        f"/api/v1/employees?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    ).json()
     employee = next(item for item in refreshed_employee if item["id"] == employee_id)
     assert employee["status"] == "available"
 

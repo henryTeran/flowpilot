@@ -33,7 +33,10 @@ def _bootstrap_reference_data(client: TestClient) -> tuple[str, list[dict], list
 
     institutes = client.get("/api/v1/institutes").json()
     institute_id = institutes[0]["id"]
-    employees = client.get(f"/api/v1/employees?institute_id={institute_id}").json()
+    employees = client.get(
+        f"/api/v1/employees?institute_id={institute_id}",
+        headers=_auth_headers(role="accueil", institute_id=institute_id),
+    ).json()
     services = client.get("/api/v1/services/catalog").json()
     return institute_id, employees, services
 
