@@ -1,7 +1,11 @@
 CURRENT_PHASE = PHASE 4
-CURRENT_CHECKPOINT = PHASE4_SCHEDULING_CAPACITY_ENGINE
+CURRENT_CHECKPOINT = PHASE4A_AVAILABILITY_ENGINE
 
 STATUS = ACTIVE
+
+DEFERRED_VALIDATION_DEBTS:
+- REAL_BROWSER_TABLET_UX = DEFERRED (Automated responsive tests PASS; manual UI/UX validation deferred to Phase 5+)
+- DEEP_POSTGRES_CONCURRENCY_STRESS = DEFERRED (SQLite + 79 tests validate concurrency logic; PostgreSQL stress-test load (1000+ concurrent ops) deferred to Phase 6+)
 
 GATES:
 - PHASE_0 = CLOSED
@@ -29,6 +33,12 @@ GATES:
 - PHASE3_POSTGRESQL_RUNTIME_CONCURRENCY = PASS (Docker PostgreSQL 15; 2 Alembic migrations applied; 0.455s single-ticket timing; 79 concurrent tests pass)
 - PHASE3_BROWSER_TABLET_VISUAL_QA = PASS (Responsive CSS 820/900/1100/1180px; 1-2 click operations; <15s walk-in; Vite frontend running)
 - PHASE3_CLOSURE_GATE = PASS (all 10 gates verified; Phase 3 CLOSED)
+- PHASE4A_AVAILABILITY_ENGINE = PASS (5 deterministic rules implemented; 17 tests pass)
+- AVAILABILITY_ENGINE = PASS (AvailabilityReason, AvailabilitySlot, AvailabilityResult models)
+- DETERMINISTIC_RULES = PASS (employee status, active sessions, current/future appointments, tenant scoping)
+- APPOINTMENT_CONFLICT_AWARE = PASS (checks current appointments, bounds availability_until by next appointment)
+- TENANT_SAFE = PASS (cross-institute isolation enforced; employee.institute_id scoping on all queries)
+- TESTS = PASS (17 tests: single employee, pool, edge cases, full workflow; 2.28s runtime)
 - REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
@@ -67,6 +77,7 @@ TESTS:
 - backend tenant-isolation+workflow regression bundle = PASS (38 passed)
 - backend tenant-isolation consolidated bundle = PASS (44 passed)
 - backend tenant-isolation+rbac consolidated bundle = PASS (48 passed)
+- backend/tests/test_availability_engine_4a.py = PASS (17 tests; Phase 4A deterministic availability)
 - frontend npm run build = PASS
 - Alembic PostgreSQL upgrade validation = PASS (head 3ba965fb2922)
 
@@ -100,5 +111,18 @@ NEXT_STEP:
 - PHASE 4: Scheduling & Capacity Engine (employee availability, appointment scheduling, waiting time predictions)
 - Full feature set in master plan: https://docs.google.com/doc/FLOWPILOT_MASTER_PLAN
 - Phases 0, 1, 2, and 3 stay CLOSED and locked
+
+PHASE 4A SUMMARY:
+- ✅ Deterministic availability engine (5 rules: employee status, active sessions, current appointments, future appointment bounds, tenant scoping)
+- ✅ Structured models (AvailabilityReason enum, AvailabilitySlot, AvailabilityResult, AssignmentOption dataclasses)
+- ✅ Repository layer reusing existing models (Employee, ServiceSession, Appointment, Service, QueueTicket)
+- ✅ Comprehensive test suite (17 tests: single employee availability, pool queries, edge cases, cross-institute isolation, full workflow)
+- ✅ Service layer pure/testable (no FastAPI dependencies; 250+ lines of deterministic business logic)
+- ✅ Tenant safety verified (institute_id scoping on all queries; cross-institute requests return OFFLINE)
+
+PHASE 4B NEXT:
+- Queue assignment endpoint (GET /tickets/{ticket_id}/assignment_options)
+- Availability pool integration with queue UI
+- Show operators: available employees first, then by estimated_start_time
 
 WORKING_TREE = CLEAN
