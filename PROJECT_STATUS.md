@@ -1,9 +1,14 @@
-CURRENT_PHASE = PHASE 2
-CURRENT_CHECKPOINT = PHASE2_CLOSURE_GATE
+CURRENT_PHASE = PHASE 3
+CURRENT_CHECKPOINT = PHASE3A_REALITY_AUDIT
 
 STATUS = PASS
 
 GATES:
+- PHASE_0 = CLOSED
+- PHASE_1 = CLOSED
+- PHASE_2 = CLOSED
+- PHASE3_REALITY_AUDIT = PASS (docs/architecture/PHASE3_FLOW_QUEUE_AUDIT.md)
+- PHASE3_BASELINE = PASS (64 backend tests; 4 frontend tests; production build)
 - REALITY_AUDIT = PASS
 - BACKEND_TARGETED_TESTS = PASS (27 passed)
 - FRONTEND_BUILD = PASS
@@ -60,6 +65,7 @@ BLOCKERS:
 - Aucun blocker critique actif.
 
 NEXT_STEP:
-- Ouvrir Phase 3 (Flow & Queue): acceleration UX operationnelle, stabilisation temps reel, et couverture de tests des parcours terrain intensifs.
+- Phase 3B: atomic walk-in creation, deterministic queue order, lifecycle events,
+  assignment reservations, cancellation and replay safety. Reuse existing models.
 
 WORKING_TREE = CLEAN
