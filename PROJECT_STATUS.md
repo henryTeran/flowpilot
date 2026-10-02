@@ -1,7 +1,7 @@
 CURRENT_PHASE = PHASE 2
-CURRENT_CHECKPOINT = PHASE2_TENANT_ISOLATION_BASELINE_D
+CURRENT_CHECKPOINT = PHASE2_CLOSURE_GATE
 
-STATUS = IN_PROGRESS
+STATUS = PASS
 
 GATES:
 - REALITY_AUDIT = PASS
@@ -22,6 +22,10 @@ GATES:
 - TENANT_ISOLATION_INSTITUTES = PASS
 - TENANT_ISOLATION_TICKETS_ID_ROUTES = PASS
 - TENANT_ISOLATION_PLANNING_ID_ROUTES = PASS
+- TENANT_ISOLATION_REALTIME_WS = PASS
+- SERVICE_WRITE_RBAC = PASS
+- DEV_ENDPOINT_ENV_GUARD = PASS
+- PHASE2_TENANT_ISOLATION_CLOSURE = PASS
 
 TESTS:
 - backend/tests/test_structured_logging_1d.py = PASS
@@ -37,6 +41,7 @@ TESTS:
 - backend tenant-isolation regression bundle = PASS (32 passed)
 - backend tenant-isolation+workflow regression bundle = PASS (38 passed)
 - backend tenant-isolation consolidated bundle = PASS (44 passed)
+- backend tenant-isolation+rbac consolidated bundle = PASS (48 passed)
 - frontend npm run build = PASS
 - Alembic PostgreSQL upgrade validation = PASS (head 3ba965fb2922)
 
@@ -49,11 +54,12 @@ LAST_COMMITS:
 - 6266fa7 chore(status): close phase 1 technical foundations
 - 8a60f43 feat(security): enforce tenant isolation on appointments and dashboard
 - dec71d0 feat(security): enforce tenant scope on employees endpoints
+- 1d0a96a feat(security): enforce tenant scope on institutes tickets and planning
 
 BLOCKERS:
-- Aucun blocker Phase 1: gate PostgreSQL/Alembic valide sur conteneur PostgreSQL jetable local (port 55432) avec `backend/.venv` et URL PostgreSQL explicite IPv4.
+- Aucun blocker critique actif.
 
 NEXT_STEP:
-- Finaliser l'audit Phase 2 des endpoints non critiques (dev/realtime/services globaux) et formaliser la politique d'exposition selon environnement avant cloture complete de la phase.
+- Ouvrir Phase 3 (Flow & Queue): acceleration UX operationnelle, stabilisation temps reel, et couverture de tests des parcours terrain intensifs.
 
 WORKING_TREE = CLEAN

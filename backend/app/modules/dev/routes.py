@@ -1,9 +1,10 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import hash_password
 from app.database.session import get_db
 from app.modules.appointments.models import Appointment
@@ -18,7 +19,13 @@ from app.shared.ids import new_id
 from app.shared.responses import ok
 from app.shared.time import utcnow
 
-router = APIRouter(prefix="/dev", tags=["dev"])
+
+def _require_local_like_env() -> None:
+    if not settings.is_local_like_env:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
+
+router = APIRouter(prefix="/dev", tags=["dev"], dependencies=[Depends(_require_local_like_env)])
 
 DEMO_INSTITUTE_ID = "demo-institute-geneve"
 

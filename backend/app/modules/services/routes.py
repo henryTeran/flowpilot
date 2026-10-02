@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.services.repository import list_categories, list_services
 from app.modules.services.schemas import ServiceCategoryRead, ServiceCreate, ServiceRead
@@ -28,5 +29,9 @@ def get_catalog(
 
 
 @router.post("", response_model=ServiceRead)
-def post_service(payload: ServiceCreate, db: Session = Depends(get_db)) -> ServiceRead:
+def post_service(
+    payload: ServiceCreate,
+    _: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> ServiceRead:
     return create_service(db, payload)

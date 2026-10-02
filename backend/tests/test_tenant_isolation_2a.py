@@ -183,3 +183,25 @@ def test_planning_finish_blocks_cross_institute_access(client):
         headers=_auth_headers(role="accueil", institute_id=f"other-{institute_id}"),
     )
     assert blocked_response.status_code == 403
+
+
+def test_service_creation_requires_manager_auth(client):
+    _bootstrap_reference_data(client)
+
+    payload = {
+        "category_id": "cat-epilation",
+        "name": "Service securise test",
+        "duration_min": 15,
+        "price_member": 12.0,
+        "price_passage": 18.0,
+    }
+
+    no_auth_response = client.post("/api/v1/services", json=payload)
+    assert no_auth_response.status_code == 403
+
+    unauthorized_role_response = client.post(
+        "/api/v1/services",
+        json=payload,
+        headers=_auth_headers(role="collaboratrice", institute_id=None),
+    )
+    assert unauthorized_role_response.status_code == 403
