@@ -31,6 +31,29 @@ ASSIGNABLE_EMPLOYEE_STATUSES = {"available"}
 PAYMENT_METHODS = {"cb", "especes", "cheque", "carte_cadeau", "mixte"}
 
 
+def attach_checkout_customer(db: Session, ticket_id: str, customer_id: str | None) -> QueueTicket:
+    from app.modules.customers.repository import require_customer
+    from app.modules.commerce.models import PackageRedemption
+
+    ticket = lock_ticket(db, ticket_id)
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Identification disponible uniquement avant le paiement en caisse")
+    if customer_id is not None:
+        require_customer(db, ticket.institute_id, customer_id)
+    if ticket.customer_id == customer_id:
+        return ticket
+    covered = db.scalar(select(PackageRedemption.id).join(
+        TicketLine, TicketLine.id == PackageRedemption.ticket_line_id,
+    ).where(TicketLine.ticket_id == ticket.id, PackageRedemption.reversed_at.is_(None)))
+    if covered:
+        raise business_error("Annuler l'utilisation du forfait avant de changer de cliente")
+    ticket.customer_id = customer_id
+    record_event(db, ticket, "queue.customer_changed", ticket.status)
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+
 def _ensure_aware(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)

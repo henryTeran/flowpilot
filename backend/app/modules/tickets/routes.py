@@ -20,6 +20,7 @@ from app.modules.tickets.schemas import (
     QueueEventRead,
     TicketAssign,
     TicketCheckoutStart,
+    TicketCustomerAttach,
     TicketCreate,
     TicketLineAdd,
     TicketLineRead,
@@ -27,6 +28,7 @@ from app.modules.tickets.schemas import (
 )
 from app.modules.tickets.service import (
     add_checkout_ticket_line,
+    attach_checkout_customer,
     assign_ticket,
     cancel_ticket,
     complete_payment,
@@ -242,6 +244,25 @@ def get_queue_events(
     return list(db.scalars(select(QueueEvent).where(
         QueueEvent.institute_id == ticket.institute_id, QueueEvent.ticket_id == ticket_id,
     ).order_by(QueueEvent.id).limit(pagination.limit).offset(pagination.offset)).all())
+
+
+@router.patch("/{ticket_id}/customer", response_model=QueueTicketRead)
+def patch_checkout_customer(
+    request: Request,
+    ticket_id: str,
+    payload: TicketCustomerAttach,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    ticket = get_ticket(db, ticket_id)
+    if ticket is None:
+        raise not_found("Ticket introuvable")
+    if current_user.get("institute_id") != ticket.institute_id:
+        raise HTTPException(status_code=403, detail="Institut non autorisé")
+    ticket = attach_checkout_customer(db, ticket_id, payload.customer_id)
+    log_audit_event(request=request, current_user=current_user,
+                    action="ticket.customer_changed", target_type="ticket", target_id=ticket_id)
+    return _read_ticket(db, ticket)
 
 
 @router.patch("/{ticket_id}/checkout/start", response_model=QueueTicketRead)

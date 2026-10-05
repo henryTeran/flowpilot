@@ -424,6 +424,58 @@ test("package wallet recovers a lost consumption response, blocks uncertain paym
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+test("checkout identifies an anonymous customer and keeps uncertain identity changes from payment", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken("identity-operator");
+  let reconciles = false;
+  let attached = false;
+  let patches = 0;
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", total_amount: 15 };
+  const customer = { id: "customer_checkout", display_name: "Selected checkout client", phone: null };
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    if (init?.method === "PATCH") {
+      patches++; assert.ok(path.endsWith("/tickets/ticket/customer"));
+      assert.deepEqual(JSON.parse(String(init.body)), { customer_id: customer.id });
+      attached = true; throw new Error("Lost identity response");
+    }
+    const value = path.includes("/customers/") ? path.endsWith(customer.id) ? customer : [customer] : [];
+    return new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", status: "available" };
+  const render = () => root.render(<CheckoutPanel ticket={ticket} services={[service]} employees={[employee]} cashierEmployee={employee}
+    selectedPaymentMethod="cb" onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => {}}
+    onPay={() => {}} onClose={() => {}} onRefresh={async () => {
+      if (!reconciles) return false;
+      if (attached) ticket.customer_id = customer.id;
+      render(); return true;
+    }} />);
+  try {
+    await act(async () => render());
+    await act(async () => button("Identifier la cliente").click());
+    await act(async () => {
+      const input = document.querySelector<HTMLInputElement>("input[type='search']")!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, "Selected");
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 250)); });
+    await act(async () => button(customer.display_name).click());
+    assert.equal(patches, 1);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost identity response/);
+    reconciles = true;
+    await act(async () => button("Actualiser le ticket").click());
+    assert.equal(patches, 1);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, false);
+    assert.match(document.body.textContent!, /Selected checkout client/);
+    assert.ok(button("Changer de cliente"));
+    await act(async () => { ticket.status = "paid"; render(); });
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Changer de cliente")), false);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));
   assert.ok(element, `Missing button: ${text}`);

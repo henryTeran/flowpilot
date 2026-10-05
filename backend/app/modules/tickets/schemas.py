@@ -29,6 +29,11 @@ class TicketCheckoutStart(BaseModel):
     employee_id: str
 
 
+class TicketCustomerAttach(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    customer_id: str | None = Field(min_length=1, max_length=80)
+
+
 class TicketPaymentComplete(BaseModel):
     employee_id: str
     payment_method: str = "cb"

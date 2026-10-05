@@ -132,3 +132,29 @@ response, uncertain-payment blocking, explicit recovery and pre-payment reversal
 This is JSDOM/component evidence; actual browser/tablet UX remains unverified.
 Package-plan configuration/issuance UI, anonymous-ticket customer attachment and
 the package sale/settlement flow remain open. PACKAGES is not yet fully closed.
+
+## Checkout-identity checkpoint 8E
+
+An anonymous arrival can now select or register a customer in checkout, then use
+that customer's package wallet. `PATCH /tickets/{id}/customer` accepts a registered
+customer in the authenticated operator's exact institute, or null for an anonymous
+passage. It requires ready-for-checkout/in-checkout status and acquires the same
+institute lock as consumption and payment. Changing the beneficiary is refused
+while any package coverage is active; reversal allows correction before payment.
+The original arrival fingerprint stays unchanged, so an arrival retry returns the
+current ticket rather than creating a second arrival. Actual care, employee, prices
+and historical redemption records remain unchanged. A transactional queue event
+and the existing request audit identify the change without logging contact details.
+
+Checkout disables payment and line changes during identity writes. A lost response
+triggers a full operational refresh; failed refresh keeps payment blocked until an
+explicit retry succeeds. Ticket/institute disposal and token changes prevent old
+completions from updating the new checkout. Historical line protections already
+observed by the panel survive a customer correction; server ledger guards remain
+authoritative after a fresh mount.
+
+Validation: HTTP scope/status/coverage/reversal/replay/rollback checks and real
+PostgreSQL beneficiary-versus-consumption and beneficiary-versus-payment races.
+JSDOM verifies anonymous selection, lost-response blocking and explicit recovery.
+Actual browser/tablet gates remain open. Package management/issuance UI and the
+sale/settlement flow still remain; this checkpoint does not close PACKAGES.

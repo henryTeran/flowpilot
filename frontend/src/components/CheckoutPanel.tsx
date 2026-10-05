@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Customer, Employee, PaymentMethod, QueueTicket, Service } from "../types";
 import { PackageWallet } from "./PackageWallet";
+import { CustomerPicker } from "./CustomerPicker";
+import { apiPatch } from "../api/client";
+import { getAccessToken } from "../api/session";
 
 interface CheckoutPanelProps {
   onRefresh?: () => Promise<boolean>;
@@ -45,7 +48,41 @@ export function CheckoutPanel({
   const [commerceBusy, setCommerceBusy] = useState(false);
   const [coveredLines, setCoveredLines] = useState<string[]>([]);
   const [historicalLines, setHistoricalLines] = useState<string[]>([]);
-  useEffect(() => { setCustomer(undefined); setCommerceBusy(false); setCoveredLines([]); setHistoricalLines([]); }, [ticket?.id, ticket?.customer_id]);
+  const [identifyOpen, setIdentifyOpen] = useState(false);
+  const [identityBusy, setIdentityBusy] = useState(false);
+  const [identityError, setIdentityError] = useState<string>();
+  const identityEpoch = useRef(0);
+  const identityPending = useRef(false);
+  useEffect(() => {
+    identityEpoch.current++; identityPending.current = false;
+    setIdentifyOpen(false); setIdentityBusy(false); setIdentityError(undefined);
+    return () => { identityEpoch.current++; };
+  }, [ticket?.id, ticket?.institute_id]);
+  useEffect(() => { setCoveredLines([]); setHistoricalLines([]); }, [ticket?.id]);
+  useEffect(() => { setCustomer(undefined); setCommerceBusy(false); }, [ticket?.id, ticket?.customer_id]);
+
+  async function identifyCustomer(value?: Customer, reconcileOnly = false) {
+    if (!ticket || !onRefresh || identityPending.current) return;
+    const epoch = identityEpoch.current;
+    const token = getAccessToken();
+    const current = () => epoch === identityEpoch.current && token === getAccessToken();
+    identityPending.current = true; setIdentityBusy(true); setIdentityError(undefined);
+    try {
+      if (!reconcileOnly) await apiPatch<QueueTicket>(`/tickets/${ticket.id}/customer`, { customer_id: value?.id ?? null });
+      if (!current()) return;
+      if (!await onRefresh()) throw new Error("Actualiser le ticket avant de payer");
+      if (!current()) return;
+      setIdentityBusy(false); setIdentifyOpen(false);
+    } catch (reason) {
+      if (!current()) return;
+      setIdentityError(reason instanceof Error ? reason.message : "Identification indisponible");
+      // A lost response may have committed. Keep payment locked until a complete server refresh.
+      try {
+        const refreshed = await onRefresh();
+        if (current() && refreshed) { setIdentityBusy(false); setIdentifyOpen(false); }
+      } catch { /* Explicit refresh remains available. */ }
+    } finally { if (current()) identityPending.current = false; }
+  }
 
   const orderedServices = useMemo(
     () => [...services].sort((a, b) => a.name.localeCompare(b.name, "fr")),
@@ -65,7 +102,7 @@ export function CheckoutPanel({
   const total = ticket.total_amount ?? ticketLines.reduce((sum, line) => sum + Number(line.total || 0), 0);
   const creator = employees.find((employee) => employee.id === ticket.created_by_id);
   const assigned = employees.find((employee) => employee.id === ticket.assigned_employee_id);
-  const canEditLines = !commerceBusy && ["ready_for_checkout", "in_checkout"].includes(ticket.status);
+  const canEditLines = !commerceBusy && !identityBusy && ["ready_for_checkout", "in_checkout"].includes(ticket.status);
 
   function handleAddService() {
     if (!serviceToAdd) return;
@@ -94,7 +131,7 @@ export function CheckoutPanel({
               type="button"
               className="bm-cash-top-secondary"
               onClick={() => onCancelTicket?.(ticket.id)}
-              disabled={!onCancelTicket || ticket.status === "paid" || commerceBusy || coveredLines.length > 0}
+              disabled={!onCancelTicket || ticket.status === "paid" || commerceBusy || identityBusy || coveredLines.length > 0}
             >
               Clore en annulation
             </button>
@@ -123,9 +160,19 @@ export function CheckoutPanel({
           </button>
         </section>
 
-        {ticket.customer_id && onRefresh && <PackageWallet key={`${ticket.institute_id}:${ticket.id}:${ticket.customer_id}`}
+        {onRefresh && canEditLines && coveredLines.length === 0 && <button type="button" onClick={() => setIdentifyOpen(value => !value)}>
+          {ticket.customer_id ? "Changer de cliente" : "Identifier la cliente"}
+        </button>}
+        {identifyOpen && !identityBusy && <CustomerPicker key={`${ticket.institute_id}:${ticket.id}`} instituteId={ticket.institute_id}
+          selected={customer} onSelect={value => { void identifyCustomer(value); }} />}
+        {identityError && <p role="alert">{identityError}</p>}
+        {identityBusy && <button type="button" onClick={() => { void identifyCustomer(undefined, true); }}>Actualiser le ticket</button>}
+        {ticket.customer_id && onRefresh && !identifyOpen && !identityBusy && <PackageWallet key={`${ticket.institute_id}:${ticket.id}:${ticket.customer_id}`}
           ticket={ticket} onRefresh={onRefresh} onBusy={setCommerceBusy} onCustomer={setCustomer}
-          onCoverage={(active, historical) => { setCoveredLines(active); setHistoricalLines(historical); }} />}
+          onCoverage={(active, historical) => {
+            setCoveredLines(active);
+            setHistoricalLines(previous => [...new Set([...previous, ...historical])]);
+          }} />}
         <section className="bm-cash-action-row">
           <button type="button">▦ Appliquer remise</button>
           <div className="bm-cash-add-service">
@@ -247,7 +294,7 @@ export function CheckoutPanel({
           />
         </label>
 
-        <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee || commerceBusy}>
+        <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee || commerceBusy || identityBusy}>
           Enregistrer le paiement
         </button>
 
