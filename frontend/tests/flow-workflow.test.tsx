@@ -1350,3 +1350,42 @@ test("reward configuration preserves explicit service, point cost and decimal re
     assert.match(document.body.textContent!, /Recompense configuree/);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
 });
+
+
+test("point correction preserves intent after lost response and incomplete ledger refresh across remount", async () => {
+  const { LoyaltyCorrection } = await import("../src/components/LoyaltyCorrection");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "correction-manager" }))}.signature`);
+  const bodies: any[] = [], paths: string[] = [];
+  let fresh = false, refreshes = 0;
+  globalThis.fetch = async (url, init) => {
+    paths.push(String(url)); bodies.push(JSON.parse(String(init?.body)));
+    if (bodies.length === 1) throw new Error("Lost correction response");
+    return new Response(JSON.stringify({ id: "entry" }), { headers: { "Content-Type": "application/json" } });
+  };
+  let root = createRoot(document.getElementById("root")!);
+  const refresh = async () => { refreshes++; return fresh; };
+  const render = () => root.render(<LoyaltyCorrection instituteId="inst" customerId="client" onChanged={refresh} />);
+  const button = (text: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === text)!;
+  try {
+    await act(async () => render());
+    await act(async () => [...document.querySelectorAll<HTMLInputElement>("input")].forEach((input, index) => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, ["-3", "Correction explicite"][index]);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }));
+    await act(async () => button("Enregistrer la correction").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost correction response/);
+    assert.equal(refreshes, 0);
+    await act(async () => button("Reessayer la correction conservee").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Actualiser le solde/);
+    await act(async () => root.unmount()); root = createRoot(document.getElementById("root")!);
+    await act(async () => render()); fresh = true;
+    await act(async () => button("Reessayer la correction conservee").click());
+    assert.deepEqual(bodies[0], bodies[1]); assert.deepEqual(bodies[0], bodies[2]);
+    assert.equal(bodies[0].points, -3); assert.equal(paths.every(path => path.endsWith("/customers/client/adjustments")), true);
+    assert.equal(sessionStorage.getItem("flowpilot.loyalty-correction:inst:client:correction-manager"), null);
+    assert.match(document.body.textContent!, /Correction enregistree/);
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil", sub: "reception" }))}.signature`);
+    await act(async () => render()); assert.equal(document.querySelector("button"), null);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
+});

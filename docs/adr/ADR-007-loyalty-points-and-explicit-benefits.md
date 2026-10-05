@@ -89,5 +89,10 @@ and decimal reduction per session in configured currency. Pending terms are
 whitelisted and preserved by institute/actor before sending. Replaying an existing
 intent remains possible when its service disappears from the active catalog; the
 API decides replay validity. Reception reads the catalog.
-Manual correction and checkout action UI plus
+Manual correction UI accepts strict signed nonzero integer changes with a reason.
+Its whitelisted intent is scoped to institute/customer/actor and retained across
+lost responses and remounts. It releases the intent only after the mutation and
+a fresh atomic customer snapshot succeed; failed refresh still requires same-key
+replay. Reception has no correction controls.
+Checkout action UI plus
 browser/tablet end-to-end verification remain required; production readiness is not inferred.

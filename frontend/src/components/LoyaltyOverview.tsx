@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { LoyaltyCorrection } from "./LoyaltyCorrection";
 import { apiGet } from "../api/client";
 import { getAccessToken } from "../api/session";
 import { readUtcDate } from "../api/dates";
@@ -20,7 +21,7 @@ export function LoyaltyOverview({ instituteId, customer }: { instituteId: string
   const scope = JSON.stringify([instituteId, customer?.id, token]);
   const facts = storedFacts?.scope === scope ? storedFacts : undefined;
   async function load() {
-    if (!customer) return;
+    if (!customer) return false;
     const generation = epoch.current, request = ++sequence.current;
     const current = () => generation === epoch.current && request === sequence.current && token === getAccessToken();
     setBusy(true); setFacts(undefined); setError(undefined);
@@ -32,9 +33,11 @@ export function LoyaltyOverview({ instituteId, customer }: { instituteId: string
           !Array.isArray(snapshot.entries) || !Array.isArray(snapshot.redemptions)) {
         throw new Error("Lecture de fidelite incomplete");
       }
-      if (current()) setFacts({ ...snapshot, scope });
+      if (!current()) return false;
+      setFacts({ ...snapshot, scope }); return true;
     } catch (reason) {
       if (current()) setError(reason instanceof Error ? reason.message : "Fidelite indisponible");
+      return false;
     } finally { if (current()) setBusy(false); }
   }
   useEffect(() => {
@@ -48,6 +51,7 @@ export function LoyaltyOverview({ instituteId, customer }: { instituteId: string
       <button type="button" disabled={busy} onClick={() => void load()}>Actualiser la fidelite</button>
       {busy && <p role="status">Chargement de la fidelite</p>}
       {error && <p role="alert">{error}</p>}
+      <LoyaltyCorrection instituteId={instituteId} customerId={customer.id} onChanged={load} />
       {facts && <>
         <p><strong>{facts.balance.points} points</strong></p>
         {facts.balance.tier ? <p>Niveau : {facts.balance.tier.name} ? {facts.balance.tier.benefit_description}</p> : <p>Aucun niveau atteint</p>}
