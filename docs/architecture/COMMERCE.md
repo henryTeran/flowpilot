@@ -422,3 +422,19 @@ state independently of caller keys. Late completions cannot refresh a newer tick
 release its mutation lease, or clear its payment latch. Tests prove these cases,
 including rejection of a foreign-ticket debit and an unrelated historical reversal.
 The next canonical Phase 8 domain is loyalty: points, levels, benefits and history.
+
+## Loyalty point foundation checkpoint 8Q
+
+The loyalty module exposes registered-customer balance/history, manager point
+corrections and explicit immutable balance-based tiers. All entries retain reason,
+signed actor and scoped replay key. The current balance is derived from the ledger;
+the institute lock prevents concurrent overdrafts and duplicate credits. Tiers have
+unique thresholds and declared benefit descriptions; no membership or legacy
+subscription marker creates a loyalty level. Corrections are not purchase earnings,
+and benefit descriptions do not apply discounts or grant an unstated reward.
+
+Migration e8ab23d0f358 adds the ledger/tiers and refuses nonempty downgrade. HTTP
+tests verify scope, strict integer inputs, immutable recovery, tier changes from
+balance corrections and rollback. PostgreSQL verifies competing debits and duplicate
+credit. ADR-007 records the remaining earning-policy, actual reward-application and
+UI work. Phase 8 LOYALTY remains in progress until all of those requirements pass.
