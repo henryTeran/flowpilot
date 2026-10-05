@@ -19,6 +19,8 @@ function Wallet({ ticket, blocked, excludedLines, beginMutation, onRefresh, onBu
   const storageKey = `flowpilot.loyalty-checkout:${encodeURIComponent(ticket.institute_id)}:${encodeURIComponent(ticket.id)}:${encodeURIComponent(ticket.customer_id || "")}:${encodeURIComponent(subject || "")}`;
   const [view, setView] = useState<View>(), [rewards, setRewards] = useState<Reward[]>([]), [intent, setIntent] = useState<Intent>();
   const [loaded, setLoaded] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
+  const ticketRef = useRef(ticket); ticketRef.current = ticket;
+  const catalogRef = useRef<Reward[]>([]);
   const factsRef = useRef<View | undefined>(undefined);
   const epoch = useRef(0), reads = useRef(0), pending = useRef(false);
   const callbacks = useRef({ onRefresh, onBusy, onCoverage }); callbacks.current = { onRefresh, onBusy, onCoverage };
@@ -30,12 +32,16 @@ function Wallet({ ticket, blocked, excludedLines, beginMutation, onRefresh, onBu
       throw reason;
     });
     if (!current() || request !== reads.current) return false;
-    if (snapshot && (snapshot.balance?.customer_id !== ticket.customer_id || !Number.isSafeInteger(snapshot.balance.points) || !Array.isArray(snapshot.redemptions))) throw new Error("Lecture de fidelite incomplete");
+    if (snapshot && (snapshot.balance?.customer_id !== ticket.customer_id || !Number.isSafeInteger(snapshot.balance.points) || snapshot.balance.points < 0 || snapshot.balance.points > 1e12 || !Array.isArray(snapshot.redemptions) || snapshot.redemptions.some(row => !row || typeof row.id !== "string" || !row.id || typeof row.ticket_line_id !== "string" || !row.ticket_line_id || !(row.reversed_at === null || (typeof row.reversed_at === "string" && row.reversed_at.length > 0))))) throw new Error("Lecture de fidelite incomplete");
     const catalog = snapshot ? await apiGet<Reward[]>(`${prefix}/rewards`) : [];
     if (!current() || request !== reads.current) return false;
-    if (!Array.isArray(catalog)) throw new Error("Recompenses indisponibles");
-    factsRef.current = snapshot; setView(snapshot); setRewards(catalog); setLoaded(true);
-    const facts = snapshot?.redemptions.filter(row => ticket.lines?.some(line => line.id === row.ticket_line_id)) || [];
+    if (!Array.isArray(catalog) || catalog.some(row => !row || typeof row.id !== "string" || !row.id || typeof row.name !== "string" || !row.name ||
+        typeof row.service_id !== "string" || !row.service_id || !["CHF", "EUR"].includes(row.currency) ||
+        !Number.isSafeInteger(row.points_cost) || row.points_cost <= 0 || row.points_cost > 1e9 ||
+        !Number.isSafeInteger(row.minimum_points) || row.minimum_points < 0 || row.minimum_points > 1e9 ||
+        typeof row.discount_amount !== "string" || !/^\d{1,8}(\.\d{1,2})?$/.test(row.discount_amount) || Number(row.discount_amount) <= 0)) throw new Error("Recompenses indisponibles");
+    catalogRef.current = catalog; factsRef.current = snapshot; setView(snapshot); setRewards(catalog); setLoaded(true);
+    const facts = snapshot?.redemptions.filter(row => ticketRef.current.lines?.some(line => line.id === row.ticket_line_id)) || [];
     callbacks.current.onCoverage(facts.filter(row => !row.reversed_at).map(row => row.ticket_line_id), facts.map(row => row.ticket_line_id));
     return true;
   }
@@ -51,7 +57,8 @@ function Wallet({ ticket, blocked, excludedLines, beginMutation, onRefresh, onBu
     } catch { setError("Recuperation de fidelite indisponible"); }
     void reload().then(ok => {
       if (!current() || !ok) return;
-      if (saved?.kind === "reverse" && !factsRef.current?.redemptions.some(row => row.id === saved?.id && row.ticket_line_id === saved?.line)) {
+      if ((saved?.kind === "reverse" && !factsRef.current?.redemptions.some(row => row.id === saved?.id && row.ticket_line_id === saved?.line)) ||
+          (saved?.kind === "apply" && !catalogRef.current.some(row => row.id === saved?.id))) {
         sessionStorage.removeItem(storageKey); setIntent(undefined); saved = undefined;
       }
       if (!saved) callbacks.current.onBusy(false);
@@ -62,7 +69,9 @@ function Wallet({ ticket, blocked, excludedLines, beginMutation, onRefresh, onBu
   useEffect(() => {
     if (!loaded || pending.current || intent) return;
     const current = capture();
-    void reload().catch(reason => { if (current()) { setError(String(reason)); callbacks.current.onBusy(true); } });
+    setLoaded(false); setView(undefined); setRewards([]); callbacks.current.onBusy(true);
+    void reload().then(ok => { if (current() && ok) callbacks.current.onBusy(false); })
+      .catch(reason => { if (current()) { setError(String(reason)); callbacks.current.onBusy(true); } });
   }, [ticket]);
   async function act(operation?: Intent) {
     if (pending.current || (operation && blocked && operation !== intent)) return;
@@ -71,6 +80,7 @@ function Wallet({ ticket, blocked, excludedLines, beginMutation, onRefresh, onBu
     let reconciled = false, known = !operation;
     try {
       if (operation) {
+        if (operation.kind === "apply" && !catalogRef.current.some(row => row.id === operation.id)) throw new Error("Recompense hors catalogue de cet institut");
         if (operation.kind === "reverse" && (!manager || !view?.redemptions.some(row => row.id === operation.id && row.ticket_line_id === operation.line))) throw new Error("Annulation hors historique du ticket");
         setIntent(operation); sessionStorage.setItem(storageKey, JSON.stringify(operation));
         await apiPost(operation.kind === "apply" ? `${prefix}/rewards/${encodeURIComponent(operation.id)}/apply` : `${prefix}/redemptions/${encodeURIComponent(operation.id)}/reverse`, operation.kind === "apply" ? { ticket_line_id: operation.line, idempotency_key: operation.key } : { reason: "Correction de recompense en caisse" });

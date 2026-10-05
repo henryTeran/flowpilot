@@ -1437,3 +1437,80 @@ test("checkout loyalty freezes uncertain pricing and recovers apply and manager 
     assert.deepEqual(coverage.at(-1), []); assert.match(document.body.textContent!, /30 points disponibles/);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
 });
+
+
+test("loyalty checkout drops foreign recovery and masks stale eligibility during failed external reads", async () => {
+  const { LoyaltyWallet } = await import("../src/components/LoyaltyWallet");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "audit-cashier" }))}.signature`);
+  const ticket = { ...assignmentTicket, status: "ready_for_checkout", currency: "CHF", customer_id: "client",
+    lines: [{ id: "line", service_id: "svc", quantity: 1, total: 10, unit_price: 10, performed_by_employee_id: "emp" }] } as QueueTicket;
+  const key = "flowpilot.loyalty-checkout:inst:ticket:client:audit-cashier";
+  let fail = false, malformed = false, posts = 0, blocked = false;
+  const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "POST") { posts++; assert.fail("Foreign recovery cannot submit"); }
+    if (String(url).endsWith("/snapshot")) {
+      if (fail) throw new Error("Snapshot unavailable");
+      return json({ balance: { customer_id: "client", points: 30 }, redemptions: malformed ? [null] : [] });
+    }
+    return json([{ id: "reward", name: "Reduction", service_id: "svc", currency: "CHF", points_cost: 10, minimum_points: 20, discount_amount: "2.50" }]);
+  };
+  let root: ReturnType<typeof createRoot> | undefined;
+  const render = async (value: QueueTicket) => act(async () => root!.render(<LoyaltyWallet ticket={value} blocked={false} excludedLines={[]}
+    beginMutation={() => () => {}} onRefresh={async () => true} onBusy={value => { blocked = value; }} onCoverage={() => {}} />));
+  try {
+    for (const kind of ["apply", "reverse"]) {
+      sessionStorage.setItem(key, JSON.stringify({ kind, id: "foreign", line: "line", key: "foreign-key", payload: { ticket_line_id: "foreign-line" } }));
+      root = createRoot(document.getElementById("root")!); await render(ticket);
+      assert.equal(posts, 0); assert.equal(blocked, false); assert.equal(sessionStorage.getItem(key), null);
+      assert.doesNotMatch(document.body.textContent!, /Reessayer la recompense conservee/);
+      if (kind === "reverse") {
+        fail = true; await render({ ...ticket, total_amount: 11 });
+        assert.equal(blocked, true); assert.match(document.body.textContent!, /Snapshot unavailable/);
+        assert.doesNotMatch(document.body.textContent!, /30 points disponibles|Utiliser Reduction/);
+        fail = false; malformed = true;
+        await act(async () => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === "Actualiser la fidelite en caisse")!.click());
+        assert.equal(blocked, true); assert.match(document.body.textContent!, /Lecture de fidelite incomplete/);
+      }
+      await act(async () => root!.unmount()); root = undefined;
+    }
+  } finally { if (root) await act(async () => root!.unmount()); globalThis.fetch = original; setAccessToken(null); sessionStorage.removeItem(key); }
+});
+
+
+test("late loyalty writer cannot refresh or release the commercial lease of a newer ticket", async () => {
+  const { LoyaltyWallet } = await import("../src/components/LoyaltyWallet");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "lease-audit" }))}.signature`);
+  const first = { ...assignmentTicket, status: "ready_for_checkout", currency: "CHF", customer_id: "client",
+    lines: [{ id: "line", service_id: "svc", quantity: 1, total: 10, unit_price: 10, performed_by_employee_id: "emp" }] } as QueueTicket;
+  const second = { ...first, id: "second", lines: [{ ...first.lines![0], id: "second-line" }] };
+  const resolvers: Array<(value: Response) => void> = [];
+  let writer: symbol | null = null, blocked = false, refreshes = 0;
+  globalThis.fetch = async (url, init) => {
+    const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+    if (init?.method === "POST") return await new Promise<Response>(resolve => resolvers.push(resolve));
+    if (String(url).endsWith("/snapshot")) return json({ balance: { customer_id: "client", points: 30 }, redemptions: [] });
+    return json([{ id: "reward", name: "Reduction", service_id: "svc", currency: "CHF", points_cost: 10, minimum_points: 20, discount_amount: "2.50" }]);
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const render = (ticket: QueueTicket) => root.render(<LoyaltyWallet ticket={ticket} blocked={false} excludedLines={[]} beginMutation={() => {
+    if (writer) return null; const lease = Symbol(); writer = lease; return () => { if (writer === lease) writer = null; };
+  }} onRefresh={async () => { refreshes++; return true; }} onBusy={value => { blocked = value; }} onCoverage={() => {}} />);
+  const use = () => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === "Utiliser Reduction : 10 points")!;
+  try {
+    await act(async () => render(first)); await act(async () => use().click());
+    writer = null; await act(async () => render(second)); await act(async () => use().click());
+    const newLease = writer;
+    await act(async () => resolvers[0](new Response("{}", { headers: { "Content-Type": "application/json" } })));
+    assert.equal(writer, newLease); assert.equal(blocked, true); assert.equal(refreshes, 0);
+    await act(async () => resolvers[1](new Response("{}", { headers: { "Content-Type": "application/json" } })));
+    assert.equal(writer, null); assert.equal(blocked, false); assert.equal(refreshes, 1);
+  } finally {
+    resolvers.forEach(resolve => resolve(new Response("{}", { headers: { "Content-Type": "application/json" } })));
+    await act(async () => root.unmount()); globalThis.fetch = original; setAccessToken(null);
+    sessionStorage.removeItem("flowpilot.loyalty-checkout:inst:ticket:client:lease-audit");
+    sessionStorage.removeItem("flowpilot.loyalty-checkout:inst:second:client:lease-audit");
+  }
+});

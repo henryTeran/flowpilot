@@ -104,3 +104,14 @@ followed by full operational refresh and loyalty reads. Current historical line 
 remain protected against removal. Original intent replay can proceed while another
 wallet holds a reconciliation latch, but never while its mutation lease is held.
 Interaction/recovery audit and browser/tablet end-to-end verification remain required; production readiness is not inferred.
+
+
+Checkout recovery audit: initial persisted apply IDs must occur in the scoped reward
+catalog; reversal IDs must occur in this ticket line's customer history before any
+POST. Payloads are reconstructed from whitelisted fields. Malformed balance,
+redemption or reward reads fail closed. External ticket reads clear stale eligibility
+and latch payment until a valid read returns; coverage filtering uses current ticket
+lines. Old context completion cannot refresh or release a newer commercial lease.
+Ticket-wide historical protection after beneficiary change/remount remains to be
+exposed in UI metadata; backend commercial-history removal guards already reject
+such deletion irrespective of the currently selected beneficiary.
