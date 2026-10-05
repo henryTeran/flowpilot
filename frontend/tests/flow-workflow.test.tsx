@@ -542,6 +542,67 @@ test("commerce manager recovers plan creation and customer grants with the origi
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+test("checkout currency confirmation keeps payment locked until operational refresh succeeds", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", currency: null, total_amount: 15, lines: [] };
+  let refreshSucceeds = false, confirmations = 0;
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PATCH") { confirmations++; assert.deepEqual(JSON.parse(String(init.body)), { currency: "EUR", reason: "Quote confirmation" }); throw new Error("Lost confirmation response"); }
+    return new Response(JSON.stringify({ currency: "EUR" }), { headers: { "Content-Type": "application/json" } });
+  };
+  const employee = { id: "emp", institute_id: "inst", first_name: "Test", status: "available" };
+  const props = { ticket, services: [service], employees: [employee], cashierEmployee: employee, selectedPaymentMethod: "cb" as const,
+    onPaymentMethodChange() {}, onAddService() {}, onRemoveLine() {}, onPay() {}, onClose() {},
+    async onRefresh() { return refreshSucceeds; } };
+  const root = createRoot(document.getElementById("root")!);
+  const pay = () => document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!;
+  try {
+    await act(async () => root.render(<CheckoutPanel {...props} />));
+    assert.equal(pay().disabled, false);
+    await act(async () => {
+      const input = document.querySelector<HTMLInputElement>("section[aria-label='Devise du ticket'] input")!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, "Quote confirmation");
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    await act(async () => button("Confirmer la devise EUR").click());
+    assert.equal(confirmations, 1); assert.equal(pay().disabled, true);
+    await act(async () => button("Actualiser la devise du ticket").click());
+    assert.equal(pay().disabled, true);
+    refreshSucceeds = true;
+    await act(async () => root.render(<CheckoutPanel {...props} ticket={{ ...ticket, currency: "EUR" }} />));
+    assert.equal(pay().disabled, true);
+    await act(async () => button("Actualiser la devise du ticket").click());
+    assert.equal(confirmations, 1); assert.equal(pay().disabled, false);
+    assert.equal(document.querySelector("section[aria-label='Devise du ticket']"), null);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
+});
+
+test("disposed currency confirmation cannot refresh or unlock another ticket", async () => {
+  const { CheckoutCurrency } = await import("../src/components/CheckoutCurrency");
+  const originalFetch = globalThis.fetch;
+  let finish!: (value: Response) => void, refreshes = 0;
+  const busy: boolean[] = [];
+  globalThis.fetch = async (url, init) => init?.method === "PATCH" ? new Promise(resolve => { finish = resolve; })
+    : new Response(JSON.stringify({ currency: "CHF" }), { headers: { "Content-Type": "application/json" } });
+  const root = createRoot(document.getElementById("root")!);
+  const props = { blocked: false, async onRefresh() { refreshes++; return true; }, onBusy(value: boolean) { busy.push(value); }, beginMutation() { return () => {}; } };
+  const ticket = { ...assignmentTicket, status: "ready_for_checkout", currency: null };
+  try {
+    await act(async () => root.render(<CheckoutCurrency {...props} ticket={ticket} />));
+    await act(async () => {
+      const input = document.querySelector("input")!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, "Confirmed quote");
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    await act(async () => button("Confirmer la devise CHF").click());
+    await act(async () => root.render(<CheckoutCurrency {...props} ticket={{ ...ticket, id: "another", currency: "EUR" }} />));
+    await act(async () => finish(new Response(JSON.stringify({ currency: "CHF" }), { headers: { "Content-Type": "application/json" } })));
+    assert.equal(refreshes, 0); assert.deepEqual(busy, [true]);
+    assert.equal(document.querySelector("section"), null);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
+});
+
 test("gift management configures explicit currency and recovers one issuance after a lost response", async () => {
   const { GiftCardManagement } = await import("../src/components/GiftCardManagement");
   const originalFetch = globalThis.fetch;

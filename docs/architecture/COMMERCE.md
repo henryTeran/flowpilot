@@ -370,3 +370,15 @@ operator has had the opportunity to transmit the code. Late writes/read response
 cannot expose an old institute's code in the new context. Network failure reading
 settings cannot enable issuance. Cashier confirmation and tender integration are
 the next scope; these checks are component-level, not browser/tablet visual proof.
+
+## Cashier currency confirmation checkpoint 8N
+
+Legacy unpaid checkout displays its missing invoice currency and offers an explicit
+confirmation against the institute configuration, with a mandatory reason. It does
+not infer a currency or relabel paid history. Existing unconfigured cash checkout
+remains available. The operation shares the package/member mutation lease and
+blocks payment, price/beneficiary changes and cancellation while uncertain. A lost
+response or incomplete operational refresh keeps the latch; explicit refresh must
+succeed before it releases payment, even if a partial read already supplied the
+currency. Disposed writes cannot refresh or unlock a different ticket. Gift lookup,
+debit/reversal and full/mixed payment controls remain the next UI scope.
