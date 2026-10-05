@@ -25,6 +25,14 @@ export async function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   });
 }
 
+export async function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) { super(message); this.name = "ApiError"; }
+}
+
 async function request<T>(path: string, options: RequestInit): Promise<T> {
   const headers = new Headers(options.headers);
   const token = getAccessToken();
@@ -37,7 +45,7 @@ async function request<T>(path: string, options: RequestInit): Promise<T> {
     const message = payload?.error?.message || (typeof payload === "object" && payload !== null && "detail" in payload
       ? JSON.stringify(payload.detail)
       : String(payload));
-    throw new Error(message || `Erreur API ${response.status}`);
+    throw new ApiError(message || `Erreur API ${response.status}`, response.status);
   }
 
   return payload as T;

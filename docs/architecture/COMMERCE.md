@@ -352,3 +352,21 @@ duplicate reversal and reversal-versus-payment serialization. HTTP checks cover
 role/institute boundaries, unknown/mismatched currency, expiry, rollback, price
 protection and full/mixed closure recovery. The gift-card gate remains open pending
 manager/cashier UI, actual browser/tablet checks and the remaining Phase 8 scope.
+
+## Gift-card management checkpoint 8M
+
+Offres now includes explicit manager currency configuration and bearer-card issuance
+with amount, validity and reason. French comma decimals are normalized without
+rounding. There is no guessed initial currency. Reception can read the configured
+unit but sees no grant/configuration forms; the server still enforces roles.
+Issuance is labeled as attributed credit, not a settled sale.
+
+A lost response freezes the issue terms and retries the same replay key. The
+pending intent is scoped in sessionStorage by institute and operator subject and
+survives a remount/context round-trip; it contains no bearer code or additional
+access token. A successful recovery obtains the code from the manager-only issue
+response. The next-card action explicitly clears that recovery intent after the
+operator has had the opportunity to transmit the code. Late writes/read responses
+cannot expose an old institute's code in the new context. Network failure reading
+settings cannot enable issuance. Cashier confirmation and tender integration are
+the next scope; these checks are component-level, not browser/tablet visual proof.

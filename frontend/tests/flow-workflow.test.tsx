@@ -542,6 +542,93 @@ test("commerce manager recovers plan creation and customer grants with the origi
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+test("gift management configures explicit currency and recovers one issuance after a lost response", async () => {
+  const { GiftCardManagement } = await import("../src/components/GiftCardManagement");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "gift-manager" }))}.signature`);
+  let currency: string | undefined;
+  const intents: any[] = [];
+  const reply = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { "Content-Type": "application/json" } });
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "PUT") { currency = JSON.parse(String(init.body)).currency; return reply({ currency }); }
+    if (init?.method === "POST") {
+      intents.push(JSON.parse(String(init.body)));
+      if (intents.length === 1) throw new Error("Lost issuance response");
+      return reply({ id: "gift", code: "secret-issued-code", initial_amount: "25.10", currency,
+        expires_at: "2027-10-05T10:00:00" });
+    }
+    return currency ? reply({ currency }) : reply({ detail: "Configurer la devise des cartes cadeaux pour cet institut" }, 400);
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const input = (index: number, value: string) => {
+    const field = document.querySelectorAll("input")[index];
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(field, value);
+    field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  };
+  try {
+    await act(async () => root.render(<GiftCardManagement instituteId="inst" />));
+    assert.equal(document.querySelector<HTMLSelectElement>("select")!.value, "");
+    assert.equal(button("Émettre la carte cadeau").disabled, true);
+    await act(async () => { const select = document.querySelector("select")!; select.value = "EUR"; select.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+    await act(async () => button("Enregistrer la devise").click());
+    assert.equal(currency, "EUR"); assert.match(document.body.textContent!, /Devise configurée : EUR/);
+    await act(async () => { input(0, "25,10"); input(2, "Attribution commerciale"); });
+    await act(async () => button("Émettre la carte cadeau").click());
+    assert.equal(intents.length, 1);
+    assert.equal(intents[0].amount, "25.10");
+    assert.equal(document.querySelector("input")!.closest("fieldset")!.disabled, true);
+    assert.equal(document.querySelector("textarea"), null);
+    assert.equal(JSON.parse(sessionStorage.getItem("flowpilot.gift-issue:inst:gift-manager")!).idempotency_key, intents[0].idempotency_key);
+    await act(async () => root.render(<GiftCardManagement key="recover-remount" instituteId="inst" />));
+    await act(async () => button("Récupérer cette émission").click());
+    assert.equal(intents.length, 2); assert.deepEqual(intents[0], intents[1]);
+    assert.ok(intents[0].idempotency_key);
+    assert.equal(document.querySelector<HTMLTextAreaElement>("textarea")!.value, "secret-issued-code");
+    assert.match(document.body.textContent!, /25.10 EUR/);
+    assert.equal(button("Émettre la carte cadeau").disabled, true);
+    await act(async () => button("Nouvelle carte cadeau").click());
+    assert.equal(document.querySelector("textarea"), null);
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil" }))}.signature`);
+    await act(async () => root.render(<GiftCardManagement key="reception" instituteId="inst" />));
+    assert.equal(document.querySelector("form"), null);
+    assert.match(document.body.textContent!, /réservées à la responsable/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("gift issuance cannot expose an old institute code after a context switch", async () => {
+  const { GiftCardManagement } = await import("../src/components/GiftCardManagement");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "gift-manager" }))}.signature`);
+  let finish!: (value: Response) => void;
+  const intents: any[] = [];
+  globalThis.fetch = async (url, init) => init?.method === "POST" ? new Promise(resolve => { intents.push(JSON.parse(String(init.body))); finish = resolve; })
+    : new Response(JSON.stringify({ currency: String(url).includes("/new/") ? "EUR" : "CHF" }), { headers: { "Content-Type": "application/json" } });
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await act(async () => root.render(<GiftCardManagement instituteId="old" />));
+    await act(async () => {
+      for (const [index, value] of [[0, "10"], [2, "Commercial grant"]] as const) {
+        const field = document.querySelectorAll("input")[index];
+        Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(field, value);
+        field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+      }
+    });
+    await act(async () => button("Émettre la carte cadeau").click());
+    await act(async () => root.render(<GiftCardManagement instituteId="new" />));
+    await act(async () => finish(new Response(JSON.stringify({ id: "old", code: "old-secret", initial_amount: "10", currency: "CHF", expires_at: "2027-10-05T10:00:00Z" }), { headers: { "Content-Type": "application/json" } })));
+    assert.match(document.body.textContent!, /Devise configurée : EUR/);
+    assert.equal(document.querySelector("textarea"), null);
+    assert.equal(document.querySelector("input")!.value, "");
+    await act(async () => root.render(<GiftCardManagement instituteId="old" />));
+    await act(async () => button("Récupérer cette émission").click());
+    assert.deepEqual(intents[0], intents[1]);
+    await act(async () => finish(new Response(JSON.stringify({ id: "old", code: "old-secret", initial_amount: "10", currency: "CHF", expires_at: "2027-10-05T10:00:00Z" }), { headers: { "Content-Type": "application/json" } })));
+    assert.equal(document.querySelector<HTMLTextAreaElement>("textarea")!.value, "old-secret");
+    assert.equal(sessionStorage.getItem("flowpilot.gift-issue:old:gift-manager")!.includes("old-secret"), false);
+    await act(async () => button("Nouvelle carte cadeau").click());
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
 test("membership management retries configuration, issue and renewal without changing their replay keys", async () => {
   const { MembershipManagement } = await import("../src/components/MembershipManagement");
   const originalFetch = globalThis.fetch;

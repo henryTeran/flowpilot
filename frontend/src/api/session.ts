@@ -16,3 +16,11 @@ export function getOperatorRole() {
     return typeof claims.role === "string" ? claims.role : undefined;
   } catch { return undefined; }
 }
+
+// Presentation/recovery scoping only; grants are authorized by the API.
+export function getOperatorSubject() {
+  try {
+    const claims = JSON.parse(atob((getAccessToken() || "").split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof claims.sub === "string" && claims.sub.trim() ? claims.sub : undefined;
+  } catch { return undefined; }
+}

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8L_GIFT_CARD_TENDERS
+CURRENT_CHECKPOINT = PHASE8M_GIFT_CARD_MANAGEMENT
 STATUS = ACTIVE
 
 GATES:
@@ -8,10 +8,11 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS issuance, currency, expiry, debit/reversal, remaining due and full/mixed closure implemented at API scope; management/cashier interface remains. LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS API and manager configuration/issuance UI implemented; cashier interface remains. LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Gift management component checks: explicit currency selection, French decimal input, same-intent lost-response recovery across remount, actor/institute-scoped session recovery, late old-institute response isolation and reception read-only presentation. No gift code or additional access token is persisted.
 - Full backend tender foundation: 218 passed, 40 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning. Final additional multi-card and distinct-invoice checks are included in the targeted runs below.
 - Gift tender final local checks: 6 passed, 3 opt-in races skipped. Final PostgreSQL gift/migration bundle: 11 passed; commercial benefit/customer regression bundle: 17 passed.
 - Migration d7fa12cfe247: PostgreSQL upgrade/check, SQLite/PostgreSQL round-trip/model parity and nonempty payment-history downgrade refusal passed. Races include two distinct invoices using one cached balance, duplicate debit/reversal and reversal-versus-closure.
@@ -38,7 +39,7 @@ EVIDENCE:
 - Package migrations: SQLite/PostgreSQL round-trip/model-parity bundle with package tests: 5 passed; PostgreSQL upgrade/check passed.
 - Package HTTP checks cover role/tenant, expiry, customer match, replay, failed-flush rollback, covered checkout pricing and payment recovery.
 - Live two-process PostgreSQL suite: 2 passed; each walk-in/booking action revision followed by reader-side REST checks.
-- Frontend: 34 tests and production build passed; membership configuration/grant/renewal retry, wallet serialization, uncertain-price blocking, disposed-context isolation, StrictMode reads and UTC date parity verified in JSDOM only.
+- Frontend: 36 tests and production build passed; gift management recovery plus membership configuration/grant/renewal retry, wallet serialization, uncertain-price blocking, disposed-context isolation, StrictMode reads and UTC date parity verified in JSDOM only.
 - Gate details: docs/architecture/RESOURCES_AND_SKILLS.md, HYBRID_BOOKING.md, REALTIME_OPERATIONS.md and COMMERCE.md.
 
 INVARIANTS:
@@ -60,15 +61,16 @@ INVARIANTS:
 BLOCKERS:
 - Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
 - Deep load, external settlement and production readiness remain unverified.
-- Currency-separated financial aggregation and cashier configuration/confirmation UI remain pending; legacy report totals do not establish comparable units.
+- Currency-separated financial aggregation and cashier confirmation/gift-tender UI remain pending; legacy report totals do not establish comparable units.
 
 NEXT_STEP:
-- PHASE8M: manager currency/card issuance and cashier confirmation/lookup/debit/reversal/full-mixed payment UI with safe reconciliation; then loyalty and remaining canonical phases.
+- PHASE8N: cashier currency confirmation, lookup/debit/reversal and full/mixed payment UI with safe reconciliation; then loyalty and remaining canonical phases.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(gift-cards): record transactional tenders and full or mixed checkout.
+- Current: feat(gift-cards): configure and issue credits with scoped recovery.
+- 31cd388 feat(gift-cards): record transactional tenders and full or mixed checkout.
 - 348674f feat(checkout): preserve invoice currency and protect catalog pricing.
 - 3b1fb52 feat(gift-cards): issue scoped credits with explicit currency and replay protection.
 - 03c5ff1 feat(memberships): manage rights and reconcile member pricing in checkout.
