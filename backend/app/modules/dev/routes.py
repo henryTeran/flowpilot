@@ -324,6 +324,12 @@ def create_demo_day(institute_id: str = DEMO_INSTITUTE_ID, db: Session = Depends
 
 
 def _reset_operational_data(db: Session, institute_id: str) -> None:
+    from app.modules.tickets.repository import lock_institute
+    lock_institute(db, institute_id)
+    from app.modules.commerce.models import PackageRedemption
+    from app.shared.exceptions import business_error
+    if db.scalar(select(PackageRedemption.id).where(PackageRedemption.institute_id == institute_id)):
+        raise business_error("Les consommations commerciales interdisent la reinitialisation de ces tickets")
     from app.modules.planning.models import SessionExtension
     from app.modules.resources.models import ResourceReservation
     db.execute(delete(ResourceReservation).where(ResourceReservation.institute_id == institute_id))

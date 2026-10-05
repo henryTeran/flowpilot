@@ -319,6 +319,11 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     if ticket.status not in {"waiting", "assigned", "ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être annulé dans son état actuel")
 
+    from app.modules.commerce.models import PackageRedemption
+    if db.scalar(select(PackageRedemption.id).join(TicketLine, PackageRedemption.ticket_line_id == TicketLine.id)
+                 .where(TicketLine.ticket_id == ticket.id)):
+        raise business_error("Annuler d'abord la consommation du forfait avant ce ticket")
+
     from app.modules.resources.reservations import release
     release(db, ticket.institute_id, ticket_id=ticket.id)
     transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
@@ -336,7 +341,7 @@ def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> Qu
     La collaboratrice ne sort pas de cabine pour modifier le ticket. Elle corrige
     le ticket juste avant d'encaisser.
     """
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -371,7 +376,7 @@ def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> Qu
 
 def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> QueueTicket:
     """Retire une prestation non réalisée avant le paiement."""
-    ticket = get_ticket(db, ticket_id)
+    ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
@@ -381,6 +386,10 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
     line = db.get(TicketLine, line_id)
     if not line or line.ticket_id != ticket.id:
         raise not_found("Ligne de prestation introuvable")
+
+    from app.modules.commerce.models import PackageRedemption
+    if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id)):
+        raise business_error("Cette prestation est couverte par un forfait et ne peut pas etre retiree")
 
     lines = _ticket_lines(db, ticket.id)
     if len(lines) <= 1:

@@ -1,71 +1,50 @@
-﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7H_LIVE_ACTION_RECALCULATION_VALIDATION
+CURRENT_PHASE = PHASE 8
+CURRENT_CHECKPOINT = PHASE8A_PACKAGE_BACKEND_LIFECYCLE
 STATUS = ACTIVE
 
 GATES:
 - Historical Phase 0-3 closures preserved.
-- Phase 4 functional checks = PASS at recorded scope; browser/tablet remains BLOCKED.
+- Phase 4 functional scope PASS; browser/tablet remains open.
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
-- Customer reservation scope is the canonical named-customer authenticated operator workflow; no public portal was specified or claimed.
-- PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION pass at authenticated two-process protocol scope; browser RECONNECT and TABLET_UX remain open.
+- PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
+- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle implemented; UI/reversal/customer binding remain. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Live two-process PostgreSQL suite: 2 passed, including walk-in/resource/extension/checkout and booking/arrival/no-show actions; each revision is followed by reader-side REST assertions.
-- Booking completion creates one linked checkout transactionally; replay, injected failure rollback and PostgreSQL competing finishes pass.
-- Backend full suite: 193 passed, 17 opt-in PostgreSQL cases skipped; PostgreSQL booking checkout/move bundle: 4 passed.
-- Migration a8c123f653be: SQLite/PostgreSQL parity/round-trips (2 passed), PostgreSQL upgrade/check passed.
-- Frontend: 23 tests and production build passed, including App booking finish-to-cashier-identification-to-checkout.
-- Frontend: 22 tests and production build passed; context changes suppress stale action results/errors and prevent assignment-to-start continuation in a previous institute.
-- Booking completed means treatment finished; payment is tracked by the linked checkout ticket. Legacy completed bookings are not rebilled.
-- Backend full suite: 192 passed, 16 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
-- Two-process loopback HTTP/WebSocket + PostgreSQL revision bundle: 2 passed; cross-worker delivery, tenant/rollback isolation and reconnect REST recovery verified.
-- Frontend: 20 tests and production build passed; an App integration test proves a delayed prior-institute response cannot overwrite the current board.
-- Refreshes accept only the newest request in the active institute/token context; institute changes clear operational selections and views.
-- Revision delivery checkpoint: backend 192 passed, 15 opt-in PostgreSQL cases skipped locally; PostgreSQL race bundle 14 passed.
-- Migration f7b012e542ad: upgrade/check and SQLite/PostgreSQL round-trip/model parity passed.
-- Revision transaction/rollback/replay checks passed; ASGI committed queue-to-WebSocket delivery and tenant scope checks passed.
-- PostgreSQL revision/migration bundle: 3 passed; atomic concurrent counter increments and schema parity passed.
-- Frontend: 18 tests and production build passed; reconnect, heartbeat timeout, resynchronization, stale socket and cleanup simulations pass.
-- WebSocket tenant/role and connection lifecycle bundle: 7 passed; these do not prove committed-change synchronization.
-- Backend full suite: 184 passed, 14 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
-- Phase 6 audit targeted checks: 5 passed; final overdue session/appointment creation/movement recovery: 2 passed.
-- PostgreSQL final booking/resource regression bundle: 12 passed (including competing moves, duplicate creation and cross-operation resource races).
-- Previous qualification race passed separately; these focused races are not a load test.
-- Booking migrations through e6a901df431c: SQLite/PostgreSQL round-trips, legacy preservation and metadata parity passed; PostgreSQL upgrade/check passed.
-- Frontend: 15 tests and production build passed; JSDOM is component evidence only.
-- Gate matrices: docs/architecture/RESOURCES_AND_SKILLS.md and HYBRID_BOOKING.md.
+- Full backend run: 195 passed, 19 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Final local package/checkout/revision regressions: 12 passed, 1 PostgreSQL case skipped.
+- PostgreSQL final package suite: 3 passed, including two preloaded stale balances competing for the last session.
+- PostgreSQL package/booking-move/revision regression bundle: 6 passed.
+- Package migrations: SQLite/PostgreSQL round-trip/model-parity bundle with package tests: 5 passed; PostgreSQL upgrade/check passed.
+- Package HTTP checks cover role/tenant, expiry, customer match, replay, failed-flush rollback, covered checkout pricing and payment recovery.
+- Live two-process PostgreSQL suite: 2 passed; each walk-in/booking action revision followed by reader-side REST checks.
+- Last frontend validation: 23 tests and production build passed; JSDOM is component evidence only.
+- Gate details: docs/architecture/RESOURCES_AND_SKILLS.md, HYBRID_BOOKING.md, REALTIME_OPERATIONS.md and COMMERCE.md.
 
 INVARIANTS:
-- Deterministic institute-scoped capacity; BASE/JV separation preserved.
-- Booking routes require exact operator tenant; configuration writes require manager.
-- Moves preserve old state on failure; booking/resource/history changes share a transaction.
-- Creation replay recovers one booking/resource/event; history omits contact/free-text data.
-- Overdue occupancy has unknown remaining duration and blocks creation/movement until resolved.
+- Deterministic institute-scoped business truth; BASE/JV separation preserved.
+- Booking/resource/history/checkout handoff is transactional; legacy finished bookings are not rebilled.
+- Package balance, price coverage and immutable redemption history share one transaction and institute lock.
+- Customer references follow existing ticket customer_id; CRM profiles and public self-service are not claimed.
+- Entitlement issuance does not claim a paid package sale or external payment settlement.
+- Demo reset cannot erase commercial redemption-linked tickets.
 
 BLOCKERS:
-- Browser/tablet validation unavailable: CUA apps=[] and browsers=[]. Independent development continues.
-- Deep load and production readiness remain unverified; no business decision blocks Phase 7.
+- Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
+- Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8A: implement Commerce package lifecycle, then memberships, gift cards and loyalty; browser/tablet gates remain open separately.
-- Phase numbering follows the detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); the condensed outline's Phase 8 Client 360 label is stale.
-- Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
-- Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
+- PHASE8B: package reversal and operator/customer/booking integration; then memberships, gift cards and loyalty.
+- Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
+- Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: test(operations): verify live actions and recalculation across servers.
+- Current: feat(commerce): add scoped package balances and checkout consumption.
+- b3d941d test(operations): verify live actions and recalculation across servers.
 - 16d0fcc feat(booking): hand completed reservations to checkout transactionally.
 - 3ff886c fix(operations): ignore action completions after institute changes.
 - 42c6654 test(realtime): prove delivery across live server processes.
-- c0fc188 fix(planning): discard stale operational refresh responses.
-- 28cdfc7 feat(realtime): notify planning clients of committed database revisions.
-- f4c1eb7 feat(realtime): reconnect planning clients and resynchronize after transport loss.
-- f1b968e fix(realtime): isolate scoped connections and tolerate closed transports.
-- 9ec32ce fix(booking): reject unknown overdue capacity and close functional booking gates.
-- 18bccd5 feat(booking): recover customer reservations after retried creation.
-- f00068c feat(booking): persist transactional booking change history.
 
 WORKING_TREE:
 - Checkpoint reviewed and committed; inspect git status before the next unit.
