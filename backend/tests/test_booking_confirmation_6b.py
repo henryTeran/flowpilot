@@ -18,12 +18,15 @@ def test_confirmation_replay_preserves_booked_interval_and_resource(client):
     assert client.patch(f"{prefix}/services/{services[0]['id']}/requirements", headers=manager,
                         json={"skills": [], "resources": [{"kind": "room"}]}).status_code == 200
     assert client.post(prefix, headers=manager, json={"name": "Room", "kind": "room"}).status_code == 200
-    created = client.post("/api/v1/appointments", headers=operator,
-                          json={"institute_id": institute, "service_id": services[0]["id"],
+    payload = {"institute_id": institute, "service_id": services[0]["id"],
                                 "employee_id": employees[0]["id"], "customer_name": "Test",
-                                "start_time": (utcnow() + timedelta(hours=1)).isoformat()})
+                                "start_time": (utcnow() + timedelta(hours=1)).isoformat(), "idempotency_key": "booking-intent"}
+    created = client.post("/api/v1/appointments", headers=operator, json=payload)
     assert created.status_code == 200
     appointment = created.json()
+    replay_created = client.post("/api/v1/appointments", headers=operator, json=payload)
+    assert replay_created.status_code == 200 and replay_created.json() == appointment
+    assert client.post("/api/v1/appointments", headers=operator, json={**payload, "customer_name": "Changed"}).status_code == 400
     path = f"/api/v1/appointments/{appointment['id']}/confirm"
     assert client.patch(path, headers=_auth_headers(institute_id="foreign")).status_code == 403
     first = client.patch(path, headers=operator)
@@ -42,4 +45,6 @@ def test_confirmation_replay_preserves_booked_interval_and_resource(client):
         assert all("customer_name" not in event.after and "phone" not in event.after for event in events)
     assert client.patch(f"/api/v1/appointments/{appointment['id']}/cancel", headers=operator).status_code == 200
     assert client.patch(path, headers=operator).status_code == 400
+    recovered = client.post("/api/v1/appointments", headers=operator, json=payload)
+    assert recovered.status_code == 200 and recovered.json()["status"] == "cancelled"
     assert client.patch("/api/v1/appointments/missing/confirm", headers=operator).status_code == 404

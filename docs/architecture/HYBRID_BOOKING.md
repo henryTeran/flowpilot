@@ -44,5 +44,16 @@ not duplicate events; rejected moves create none. Injected commit failure proves
 booking, resource interval and history rollback together. Migration d5f890ce320b
 creates an empty history table; it does not invent events for legacy appointments.
 
-Customer reservation and
-complete hybrid booking gate validation remain open.
+Named-customer reservations use the authenticated operator booking workflow. The
+canonical Phase 6 text does not specify a public self-service portal. The form sends
+a creation replay key and retains it after failure, replacing it for changed/new
+intent. Backend tenant/key uniqueness and a normalized creation fingerprint recover
+the existing booking without allocating another resource or writing another event.
+Changed facts with the same key reject; retries after lifecycle changes return the
+current booking. Authorization runs first. Optional keys preserve older callers.
+PostgreSQL simultaneous duplicate requests prove one booking/resource/event; client
+tests prove key retention after failure and replacement after success. Migration
+e6a901df431c preserves legacy rows and passes SQLite/PostgreSQL parity/round-trips.
+
+Complete hybrid booking gate audit remains open; public customer identity and a
+self-service portal are not claimed by this checkpoint.

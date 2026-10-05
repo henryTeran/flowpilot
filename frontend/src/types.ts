@@ -174,6 +174,7 @@ export interface Appointment {
 }
 
 export interface AppointmentCreatePayload {
+  idempotency_key?: string;
   institute_id: string;
   service_id: string;
   employee_id: string;

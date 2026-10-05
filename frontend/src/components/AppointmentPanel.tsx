@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Appointment, AppointmentAction, AppointmentCreatePayload, AppointmentUpdatePayload, Employee, Service } from "../types";
 
 interface AppointmentPanelProps {
@@ -38,6 +38,7 @@ export function AppointmentPanel({
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const creationIntent = useRef<{ facts: string; key: string } | null>(null);
 
   useEffect(() => { setEditingId(null); setFormError(null); setCustomerName(""); setPhone(""); }, [instituteId]);
 
@@ -101,7 +102,12 @@ export function AppointmentPanel({
         const { institute_id, ...changes } = payload;
         await onUpdateAppointment(editingId, changes);
       } else {
-        await onCreateAppointment(payload);
+        const facts = JSON.stringify(payload);
+        if (creationIntent.current?.facts !== facts) {
+          creationIntent.current = { facts, key: crypto.randomUUID() };
+        }
+        await onCreateAppointment({ ...payload, idempotency_key: creationIntent.current.key });
+        creationIntent.current = null;
       }
       setEditingId(null);
       setCustomerName("");

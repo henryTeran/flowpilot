@@ -56,6 +56,34 @@ test("booking editor retries failed movement and exposes confirmation only for s
   } finally { await act(async () => root.unmount()); }
 });
 
+test("booking creation retains its replay key after failure", async () => {
+  const root = createRoot(document.getElementById("root")!);
+  const keys: string[] = [];
+  const props = { instituteId: "inst", employees: [{ id: "emp", institute_id: "inst", first_name: "Test", status: "available" }],
+    services: [service], appointments: [], async onCreateAppointment(payload: any) {
+      keys.push(payload.idempotency_key);
+      if (keys.length === 1) throw new Error("Lost response");
+    }, async onAppointmentAction() {} };
+  const enterName = async () => act(async () => {
+    const input = document.querySelector<HTMLInputElement>('input[placeholder="Ex. Mme Dupont"]')!;
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, "Test client");
+    input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  });
+  const create = () => [...document.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === "Créer RDV")!;
+  try {
+    await act(async () => root.render(<AppointmentPanel {...props} />));
+    await enterName();
+    await act(async () => create().click());
+    await act(async () => create().click());
+    assert.equal(keys.length, 2);
+    assert.ok(keys[0]);
+    assert.equal(keys[0], keys[1]);
+    await enterName();
+    await act(async () => create().click());
+    assert.notEqual(keys[2], keys[1]);
+  } finally { await act(async () => root.unmount()); }
+});
+
 test("queue actions use duration-aware feasibility, fail closed while loading, and offer retry", async () => {
   const root = createRoot(document.getElementById("root")!);
   let retries = 0;

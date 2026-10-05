@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+import json
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -109,6 +111,21 @@ def list_today_appointments(db: Session, institute_id: str) -> list[Appointment]
 
 def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None) -> Appointment:
     lock_institute(db, payload.institute_id)
+    if len(payload.customer_name.strip()) < 2:
+        raise business_error("Le nom de la cliente est requis")
+    facts = payload.model_dump(exclude={"idempotency_key"})
+    facts["start_time"] = _ensure_aware(payload.start_time).astimezone(timezone.utc).isoformat()
+    for key in ("customer_name", "phone", "notes"):
+        if isinstance(facts.get(key), str):
+            facts[key] = facts[key].strip()
+    fingerprint = sha256(json.dumps(facts, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    if payload.idempotency_key:
+        existing = db.scalar(select(Appointment).where(Appointment.institute_id == payload.institute_id,
+                                                       Appointment.idempotency_key == payload.idempotency_key))
+        if existing:
+            if existing.creation_fingerprint != fingerprint:
+                raise business_error("La cle de rejeu appartient a une autre reservation")
+            return existing
     service = get_service(db, payload.service_id)
     if not service:
         raise not_found("Prestation introuvable")
@@ -173,6 +190,8 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
 
     appointment = Appointment(
         id=new_id("appt"),
+        idempotency_key=payload.idempotency_key,
+        creation_fingerprint=fingerprint,
         institute_id=payload.institute_id,
         service_id=payload.service_id,
         employee_id=payload.employee_id,

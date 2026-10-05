@@ -11,6 +11,7 @@ class AppointmentCreate(BaseModel):
     phone: str | None = Field(default=None, max_length=40)
     start_time: datetime
     notes: str | None = Field(default=None, max_length=500)
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=120, pattern=r".*\S.*")
 
 
 class AppointmentUpdateStatus(BaseModel):

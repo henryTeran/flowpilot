@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 6
-CURRENT_CHECKPOINT = PHASE6E_DURABLE_BOOKING_HISTORY
+CURRENT_CHECKPOINT = PHASE6F_CUSTOMER_RESERVATION_REPLAY
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,13 @@ GATES:
 - SKILL_MATCHING = PASS (all ticket services; assignment/start/booking; commitment-safe configuration).
 - RESOURCE_CONFLICT = PASS (shared institute serialization; three actual resource races; failure rollback).
 - PHASE5 = CLOSED for canonical functional gates; load and browser proof are separate, unverified gates.
-- PHASE6 = IN_PROGRESS (safe move/modification, operator controls and durable history present; customer reservation remains).
+- PHASE6 = IN_PROGRESS (named-customer reservation, safe move/modification, operator controls and durable history present; final gate audit remains).
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Reservation replay checkpoint: full backend 182 passed, 14 skipped; PostgreSQL regression races 11 passed plus booking duplicate/move races 2 passed.
+- Customer booking creation recovery and lifecycle passed; client key retry tests: frontend 15 passed and build passed.
+- PostgreSQL duplicate booking/move races: 2 passed; migration round-trip/parity: 2 passed; upgrade/check passed.
 - History checkpoint full backend: 182 passed, 13 skipped; final targeted fault test passed.
 - Booking history lifecycle/migration: 7 passed, 1 PostgreSQL case skipped locally; final move fault injection: 2 passed.
 - PostgreSQL migration and move race: 3 passed; upgrade/check passed for d5f890ce320b.
@@ -47,11 +50,13 @@ BLOCKERS:
 - Deep load and production readiness are unverified; no business decision blocks Phase 6.
 
 NEXT_STEP:
-- PHASE6F: customer reservation and hybrid booking gate audit; durable transactional change history now implemented.
+- PHASE6G: hybrid booking gate audit; named-customer operator reservations now recoverable via durable replay keys.
+- The canonical plan does not specify a public customer portal; reservation evidence covers the authenticated operator workflow.
 - Validate coexistence with assigned walk-ins and resource reservations under the institute lock.
 
 LAST_COMMITS:
-- Current: feat(booking): persist transactional booking change history.
+- Current: feat(booking): recover customer reservations after retried creation.
+- f00068c feat(booking): persist transactional booking change history.
 - 77a99a9 feat(booking): expose appointment editing and confirmation controls.
 - fe66101 feat(booking): move appointments with atomic capacity revalidation.
 - a1e262f feat(booking): confirm appointments without duplicating reservations.
