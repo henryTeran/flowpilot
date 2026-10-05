@@ -42,6 +42,8 @@ def attach_checkout_customer(db: Session, ticket_id: str, customer_id: str | Non
         require_customer(db, ticket.institute_id, customer_id)
     if ticket.customer_id == customer_id:
         return ticket
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     covered = db.scalar(select(PackageRedemption.id).join(
         TicketLine, TicketLine.id == PackageRedemption.ticket_line_id,
     ).where(TicketLine.ticket_id == ticket.id, PackageRedemption.reversed_at.is_(None)))
@@ -364,6 +366,8 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
                  .where(TicketLine.ticket_id == ticket.id, MembershipBenefit.reversed_at.is_(None))):
         raise business_error("Annuler d'abord l'avantage membre avant ce ticket")
 
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     from app.modules.resources.reservations import release
     release(db, ticket.institute_id, ticket_id=ticket.id)
     transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
@@ -383,6 +387,8 @@ def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> Qu
     """
     ticket = lock_ticket(db, ticket_id)
     from app.modules.tickets.currency import require_current_catalog_currency
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     require_current_catalog_currency(db, ticket)
     if not ticket:
         raise not_found("Ticket introuvable")
@@ -426,6 +432,8 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
         raise business_error("Les prestations se modifient uniquement à l'encaissement")
 
     line = db.get(TicketLine, line_id)
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     if not line or line.ticket_id != ticket.id:
         raise not_found("Ligne de prestation introuvable")
 
@@ -480,7 +488,8 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
     return save_ticket(db, ticket)
 
 
-def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_method: str) -> QueueTicket:
+def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_method: str,
+                     remainder_method: str | None = None, actor: str | None = None) -> QueueTicket:
     ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
@@ -496,16 +505,18 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
 
     if (ticket.status == "paid" and ticket.paid_employee_id == employee.id
             and ticket.payment_method == payment_method):
+        from app.modules.gift_cards.tenders import validate_paid_replay
+        validate_paid_replay(db, ticket, remainder_method)
         return ticket
-
-    if payment_method in {"carte_cadeau", "mixte"}:
-        raise business_error("Un paiement carte cadeau enregistre est requis pour ce mode")
 
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être payé dans son état actuel")
 
     if ticket.checkout_employee_id and ticket.checkout_employee_id != employee.id:
         raise business_error("La collaboratrice identifiée en caisse doit valider le paiement")
+
+    from app.modules.gift_cards.tenders import validate_payment
+    validate_payment(db, ticket, payment_method, remainder_method, actor)
 
     # Filet de sécurité : si une ligne n'a pas encore d'exécutante, on l'attribue
     # à la collaboratrice qui encaisse. Dans le flux normal, elle est déjà remplie

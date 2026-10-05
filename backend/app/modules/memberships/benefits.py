@@ -21,6 +21,8 @@ def checkout_line(db, institute, line_id):
     db.refresh(line)
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Avantage modifiable uniquement avant le paiement en caisse")
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     return ticket, line
 
 

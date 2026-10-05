@@ -104,6 +104,8 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
         raise not_found("Ligne de caisse introuvable")
     db.refresh(ticket)
     db.refresh(line)
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     if ticket.customer_id != package.customer_id or line.service_id != package.service_id:
         raise business_error("La cliente et la prestation doivent correspondre au forfait")
     if ticket.status not in {"ready_for_checkout", "in_checkout"} or not line.performed_by_employee_id:
@@ -155,6 +157,8 @@ def reverse_package_consumption(db: Session, institute, identifier, reason, acto
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Annulation du forfait impossible apres paiement ou annulation du ticket")
     package = scoped_package(db, institute, redemption.package_id)
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
     db.refresh(package)
     if package.consumed < redemption.sessions:
         raise business_error("Solde commercial incoherent")

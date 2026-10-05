@@ -334,6 +334,9 @@ def _reset_operational_data(db: Session, institute_id: str) -> None:
     if db.scalar(select(MembershipBenefit.id).where(MembershipBenefit.institute_id == institute_id)):
         raise business_error("L'historique des avantages interdit la reinitialisation de ces tickets")
     from app.modules.planning.models import SessionExtension
+    from app.modules.gift_cards.models import GiftCardAllocation
+    if db.scalar(select(GiftCardAllocation.id).where(GiftCardAllocation.institute_id == institute_id)):
+        raise business_error("L'historique des paiements cadeaux interdit la reinitialisation de ces tickets")
     from app.modules.resources.models import ResourceReservation
     db.execute(delete(ResourceReservation).where(ResourceReservation.institute_id == institute_id))
     db.execute(delete(SessionExtension).where(SessionExtension.institute_id == institute_id))

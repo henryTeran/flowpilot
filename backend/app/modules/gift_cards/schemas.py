@@ -49,3 +49,41 @@ class GiftCardRead(BaseModel):
 
 class GiftCardIssueRead(GiftCardRead):
     code: str
+
+
+class AllocationCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ticket_id: Identifier
+    amount: Decimal = Field(gt=0, max_digits=10, decimal_places=2, le=Decimal("99999999.99"))
+    idempotency_key: ReplayKey
+
+
+class AllocationReverse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=240)]
+
+
+class AllocationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    institute_id: str
+    card_id: str
+    ticket_id: str
+    currency: Currency
+    amount: Decimal
+    occurred_at: datetime
+    actor_id: str
+    reversed_at: datetime | None
+    reversed_by: str | None
+    reversal_reason: str | None
+
+
+class TenderRead(BaseModel):
+    ticket_id: str
+    currency: Currency | None
+    total: Decimal
+    gift_amount: Decimal
+    remainder_amount: Decimal
+    remainder_method: str | None
+    remaining_due: Decimal
+    allocations: list[AllocationRead]

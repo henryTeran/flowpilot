@@ -42,8 +42,10 @@ class TicketCurrencyConfirm(BaseModel):
 
 
 class TicketPaymentComplete(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     employee_id: str
     payment_method: str = "cb"
+    remainder_method: Literal["cb", "especes", "cheque"] | None = None
 
 
 class TicketLineAdd(BaseModel):

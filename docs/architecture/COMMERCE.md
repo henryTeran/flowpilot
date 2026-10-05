@@ -316,3 +316,39 @@ historical same-intent paid-ticket recovery stays compatible. ADR-006 documents 
 separation between credit issuance, service revenue and future payment allocation.
 This checkpoint does not close GIFTCARDS: currency-bearing checkout facts, debit/
 allocation/reversal, remaining due and management/cashier interface remain next.
+
+## Gift-card tender checkpoint 8L
+
+Tickets now snapshot explicitly configured currency on walk-in creation and booking
+completion; unpaid legacy checkout may be confirmed with a reason and signed actor.
+Unknown paid history cannot be reinterpreted. New catalog additions/member prices
+require a matching confirmed unit when configuration exists (checkpoint 8K).
+
+An operator may allocate an explicit decimal-cent amount from a scoped, unexpired
+card to a scoped unpaid checkout in the same currency. The institute lock serializes
+balance checks, remaining due, debit, immutable allocation and operational event in
+one transaction. Service prices, duration, performers and revenue remain unchanged.
+The replay key belongs to card/ticket/amount; same intent returns the original fact
+even after reversal or payment. A new allocation requires a new key. Multiple cards
+may contribute up to the invoice total without allowing an overdraft or overpayment.
+
+Manager reversal before closure restores the exact recorded credit once, preserves
+expiry and records reason/actor/time. An expired card regains recorded balance but
+has no usable credit. Replaying an older reversal cannot refund a newer allocation.
+Active gift tenders freeze beneficiary, prices, package/member coverage and ticket
+cancellation until reversed. Any allocation history prevents destructive demo reset.
+
+Full gift closure requires a recorded gift amount equal to the invoice. Mixed
+closure requires a positive remainder and an explicit cb/especes/cheque method;
+both amounts and the signed actor are snapshotted atomically with the paid ticket.
+The tender read exposes the remaining due after recorded closure. Changing the
+remainder method on paid replay fails; historical unbacked gift labels keep their
+original recovery semantics. Cashier confirmation does not establish external
+provider settlement. Post-payment gift refunds require a later refund workflow.
+
+Migration d7fa12cfe247 refuses any nonempty tender-history downgrade before DDL.
+Real PostgreSQL tests exercise stale cached balance competition, duplicate debit,
+duplicate reversal and reversal-versus-payment serialization. HTTP checks cover
+role/institute boundaries, unknown/mismatched currency, expiry, rollback, price
+protection and full/mixed closure recovery. The gift-card gate remains open pending
+manager/cashier UI, actual browser/tablet checks and the remaining Phase 8 scope.

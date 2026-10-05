@@ -335,7 +335,12 @@ def patch_complete_payment(
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     _require_ticket_access(ticket_id, current_user, db)
-    ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method)
+    if payload.payment_method in {"carte_cadeau", "mixte"}:
+        ticket = get_ticket(db, ticket_id)
+        if current_user.get("institute_id") != ticket.institute_id:
+            raise HTTPException(403, "Institut non autorise")
+    ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method,
+                              payload.remainder_method, current_user.get("sub"))
     log_audit_event(
         request=request,
         current_user=current_user,

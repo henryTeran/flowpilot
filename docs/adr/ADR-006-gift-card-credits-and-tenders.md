@@ -23,7 +23,7 @@ Those labels alone cannot establish that stored value paid an invoice.
 - Codes use cryptographically random tokens. Only manager issuance/replay returns
   the code; operator lookup accepts it in a POST body and does not echo it. Codes
   must not be added to URLs, request audit metadata or ordinary list responses.
-- Future redemption must record a currency-matched payment allocation, preserve
+- Redemption records a currency-matched payment allocation, preserves
   service prices/revenue and serialize debit, replay and reversal with checkout.
   Expiry disables usable credit without erasing recorded balance/history.
 - New walk-in and completed-booking tickets snapshot the configured currency in
@@ -34,15 +34,19 @@ Those labels alone cannot establish that stored value paid an invoice.
   ticket currency once configuration exists. A configuration change cannot
   rewrite an earlier ticket or convert its service prices. Original-price
   reversals remain historical corrections, not new catalog quotes.
-- Until that allocation exists, refuse new checkout closure with gift/mixed
-  labels. Preserve same-intent recovery for already recorded historical paid
+- Refuse gift/mixed closure without an active recorded allocation. Full gift
+  closure requires zero remaining due; mixed closure requires a positive remainder
+  and its explicitly confirmed cash/card/cheque method. Snapshot both amounts,
+  currency and signed actor in the same transaction as ticket closure. This is
+  internal cashier confirmation, not proof of external provider settlement.
+  Preserve same-intent recovery for already recorded historical paid
   tickets, without retroactively asserting that their payment was backed.
 
 ## Consequences and remaining work
 
 Issuance/lookup is an API foundation, not the full gift-card gate. Currency-bearing
-checkout facts are implemented at API scope; allocation/debit/reversal, remaining
-due, manager/cashier configuration and confirmation interface
+checkout facts, allocation/debit/reversal, gift/mixed closure and remaining due
+are implemented at API scope. Manager/cashier configuration and confirmation interface
 and payment-provider settlement still require implementation and verification.
 Financial reports still require currency-separated aggregation before reporting
 mixed or unknown historical units; existing untyped totals are not an FX report.
