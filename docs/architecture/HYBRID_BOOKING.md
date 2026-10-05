@@ -76,3 +76,27 @@ reservation workflow. A public self-service portal is not specified or claimed.
 Real browser/tablet UX and load validation remain separate open gates; Phase 7 must
 verify real-time synchronization and reconnection rather than infer them from these
 transaction tests.
+
+## Phase 7 booking checkout handoff
+
+Completing an arrived/in-progress booking creates one ready-for-checkout ticket
+and one performed service line in the same transaction as execution facts, resource
+release, employee status and booking history. The caller holds the institute lock;
+the checkout primitive neither commits nor adds a waiting/capacity commitment.
+`checkout_ticket_id` is a durable nullable foreign key with uniqueness. Repeating
+completion returns the existing linked booking, including after its ticket is paid.
+History records the link without names, phones or notes.
+
+The line preserves the booking's planned duration and performing employee; its
+passage price is read from the catalog at checkout preparation, as no booking price
+snapshot existed previously. The cashier is independently attributed by checkout.
+Commercial benefits/pricing and external settlement remain Phase 8/9 work. The
+App's finish action refreshes and opens this ticket, requesting cashier identity
+when necessary. Legacy finished bookings remain unlinked and are not rebilled.
+
+Migration a8c123f653be passes SQLite/PostgreSQL round-trips and model parity;
+PostgreSQL upgrade/check passes. Full local backend suite: 193 passed, 17 opt-in
+PostgreSQL cases skipped. Booking checkout/move PostgreSQL bundle: four passed,
+including competing finishes and failure after checkout flush. Frontend: 23 tests
+and production build pass, including App finish-to-checkout identification. These
+are protocol/component tests; actual browser/tablet validation remains open.

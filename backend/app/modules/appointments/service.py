@@ -390,6 +390,9 @@ def complete_appointment(db: Session, appointment_id: str, actor_id: str | None 
     db.refresh(appointment)
     before = snapshot(appointment)
 
+    if appointment.status == "completed" and appointment.checkout_ticket_id:
+        return appointment
+
     if appointment.status not in {"arrived", "in_progress"}:
         raise business_error("Seul un rendez-vous arrivé ou en cours peut être terminé")
 
@@ -397,6 +400,8 @@ def complete_appointment(db: Session, appointment_id: str, actor_id: str | None 
     release(db, appointment.institute_id, appointment_id=appointment.id)
     appointment.actual_end_time = utcnow()
     appointment.status = "completed"
+    from app.modules.tickets.service import prepare_booking_checkout
+    appointment.checkout_ticket_id = prepare_booking_checkout(db, appointment).id
     employee = get_employee(db, appointment.employee_id)
     if employee:
         _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)

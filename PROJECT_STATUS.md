@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7F_ACTION_CONTEXT_AND_LIVE_BOARD_AUDIT
+CURRENT_CHECKPOINT = PHASE7G_BOOKING_CHECKOUT_HANDOFF
 STATUS = ACTIVE
 
 GATES:
@@ -12,8 +12,12 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Booking completion creates one linked checkout transactionally; replay, injected failure rollback and PostgreSQL competing finishes pass.
+- Backend full suite: 193 passed, 17 opt-in PostgreSQL cases skipped; PostgreSQL booking checkout/move bundle: 4 passed.
+- Migration a8c123f653be: SQLite/PostgreSQL parity/round-trips (2 passed), PostgreSQL upgrade/check passed.
+- Frontend: 23 tests and production build passed, including App booking finish-to-cashier-identification-to-checkout.
 - Frontend: 22 tests and production build passed; context changes suppress stale action results/errors and prevent assignment-to-start continuation in a previous institute.
-- Live-board audit identifies missing booking-to-checkout handoff; appointment completed currently means treatment finished, not paid.
+- Booking completed means treatment finished; payment is tracked by the linked checkout ticket. Legacy completed bookings are not rebilled.
 - Backend full suite: 192 passed, 16 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
 - Two-process loopback HTTP/WebSocket + PostgreSQL revision bundle: 2 passed; cross-worker delivery, tenant/rollback isolation and reconnect REST recovery verified.
 - Frontend: 20 tests and production build passed; an App integration test proves a delayed prior-institute response cannot overwrite the current board.
@@ -44,12 +48,13 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7G: implement booking finish-to-checkout handoff and verify live action/recalculation coverage.
+- PHASE7H: verify combined live action/recalculation coverage, then advance independent Commerce work while browser/tablet gates remain open.
 - Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: fix(operations): ignore action completions after institute changes.
+- Current: feat(booking): hand completed reservations to checkout transactionally.
+- 3ff886c fix(operations): ignore action completions after institute changes.
 - 42c6654 test(realtime): prove delivery across live server processes.
 - c0fc188 fix(planning): discard stale operational refresh responses.
 - 28cdfc7 feat(realtime): notify planning clients of committed database revisions.

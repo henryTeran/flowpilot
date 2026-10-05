@@ -161,6 +161,7 @@ export interface InstituteDashboardRead {
 
 
 export interface Appointment {
+  checkout_ticket_id?: string | null;
   id: string;
   institute_id: string;
   service_id: string;

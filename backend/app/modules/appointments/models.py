@@ -8,11 +8,13 @@ from app.database.base import Base
 
 class Appointment(Base):
     __tablename__ = "appointments"
-    __table_args__ = (UniqueConstraint("institute_id", "idempotency_key", name="uq_appointment_institute_idempotency"),)
+    __table_args__ = (UniqueConstraint("institute_id", "idempotency_key", name="uq_appointment_institute_idempotency"),
+                      UniqueConstraint("checkout_ticket_id", name="uq_appointment_checkout_ticket"))
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(120), nullable=True)
     creation_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    checkout_ticket_id: Mapped[str | None] = mapped_column(ForeignKey("queue_tickets.id", name="fk_appointment_checkout_ticket"), nullable=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
     service_id: Mapped[str] = mapped_column(ForeignKey("services.id"), nullable=False, index=True)
     employee_id: Mapped[str] = mapped_column(ForeignKey("employees.id"), nullable=False, index=True)

@@ -649,9 +649,11 @@ export default function App() {
     const isCurrent = captureOperationalContext();
     setError(null);
     try {
-      await apiPatch<Appointment>(`/appointments/${appointmentId}/${action}`);
+      const updated = await apiPatch<Appointment>(`/appointments/${appointmentId}/${action}`);
       if (!isCurrent()) return;
       await refreshOperationalData();
+      if (!isCurrent()) return;
+      if (action === "complete" && updated.checkout_ticket_id) handleOpenCheckout(updated.checkout_ticket_id);
     } catch (err) {
       if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de modifier le rendez-vous");

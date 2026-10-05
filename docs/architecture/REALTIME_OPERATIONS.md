@@ -71,11 +71,12 @@ and the production build pass, including the delayed-assignment App scenario.
 | --- | --- | --- |
 | EXPECTED / ARRIVED / NO_SHOW | Booking scheduled/confirmed, arrived, no_show; booking panel actions | Browser UX open |
 | WAITING / IN_SERVICE | Walk-in waiting/assigned, in_progress; booking in_progress | Existing capacity/start tests; browser UX open |
-| FINISH | Walk-in releases capacity and becomes ready_for_checkout; booking becomes completed and releases resources | Booking-to-checkout handoff missing |
-| PAYMENT_PENDING / COMPLETED / PAY | Walk-in ready_for_checkout/in_checkout, paid; checkout attribution and replay tests | Booking must enter the checkout flow before claiming complete coverage |
+| FINISH | Walk-in and booking release capacity and create ready_for_checkout; booking has a durable checkout_ticket_id | Booking completion replay, failure rollback and PostgreSQL competing finishes pass |
+| PAYMENT_PENDING / COMPLETED / PAY | Linked booking and walk-in tickets use ready_for_checkout/in_checkout, paid; cashier/service attribution and replay | App finish-to-identification-to-caisse scenario passes; external provider settlement is Phase 9 |
 | PAUSE / EXTEND | Employee pause/dispo; session +5/+10, transactional extension replay | Pause is employee availability, not a suspended treatment; browser UX open |
 | Live recalculation | REST planning/availability and deterministic joint queue/resource projections, committed revision invalidation | Combined live action/recalculation audit remains open |
 
-The booking `completed` status currently means treatment finished, not evidence of
-payment. No payment/commercial completion is inferred from it. LIVE_BOARD remains
-open until the booking handoff and combined workflow evidence are implemented.
+The booking `completed` status means treatment finished, not evidence of payment.
+The linked ticket is the checkout/payment record. Legacy completed bookings stay
+unlinked; no charge is fabricated from historical treatment status. LIVE_BOARD
+remains open pending the combined live action/recalculation audit and browser UX.

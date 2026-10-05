@@ -30,6 +30,7 @@ class AppointmentUpdate(BaseModel):
 
 class AppointmentRead(BaseModel):
     id: str
+    checkout_ticket_id: str | None = None
     institute_id: str
     service_id: str
     employee_id: str

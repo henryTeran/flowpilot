@@ -250,6 +250,54 @@ test(changeInstitute ? "changing institute during assignment prevents the obsole
 });
 }
 
+test("finishing a booking opens its linked checkout after cashier identification", async () => {
+  const { default: App } = await import("../src/App");
+  const originalFetch = globalThis.fetch;
+  const originalWebSocket = globalThis.WebSocket;
+  class FakeSocket { readyState = 0; close() {} send() {} }
+  globalThis.WebSocket = FakeSocket as unknown as typeof WebSocket;
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", status: "available", skills: [] };
+  const booking = { id: "booking", institute_id: "inst", employee_id: "emp", service_id: "svc",
+    customer_name: "Booking client", start_time: "2026-10-05T10:00:00Z", end_time: "2026-10-05T10:10:00Z",
+    status: "in_progress", checkout_ticket_id: null as string | null };
+  const ticket = { ...assignmentTicket, id: "booking-checkout", status: "ready_for_checkout",
+    total_amount: 15, lines: [{ id: "line", ticket_id: "booking-checkout", service_id: "svc", quantity: 1,
+      duration_minutes: 10, unit_price: 15, total: 15, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" }] };
+  const writes: string[] = [];
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname.replace("/api/v1", "");
+    let payload: any = [];
+    if (init?.method === "PATCH") {
+      writes.push(path);
+      if (path === "/appointments/booking/complete") { booking.status = "completed"; booking.checkout_ticket_id = ticket.id; payload = booking; }
+      else if (path === `/tickets/${ticket.id}/checkout/start`) { ticket.status = "in_checkout"; payload = ticket; }
+    } else if (path === "/institutes") payload = [{ id: "inst", name: "Test", city: "Test", timezone: "Europe/Berlin", status: "active" }];
+    else if (path === "/employees") payload = [employee];
+    else if (path === "/services/categories") payload = [category];
+    else if (path === "/services/catalog") payload = [service];
+    else if (path === "/appointments") payload = [booking];
+    else if (path === "/tickets/waiting") payload = booking.checkout_ticket_id ? [ticket] : [];
+    else if (path.endsWith("/today")) payload = { institute_id: "inst", rows: [] };
+    else if (path.endsWith("/availability")) payload = { institute_id: "inst", employees: [], active_sessions: 0, waiting_tickets: 0 };
+    else if (path === "/tickets/chiffres") payload = { institute_id: "inst", rows: [], totals: { total: 0, soins: 0, ventes: 0, contrats: 0, pourboires: 0 } };
+    return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await act(async () => root.render(<App />));
+    await act(async () => button("RDV sous appel").click());
+    await act(async () => button("Terminer").click());
+    assert.ok(document.querySelector(".bm-identify-screen"));
+    await act(async () => document.querySelector<HTMLButtonElement>(".bm-identify-card")!.click());
+    assert.deepEqual(writes, ["/appointments/booking/complete", `/tickets/${ticket.id}/checkout/start`]);
+    assert.ok(document.querySelector(".bm-checkout-clone"));
+    assert.match(document.body.textContent!, /Aisselles/);
+  } finally {
+    await act(async () => root.unmount());
+    globalThis.fetch = originalFetch; globalThis.WebSocket = originalWebSocket;
+  }
+});
+
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));
   assert.ok(element, `Missing button: ${text}`);

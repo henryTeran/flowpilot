@@ -140,6 +140,30 @@ def _validate_creation_replay(db: Session, ticket: QueueTicket, payload: TicketC
     return ticket
 
 
+def prepare_booking_checkout(db: Session, appointment: Appointment) -> QueueTicket:
+    """Create a performed-service checkout within the caller's institute transaction.
+
+    The caller owns the institute lock and durable appointment link. No commit,
+    waiting projection, employee assignment or capacity reservation is created.
+    """
+    service = get_service(db, appointment.service_id)
+    if not service:
+        raise not_found("Prestation du rendez-vous introuvable")
+    ticket = QueueTicket(id=new_id("qt"), institute_id=appointment.institute_id,
+                        ticket_number=_generate_ticket_number(db, appointment.institute_id),
+                        status="ready_for_checkout", arrival_time=appointment.actual_end_time or utcnow(),
+                        total_amount=service.price_passage or 0)
+    db.add(ticket)
+    db.flush()
+    duration = int((_ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time)).total_seconds() / 60)
+    db.add(TicketLine(id=new_id("tl"), ticket_id=ticket.id, service_id=service.id,
+                     quantity=1, unit_price=service.price_passage, total=service.price_passage,
+                     duration_minutes=max(1, duration), revenue_category="care",
+                     performed_by_employee_id=appointment.employee_id))
+    record_event(db, ticket, "queue.booking_finished", None, appointment.employee_id)
+    return ticket
+
+
 def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
     lock_institute(db, payload.institute_id)
     if payload.idempotency_key:

@@ -334,10 +334,10 @@ def _reset_operational_data(db: Session, institute_id: str) -> None:
 
     db.execute(delete(ServiceSession).where(ServiceSession.institute_id == institute_id))
     db.execute(delete(TicketLine).where(TicketLine.ticket_id.in_(ticket_ids)))
-    db.execute(delete(QueueTicket).where(QueueTicket.institute_id == institute_id))
     from app.modules.appointments.models import BookingEvent
     db.execute(delete(BookingEvent).where(BookingEvent.institute_id == institute_id))
     db.execute(delete(Appointment).where(Appointment.institute_id == institute_id))
+    db.execute(delete(QueueTicket).where(QueueTicket.institute_id == institute_id))
     from app.modules.realtime.revisions import mark_planning_changed
     mark_planning_changed(db, institute_id)
 
