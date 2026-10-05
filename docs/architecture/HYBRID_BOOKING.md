@@ -36,5 +36,13 @@ time consistently. The App sends edits through the guarded PATCH endpoint. Compo
 tests cover confirmation visibility and movement failure/retry; these are JSDOM
 checks, not real browser/tablet evidence.
 
-Customer reservation, durable booking change history and
+`booking_events` now records creation, modification, confirmation, arrival, start,
+completion, no-show and cancellation in the same transaction as operational state.
+Events include operator, occurrence time and before/after operational snapshots.
+They omit names, phone numbers and notes. Matching retries/no-op modifications do
+not duplicate events; rejected moves create none. Injected commit failure proves
+booking, resource interval and history rollback together. Migration d5f890ce320b
+creates an empty history table; it does not invent events for legacy appointments.
+
+Customer reservation and
 complete hybrid booking gate validation remain open.

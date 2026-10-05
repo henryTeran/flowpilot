@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 import app.main as main_module
 from app.modules.resources.models import ResourceReservation
+from app.modules.appointments.models import BookingEvent
 from app.shared.time import utcnow
 from test_ticket_workflow import _auth_headers, _bootstrap_reference_data
 
@@ -34,6 +35,11 @@ def test_confirmation_replay_preserves_booked_interval_and_resource(client):
     with Session(main_module.engine) as db:
         rows = db.scalars(select(ResourceReservation)).all()
         assert len(rows) == 1 and rows[0].status == "reserved"
+        events = db.scalars(select(BookingEvent).order_by(BookingEvent.occurred_at)).all()
+        assert [event.event_type for event in events] == ["created", "confirmed"]
+        assert all(event.actor_id == "test-user" for event in events)
+        assert events[1].before["status"] == "scheduled" and events[1].after["status"] == "confirmed"
+        assert all("customer_name" not in event.after and "phone" not in event.after for event in events)
     assert client.patch(f"/api/v1/appointments/{appointment['id']}/cancel", headers=operator).status_code == 200
     assert client.patch(path, headers=operator).status_code == 400
     assert client.patch("/api/v1/appointments/missing/confirm", headers=operator).status_code == 404

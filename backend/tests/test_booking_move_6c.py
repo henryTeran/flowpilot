@@ -1,16 +1,19 @@
 from datetime import timedelta
+import pytest
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import app.main as main_module
-from app.modules.appointments.models import Appointment
+from app.modules.appointments.models import Appointment, BookingEvent
+from app.modules.appointments.schemas import AppointmentUpdate
+from app.modules.appointments.service import update_appointment
 from app.modules.resources.models import ResourceReservation
 from app.shared.time import utcnow
 from test_ticket_workflow import _auth_headers, _bootstrap_reference_data, _create_ticket
 
 
-def test_move_revalidates_resource_and_employee_without_losing_old_booking(client):
+def test_move_revalidates_resource_and_employee_without_losing_old_booking(client, monkeypatch):
     institute, employees, services = _bootstrap_reference_data(client)
     operator = _auth_headers(institute_id=institute)
     manager = _auth_headers("responsable_institut", institute)
@@ -41,6 +44,26 @@ def test_move_revalidates_resource_and_employee_without_losing_old_booking(clien
     assert changed.json()["actual_start_time"] is None
     replay = client.patch(path, headers=operator, json={"start_time": changed.json()["start_time"]})
     assert replay.json() == changed.json()
+    with Session(main_module.engine) as db:
+        history = db.scalars(select(BookingEvent).where(BookingEvent.appointment_id == first["id"])
+                             .order_by(BookingEvent.occurred_at)).all()
+        assert [event.event_type for event in history] == ["created", "modified"]
+        assert history[1].before["employee_id"] == employees[0]["id"]
+        assert history[1].after["employee_id"] == employees[1]["id"]
+    with Session(main_module.engine) as db:
+        def fail_commit():
+            raise RuntimeError("Injected booking persistence failure")
+        monkeypatch.setattr(db, "commit", fail_commit)
+        with pytest.raises(RuntimeError, match="Injected booking"):
+            update_appointment(db, first["id"], AppointmentUpdate(start_time=now + timedelta(hours=4)), "test-user")
+        db.rollback()
+    with Session(main_module.engine) as db:
+        persisted = db.get(Appointment, first["id"])
+        reservation = db.scalar(select(ResourceReservation).where(ResourceReservation.appointment_id == first["id"],
+                                                                  ResourceReservation.status != "released"))
+        assert persisted.start_time == reservation.start_time
+        assert persisted.start_time.isoformat().startswith(changed.json()["start_time"][:19])
+        assert len(db.scalars(select(BookingEvent).where(BookingEvent.appointment_id == first["id"])).all()) == 2
     assert client.patch(path, headers=_auth_headers(institute_id="foreign"), json={"notes": "No"}).status_code == 403
     assert client.patch(path, headers=_auth_headers(institute_id=None), json={"notes": "No"}).status_code == 403
     assert client.patch(path, headers=operator, json={"start_time": None}).status_code == 400

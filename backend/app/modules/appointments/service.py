@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.modules.appointments.models import Appointment
+from app.modules.appointments.events import snapshot, record_booking_event
 from app.modules.appointments.repository import (
     ACTIVE_APPOINTMENT_STATUSES,
     FINAL_APPOINTMENT_STATUSES,
@@ -106,7 +107,7 @@ def list_today_appointments(db: Session, institute_id: str) -> list[Appointment]
     return list_appointments_for_day(db, institute_id, utcnow())
 
 
-def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
+def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None) -> Appointment:
     lock_institute(db, payload.institute_id)
     service = get_service(db, payload.service_id)
     if not service:
@@ -188,15 +189,17 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
     db.flush()
     from app.modules.resources.reservations import reserve_appointment
     reserve_appointment(db, appointment, start_time, end_time)
+    record_booking_event(db, appointment, "created", None, actor_id)
     return save_appointment(db, appointment)
 
 
-def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate) -> Appointment:
+def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if appointment is None:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
     if appointment.status not in {"scheduled", "confirmed"}:
         raise business_error("Seul un rendez-vous planifie ou confirme peut etre modifie")
     values = payload.model_dump(exclude_unset=True)
@@ -253,32 +256,39 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
         reserve(db, appointment.institute_id, needs, start, end, appointment_id=appointment.id)
         appointment.start_time, appointment.end_time = start, end
         appointment.booked_start_time, appointment.booked_end_time = start, end
+    changed_metadata = any(getattr(appointment, key) != value for key, value in values.items() if key != "start_time")
+    if not changed_slot and not changed_metadata:
+        return appointment
     for key, value in values.items():
         if key != "start_time":
             setattr(appointment, key, value)
+    record_booking_event(db, appointment, "modified", before, actor_id)
     return save_appointment(db, appointment)
 
 
-def confirm_appointment(db: Session, appointment_id: str) -> Appointment:
+def confirm_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
     if appointment.status == "confirmed":
         return appointment
     if appointment.status != "scheduled":
         raise business_error("Seul un rendez-vous planifie peut etre confirme")
     appointment.status = "confirmed"
+    record_booking_event(db, appointment, "confirmed", before, actor_id)
     return save_appointment(db, appointment)
 
 
-def mark_appointment_arrived(db: Session, appointment_id: str) -> Appointment:
+def mark_appointment_arrived(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
 
     if appointment.status not in {"scheduled", "confirmed"}:
         raise business_error("Seul un rendez-vous planifié peut passer en arrivée")
@@ -288,17 +298,19 @@ def mark_appointment_arrived(db: Session, appointment_id: str) -> Appointment:
     employee = get_employee(db, appointment.employee_id)
     if employee:
         _sync_employee_status(db, employee)
+    record_booking_event(db, appointment, "arrived", before, actor_id)
     db.commit()
     db.refresh(appointment)
     return appointment
 
 
-def start_appointment(db: Session, appointment_id: str) -> Appointment:
+def start_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
 
     if appointment.status not in {"scheduled", "confirmed", "arrived"}:
         raise business_error("Ce rendez-vous ne peut pas être démarré")
@@ -344,17 +356,19 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     employee.status = "busy"
     db.add(appointment)
     db.add(employee)
+    record_booking_event(db, appointment, "started", before, actor_id)
     db.commit()
     db.refresh(appointment)
     return appointment
 
 
-def complete_appointment(db: Session, appointment_id: str) -> Appointment:
+def complete_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
 
     if appointment.status not in {"arrived", "in_progress"}:
         raise business_error("Seul un rendez-vous arrivé ou en cours peut être terminé")
@@ -368,17 +382,19 @@ def complete_appointment(db: Session, appointment_id: str) -> Appointment:
         _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)
 
     db.add(appointment)
+    record_booking_event(db, appointment, "completed", before, actor_id)
     db.commit()
     db.refresh(appointment)
     return appointment
 
 
-def mark_appointment_no_show(db: Session, appointment_id: str) -> Appointment:
+def mark_appointment_no_show(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
 
     if appointment.status not in {"scheduled", "confirmed", "arrived"}:
         raise business_error("Ce rendez-vous ne peut pas être marqué absent")
@@ -391,17 +407,19 @@ def mark_appointment_no_show(db: Session, appointment_id: str) -> Appointment:
         _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)
 
     db.add(appointment)
+    record_booking_event(db, appointment, "no_show", before, actor_id)
     db.commit()
     db.refresh(appointment)
     return appointment
 
 
-def cancel_appointment(db: Session, appointment_id: str) -> Appointment:
+def cancel_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
     lock_institute(db, appointment.institute_id)
     db.refresh(appointment)
+    before = snapshot(appointment)
 
     _assert_not_final(appointment)
 
@@ -416,6 +434,7 @@ def cancel_appointment(db: Session, appointment_id: str) -> Appointment:
         _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)
 
     db.add(appointment)
+    record_booking_event(db, appointment, "cancelled", before, actor_id)
     db.commit()
     db.refresh(appointment)
     return appointment

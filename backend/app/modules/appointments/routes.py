@@ -52,14 +52,14 @@ def post_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     require_same_institute(current_user, payload.institute_id)
-    return create_appointment(db, payload)
+    return create_appointment(db, payload, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}", response_model=AppointmentRead)
 def patch_appointment(appointment_id: str, payload: AppointmentUpdate,
                       current_user: dict = Depends(require_ticket_manager), db: Session = Depends(get_db)):
     _require_appointment_access(appointment_id, current_user, db)
-    return update_appointment(db, appointment_id, payload)
+    return update_appointment(db, appointment_id, payload, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/confirm", response_model=AppointmentRead)
@@ -69,7 +69,7 @@ def patch_confirm_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return confirm_appointment(db, appointment_id)
+    return confirm_appointment(db, appointment_id, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/arrive", response_model=AppointmentRead)
@@ -79,7 +79,7 @@ def patch_appointment_arrived(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return mark_appointment_arrived(db, appointment_id)
+    return mark_appointment_arrived(db, appointment_id, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/start", response_model=AppointmentRead)
@@ -89,7 +89,7 @@ def patch_start_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return start_appointment(db, appointment_id)
+    return start_appointment(db, appointment_id, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/complete", response_model=AppointmentRead)
@@ -99,7 +99,7 @@ def patch_complete_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return complete_appointment(db, appointment_id)
+    return complete_appointment(db, appointment_id, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/no-show", response_model=AppointmentRead)
@@ -109,7 +109,7 @@ def patch_no_show_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return mark_appointment_no_show(db, appointment_id)
+    return mark_appointment_no_show(db, appointment_id, current_user.get("sub"))
 
 
 @router.patch("/{appointment_id}/cancel", response_model=AppointmentRead)
@@ -119,4 +119,4 @@ def patch_cancel_appointment(
     db: Session = Depends(get_db),
 ) -> AppointmentRead:
     _require_appointment_access(appointment_id, current_user, db)
-    return cancel_appointment(db, appointment_id)
+    return cancel_appointment(db, appointment_id, current_user.get("sub"))
