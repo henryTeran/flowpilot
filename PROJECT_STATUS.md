@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 6
-CURRENT_CHECKPOINT = PHASE6B_BOOKING_CONFIRMATION
+CURRENT_CHECKPOINT = PHASE6C_SAFE_BOOKING_MOVEMENT
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,13 @@ GATES:
 - SKILL_MATCHING = PASS (all ticket services; assignment/start/booking; commitment-safe configuration).
 - RESOURCE_CONFLICT = PASS (shared institute serialization; three actual resource races; failure rollback).
 - PHASE5 = CLOSED for canonical functional gates; load and browser proof are separate, unverified gates.
-- PHASE6 = IN_PROGRESS (create/cancel/confirm/resource lifecycle and booked/execution facts present; move and customer reservation remain).
+- PHASE6 = IN_PROGRESS (safe move/modification API now present; customer reservation, booking change history and frontend controls remain).
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Full backend: 182 passed, 13 opt-in PostgreSQL cases skipped locally; final strict-tenant targeted rerun passed.
+- Booking move/confirmation/lifecycle: 6 passed; final strict-tenant move/confirmation checks: 3 passed.
+- PostgreSQL two-booking move race: 1 passed; exactly one target room reservation, unchanged losing booking.
 - Confirmation and booking lifecycle: 4 passed (replay, booked/resource preservation, foreign tenant, missing/cancelled state rejection).
 - Planning/availability/prior-migration regression: 20 passed.
 - Phase 6A lifecycle/migration bundle: 4 passed, 1 PostgreSQL case skipped locally.
@@ -39,11 +42,12 @@ BLOCKERS:
 - Deep load and production readiness are unverified; no business decision blocks Phase 6.
 
 NEXT_STEP:
-- PHASE6C: safe booking modification/movement and customer reservation; confirmation and booked/execution timestamps now implemented.
+- PHASE6D: durable booking change history, customer reservation and frontend movement controls.
 - Validate coexistence with assigned walk-ins and resource reservations under the institute lock.
 
 LAST_COMMITS:
-- Current: feat(booking): confirm appointments without duplicating reservations.
+- Current: feat(booking): move appointments with atomic capacity revalidation.
+- a1e262f feat(booking): confirm appointments without duplicating reservations.
 - 75d2aae feat(booking): preserve booked and actual appointment timestamps.
 - d2ce8de test(resources): close functional resource and qualification gates.
 - 9dcbe46 fix(scheduling): account for resources in service availability.

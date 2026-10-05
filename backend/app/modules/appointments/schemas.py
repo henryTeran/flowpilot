@@ -17,6 +17,16 @@ class AppointmentUpdateStatus(BaseModel):
     status: str
 
 
+class AppointmentUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    start_time: datetime | None = None
+    employee_id: str | None = Field(default=None, min_length=1)
+    service_id: str | None = Field(default=None, min_length=1)
+    customer_name: str | None = Field(default=None, min_length=2, max_length=160)
+    phone: str | None = Field(default=None, max_length=40)
+    notes: str | None = Field(default=None, max_length=500)
+
+
 class AppointmentRead(BaseModel):
     id: str
     institute_id: str

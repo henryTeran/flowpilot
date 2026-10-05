@@ -11,7 +11,7 @@ from app.modules.appointments.repository import (
     list_appointments_for_day,
     save_appointment,
 )
-from app.modules.appointments.schemas import AppointmentCreate
+from app.modules.appointments.schemas import AppointmentCreate, AppointmentUpdate
 from app.modules.employees.models import Employee
 from app.modules.employees.repository import get_employee
 from app.modules.planning.models import ServiceSession
@@ -188,6 +188,74 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
     db.flush()
     from app.modules.resources.reservations import reserve_appointment
     reserve_appointment(db, appointment, start_time, end_time)
+    return save_appointment(db, appointment)
+
+
+def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate) -> Appointment:
+    appointment = get_appointment(db, appointment_id)
+    if appointment is None:
+        raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
+    if appointment.status not in {"scheduled", "confirmed"}:
+        raise business_error("Seul un rendez-vous planifie ou confirme peut etre modifie")
+    values = payload.model_dump(exclude_unset=True)
+    if any(values.get(key, "present") is None for key in ("start_time", "employee_id", "service_id", "customer_name")):
+        raise business_error("Les champs obligatoires ne peuvent pas etre effaces")
+    for key in ("customer_name", "phone", "notes"):
+        if isinstance(values.get(key), str):
+            values[key] = values[key].strip()
+    if "customer_name" in values and len(values["customer_name"]) < 2:
+        raise business_error("Le nom de la cliente est requis")
+    start = _ensure_aware(values.get("start_time", appointment.start_time))
+    employee_id = values.get("employee_id", appointment.employee_id)
+    service_id = values.get("service_id", appointment.service_id)
+    changed_slot = start != _ensure_aware(appointment.start_time) or employee_id != appointment.employee_id or service_id != appointment.service_id
+    if changed_slot:
+        if start < utcnow() - timedelta(minutes=2):
+            raise business_error("Le rendez-vous ne peut pas etre deplace dans le passe")
+        employee = get_employee(db, employee_id)
+        service = get_service(db, service_id)
+        if employee is None or employee.institute_id != appointment.institute_id:
+            raise business_error("Collaboratrice hors institut")
+        if service is None:
+            raise not_found("Prestation introuvable")
+        from app.modules.resources.repository import qualifies_for_services
+        if not qualifies_for_services(db, appointment.institute_id, employee_id, [service_id]):
+            raise business_error("Competences insuffisantes pour cette prestation")
+        duration = (timedelta(minutes=service.duration_max or service.duration_min) if service_id != appointment.service_id
+                    else _ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time))
+        end = start + duration
+        now = utcnow()
+        reserved = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).join(
+            QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
+                QueueTicket.institute_id == appointment.institute_id, QueueTicket.assigned_employee_id == employee_id,
+                QueueTicket.status == "assigned")).all()
+        minutes = sum(minutes * quantity for minutes, quantity in reserved)
+        if minutes and _has_overlap(start, end, now, now + timedelta(minutes=minutes)):
+            raise business_error("Un ticket affecte reserve ce creneau")
+        sessions = db.scalars(select(ServiceSession).where(ServiceSession.institute_id == appointment.institute_id,
+            ServiceSession.employee_id == employee_id, ServiceSession.status.in_(ACTIVE_SESSION_STATUSES))).all()
+        if any(_ensure_aware(session.planned_end_time) <= now or _has_overlap(start, end, session.start_time, session.planned_end_time)
+               for session in sessions):
+            raise business_error("Une prestation active bloque ce creneau")
+        bookings = db.scalars(select(Appointment).where(Appointment.institute_id == appointment.institute_id,
+            Appointment.employee_id == employee_id, Appointment.id != appointment.id,
+            Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES))).all()
+        if any(_has_overlap(start, end, other.start_time, other.end_time) for other in bookings):
+            raise business_error("Un autre rendez-vous bloque ce creneau")
+        # Resource matching must use the proposed service, but failure must not
+        # flush proposed booking fields before it proves the new interval.
+        from app.modules.resources.allocation_domain import ResourceNeed
+        from app.modules.resources.repository import resource_requirement_facts
+        from app.modules.resources.reservations import reserve
+        needs = [ResourceNeed(*need) for need in resource_requirement_facts(db, appointment.institute_id).get(service_id, [])]
+        reserve(db, appointment.institute_id, needs, start, end, appointment_id=appointment.id)
+        appointment.start_time, appointment.end_time = start, end
+        appointment.booked_start_time, appointment.booked_end_time = start, end
+    for key, value in values.items():
+        if key != "start_time":
+            setattr(appointment, key, value)
     return save_appointment(db, appointment)
 
 

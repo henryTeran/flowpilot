@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.permissions import require_same_institute, require_ticket_manager
+from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.appointments.repository import get_appointment
-from app.modules.appointments.schemas import AppointmentCreate, AppointmentRead
+from app.modules.appointments.schemas import AppointmentCreate, AppointmentRead, AppointmentUpdate
 from app.modules.appointments.service import (
     cancel_appointment,
     complete_appointment,
@@ -14,9 +14,15 @@ from app.modules.appointments.service import (
     mark_appointment_arrived,
     mark_appointment_no_show,
     start_appointment,
+    update_appointment,
 )
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
+
+
+def require_same_institute(current_user, institute_id):
+    if current_user.get("institute_id") != institute_id:
+        raise HTTPException(status_code=403, detail="Institut non autorise")
 
 
 def _require_appointment_access(
@@ -47,6 +53,13 @@ def post_appointment(
 ) -> AppointmentRead:
     require_same_institute(current_user, payload.institute_id)
     return create_appointment(db, payload)
+
+
+@router.patch("/{appointment_id}", response_model=AppointmentRead)
+def patch_appointment(appointment_id: str, payload: AppointmentUpdate,
+                      current_user: dict = Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    _require_appointment_access(appointment_id, current_user, db)
+    return update_appointment(db, appointment_id, payload)
 
 
 @router.patch("/{appointment_id}/confirm", response_model=AppointmentRead)

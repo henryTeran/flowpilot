@@ -19,6 +19,15 @@ its interval or reservation. Other states reject confirmation; existing booking
 RBAC/tenant checks run before mutation. HTTP tests cover replay, reservation/booked
 fact preservation, foreign tenant, missing booking and cancellation rejection.
 
-Safe movement/modification, customer reservation and complete hybrid
-booking gate validation remain open. Moves must atomically revalidate qualifications,
-employee/walk-in conflicts and resource intervals under the institute lock.
+`PATCH /api/v1/appointments/{id}` modifies scheduled/confirmed bookings. Slot changes
+revalidate qualifications, employee sessions/appointments, assigned walk-ins and
+resources under the institute lock. Resource matching excludes only the booking's
+old reservation; failures retain the old interval. Moves retain duration snapshots
+unless the service changes and update the agreed booked slot. Execution/final states
+cannot be edited. Metadata fields support explicit clearing of phone/notes, while
+required fields cannot be cleared. Appointment routes require an exact token tenant.
+HTTP tests cover conflicts, replay, metadata, invalid states and tenant rejection;
+a PostgreSQL race proves that two moves cannot take the same room interval.
+
+Customer reservation, frontend movement controls, durable booking change history and
+complete hybrid booking gate validation remain open.
