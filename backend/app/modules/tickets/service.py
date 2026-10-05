@@ -113,60 +113,11 @@ def _has_active_employee_blocker(db: Session, institute_id: str, employee_id: st
 
 
 def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int):
-    """
-    Estime le début du prochain ticket selon :
-    - les collaboratrices disponibles ;
-    - les sessions planning déjà en cours ;
-    - les tickets encore en file d'attente.
-    """
-    now = utcnow()
-    employees = [
-        employee
-        for employee in list_by_institute(db, institute_id)
-        if employee.status in ASSIGNABLE_EMPLOYEE_STATUSES
-        and not _has_active_employee_blocker(db, institute_id, employee.id, now)
-    ]
+    from app.modules.scheduling.waiting_service import waiting_projections
 
-    if not employees:
-        return now + timedelta(minutes=service_duration_minutes)
-
-    active_sessions = list(
-        db.scalars(
-            select(ServiceSession).where(
-                ServiceSession.institute_id == institute_id,
-                ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
-            )
-        ).all()
-    )
-
-    availability_by_employee: dict[str, datetime] = {}
-    for employee in employees:
-        employee_sessions = [session for session in active_sessions if session.employee_id == employee.id]
-        if not employee_sessions:
-            availability_by_employee[employee.id] = now
-            continue
-
-        latest_session = max(employee_sessions, key=lambda session: _ensure_aware(session.planned_end_time))
-        planned_end = _ensure_aware(latest_session.planned_end_time)
-        availability_by_employee[employee.id] = planned_end if planned_end > now else now
-
-    queue = list(
-        db.scalars(
-            select(QueueTicket)
-            .where(
-                QueueTicket.institute_id == institute_id,
-                QueueTicket.status.in_(["waiting", "assigned"]),
-            )
-            .order_by(QueueTicket.arrival_time, QueueTicket.id)
-        ).all()
-    )
-
-    for ticket in queue:
-        employee_id = min(availability_by_employee, key=lambda item: availability_by_employee[item])
-        duration = _ticket_duration(db, ticket.id, service_duration_minutes)
-        availability_by_employee[employee_id] = availability_by_employee[employee_id] + timedelta(minutes=duration)
-
-    return min(availability_by_employee.values())
+    return waiting_projections(db, institute_id, new_duration=service_duration_minutes)[
+        "__new_arrival__"
+    ].estimated_start_time
 
 
 def _creation_fingerprint(payload: TicketCreate) -> str:

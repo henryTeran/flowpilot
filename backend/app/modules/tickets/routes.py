@@ -11,6 +11,7 @@ from app.modules.planning.models import ServiceSession
 from app.modules.tickets.models import QueueEvent, QueueTicket, TicketLine
 from app.modules.tickets.domain import assignment_state
 from app.modules.tickets.repository import get_ticket, list_waiting_tickets, queue_positions
+from app.modules.scheduling.waiting_service import waiting_projections
 from app.shared.pagination import PaginationParams, pagination_params
 from app.shared.exceptions import not_found
 from app.modules.tickets.schemas import (
@@ -83,7 +84,8 @@ def _line_status(db: Session, ticket: QueueTicket, line: TicketLine) -> str:
     return "pending"
 
 
-def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | None = None) -> QueueTicketRead:
+def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | None = None,
+                 projections: dict | None = None) -> QueueTicketRead:
     lines = list(
         db.scalars(
             select(TicketLine)
@@ -91,6 +93,12 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
             .order_by(TicketLine.id)
         ).all()
     )
+
+    estimated_start = ticket.estimated_start_time
+    if ticket.status in {"waiting", "assigned"}:
+        projections = projections if projections is not None else waiting_projections(db, ticket.institute_id)
+        projection = projections.get(ticket.id)
+        estimated_start = projection.estimated_start_time if projection else None
 
     return QueueTicketRead(
         id=ticket.id,
@@ -100,7 +108,7 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         subscription_id=ticket.subscription_id,
         status=ticket.status,
         arrival_time=ticket.arrival_time,
-        estimated_start_time=ticket.estimated_start_time,
+        estimated_start_time=estimated_start,
         assigned_employee_id=ticket.assigned_employee_id,
         assigned_at=ticket.assigned_at,
         cancelled_at=ticket.cancelled_at,
@@ -150,7 +158,8 @@ def get_waiting_tickets(
 ) -> list[QueueTicketRead]:
     require_same_institute(current_user, institute_id)
     positions = queue_positions(db, institute_id)
-    return [_read_ticket(db, ticket, positions) for ticket in list_waiting_tickets(db, institute_id)]
+    projections = waiting_projections(db, institute_id)
+    return [_read_ticket(db, ticket, positions, projections) for ticket in list_waiting_tickets(db, institute_id)]
 
 
 @router.post("", response_model=QueueTicketRead)

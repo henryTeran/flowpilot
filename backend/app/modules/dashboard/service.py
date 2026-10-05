@@ -10,6 +10,7 @@ from app.modules.planning.repository import list_sessions_for_day
 from app.modules.planning.service import get_institute_availability
 from app.modules.tickets.models import QueueTicket
 from app.modules.dashboard.schemas import InstituteDashboardRead
+from app.modules.scheduling.waiting_service import waiting_projections
 from app.shared.time import utcnow
 
 
@@ -33,19 +34,18 @@ def _is_session_late(session: ServiceSession, now: datetime) -> bool:
     return session.status in ACTIVE_SESSION_STATUSES and _ensure_aware(session.planned_end_time) <= now
 
 
-def _average_wait_minutes(tickets: list[QueueTicket], now: datetime) -> int | None:
+def _average_wait_minutes(tickets: list[QueueTicket], now: datetime, projections: dict) -> int | None:
     waiting_like = [ticket for ticket in tickets if ticket.status in {"waiting", "assigned"}]
     if not waiting_like:
         return None
 
     waits: list[int] = []
     for ticket in waiting_like:
-        if ticket.estimated_start_time:
-            target = _ensure_aware(ticket.estimated_start_time)
-            waits.append(max(0, ceil((target - now).total_seconds() / 60)))
-        else:
-            arrival = _ensure_aware(ticket.arrival_time)
-            waits.append(max(0, ceil((now - arrival).total_seconds() / 60)))
+        projection = projections.get(ticket.id)
+        if not projection or projection.estimated_start_time is None:
+            return None
+        target = projection.estimated_start_time
+        waits.append(max(0, ceil((target - now).total_seconds() / 60)))
 
     return round(sum(waits) / len(waits)) if waits else None
 
@@ -84,7 +84,7 @@ def get_institute_dashboard(db: Session, institute_id: str) -> InstituteDashboar
             tickets_by_status[ticket.status] += 1
 
     availability = get_institute_availability(db, institute_id)
-    average_wait = _average_wait_minutes(tickets_today, now)
+    average_wait = _average_wait_minutes(tickets_today, now, waiting_projections(db, institute_id, now))
 
     # Les statuts affichés doivent utiliser la disponibilité effective :
     # une collaboratrice avec un RDV sous appel en cours est occupée, même si son champ Employee.status vaut encore available.
