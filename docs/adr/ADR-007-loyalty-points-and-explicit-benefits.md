@@ -71,5 +71,7 @@ duplicate credit, competing corrections, duplicate closure, policy/closure and
 currency/policy races, duplicate spending/reversal and correction/spending
 races without overdraft; SQLite/PostgreSQL migration parity and
 round-trips are checked on disposable databases. This is a loyalty foundation,
-not the complete LOYALTY gate. UI and end-to-end
-verification remain required; production readiness is not inferred.
+not the complete LOYALTY gate. Customer balance/tier, point and redemption history are visible in Offres.
+The overview clears facts during refresh and rejects obsolete institute/customer/token
+responses, including same-component context changes. Manager configuration and
+checkout action UI plus browser/tablet end-to-end verification remain required; production readiness is not inferred.

@@ -1189,3 +1189,36 @@ test("operator login opens the app and logout clears the session", async () => {
     setAccessToken(null);
   }
 });
+
+
+test("loyalty overview rejects late old-customer facts and hides stale balances after failed refresh", async () => {
+  const { LoyaltyOverview } = await import("../src/components/LoyaltyOverview");
+  const root = createRoot(document.getElementById("root")!);
+  const original = globalThis.fetch;
+  const waiting: Array<(response: Response) => void> = [];
+  let fail = false;
+  const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+  globalThis.fetch = async input => {
+    const path = String(input);
+    if (path.includes("/customers/old")) return await new Promise<Response>(resolve => waiting.push(resolve));
+    if (fail) return new Response(JSON.stringify({ detail: "Ledger unavailable" }), { status: 503, headers: { "Content-Type": "application/json" } });
+    if (path.endsWith("/history")) return json([{ id: "entry", points: 7, reason: "Correction explicite", occurred_at: "2026-10-06T10:00:00Z" }]);
+    if (path.endsWith("/redemptions")) return json([{ id: "use", points_cost: 10, quantity: 1, occurred_at: "2026-10-06T10:00:00Z", reversed_at: "2026-10-06T11:00:00Z", reversal_reason: "Correction" }]);
+    return json({ customer_id: "new", points: 7, tier: null });
+  };
+  try {
+    await act(async () => root.render(<LoyaltyOverview instituteId="inst" customer={{ id: "old", display_name: "Old" } as any} />));
+    await act(async () => root.render(<LoyaltyOverview instituteId="inst" customer={{ id: "new", display_name: "New" } as any} />));
+    assert.match(document.body.textContent!, /7 points/);
+    assert.match(document.body.textContent!, /Annulee : Correction/);
+    await act(async () => waiting.forEach((resolve, index) => resolve(json(index === 0 ? { customer_id: "old", points: 999, tier: null } : []))));
+    assert.doesNotMatch(document.body.textContent!, /999 points/);
+    fail = true;
+    await act(async () => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === "Actualiser la fidelite")!.click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Ledger unavailable/);
+    assert.doesNotMatch(document.body.textContent!, /7 points/);
+    await act(async () => root.render(<LoyaltyOverview instituteId="other" />));
+    assert.match(document.body.textContent!, /Selectionnez une cliente/);
+    assert.equal(document.querySelector("[role='alert']"), null);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); }
+});
