@@ -49,9 +49,11 @@ Three HTTP cases cover shared-room booking/walk-in conflicts and release. An act
 PostgreSQL two-worker race proves that different employees cannot book one room
 concurrently. These are focused races, not load evidence.
 
-Live assignment options and estimates still report configured resource needs as
-unknown. Phase 5B must connect joint employee/resource projections before resource
-scheduling gates can pass.
+Live assignment options use the same tenant-scoped resource timelines and interval
+matcher as writes. They exclude the owning ticket's reservation, keep competitors
+blocked, and restore eligibility on release. HTTP checks verify these transitions.
+Waiting estimates still report configured resource needs as unknown. Phase 5B must
+connect joint employee/resource projections before resource scheduling gates pass.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.

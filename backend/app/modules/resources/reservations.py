@@ -17,6 +17,24 @@ def aware(value):
     return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
+def resource_timelines(db, institute_id, *, exclude_ticket_id=None, exclude_appointment_id=None, now=None):
+    query = select(ResourceReservation).where(ResourceReservation.institute_id == institute_id,
+                                              ResourceReservation.status != "released")
+    if exclude_ticket_id:
+        query = query.where(or_(ResourceReservation.ticket_id.is_(None), ResourceReservation.ticket_id != exclude_ticket_id))
+    if exclude_appointment_id:
+        query = query.where(or_(ResourceReservation.appointment_id.is_(None), ResourceReservation.appointment_id != exclude_appointment_id))
+    rows = list(db.scalars(query).all())
+    now = aware(now or utcnow())
+    resources = db.scalars(select(Resource).where(Resource.institute_id == institute_id)
+                          .execution_options(populate_existing=True)).all()
+    return [ResourceTimeline(resource.id, resource.kind, frozenset(resource.capabilities),
+        tuple((aware(row.start_time), aware(row.end_time)) for row in rows if row.resource_id == resource.id),
+        resource.status == "active",
+        not any(row.resource_id == resource.id and aware(row.end_time) <= now for row in rows))
+        for resource in resources]
+
+
 def _owner(db, institute_id, ticket_id, appointment_id):
     if (ticket_id is None) == (appointment_id is None):
         raise ValueError("Exactly one reservation owner is required")
@@ -34,22 +52,11 @@ def reserve(db, institute_id, needs, start, end, *, ticket_id=None, appointment_
     existing = list(db.scalars(select(ResourceReservation).where(
         ResourceReservation.institute_id == institute_id, owner_filter,
         ResourceReservation.status != "released")).all())
-    owner_column = ResourceReservation.ticket_id if ticket_id else ResourceReservation.appointment_id
-    other_owner = or_(owner_column.is_(None), owner_column != (ticket_id or appointment_id))
-    others = list(db.scalars(select(ResourceReservation).where(
-        ResourceReservation.institute_id == institute_id, other_owner,
-        ResourceReservation.status != "released")).all())
-    now = utcnow()
-    resources = list(db.scalars(select(Resource).where(Resource.institute_id == institute_id)
-                               .execution_options(populate_existing=True)).all())
+    timelines = resource_timelines(db, institute_id, exclude_ticket_id=ticket_id,
+                                   exclude_appointment_id=appointment_id)
     if any(row.status == "in_use" for row in existing):
         occupied = {row.resource_id for row in existing}
-        resources = [resource for resource in resources if resource.id in occupied]
-    timelines = [ResourceTimeline(resource.id, resource.kind, frozenset(resource.capabilities),
-        tuple((aware(row.start_time), aware(row.end_time)) for row in others if row.resource_id == resource.id),
-        resource.status == "active",
-        not any(row.resource_id == resource.id and aware(row.end_time) <= now for row in others))
-        for resource in resources]
+        timelines = [resource for resource in timelines if resource.resource_id in occupied]
     match = match_resources(timelines, needs, start, end)
     if match is None:
         raise business_error("Aucune combinaison de ressources disponible sur tout le creneau")
@@ -79,7 +86,7 @@ def release(db, institute_id, *, ticket_id=None, appointment_id=None):
     db.flush()
 
 
-def reserve_ticket(db, ticket, start, end, *, in_use=False):
+def ticket_resource_needs(db, ticket):
     from app.modules.resources.allocation_domain import ResourceNeed
     from app.modules.resources.repository import resource_requirement_facts, ticket_services
     facts = resource_requirement_facts(db, ticket.institute_id)
@@ -90,7 +97,11 @@ def reserve_ticket(db, ticket, start, end, *, in_use=False):
         for kind, capability, quantity in facts.get(service_id, []):
             key = (kind, capability)
             quantities[key] = max(quantities.get(key, 0), quantity)
-    needs = [ResourceNeed(kind, capability, quantity) for (kind, capability), quantity in sorted(quantities.items())]
+    return [ResourceNeed(kind, capability, quantity) for (kind, capability), quantity in sorted(quantities.items())]
+
+
+def reserve_ticket(db, ticket, start, end, *, in_use=False):
+    needs = ticket_resource_needs(db, ticket)
     return reserve(db, ticket.institute_id, needs, start, end, ticket_id=ticket.id, in_use=in_use)
 
 

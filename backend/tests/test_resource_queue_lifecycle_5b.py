@@ -16,9 +16,13 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
                         json={"skills": [], "resources": [{"kind": "room"}]}).status_code == 200
     resource = client.post(prefix, headers=manager, json={"name": "Shared room", "kind": "room"}).json()
     tickets = [_create_ticket(client, institute, services[0]["id"])["id"] for _ in range(2)]
+    options = lambda ticket: client.get(f"/api/v1/availability/{ticket}/assignment-options?institute_id={institute}", headers=operator).json()["options"]
+    assert any(option["assignable"] for option in options(tickets[0]))
     assign = lambda ticket, employee: client.patch(f"/api/v1/tickets/{ticket}/assign", headers=operator,
                                                    json={"employee_id": employee})
     assert assign(tickets[0], employees[0]["id"]).status_code == 200
+    assert next(option for option in options(tickets[0]) if option["employee_id"] == employees[0]["id"])["assignable"]
+    assert all(not option["assignable"] for option in options(tickets[1]))
     assert client.patch(f"{prefix}/{resource['id']}", headers=manager, json={"status": "maintenance"}).status_code == 400
     assert assign(tickets[1], employees[1]["id"]).status_code == 400
     with Session(main_module.engine) as db:
@@ -39,6 +43,7 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
         assert row.end_time.isoformat().startswith(extended.json()["planned_end_time"][:19])
         assert len(db.scalars(select(ResourceReservation)).all()) == 1
     assert client.patch(f"/api/v1/planning/sessions/{session['id']}/finish", headers=operator).status_code == 200
+    assert any(option["assignable"] for option in options(tickets[1]))
     assert assign(tickets[1], employees[1]["id"]).status_code == 200
     assert client.patch(f"/api/v1/tickets/{tickets[1]}/unassign", headers=operator).status_code == 200
     with Session(main_module.engine) as db:

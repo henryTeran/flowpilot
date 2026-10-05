@@ -113,9 +113,11 @@ def assignment_options_for_ticket(
     requirements = requirement_facts(db, institute_id)
     needed_skills = set().union(*(requirements.get(line.service_id, set()) for line in lines))
     qualifications = skill_facts(db, institute_id)
-    from app.modules.resources.repository import resource_requirement_facts
-    resource_needs = resource_requirement_facts(db, institute_id)
-    resource_capacity_known = not any(resource_needs.get(line.service_id) for line in lines)
+    from app.modules.resources.reservations import resource_timelines, ticket_resource_needs
+    from app.modules.resources.allocation_domain import match_resources
+    resource_needs = ticket_resource_needs(db, ticket)
+    resource_match = match_resources(resource_timelines(db, institute_id, exclude_ticket_id=ticket.id, now=now),
+                                     resource_needs, now, now + timedelta(minutes=service_duration))
     reserved_employees = set(db.scalars(select(QueueTicket.assigned_employee_id).where(
         QueueTicket.institute_id == institute_id,
         QueueTicket.status == "assigned",
@@ -147,7 +149,7 @@ def assignment_options_for_ticket(
             assignable, reason = False, "ticket_already_assigned"
         if not has_required_skills(qualifications.get(employee.id, set()), needed_skills):
             assignable, reason = False, "skills_missing"
-        if not resource_capacity_known:
+        if resource_match is None:
             assignable, reason = False, "resource_capacity_unknown"
         
         # Calculate projected end time
