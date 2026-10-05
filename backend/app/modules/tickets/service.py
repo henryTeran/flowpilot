@@ -492,6 +492,9 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
             and ticket.payment_method == payment_method):
         return ticket
 
+    if payment_method in {"carte_cadeau", "mixte"}:
+        raise business_error("Un paiement carte cadeau enregistre est requis pour ce mode")
+
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être payé dans son état actuel")
 

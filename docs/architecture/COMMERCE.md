@@ -285,3 +285,34 @@ with the recorded lifecycle/pricing HTTP and real PostgreSQL evidence, detailed
 Phase 8 MEMBERSHIPS functional server/component scope passes. Actual browser/tablet,
 production load and external settlement remain unverified. Gift cards and loyalty
 are the remaining Phase 8 domains.
+
+## Gift-card issuance checkpoint 8J
+
+The gift_cards module now owns explicit institute currency (CHF/EUR initially),
+credited cards, expiry and scoped code lookup. Manager issuance requires a positive
+decimal-cent amount, validity in days, a reason, signed actor and mandatory replay
+key. Registered recipient linkage is optional; the instrument is a bearer card
+within the issuing institute. Issuance records granted credit, not a paid sale or
+external settlement. Same-intent recovery returns the original code and current
+balance, including after expiry; changed amount/validity/recipient/reason is refused.
+
+Currency is not inferred from country or locale. Configuration is serialized with
+issuance and cannot change once any card exists. The card snapshots currency, amount,
+validity and issuer. Expiry is exclusive and makes usable_amount zero while retaining
+recorded remaining credit. Codes contain 192 random bits and are returned only to
+manager issuance/replay; authenticated operator lookup accepts the code in a POST
+body, does not echo it, and cannot resolve another institute's card.
+
+Migration b5d890adc025 adds currency, balance, validity, code uniqueness and replay
+constraints. Nonempty downgrade is refused before DDL. SQLite/PostgreSQL empty
+round-trip/model parity and PostgreSQL upgrade/check pass. A failed issuance flush
+leaves no credit, and the same intent can retry safely. Actual PostgreSQL tests
+verify duplicate issue credits once and currency-change/issuance serialization
+with strongly retained cached settings.
+
+The previous checkout API accepted gift/mixed labels without any balance movement.
+New closure through those labels is now refused until a recorded allocation exists;
+historical same-intent paid-ticket recovery stays compatible. ADR-006 documents the
+separation between credit issuance, service revenue and future payment allocation.
+This checkpoint does not close GIFTCARDS: currency-bearing checkout facts, debit/
+allocation/reversal, remaining due and management/cashier interface remain next.

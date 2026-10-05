@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8I_MEMBERSHIP_INTERFACE
+CURRENT_CHECKPOINT = PHASE8J_GIFT_CARD_ISSUANCE
 STATUS = ACTIVE
 
 GATES:
@@ -8,11 +8,13 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS, including management and checkout interfaces. GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS issuance/currency/expiry API implemented; allocation/debit and interface remain. LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Full backend run: 206 passed, 33 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Full backend issuance-foundation run: 208 passed, 35 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Subsequent gift/unbacked-payment/ticket regression: 16 passed, 2 opt-in races skipped. Gift/migration PostgreSQL bundle: 7 passed.
+- Migration b5d890adc025: PostgreSQL upgrade/check, SQLite/PostgreSQL round-trip/model parity and nonempty downgrade refusal verified.
 - Final local membership lifecycle checks: 2 passed, 5 opt-in PostgreSQL cases skipped.
 - Membership/package/reversal PostgreSQL regression bundle: 18 passed; final benefit/revision checks: 6 passed in PostgreSQL runner (2 locally, 4 opt-in races skipped).
 - Migration a4c789fcb914: PostgreSQL upgrade/check passed; SQLite/PostgreSQL round-trip/model parity and nonempty downgrade refusal verified.
@@ -42,6 +44,8 @@ INVARIANTS:
 - Membership grant/renewal uses registered scoped identities, snapshotted terms and transactional validity/history; granting rights does not claim settled payment.
 - Member pricing uses declared catalog prices and immutable application/reversal facts; active package/member coverage cannot stack.
 - Checkout wallets share a scoped mutation lease; one wallet cannot unlock payment while the other remains unconfirmed.
+- Gift currency is explicitly configured and frozen after issuance; credited amount/code/expiry are replay-safe. Granting credit does not claim a sale.
+- New gift/mixed payment closure is refused until a recorded allocation exists; historical paid-ticket replay is preserved (ADR-006).
 - Minimal customer identities support selection; legacy references are preserved. Full Phase 12 CRM lifecycle and public self-service are not claimed.
 - Entitlement issuance does not claim a paid package sale or external payment settlement.
 - Demo reset cannot erase commercial redemption-linked tickets.
@@ -51,12 +55,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8J: gift card issuance/use/expiration/balance; then loyalty.
+- PHASE8K: currency-bearing checkout facts and gift allocation/debit/reversal, then gift interface and loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(memberships): manage rights and reconcile member pricing in checkout.
+- Current: feat(gift-cards): issue scoped credits with explicit currency and replay protection.
+- 03c5ff1 feat(memberships): manage rights and reconcile member pricing in checkout.
 - c3f3db6 feat(memberships): apply and reverse member pricing transactionally.
 - 9424a92 feat(memberships): grant and renew scoped rights with immutable history.
 - ca3a33a feat(commerce): configure and grant packages with replay-safe recovery.
