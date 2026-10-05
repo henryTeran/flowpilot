@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7B_CLIENT_RECONNECT_AND_RESYNCHRONIZATION
+CURRENT_CHECKPOINT = PHASE7C_COMMITTED_DATABASE_REVISION_DELIVERY
 STATUS = ACTIVE
 
 GATES:
@@ -12,6 +12,10 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Revision delivery checkpoint: backend 192 passed, 15 opt-in PostgreSQL cases skipped locally; PostgreSQL race bundle 14 passed.
+- Migration f7b012e542ad: upgrade/check and SQLite/PostgreSQL round-trip/model parity passed.
+- Revision transaction/rollback/replay checks passed; ASGI committed queue-to-WebSocket delivery and tenant scope checks passed.
+- PostgreSQL revision/migration bundle: 3 passed; atomic concurrent counter increments and schema parity passed.
 - Frontend: 18 tests and production build passed; reconnect, heartbeat timeout, resynchronization, stale socket and cleanup simulations pass.
 - WebSocket tenant/role and connection lifecycle bundle: 7 passed; these do not prove committed-change synchronization.
 - Backend full suite: 184 passed, 14 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
@@ -34,12 +38,13 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7C: committed-change notifications and end-to-end delivery/reconnect validation; client connection lifecycle is implemented.
-- Current server sends ping/pong; notifications are not yet wired. Do not infer live synchronization PASS from component simulations.
+- PHASE7D: live two-worker WebSocket delivery/reconnect validation and stale REST response protection.
+- Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: feat(realtime): reconnect planning clients and resynchronize after transport loss.
+- Current: feat(realtime): notify planning clients of committed database revisions.
+- f4c1eb7 feat(realtime): reconnect planning clients and resynchronize after transport loss.
 - f1b968e fix(realtime): isolate scoped connections and tolerate closed transports.
 - 9ec32ce fix(booking): reject unknown overdue capacity and close functional booking gates.
 - 18bccd5 feat(booking): recover customer reservations after retried creation.

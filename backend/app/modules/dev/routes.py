@@ -338,6 +338,8 @@ def _reset_operational_data(db: Session, institute_id: str) -> None:
     from app.modules.appointments.models import BookingEvent
     db.execute(delete(BookingEvent).where(BookingEvent.institute_id == institute_id))
     db.execute(delete(Appointment).where(Appointment.institute_id == institute_id))
+    from app.modules.realtime.revisions import mark_planning_changed
+    mark_planning_changed(db, institute_id)
 
     employees = db.scalars(select(Employee).where(Employee.institute_id == institute_id)).all()
     for employee in employees:

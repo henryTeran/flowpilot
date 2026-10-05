@@ -19,7 +19,24 @@ transport handshake failures reported as 1006 follow the capped retry policy.
 frontend tests pass, including deterministic reconnect/heartbeat/cleanup scenarios.
 These simulations are not real browser or network delivery evidence.
 
-The server still provides ping/pong rather than verified committed-change
-synchronization. REALTIME_SYNC and the full RECONNECT gate remain open; TABLET_UX is
-blocked by unavailable CUA browser surfaces. The connection manager is process-local
-and is not evidence of delivery across multiple workers.
+`planning_revisions` stores an atomic per-institute counter in the same transaction
+as operational ORM writes. Flush hooks track scoped employees, queue lines/tickets,
+sessions, bookings and resource facts. Global catalog changes invalidate all
+institutes; the development bulk reset explicitly marks its scope. No-op ORM writes
+and booking replay do not advance it. Rollback removes the marker change together
+with business state. The counter may advance more than once within a transaction;
+it is an invalidation revision, not a business event count or audit log.
+
+Each WebSocket reads its tenant's committed revision at most once per second and
+sends `planning.changed` when it differs. This is database-backed bounded polling,
+not a process-local broadcast dependency. Read transactions are ended between polls
+and queries run outside the event loop. Clients resynchronize through authenticated
+REST; notices contain only event/revision. Disconnected clients recover via refresh
+on reconnect. Database query load scales with connected sockets; production load
+and optimization remain open.
+
+Tests prove commit visibility, rollback/no-op/replay semantics, queue-to-WebSocket
+delivery and tenant revision isolation. PostgreSQL concurrent workers cannot lose
+revision increments. These are database/ASGI checks, not proof of two live server
+processes or real browser reconnect. REALTIME_SYNC and full RECONNECT remain open
+until that integration evidence is gathered; TABLET_UX remains blocked.
