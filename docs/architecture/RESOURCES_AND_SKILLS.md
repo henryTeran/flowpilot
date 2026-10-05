@@ -19,7 +19,13 @@ booking revalidate under the institute lock. Waiting projections consider qualif
 employees only. Removing skills cannot invalidate committed tickets, active sessions
 or appointments. Changing service requirements requires releasing commitments first.
 
-Resource allocation is not yet implemented. Configured resource requirements make
+The pure `allocation_domain.py` core matches distinct resources to quantity and
+capability requirements across complete half-open intervals. It uses deterministic
+augmenting paths, excludes inactive/unknown occupancy and searches reservation-end
+boundaries for the earliest joint window. Eight unit cases validate these semantics.
+The core is not yet connected to database reservations or official scheduling writes.
+
+Resource allocation integration is not yet implemented. Configured resource requirements make
 capacity unknown and block assignment, start and booking. A catalog entry alone does
 not prove availability. Phase 5B must provide reservations, lifecycle release,
 extension collision handling and joint projections before resource gates can pass.

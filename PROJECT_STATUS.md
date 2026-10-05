@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 5
-CURRENT_CHECKPOINT = PHASE5A_RESOURCES_AND_QUALIFICATIONS
+CURRENT_CHECKPOINT = PHASE5B_RESOURCE_ALLOCATION_CORE
 STATUS = ACTIVE
 
 GATES:
@@ -15,6 +15,7 @@ TESTS:
 - PostgreSQL Phase 5 bundle: 3 passed (qualification race and SQLite/PostgreSQL migration round-trips with metadata parity).
 - PostgreSQL Phase 4 scheduling races: 7 passed with the new schema.
 - Frontend: 13 passed; production build passed.
+- Resource allocation domain: 8 passed (deterministic capability/quantity matching, complete intervals, unknown occupancy, joint windows and boundaries).
 - Migration a1c935e720d4 preserves legacy employee JSON and deduplicates normalized skills; downgrade/re-upgrade passed.
 - PostgreSQL upgrade head and alembic check passed in disposable validation database.
 - JSDOM workflow checks are component evidence, not browser/tablet proof.
@@ -33,12 +34,13 @@ BLOCKERS:
 - Appointment lifecycle concurrency audit and larger load remain open.
 
 NEXT_STEP:
-- PHASE5B: deterministic resource allocation, reservations, lifecycle release, extension conflicts and shared capacity projection.
+- PHASE5B: integrate tested resource matcher with durable reservations, lifecycle release, extension conflicts and shared capacity projection.
 - Preserve browser gate as BLOCKED; do not claim complete Phase 4 or Phase 5 closure.
 - Details: docs/architecture/RESOURCES_AND_SKILLS.md and FLOW_CAPACITY_ENGINE.md.
 
 LAST_COMMITS:
-- Current checkpoint: feat(resources): add tenant-scoped resources and qualification guards.
+- Current checkpoint: feat(resources): add deterministic interval allocation core.
+- da7a0f2 feat(resources): add tenant-scoped resources and qualification guards.
 - a566a0e feat(queue): guide assignment with duration-aware feasibility.
 - 5a20caf feat(planning): make service extensions durably replay safe.
 
