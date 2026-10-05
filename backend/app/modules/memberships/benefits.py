@@ -45,6 +45,8 @@ def apply_benefit(db, institute, identifier, payload, actor):
     if membership_view(membership, now)["status"] != "active":
         raise business_error("Abonnement actif requis")
     ticket, line = checkout_line(db, institute, payload.ticket_line_id)
+    from app.modules.loyalty.redemption import require_no_reward
+    require_no_reward(db, line_id=line.id)
     from app.modules.tickets.currency import require_current_catalog_currency
     require_current_catalog_currency(db, ticket)
     if ticket.customer_id != membership.customer_id or not line.performed_by_employee_id:

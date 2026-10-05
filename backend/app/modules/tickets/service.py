@@ -54,6 +54,8 @@ def attach_checkout_customer(db: Session, ticket_id: str, customer_id: str | Non
         TicketLine.id == MembershipBenefit.ticket_line_id).where(
         TicketLine.ticket_id == ticket.id, MembershipBenefit.reversed_at.is_(None))):
         raise business_error("Annuler l'avantage membre avant de changer de cliente")
+    from app.modules.loyalty.redemption import require_no_reward
+    require_no_reward(db, ticket=ticket)
     ticket.customer_id = customer_id
     record_event(db, ticket, "queue.customer_changed", ticket.status)
     db.commit()
@@ -368,6 +370,8 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
 
     from app.modules.gift_cards.tenders import require_no_active_tender
     require_no_active_tender(db, ticket)
+    from app.modules.loyalty.redemption import require_no_reward
+    require_no_reward(db, ticket=ticket)
     from app.modules.resources.reservations import release
     release(db, ticket.institute_id, ticket_id=ticket.id)
     transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
@@ -444,6 +448,8 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
     if db.scalar(select(MembershipBenefit.id).where(MembershipBenefit.ticket_line_id == line.id)):
         raise business_error("L'historique des avantages interdit la suppression de cette prestation")
 
+    from app.modules.loyalty.redemption import require_no_reward
+    require_no_reward(db, line_id=line.id, history=True)
     lines = _ticket_lines(db, ticket.id)
     if len(lines) <= 1:
         raise business_error("Impossible de supprimer la dernière prestation du ticket")

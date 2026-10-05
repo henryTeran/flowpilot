@@ -338,6 +338,9 @@ def _reset_operational_data(db: Session, institute_id: str) -> None:
     if db.scalar(select(GiftCardAllocation.id).where(GiftCardAllocation.institute_id == institute_id)):
         raise business_error("L'historique des paiements cadeaux interdit la reinitialisation de ces tickets")
     from app.modules.resources.models import ResourceReservation
+    from app.modules.loyalty.models import LoyaltyRedemption
+    if db.scalar(select(LoyaltyRedemption.id).where(LoyaltyRedemption.institute_id == institute_id)):
+        raise business_error("Historique de recompenses a conserver")
     from app.modules.loyalty.models import LoyaltyEarning
     if db.scalar(select(LoyaltyEarning.ticket_id).where(LoyaltyEarning.institute_id == institute_id)):
         raise business_error("L'historique d'acquisition de points interdit la reinitialisation de ces tickets")

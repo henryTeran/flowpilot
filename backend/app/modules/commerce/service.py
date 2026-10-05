@@ -106,6 +106,8 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
     db.refresh(line)
     from app.modules.gift_cards.tenders import require_no_active_tender
     require_no_active_tender(db, ticket)
+    from app.modules.loyalty.redemption import require_no_reward
+    require_no_reward(db, line_id=line.id)
     if ticket.customer_id != package.customer_id or line.service_id != package.service_id:
         raise business_error("La cliente et la prestation doivent correspondre au forfait")
     if ticket.status not in {"ready_for_checkout", "in_checkout"} or not line.performed_by_employee_id:

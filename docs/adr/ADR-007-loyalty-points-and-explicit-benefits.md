@@ -1,6 +1,6 @@
 # ADR-007 — Loyalty points and explicitly configured benefits
 
-Status: Accepted for point history, tiers and transactional earning; reward application pending.
+Status: Accepted for point history, tiers, earning and transactional rewards; UI verification pending.
 Date: 2026-10-06
 
 ## Context
@@ -45,9 +45,22 @@ earning conversion, threshold or monetary reward was specified by the source pla
   reduction, positive point cost and independent minimum balance threshold.
   Manager creation is scoped and replay-safe; no reward is inferred from tier
   descriptions. Reward creation serializes with currency configuration and freezes
-  its unit. This catalog alone does not spend points or change ticket prices;
-  transactional application/reversal remains required.
-- Refuse nonempty ledger, tier, earning, policy or reward downgrades before DDL. Demo reset
+  its unit. The apply endpoint
+  spends cost per unit for the full performed line quantity; the
+  minimum balance is checked before spending. The fixed reduction is per unit,
+  capped at zero price, and both original and resulting prices are snapshotted.
+- Serialize spending with manager point corrections, other coverage, gift tender
+  allocation and checkout. Require registered scoped beneficiary, service and
+  confirmed matching currency. Active package/member/reward coverage cannot
+  stack; active gift funding freezes new reward application and reversal.
+- Before payment, manager reversal credits the exact original spend and restores
+  the saved prices in one transaction. Preserve debit and credit entries plus
+  reversal actor/reason/time. Same-intent apply/reversal returns its original
+  fact even after later changes; an old reversal cannot undo newer coverage.
+  Failed history writes roll back both points and pricing. Active rewards block
+  beneficiary changes and cancellation; any reward history blocks line removal
+  and demo reset. Paid rewards cannot be reversed through the prepaid endpoint.
+- Refuse nonempty ledger, tier, earning, policy, reward or redemption downgrades before DDL. Demo reset
   cannot erase tickets linked to earning history.
 
 ## Verification and remaining work
@@ -55,7 +68,8 @@ earning conversion, threshold or monetary reward was specified by the source pla
 HTTP checks cover role/institute boundaries, strict integer inputs, replay, changed
 intent, tier transitions, failed-flush rollback and history. PostgreSQL races cover
 duplicate credit, competing corrections, duplicate closure, policy/closure and
-currency/policy races; SQLite/PostgreSQL migration parity and
+currency/policy races, duplicate spending/reversal and correction/spending
+races without overdraft; SQLite/PostgreSQL migration parity and
 round-trips are checked on disposable databases. This is a loyalty foundation,
-not the complete LOYALTY gate. Reward application, UI and end-to-end
+not the complete LOYALTY gate. UI and end-to-end
 verification remain required; production readiness is not inferred.

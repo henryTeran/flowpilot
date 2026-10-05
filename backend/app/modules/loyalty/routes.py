@@ -5,10 +5,10 @@ from app.database.session import get_db
 from app.core.permissions import require_ticket_manager
 from app.modules.customers.repository import require_customer
 from app.modules.loyalty import service
-from app.modules.loyalty.models import LoyaltyEntry, LoyaltyTier, LoyaltyReward
-from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead, RewardCreate, RewardRead
+from app.modules.loyalty.models import LoyaltyEntry, LoyaltyTier, LoyaltyReward, LoyaltyRedemption
+from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead, RewardCreate, RewardRead, RewardApply, RewardReverse, RedemptionRead
 from app.modules.tickets.repository import lock_institute
-from app.modules.loyalty import earning
+from app.modules.loyalty import earning, redemption
 from app.modules.loyalty.models import LoyaltyEarning
 from app.modules.loyalty.schemas import EarningPolicyCreate, EarningPolicyRead, EarningRead
 
@@ -83,3 +83,21 @@ def rewards(institute_id: str, user=Depends(operator), db: Session = Depends(get
 @router.post("/rewards", response_model=RewardRead)
 def configure_reward(institute_id: str, payload: RewardCreate, user=Depends(manager), db: Session = Depends(get_db)):
     return service.create_reward(db, institute_id, payload, user["sub"])
+
+
+
+@router.post("/rewards/{reward_id}/apply", response_model=RedemptionRead)
+def apply_reward(institute_id: str, reward_id: str, payload: RewardApply, user=Depends(operator), db: Session = Depends(get_db)):
+    return redemption.apply(db, institute_id, reward_id, payload, user["sub"])
+
+
+@router.post("/redemptions/{redemption_id}/reverse", response_model=RedemptionRead)
+def reverse_reward(institute_id: str, redemption_id: str, payload: RewardReverse, user=Depends(manager), db: Session = Depends(get_db)):
+    return redemption.reverse(db, institute_id, redemption_id, payload.reason, user["sub"])
+
+
+@router.get("/customers/{customer_id}/redemptions", response_model=list[RedemptionRead])
+def redemption_history(institute_id: str, customer_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    require_customer(db, institute_id, customer_id)
+    return list(db.scalars(select(LoyaltyRedemption).where(LoyaltyRedemption.institute_id == institute_id,
+        LoyaltyRedemption.customer_id == customer_id).order_by(LoyaltyRedemption.occurred_at, LoyaltyRedemption.id)))

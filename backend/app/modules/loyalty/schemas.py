@@ -90,3 +90,34 @@ class RewardRead(RewardCreate):
     id: str
     actor_id: str
     created_at: datetime
+
+
+class RewardApply(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ticket_line_id: Annotated[str, StringConstraints(min_length=1, max_length=80)]
+    idempotency_key: ReplayKey
+
+
+class RewardReverse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: Reason
+
+
+class RedemptionRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    customer_id: str
+    reward_id: str
+    ticket_line_id: str
+    quantity: int
+    points_cost: int
+    currency: str
+    original_unit_price: Decimal
+    original_total: Decimal
+    reward_unit_price: Decimal
+    reward_total: Decimal
+    actor_id: str
+    occurred_at: datetime
+    reversed_at: datetime | None
+    reversed_by: str | None
+    reversal_reason: str | None
