@@ -498,7 +498,17 @@ def extend_service_session(db: Session, session_id: str, minutes: int) -> Servic
     if session.status not in ACTIVE_SESSION_STATUSES:
         raise business_error("Seule une prestation active peut etre prolongee")
 
-    session.planned_end_time = _ensure_aware(session.planned_end_time) + timedelta(minutes=minutes)
+    new_end = _ensure_aware(session.planned_end_time) + timedelta(minutes=minutes)
+    appointment = db.scalar(select(Appointment.id).where(
+        Appointment.institute_id == session.institute_id,
+        Appointment.employee_id == session.employee_id,
+        Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+        Appointment.start_time < new_end,
+        Appointment.end_time > session.start_time,
+    ))
+    if appointment:
+        raise business_error("La prolongation chevauche un rendez-vous planifie")
+    session.planned_end_time = new_end
     session.duration_minutes += minutes
     session.status = "extended"
 

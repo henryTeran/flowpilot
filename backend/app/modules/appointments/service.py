@@ -16,6 +16,8 @@ from app.modules.employees.models import Employee
 from app.modules.employees.repository import get_employee
 from app.modules.planning.models import ServiceSession
 from app.modules.services.repository import get_service
+from app.modules.tickets.repository import lock_institute
+from app.modules.tickets.models import QueueTicket, TicketLine
 from app.shared.exceptions import business_error, not_found
 from app.shared.ids import new_id
 from app.shared.time import utcnow
@@ -105,6 +107,7 @@ def list_today_appointments(db: Session, institute_id: str) -> list[Appointment]
 
 
 def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
+    lock_institute(db, payload.institute_id)
     service = get_service(db, payload.service_id)
     if not service:
         raise not_found("Prestation introuvable")
@@ -122,6 +125,17 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
 
     duration = service.duration_max or service.duration_min
     end_time = start_time + timedelta(minutes=duration)
+
+    reserved_lines = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).join(
+        QueueTicket, QueueTicket.id == TicketLine.ticket_id,
+    ).where(QueueTicket.institute_id == payload.institute_id,
+            QueueTicket.assigned_employee_id == payload.employee_id,
+            QueueTicket.status == "assigned")).all()
+    reserved_minutes = sum(minutes * quantity for minutes, quantity in reserved_lines)
+    reservation_start = utcnow()
+    if reserved_minutes and _has_overlap(start_time, end_time, reservation_start,
+                                         reservation_start + timedelta(minutes=reserved_minutes)):
+        raise business_error("Conflit planning : un ticket affecte reserve ce creneau")
 
     active_sessions = list(
         db.scalars(
