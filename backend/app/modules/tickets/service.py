@@ -489,7 +489,8 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
 
 
 def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_method: str,
-                     remainder_method: str | None = None, actor: str | None = None) -> QueueTicket:
+                     remainder_method: str | None = None, actor: str | None = None,
+                     operator_institute: str | None = None) -> QueueTicket:
     ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
@@ -537,6 +538,8 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
     ticket.total_amount = _ticket_total(db, ticket.id)
 
     current_employee = get_employee(db, employee.id)
+    from app.modules.loyalty.earning import award_checkout
+    award_checkout(db, ticket, actor, operator_institute)
     if current_employee:
         current_appointment = db.scalars(
             select(Appointment)

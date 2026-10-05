@@ -335,12 +335,15 @@ def patch_complete_payment(
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     _require_ticket_access(ticket_id, current_user, db)
-    if payload.payment_method in {"carte_cadeau", "mixte"}:
+    from app.modules.loyalty.earning import current_policy
+    candidate = get_ticket(db, ticket_id)
+    policy = current_policy(db, candidate.institute_id)
+    if payload.payment_method in {"carte_cadeau", "mixte"} or (policy is not None and policy.enabled):
         ticket = get_ticket(db, ticket_id)
         if current_user.get("institute_id") != ticket.institute_id:
             raise HTTPException(403, "Institut non autorise")
     ticket = complete_payment(db, ticket_id, payload.employee_id, payload.payment_method,
-                              payload.remainder_method, current_user.get("sub"))
+                              payload.remainder_method, current_user.get("sub"), current_user.get("institute_id"))
     log_audit_event(
         request=request,
         current_user=current_user,
