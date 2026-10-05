@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
-import type { Employee, PaymentMethod, QueueTicket, Service } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import type { Customer, Employee, PaymentMethod, QueueTicket, Service } from "../types";
+import { PackageWallet } from "./PackageWallet";
 
 interface CheckoutPanelProps {
+  onRefresh?: () => Promise<boolean>;
   ticket?: QueueTicket;
   services: Service[];
   employees: Employee[];
@@ -35,9 +37,15 @@ export function CheckoutPanel({
   onClose,
   onCancelTicket,
   onReidentify,
+  onRefresh,
 }: CheckoutPanelProps) {
   const [serviceToAdd, setServiceToAdd] = useState("");
   const [printCustomerTicket, setPrintCustomerTicket] = useState(false);
+  const [customer, setCustomer] = useState<Customer>();
+  const [commerceBusy, setCommerceBusy] = useState(false);
+  const [coveredLines, setCoveredLines] = useState<string[]>([]);
+  const [historicalLines, setHistoricalLines] = useState<string[]>([]);
+  useEffect(() => { setCustomer(undefined); setCommerceBusy(false); setCoveredLines([]); setHistoricalLines([]); }, [ticket?.id, ticket?.customer_id]);
 
   const orderedServices = useMemo(
     () => [...services].sort((a, b) => a.name.localeCompare(b.name, "fr")),
@@ -57,7 +65,7 @@ export function CheckoutPanel({
   const total = ticket.total_amount ?? ticketLines.reduce((sum, line) => sum + Number(line.total || 0), 0);
   const creator = employees.find((employee) => employee.id === ticket.created_by_id);
   const assigned = employees.find((employee) => employee.id === ticket.assigned_employee_id);
-  const canEditLines = ["ready_for_checkout", "in_checkout"].includes(ticket.status);
+  const canEditLines = !commerceBusy && ["ready_for_checkout", "in_checkout"].includes(ticket.status);
 
   function handleAddService() {
     if (!serviceToAdd) return;
@@ -86,7 +94,7 @@ export function CheckoutPanel({
               type="button"
               className="bm-cash-top-secondary"
               onClick={() => onCancelTicket?.(ticket.id)}
-              disabled={!onCancelTicket || ticket.status === "paid"}
+              disabled={!onCancelTicket || ticket.status === "paid" || commerceBusy || coveredLines.length > 0}
             >
               Clore en annulation
             </button>
@@ -100,10 +108,10 @@ export function CheckoutPanel({
           </div>
 
           <div className="bm-customer-cash-info">
-            <h2>{ticket.customer_id ? `Cliente ${ticket.customer_id}` : "Cliente de passage"}</h2>
+            <h2>{customer && customer.id === ticket.customer_id ? customer.display_name : ticket.customer_id ? "Cliente identifiée" : "Cliente de passage"}</h2>
             <div className="bm-customer-meta-grid">
-              <span><strong>Reference</strong>{ticket.customer_id || "—"}</span>
-              <span><strong>Segment</strong>{ticket.customer_id ? "Fidelisee" : "Passage"}</span>
+              <span><strong>Téléphone</strong>{customer && customer.id === ticket.customer_id ? customer.phone || "—" : "—"}</span>
+              <span><strong>Segment</strong>{ticket.customer_id ? "Identifiée" : "Passage"}</span>
               <span><strong>Arrivee</strong>{formatShortTime(ticket.arrival_time)}</span>
               <span><strong>Origine</strong>File institut</span>
               <span><strong>Dossier</strong>{ticket.ticket_number}</span>
@@ -115,6 +123,9 @@ export function CheckoutPanel({
           </button>
         </section>
 
+        {ticket.customer_id && onRefresh && <PackageWallet key={`${ticket.institute_id}:${ticket.id}:${ticket.customer_id}`}
+          ticket={ticket} onRefresh={onRefresh} onBusy={setCommerceBusy} onCustomer={setCustomer}
+          onCoverage={(active, historical) => { setCoveredLines(active); setHistoricalLines(historical); }} />}
         <section className="bm-cash-action-row">
           <button type="button">▦ Appliquer remise</button>
           <div className="bm-cash-add-service">
@@ -172,7 +183,7 @@ export function CheckoutPanel({
                     type="button"
                     className="bm-cash-trash"
                     onClick={() => onRemoveLine(line.id)}
-                    disabled={!removable}
+                    disabled={!removable || historicalLines.includes(line.id)}
                     title={removable ? "Retirer cette prestation" : "Impossible de retirer la dernière prestation"}
                   >
                     🗑
@@ -236,7 +247,7 @@ export function CheckoutPanel({
           />
         </label>
 
-        <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee}>
+        <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee || commerceBusy}>
           Enregistrer le paiement
         </button>
 

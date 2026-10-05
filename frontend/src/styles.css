@@ -6650,3 +6650,6 @@ body {
 .customer-picker > div { display: grid; gap: 8px; }
 .customer-search-results { max-height: 220px; overflow-y: auto; }
 .customer-search-results button { display: flex; justify-content: space-between; gap: 12px; min-height: 44px; text-align: left; }
+.package-wallet { display: grid; gap: 10px; padding: 16px; border: 1px solid #e7d9e1; border-radius: 12px; margin: 12px 0; }
+.package-wallet > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.package-wallet button { min-height: 44px; }

@@ -108,3 +108,27 @@ lost-response creation retry and named walk-in identity submission. HTTP coverag
 also completes a selected-customer booking and consumes its cure at checkout.
 These are component/protocol checks; browser/tablet gates and the package wallet UI
 remain open. Consent, customer lifecycle, marketing and full CRM are later work.
+
+## Checkout-wallet checkpoint 8D
+
+Checkout now loads the selected customer's package balances/history and identity,
+displays their name rather than an internal identifier, and offers full-line session
+coverage when the backend balance/service and performed-line facts permit it.
+Application retains its replay key across uncertain responses. Managers see the
+pre-payment reversal action; this is a presentation hint from token claims, while
+the API remains the authoritative permission check. Historical consumption rows
+protect line deletion; active coverage prevents ticket cancellation.
+
+Writes disable payment while outstanding. After a lost response the wallet reloads
+history and the App reloads operational prices; payment stays blocked if this
+reconciliation fails and an explicit refresh can recover it. Refresh returns a
+success flag rather than allowing a swallowed error to unlock checkout. Disposed
+contexts and superseded reads cannot apply wallet state. Remote ticket refreshes
+also refresh package eligibility. Customer registration alone no longer labels a
+customer as loyal: loyalty remains a separate pending feature.
+
+Frontend validation: 26 tests and production build pass, including lost consumption
+response, uncertain-payment blocking, explicit recovery and pre-payment reversal.
+This is JSDOM/component evidence; actual browser/tablet UX remains unverified.
+Package-plan configuration/issuance UI, anonymous-ticket customer attachment and
+the package sale/settlement flow remain open. PACKAGES is not yet fully closed.

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8C_CUSTOMER_SELECTION_AND_BOOKING_BINDING
+CURRENT_CHECKPOINT = PHASE8D_CHECKOUT_PACKAGE_WALLET
 STATUS = ACTIVE
 
 GATES:
@@ -8,7 +8,7 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle/reversal and customer-selection/binding implemented; checkout wallet/management UI remains. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: package application/reversal wallet implemented; management/issuance UI and anonymous-checkout customer attachment remain. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
@@ -23,7 +23,7 @@ EVIDENCE:
 - Package migrations: SQLite/PostgreSQL round-trip/model-parity bundle with package tests: 5 passed; PostgreSQL upgrade/check passed.
 - Package HTTP checks cover role/tenant, expiry, customer match, replay, failed-flush rollback, covered checkout pricing and payment recovery.
 - Live two-process PostgreSQL suite: 2 passed; each walk-in/booking action revision followed by reader-side REST checks.
-- Frontend: 25 tests and production build passed; named arrival selection, stale search and replay-safe customer creation verified in JSDOM only.
+- Frontend: 26 tests and production build passed; wallet recovery after lost response, uncertain-payment blocking and reversal verified in JSDOM only.
 - Gate details: docs/architecture/RESOURCES_AND_SKILLS.md, HYBRID_BOOKING.md, REALTIME_OPERATIONS.md and COMMERCE.md.
 
 INVARIANTS:
@@ -39,12 +39,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8D: package wallet/issuance/application/reversal in checkout UI; then memberships, gift cards and loyalty.
+- PHASE8E: manager package configuration/issuance UI and anonymous-checkout customer attachment; then memberships, gift cards and loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(customers): select identities for arrivals and booking checkout.
+- Current: feat(commerce): apply and reverse packages from checkout.
+- bca2049 feat(customers): select identities for arrivals and booking checkout.
 - bc4f874 feat(commerce): reverse package consumption safely before payment.
 - bf8dc72 feat(commerce): add scoped package balances and checkout consumption.
 - b3d941d test(operations): verify live actions and recalculation across servers.

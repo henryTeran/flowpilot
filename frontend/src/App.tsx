@@ -228,9 +228,9 @@ export default function App() {
   }, [selectedInstituteId, selectedServiceId]);
 
   const refreshOperationalData = useCallback(async () => {
-    if (!selectedInstituteId) return;
+    if (!selectedInstituteId) return false;
     const request = operationalRefreshGate.current.begin(selectedInstituteId);
-    if (request === null) return;
+    if (request === null) return false;
     const token = getAccessToken();
     setError(null);
     try {
@@ -243,7 +243,7 @@ export default function App() {
         apiGet<Appointment[]>(`/appointments?institute_id=${encodeURIComponent(selectedInstituteId)}`),
       ]);
 
-      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return;
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return false;
       setEmployees(employeesResponse);
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
@@ -252,9 +252,11 @@ export default function App() {
       setAppointments(appointmentsResponse);
       setSelectedEmployeeId(current => employeesResponse.some(employee => employee.id === current)
         ? current : employeesResponse[0]?.id || "");
+      return true;
     } catch (err) {
-      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return;
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return false;
       setError(err instanceof Error ? err.message : "Erreur pendant le rafraîchissement");
+      return false;
     }
   }, [selectedInstituteId]);
 
@@ -852,7 +854,7 @@ export default function App() {
               employees={employees}
               ticketStats={ticketStats}
               onCreateTicket={() => setTicketWorkflowOpen(true)}
-              onRefresh={refreshOperationalData}
+              onRefresh={async () => { await refreshOperationalData(); }}
               onManageTicket={(ticket) => {
                 handleTicketSelection(ticket.id);
                 if (isCheckoutTicket(ticket.status)) {
@@ -955,7 +957,8 @@ export default function App() {
             selectedPaymentMethod={selectedPaymentMethod}
             onPaymentMethodChange={setSelectedPaymentMethod}
             onAddService={handleAddCheckoutService}
-            onRemoveLine={handleRemoveCheckoutLine}
+          onRemoveLine={handleRemoveCheckoutLine}
+          onRefresh={refreshOperationalData}
             onPay={handlePayCheckout}
             onClose={() => setActiveDrawer(null)}
             onCancelTicket={handleCancelTicket}
@@ -990,7 +993,7 @@ export default function App() {
             disabled={!selectedInstituteId}
             onResetDemo={handleResetDemo}
             onCreateDemoDay={handleCreateDemoDay}
-            onRefresh={refreshOperationalData}
+            onRefresh={async () => { await refreshOperationalData(); }}
           />
         </ActionDrawer>
 

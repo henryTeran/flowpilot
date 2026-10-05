@@ -372,6 +372,58 @@ test("named arrival submits the selected customer identity without displaying te
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
 });
 
+test("package wallet recovers a lost consumption response, blocks uncertain payment and reverses before checkout", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  let applied = false;
+  let reversed = false;
+  let reconciles = false;
+  let intent = "";
+  let posts = 0;
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", customer_id: "customer_selected", total_amount: 15,
+    lines: [{ id: "line", ticket_id: "ticket", service_id: "svc", quantity: 1, duration_minutes: 10,
+      unit_price: 15, total: 15, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" }] };
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    let payload: any;
+    if (init?.method === "POST") {
+      posts++;
+      if (path.endsWith("/consume")) { applied = true; intent = JSON.parse(String(init.body)).idempotency_key; throw new Error("Lost response"); }
+      assert.ok(path.endsWith("/reverse")); reversed = true; payload = { id: "redemption", reversed_at: "now" };
+    } else if (path.endsWith("/history")) payload = applied ? [{ id: "redemption", ticket_line_id: "line", reversed_at: reversed ? "now" : null }] : [];
+    else if (path.includes("/customers/")) payload = { id: "customer_selected", display_name: "Émilie Dupont", phone: null };
+    else payload = [{ id: "package", name: "Cure visage", service_id: "svc", remaining: applied && !reversed ? 1 : 2,
+      usable_sessions: applied && !reversed ? 1 : 2, status: "active", expires_at: "2027-10-05T10:00:00Z" }];
+    return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", skills: [], status: "available" };
+  const render = () => root.render(<CheckoutPanel ticket={ticket} services={[service]} employees={[employee]} cashierEmployee={employee}
+    selectedPaymentMethod="cb" onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => {}}
+    onPay={() => {}} onClose={() => {}} onRefresh={async () => {
+      if (!reconciles) return false;
+      ticket.total_amount = applied && !reversed ? 0 : 15;
+      ticket.lines![0].total = ticket.total_amount;
+      render();
+      return true;
+    }} />);
+  try {
+    await act(async () => render());
+    assert.match(document.body.textContent!, /Émilie Dupont/);
+    await act(async () => button("Utiliser 1 séance").click());
+    assert.ok(intent); assert.equal(posts, 1);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    reconciles = true;
+    ticket.total_amount = 0;
+    await act(async () => { render(); button("Actualiser les forfaits").click(); });
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, false);
+    await act(async () => button("Annuler la consommation").click());
+    assert.equal(posts, 2); assert.equal(reversed, true);
+    assert.ok(button("Utiliser 1 séance"));
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));
   assert.ok(element, `Missing button: ${text}`);
