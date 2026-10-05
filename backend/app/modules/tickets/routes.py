@@ -21,6 +21,7 @@ from app.modules.tickets.schemas import (
     TicketAssign,
     TicketCheckoutStart,
     TicketCustomerAttach,
+    TicketCurrencyConfirm,
     TicketCreate,
     TicketLineAdd,
     TicketLineRead,
@@ -124,6 +125,7 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         paid_at=ticket.paid_at,
         payment_method=ticket.payment_method,
         total_amount=_to_float(ticket.total_amount),
+        currency=ticket.currency,
         lines=[
             TicketLineRead(
                 id=line.id,
@@ -262,6 +264,29 @@ def patch_checkout_customer(
     ticket = attach_checkout_customer(db, ticket_id, payload.customer_id)
     log_audit_event(request=request, current_user=current_user,
                     action="ticket.customer_changed", target_type="ticket", target_id=ticket_id)
+    return _read_ticket(db, ticket)
+
+
+@router.patch("/{ticket_id}/currency", response_model=QueueTicketRead)
+def patch_ticket_currency(
+    request: Request,
+    ticket_id: str,
+    payload: TicketCurrencyConfirm,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> QueueTicketRead:
+    from app.modules.tickets.currency import confirm_currency
+    ticket = get_ticket(db, ticket_id)
+    if ticket is None:
+        raise not_found("Ticket introuvable")
+    actor = current_user.get("sub")
+    if current_user.get("institute_id") != ticket.institute_id:
+        raise HTTPException(403, "Institut non autorise")
+    if not isinstance(actor, str) or not actor.strip() or len(actor) > 160:
+        raise HTTPException(403, "Identite de l'operatrice requise")
+    ticket = confirm_currency(db, ticket_id, payload.currency, payload.reason, actor)
+    log_audit_event(request=request, current_user=current_user, action="ticket.currency_confirmed",
+                    target_type="ticket", target_id=ticket_id, metadata={"currency": payload.currency})
     return _read_ticket(db, ticket)
 
 

@@ -26,6 +26,14 @@ Those labels alone cannot establish that stored value paid an invoice.
 - Future redemption must record a currency-matched payment allocation, preserve
   service prices/revenue and serialize debit, replay and reversal with checkout.
   Expiry disables usable credit without erasing recorded balance/history.
+- New walk-in and completed-booking tickets snapshot the configured currency in
+  a separate immutable fact. Legacy tickets retain unknown currency; an operator
+  may explicitly confirm an unpaid checkout against current configuration with
+  a reason and signed identity. Paid unknown history cannot be relabeled.
+- Current catalog additions and member pricing require a confirmed matching
+  ticket currency once configuration exists. A configuration change cannot
+  rewrite an earlier ticket or convert its service prices. Original-price
+  reversals remain historical corrections, not new catalog quotes.
 - Until that allocation exists, refuse new checkout closure with gift/mixed
   labels. Preserve same-intent recovery for already recorded historical paid
   tickets, without retroactively asserting that their payment was backed.
@@ -33,6 +41,9 @@ Those labels alone cannot establish that stored value paid an invoice.
 ## Consequences and remaining work
 
 Issuance/lookup is an API foundation, not the full gift-card gate. Currency-bearing
-checkout facts, allocation/debit/reversal, remaining due, manager/cashier interface
+checkout facts are implemented at API scope; allocation/debit/reversal, remaining
+due, manager/cashier configuration and confirmation interface
 and payment-provider settlement still require implementation and verification.
+Financial reports still require currency-separated aggregation before reporting
+mixed or unknown historical units; existing untyped totals are not an FX report.
 No exchange-rate conversion or cross-institute/BASE-JV credit pooling is introduced.

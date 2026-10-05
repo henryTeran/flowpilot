@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -10,6 +10,7 @@ class QueueTicket(Base):
     __tablename__ = "queue_tickets"
     __table_args__ = (
         UniqueConstraint("institute_id", "idempotency_key", name="uq_queue_ticket_institute_idempotency"),
+        CheckConstraint("currency IS NULL OR currency IN ('CHF', 'EUR')", name="ck_ticket_currency"),
     )
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
@@ -40,6 +41,24 @@ class QueueTicket(Base):
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     payment_method: Mapped[str | None] = mapped_column(String(40), nullable=True)
     total_amount: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
+
+
+class TicketCurrencyFact(Base):
+    __tablename__ = "ticket_currency_facts"
+    __table_args__ = (
+        UniqueConstraint("ticket_id", name="uq_ticket_currency_fact"),
+        CheckConstraint("currency IN ('CHF', 'EUR')", name="ck_ticket_currency_fact"),
+        CheckConstraint("source IN ('institute_settings', 'cashier_confirmation')", name="ck_ticket_currency_source"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    ticket_id: Mapped[str] = mapped_column(ForeignKey("queue_tickets.id"))
+    currency: Mapped[str] = mapped_column(String(3))
+    source: Mapped[str] = mapped_column(String(32))
+    reason: Mapped[str] = mapped_column(String(240))
+    actor_id: Mapped[str] = mapped_column(String(160))
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class QueueEvent(Base):

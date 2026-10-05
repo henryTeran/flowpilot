@@ -81,6 +81,7 @@ export interface QueueTicket {
   paid_at?: string | null;
   payment_method?: string | null;
   total_amount?: number | null;
+  currency?: "CHF" | "EUR" | null;
   lines?: TicketLine[];
 }
 

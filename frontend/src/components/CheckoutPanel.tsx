@@ -132,6 +132,7 @@ export function CheckoutPanel({
           <div className="bm-cash-title-block">
             <h1>Ticket n°{formatTicketNumber(ticket.ticket_number)}</h1>
             <span>{formatTicketStatus(ticket.status)}</span>
+            <span>{ticket.currency ? `Devise : ${ticket.currency}` : "Devise non confirmée"}</span>
           </div>
 
           <div className="bm-cash-top-actions">
@@ -198,7 +199,7 @@ export function CheckoutPanel({
               <option value="">Choisir une prestation à ajouter</option>
               {orderedServices.map((service) => (
                 <option key={service.id} value={service.id}>
-                  {service.name} · {service.duration_min} min · {formatCurrency(Number(service.price_passage || 0))}
+                  {service.name} · {service.duration_min} min · {formatCurrency(Number(service.price_passage || 0), ticket.currency)}
                 </option>
               ))}
             </select>
@@ -355,9 +356,10 @@ function formatNumber(value: number) {
   }).format(value);
 }
 
-function formatCurrency(value: number) {
+function formatCurrency(value: number, currency?: "CHF" | "EUR" | null) {
+  if (!currency) return formatNumber(value);
   return new Intl.NumberFormat("fr-CH", {
     style: "currency",
-    currency: "CHF",
+    currency,
   }).format(value);
 }

@@ -184,6 +184,8 @@ def prepare_booking_checkout(db: Session, appointment: Appointment) -> QueueTick
                         total_amount=service.price_passage or 0)
     db.add(ticket)
     db.flush()
+    from app.modules.tickets.currency import snapshot_currency
+    snapshot_currency(db, ticket)
     duration = int((_ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time)).total_seconds() / 60)
     db.add(TicketLine(id=new_id("tl"), ticket_id=ticket.id, service_id=service.id,
                      quantity=1, unit_price=service.price_passage, total=service.price_passage,
@@ -241,6 +243,8 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
     try:
         db.add(ticket)
         db.flush()
+        from app.modules.tickets.currency import snapshot_currency
+        snapshot_currency(db, ticket)
         for service in services:
             db.add(TicketLine(
                 id=new_id("tl"), ticket_id=ticket.id, service_id=service.id,
@@ -378,6 +382,8 @@ def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> Qu
     le ticket juste avant d'encaisser.
     """
     ticket = lock_ticket(db, ticket_id)
+    from app.modules.tickets.currency import require_current_catalog_currency
+    require_current_catalog_currency(db, ticket)
     if not ticket:
         raise not_found("Ticket introuvable")
 

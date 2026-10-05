@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 class TicketCreate(BaseModel):
@@ -32,6 +33,12 @@ class TicketCheckoutStart(BaseModel):
 class TicketCustomerAttach(BaseModel):
     model_config = ConfigDict(extra="forbid")
     customer_id: str | None = Field(min_length=1, max_length=80)
+
+
+class TicketCurrencyConfirm(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    currency: Literal["CHF", "EUR"]
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=240)]
 
 
 class TicketPaymentComplete(BaseModel):
@@ -81,6 +88,7 @@ class QueueTicketRead(BaseModel):
     paid_at: datetime | None = None
     payment_method: str | None = None
     total_amount: float | None = None
+    currency: str | None = None
     lines: list[TicketLineRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
