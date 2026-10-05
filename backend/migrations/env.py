@@ -15,6 +15,7 @@ from app.modules.customers import models as customers_models  # noqa: F401
 from app.modules.auth import models as auth_models  # noqa: F401
 from app.modules.employees import models as employees_models  # noqa: F401
 from app.modules.institutes import models as institutes_models  # noqa: F401
+from app.modules.memberships import models as memberships_models  # noqa: F401
 from app.modules.planning import models as planning_models  # noqa: F401
 from app.modules.resources import models as resources_models  # noqa: F401
 from app.modules.realtime import models as realtime_models  # noqa: F401

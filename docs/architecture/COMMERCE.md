@@ -186,3 +186,31 @@ retry and reception presentation restrictions checked in JSDOM. No real browser/
 proof is claimed. The detailed Phase 8 PACKAGES functional scope (cures, sessions,
 consumption, expiration) now passes at these server/component scopes. Memberships,
 gift cards and loyalty remain pending; paid sale/external settlement is Phase 9 work.
+
+## Membership-lifecycle checkpoint 8G
+
+The memberships module now owns institute-scoped plans, registered-customer rights
+and renewal history. Plans specify a name and validity in days; issued rights
+snapshot those terms. Manager-only configuration, attribution and renewal require
+exact institute scope and mandatory replay keys. Reception can read scoped plans,
+customer memberships and renewal history. Granting rights does not record payment
+or enable automatic billing; sale/settlement remains Phase 9 work.
+
+Active rights use a half-open UTC validity interval. Renewal before expiration adds
+the snapshotted duration to the existing expiry; renewal at/after expiration starts
+a new period at the operation time, preserving any gap in the renewal facts.
+History stores previous/new validity, time and signed actor. Same-key renewal returns
+the original immutable event rather than extending again. Same-key attribution
+returns the current membership; changed beneficiary/plan intent is rejected.
+
+All writes use the existing institute lock. New rights cannot overlap another live
+membership for the customer; an expired membership cannot be restarted if a replacement
+is already live. Concurrent identical attribution/renewal produces one fact; distinct
+renewal intents extend in sequence using fresh database state. A failed renewal flush
+rolls back both the validity window and its history. Migration f3b678eba803 refuses
+downgrade when membership records exist, while empty SQLite/PostgreSQL round-trip
+and model parity remain supported.
+
+This is the lifecycle API foundation. Existing service.price_member values have not
+yet been applied from these rights; checkout benefit/reversal/coverage integration
+and manager/customer interface remain next. MEMBERSHIPS is not closed.

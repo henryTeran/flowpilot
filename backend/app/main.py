@@ -13,6 +13,7 @@ from app.database.session import engine
 from app.modules.appointments.routes import router as appointments_router
 from app.modules.commerce.routes import router as commerce_router
 from app.modules.customers.routes import router as customers_router
+from app.modules.memberships.routes import router as memberships_router
 from app.modules.auth.routes import router as auth_router
 from app.modules.dashboard.routes import router as dashboard_router
 from app.modules.dev.routes import router as dev_router
@@ -88,6 +89,7 @@ def create_app() -> FastAPI:
     app.include_router(appointments_router, prefix=prefix)
     app.include_router(commerce_router, prefix=prefix)
     app.include_router(customers_router, prefix=prefix)
+    app.include_router(memberships_router, prefix=prefix)
     app.include_router(institutes_router, prefix=prefix)
     app.include_router(employees_router, prefix=prefix)
     app.include_router(services_router, prefix=prefix)
