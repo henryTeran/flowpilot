@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from jose import JWTError, jwt
 
 from app.core.config import settings
-from app.core.permissions import can_manage_ticket, require_same_institute
+from app.core.permissions import can_manage_ticket
 from app.modules.realtime.manager import manager
 
 router = APIRouter(tags=["realtime"])
@@ -32,7 +32,8 @@ def _decode_websocket_user(token: str | None) -> dict[str, str | None]:
 async def planning_websocket(websocket: WebSocket, institute_id: str) -> None:
     try:
         current_user = _decode_websocket_user(websocket.query_params.get("token"))
-        require_same_institute(current_user, institute_id)
+        if current_user.get("institute_id") != institute_id:
+            raise HTTPException(status_code=403, detail="Institut non autorise")
     except HTTPException:
         await websocket.close(code=1008)
         return
@@ -45,4 +46,6 @@ async def planning_websocket(websocket: WebSocket, institute_id: str) -> None:
             if message == "ping":
                 await websocket.send_json({"event": "pong"})
     except WebSocketDisconnect:
+        pass
+    finally:
         manager.disconnect(institute_id, websocket)

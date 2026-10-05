@@ -1,4 +1,6 @@
 from fastapi import WebSocket
+from starlette.websockets import WebSocketDisconnect
+from anyio import BrokenResourceError, ClosedResourceError
 
 
 class RealtimeConnectionManager:
@@ -13,10 +15,15 @@ class RealtimeConnectionManager:
         connections = self.active_connections.get(institute_id, [])
         if websocket in connections:
             connections.remove(websocket)
+        if not connections:
+            self.active_connections.pop(institute_id, None)
 
     async def broadcast(self, institute_id: str, event: dict) -> None:
-        for connection in self.active_connections.get(institute_id, []):
-            await connection.send_json(event)
+        for connection in tuple(self.active_connections.get(institute_id, [])):
+            try:
+                await connection.send_json(event)
+            except (WebSocketDisconnect, RuntimeError, OSError, BrokenResourceError, ClosedResourceError):
+                self.disconnect(institute_id, connection)
 
 
 manager = RealtimeConnectionManager()

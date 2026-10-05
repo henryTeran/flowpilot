@@ -47,3 +47,13 @@ def test_planning_websocket_blocks_missing_token(client):
     with pytest.raises(WebSocketDisconnect):
         with client.websocket_connect(f"/ws/institutes/{institute_id}/planning"):
             pass
+
+
+@pytest.mark.parametrize("role,institute", [("accueil", None), ("collaboratrice", "same"), ("direction", "same")])
+def test_websocket_rejects_unscoped_and_unauthorized_operator_tokens(client, role, institute):
+    institute_id = _bootstrap_institute_id(client)
+    token = _ws_token(role, institute_id if institute == "same" else institute)
+    with pytest.raises(WebSocketDisconnect) as error:
+        with client.websocket_connect(f"/ws/institutes/{institute_id}/planning?token={token}"):
+            pass
+    assert error.value.code == 1008
