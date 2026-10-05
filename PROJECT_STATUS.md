@@ -1,5 +1,5 @@
-CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8AC_TICKET_COMMERCIAL_HISTORY_METADATA
+CURRENT_PHASE = PHASE 9
+CURRENT_CHECKPOINT = PHASE9A_PROVIDER_CONTRACT_FOUNDATION
 STATUS = ACTIVE
 
 GATES:
@@ -8,12 +8,14 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS scoped issuance/tenders implemented at server/component scope; browser/tablet and external settlement remain open. LOYALTY = IN_PROGRESS: manual point ledger, explicit tiers and transactional checkout earning API implemented; explicit immutable reward terms configured; transactional application/reversal implemented; customer overview UI implemented. Manager tier configuration UI implemented. Earning configuration UI implemented with explicit configured currency and recovery. Reward configuration UI implemented with explicit service/cost/threshold/amount. Manager point correction UI implemented with scoped retry and mandatory fresh snapshot. Checkout application/reversal UI implemented with shared mutation lease and uncertain-price payment latch; interaction/recovery audit and browser/tablet verification remain.
+- PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
+- PHASE9 = IN_PROGRESS: typed PaymentProvider interface/value boundary implemented; durable lifecycle, adapters, capture/refund and webhook processing pending. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
 - Frontend: 53 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
+- Payment provider boundary: 2 focused tests passed; no live adapter, settlement or webhook lifecycle is claimed.
 - Latest full backend: 243 passed, 49 opt-in PostgreSQL cases skipped locally. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
@@ -45,30 +47,15 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE8AD: verify Commerce gate coverage and hand off to canonical Phase 9 payment abstraction (Master Plan section 29); preserve provider settlement for canonical payment/sales phases.
+- PHASE9B: persist scoped payment intent/operations and implement capture/refund/cancel/webhook application with strict replay, unit and provider-reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(checkout): preserve line protection across beneficiary changes.
-- 35fbd04 scoped loyalty recovery and eligibility refresh audit.
-- 23544bb checkout reward application/reversal recovery.
-- 137dff1 scoped manual customer point correction.
-- 2a164fd service reward configuration and recovery.
-- 3b02a8c earning rate configuration and recovery.
-- 10aaffe manager tier configuration and recovery.
-- 39f540d atomic customer loyalty snapshot.
-- bb336f7 customer balance, tier and reward history overview.
-- 8f7811a transactional point spending and reward reversal.
-- 005cf46 explicit immutable service reward terms.
-- a5926d0 transactional earning with immutable policy and checkout facts.
-- e7dee67 scoped points and explicit balance tiers.
-- c690feb gift recovery scope/history audit.
-- aae1138 gift tender wallet and full/mixed checkout.
-- 2f92211 cashier currency confirmation.
-- 62a6b4e manager gift configuration/issuance recovery.
-- 31cd388 transactional gift tenders and closure facts.
-- 348674f invoice currency snapshots and price protection.
-- Earlier coherent checkpoints are retained in git log.
+- Current: feat(payments): define scoped provider operation contracts.
+- f043f7e ticket-wide commercial-history protection.
+- 35fbd04 scoped loyalty recovery/eligibility audit.
+- 23544bb checkout rewards and recovery.
+- Earlier coherent Commerce checkpoints and evidence are retained in git log and ADR-007.
 WORKING_TREE:
 - Checkpoint reviewed and committed; inspect git status before the next unit.
