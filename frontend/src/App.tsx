@@ -77,6 +77,7 @@ export default function App() {
     setChiffres(undefined); setAppointments([]); setTicketServiceMap({});
     setSelectedTicketId(""); setSelectedCheckoutTicketId(""); setSelectedEmployeeId("");
     setIdentifiedEmployeeId(""); setActiveDrawer(null); setIdentityModalOpen(false); setTicketWorkflowOpen(false);
+    setAfterIdentityAction(null); setChiffresLoading(false); setError(null);
   }, [selectedInstituteId]);
 
   const selectedInstitute = useMemo(
@@ -133,6 +134,12 @@ export default function App() {
 
   const ticketStats = useMemo(() => computeTicketStats(tickets), [tickets]);
 
+  function captureOperationalContext() {
+    const stamp = operationalRefreshGate.current.captureContext();
+    const token = getAccessToken();
+    return () => operationalRefreshGate.current.sameContext(stamp) && token === getAccessToken();
+  }
+
   function handleTicketSelection(ticketId: string) {
     setSelectedTicketId(ticketId);
 
@@ -163,6 +170,7 @@ export default function App() {
   }
 
   async function handleIdentifyEmployee(employeeId: string) {
+    const isCurrent = captureOperationalContext();
     setIdentifiedEmployeeId(employeeId);
     if (!selectedEmployeeId) setSelectedEmployeeId(employeeId);
 
@@ -175,9 +183,11 @@ export default function App() {
         await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/start`, {
           employee_id: employeeId,
         });
+        if (!isCurrent()) return;
         setActiveDrawer("checkout");
         await refreshOperationalData();
       } catch (err) {
+        if (!isCurrent()) return;
         setError(err instanceof Error ? err.message : "Impossible d’ouvrir l’encaissement");
       }
     }
@@ -277,6 +287,7 @@ export default function App() {
   }, [tickets, selectedTicketId, selectedCheckoutTicketId]);
 
   async function handleCreateTicket() {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId || !selectedServiceId || arrivalSubmitting.current) return;
     arrivalSubmitting.current = true;
     setError(null);
@@ -286,12 +297,14 @@ export default function App() {
         service_id: selectedServiceId,
         idempotency_key: arrivalIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: [selectedServiceId] }),
       });
+      if (!isCurrent()) return;
       arrivalIntent.current.complete();
       setTickets((current) => [...current.filter((ticket) => ticket.id !== created.id), created].sort(compareQueueArrival));
       setTicketServiceMap((current) => ({ ...current, [created.id]: [selectedServiceId] }));
       setSelectedTicketId(created.id);
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de créer le ticket");
     } finally {
       arrivalSubmitting.current = false;
@@ -299,6 +312,7 @@ export default function App() {
   }
 
   async function handleCreateWorkflowTicket(result: NewTicketWorkflowResult) {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId || result.selectedServiceIds.length === 0) return;
 
     const firstServiceId = result.selectedServiceIds[0];
@@ -312,6 +326,7 @@ export default function App() {
         created_by_id: identifiedEmployeeId || undefined,
         idempotency_key: workflowIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: result.selectedServiceIds, created_by_id: identifiedEmployeeId || undefined }),
       });
+      if (!isCurrent()) return;
       workflowIntent.current.complete();
       setTickets((current) => [...current.filter((ticket) => ticket.id !== created.id), created].sort(compareQueueArrival));
 
@@ -320,23 +335,28 @@ export default function App() {
       setSelectedTicketId(created.id);
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de valider le nouveau ticket");
       throw err;
     }
   }
 
   async function handleUnassignTicket() {
+    const isCurrent = captureOperationalContext();
     if (!selectedTicketId) return;
     setError(null);
     try {
       await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/unassign`);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de remettre le ticket en attente");
     }
   }
 
   async function handleAssignTicket() {
+    const isCurrent = captureOperationalContext();
     if (!selectedTicketId || !selectedEmployeeId) return;
     if (assignment.status !== "ready" || !assignment.options.some((option) => option.employee_id === selectedEmployeeId && option.assignable)) return;
 
@@ -350,13 +370,16 @@ export default function App() {
       await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/assign`, {
         employee_id: selectedEmployeeId,
       });
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible d’affecter le ticket");
     }
   }
 
   async function handleStartSession() {
+    const isCurrent = captureOperationalContext();
     if (!selectedTicketId || !selectedEmployeeId) return;
     if (assignment.status !== "ready" || !assignment.options.some((option) => option.employee_id === selectedEmployeeId && option.assignable)) return;
 
@@ -384,6 +407,7 @@ export default function App() {
         await apiPatch<QueueTicket>(`/tickets/${selectedTicketId}/assign`, {
           employee_id: selectedEmployeeId,
         });
+        if (!isCurrent()) return;
       }
 
       await apiPost("/planning/sessions/start", {
@@ -391,28 +415,36 @@ export default function App() {
         employee_id: selectedEmployeeId,
         service_id: serviceId,
       });
+      if (!isCurrent()) return;
       setSelectedTicketId("");
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de démarrer la séance");
     }
   }
 
   async function handleFinishSession(sessionId: string) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch(`/planning/sessions/${sessionId}/finish`);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de terminer la prestation");
     }
   }
 
   async function handleFinishSessionAndCheckout(sessionId: string) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch(`/planning/sessions/${sessionId}/finish`);
+      if (!isCurrent()) return;
       const refreshedTickets = await apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId ?? "")}`);
+      if (!isCurrent()) return;
       setTickets(refreshedTickets);
 
       const nextCheckoutTicket = resolveNextCheckoutTicket(refreshedTickets, identifiedEmployeeId);
@@ -434,23 +466,28 @@ export default function App() {
 
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de terminer la prestation et ouvrir la caisse");
     }
   }
 
   async function handleFinishActiveEmployeeSession(employeeId: string) {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId) return;
 
     setError(null);
     try {
       await apiPatch(`/planning/institutes/${selectedInstituteId}/employees/${employeeId}/finish-active-session`);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de clôturer la prestation active");
     }
   }
 
   async function handleExtendSession(sessionId: string, minutes: number) {
+    const isCurrent = captureOperationalContext();
     if (extendingSessions.current.has(sessionId)) return;
     extendingSessions.current.add(sessionId);
     setError(null);
@@ -458,9 +495,11 @@ export default function App() {
       await apiPatch(`/planning/sessions/${sessionId}/extend`, {
         minutes, idempotency_key: extensionIntents.current.keyFor(sessionId, minutes),
       });
+      if (!isCurrent()) return;
       extensionIntents.current.complete(sessionId);
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de prolonger la prestation");
     } finally {
       extendingSessions.current.delete(sessionId);
@@ -468,24 +507,30 @@ export default function App() {
   }
 
   async function handleCancelTicket(ticketId: string) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch(`/tickets/${ticketId}/cancel`);
+      if (!isCurrent()) return;
       if (selectedTicketId === ticketId) {
         setSelectedTicketId("");
       }
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible d’annuler le ticket");
     }
   }
 
   async function handleChangeEmployeeStatus(employeeId: string, status: string) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch(`/employees/${employeeId}/status`, { status });
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de modifier le statut collaboratrice");
     }
   }
@@ -503,6 +548,7 @@ export default function App() {
   }
 
   async function handleAddCheckoutService(serviceId: string) {
+    const isCurrent = captureOperationalContext();
     if (!selectedCheckoutTicketId || !serviceId) return;
 
     setError(null);
@@ -510,25 +556,31 @@ export default function App() {
       await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/lines/add`, {
         service_id: serviceId,
       });
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible d’ajouter la prestation");
     }
   }
 
   async function handleRemoveCheckoutLine(lineId: string) {
+    const isCurrent = captureOperationalContext();
     if (!selectedCheckoutTicketId || !lineId) return;
 
     setError(null);
     try {
       await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/lines/${lineId}/remove`);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de retirer la prestation");
     }
   }
 
   async function handlePayCheckout() {
+    const isCurrent = captureOperationalContext();
     if (!selectedCheckoutTicketId || !identifiedEmployeeId) {
       setError("Identifie la collaboratrice qui encaisse avant de valider le paiement.");
       return;
@@ -540,8 +592,10 @@ export default function App() {
         employee_id: identifiedEmployeeId,
         payment_method: selectedPaymentMethod,
       });
+      if (!isCurrent()) return;
 
       const refreshedTickets = await apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId ?? "")}`);
+      if (!isCurrent()) return;
       setTickets(refreshedTickets);
 
       const nextCheckoutTicket = resolveNextCheckoutTicket(refreshedTickets, identifiedEmployeeId);
@@ -558,72 +612,89 @@ export default function App() {
       setActiveDrawer(null);
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de valider le paiement");
     }
   }
 
   async function handleCreateAppointment(payload: AppointmentCreatePayload) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPost<Appointment>("/appointments", payload);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de créer le rendez-vous");
       throw err;
     }
   }
 
   async function handleUpdateAppointment(appointmentId: string, payload: AppointmentUpdatePayload) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch<Appointment>(`/appointments/${appointmentId}`, payload);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de modifier le rendez-vous");
       throw err;
     }
   }
 
   async function handleAppointmentAction(appointmentId: string, action: AppointmentAction) {
+    const isCurrent = captureOperationalContext();
     setError(null);
     try {
       await apiPatch<Appointment>(`/appointments/${appointmentId}/${action}`);
+      if (!isCurrent()) return;
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de modifier le rendez-vous");
       throw err;
     }
   }
 
   async function handleResetDemo() {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId) return;
     setError(null);
     try {
       await apiPost(`/dev/reset-demo?institute_id=${encodeURIComponent(selectedInstituteId)}`);
+      if (!isCurrent()) return;
       setSelectedTicketId("");
       setSelectedEmployeeId("");
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de réinitialiser la démo");
       throw err;
     }
   }
 
   async function handleCreateDemoDay() {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId) return;
     setError(null);
     try {
       await apiPost(`/dev/create-demo-day?institute_id=${encodeURIComponent(selectedInstituteId)}`);
+      if (!isCurrent()) return;
       setSelectedTicketId("");
       setSelectedEmployeeId("");
       await refreshOperationalData();
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de créer la journée de test");
       throw err;
     }
   }
 
   async function handleRefreshChiffres() {
+    const isCurrent = captureOperationalContext();
     if (!selectedInstituteId) return;
 
     setChiffresLoading(true);
@@ -632,11 +703,13 @@ export default function App() {
       const response = await apiGet<ChiffresSummary>(
         `/tickets/chiffres?institute_id=${encodeURIComponent(selectedInstituteId)}`
       );
+      if (!isCurrent()) return;
       setChiffres(response);
     } catch (err) {
+      if (!isCurrent()) return;
       setError(err instanceof Error ? err.message : "Impossible de charger les chiffres");
     } finally {
-      setChiffresLoading(false);
+      if (isCurrent()) setChiffresLoading(false);
     }
   }
 

@@ -57,3 +57,25 @@ Changing institutes clears operational views and selections. Employee selection
 does not recreate the WebSocket. Twenty frontend tests and the production build
 pass, including an App integration test that resolves old-institute requests after
 the new board has loaded. This remains component evidence, not tablet validation.
+
+All asynchronous App actions also capture an institute generation and operator
+token. Periodic refreshes do not invalidate an action. Leaving and returning to an
+institute does: late results/errors cannot alter the replacement view, and a pending
+assignment cannot continue into a start after a context change. Already submitted
+server writes retain their normal transactional behavior. Twenty-two frontend tests
+and the production build pass, including the delayed-assignment App scenario.
+
+## Live-board audit at Phase 7F
+
+| Canonical operation/state | Existing behavior | Remaining verification/work |
+| --- | --- | --- |
+| EXPECTED / ARRIVED / NO_SHOW | Booking scheduled/confirmed, arrived, no_show; booking panel actions | Browser UX open |
+| WAITING / IN_SERVICE | Walk-in waiting/assigned, in_progress; booking in_progress | Existing capacity/start tests; browser UX open |
+| FINISH | Walk-in releases capacity and becomes ready_for_checkout; booking becomes completed and releases resources | Booking-to-checkout handoff missing |
+| PAYMENT_PENDING / COMPLETED / PAY | Walk-in ready_for_checkout/in_checkout, paid; checkout attribution and replay tests | Booking must enter the checkout flow before claiming complete coverage |
+| PAUSE / EXTEND | Employee pause/dispo; session +5/+10, transactional extension replay | Pause is employee availability, not a suspended treatment; browser UX open |
+| Live recalculation | REST planning/availability and deterministic joint queue/resource projections, committed revision invalidation | Combined live action/recalculation audit remains open |
+
+The booking `completed` status currently means treatment finished, not evidence of
+payment. No payment/commercial completion is inferred from it. LIVE_BOARD remains
+open until the booking handoff and combined workflow evidence are implemented.

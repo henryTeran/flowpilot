@@ -19,6 +19,19 @@ test("operational refresh rejects prior tenant, older responses and disposed req
   assert.equal(gate.current(latest), false);
 });
 
+test("action context survives refreshes but not leaving and returning to an institute", () => {
+  const gate = createRefreshGate();
+  gate.setContext("one");
+  const action = gate.captureContext();
+  gate.begin("one"); gate.begin("one");
+  assert.equal(gate.sameContext(action), true);
+  gate.setContext("two"); gate.setContext("one");
+  assert.equal(gate.sameContext(action), false);
+  const newAction = gate.captureContext();
+  gate.invalidate();
+  assert.equal(gate.sameContext(newAction), false);
+});
+
 class FakeSocket {
   readyState = 0;
   onopen: any;

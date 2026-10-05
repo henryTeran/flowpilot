@@ -182,7 +182,9 @@ test("late operational response from a prior institute cannot overwrite the plan
   }
 });
 
-test("selecting a ticket and starting uses the feasible employee in two actions", async () => {
+for (const changeInstitute of [false, true]) {
+test(changeInstitute ? "changing institute during assignment prevents the obsolete start action"
+  : "selecting a ticket and starting uses the feasible employee in two actions", async () => {
   const { default: App } = await import("../src/App");
   const originalFetch = globalThis.fetch;
   const originalWebSocket = globalThis.WebSocket;
@@ -190,6 +192,7 @@ test("selecting a ticket and starting uses the feasible employee in two actions"
   const selected = { ...assignmentTicket, lines: [{ id: "line", ticket_id: "ticket", service_id: "svc",
     quantity: 1, duration_minutes: 45, unit_price: 15, total: 15, revenue_category: "care", status: "pending" }] };
   let started = false;
+  let resolveAssignment: (() => void) | undefined;
   const employees = [{ id: "blocked", institute_id: "inst", first_name: "Busy soon", status: "available", skills: [] },
     { id: "emp", institute_id: "inst", first_name: "Available", status: "available", skills: [] }];
   class FakeSocket { static OPEN = 1; readyState = 0; close() {} send() {} }
@@ -201,7 +204,11 @@ test("selecting a ticket and starting uses the feasible employee in two actions"
       writes.push({ path, body: JSON.parse(String(init.body)) });
       if (path === "/planning/sessions/start") started = true;
       payload = selected;
-    } else if (path === "/institutes") payload = [{ id: "inst", name: "Test", city: "Test", timezone: "Europe/Berlin", status: "active" }];
+      if (changeInstitute && path.endsWith("/assign")) {
+        return await new Promise<Response>(resolve => { resolveAssignment = () => resolve(new Response(JSON.stringify(selected),
+          { headers: { "Content-Type": "application/json" } })); });
+      }
+    } else if (path === "/institutes") payload = ["inst", "other"].map(id => ({ id, name: id, city: "Test", timezone: "Europe/Berlin", status: "active" }));
     else if (path === "/services/categories") payload = [category];
     else if (path === "/services/catalog") payload = [service];
     else if (path === "/employees") payload = employees;
@@ -223,15 +230,25 @@ test("selecting a ticket and starting uses the feasible employee in two actions"
     assert.ok(document.querySelector("[role='dialog']"));
     assert.equal(button("Démarrer séance").disabled, false);
     await act(async () => button("Démarrer séance").click());
-    assert.deepEqual(writes.map((request) => request.path), ["/tickets/ticket/assign", "/planning/sessions/start"]);
+    if (changeInstitute) {
+      assert.ok(resolveAssignment);
+      const institute = document.querySelector<HTMLSelectElement>(".bm-top-controls select")!;
+      await act(async () => { institute.value = "other"; institute.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+      await act(async () => resolveAssignment!());
+      assert.deepEqual(writes.map(request => request.path), ["/tickets/ticket/assign"]);
+      assert.equal(document.querySelector("[role='dialog']"), null);
+    } else {
+      assert.deepEqual(writes.map((request) => request.path), ["/tickets/ticket/assign", "/planning/sessions/start"]);
+      assert.equal(writes[1].body.employee_id, "emp");
+    }
     assert.equal(writes[0].body.employee_id, "emp");
-    assert.equal(writes[1].body.employee_id, "emp");
   } finally {
     await act(async () => root.unmount());
     globalThis.fetch = originalFetch;
     globalThis.WebSocket = originalWebSocket;
   }
 });
+}
 
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));

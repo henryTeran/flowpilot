@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7E_TWO_PROCESS_PROTOCOL_VALIDATION
+CURRENT_CHECKPOINT = PHASE7F_ACTION_CONTEXT_AND_LIVE_BOARD_AUDIT
 STATUS = ACTIVE
 
 GATES:
@@ -12,6 +12,8 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Frontend: 22 tests and production build passed; context changes suppress stale action results/errors and prevent assignment-to-start continuation in a previous institute.
+- Live-board audit identifies missing booking-to-checkout handoff; appointment completed currently means treatment finished, not paid.
 - Backend full suite: 192 passed, 16 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
 - Two-process loopback HTTP/WebSocket + PostgreSQL revision bundle: 2 passed; cross-worker delivery, tenant/rollback isolation and reconnect REST recovery verified.
 - Frontend: 20 tests and production build passed; an App integration test proves a delayed prior-institute response cannot overwrite the current board.
@@ -42,12 +44,13 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7F: audit live-board state/action coverage and remaining asynchronous UI context changes.
+- PHASE7G: implement booking finish-to-checkout handoff and verify live action/recalculation coverage.
 - Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: test(realtime): prove delivery across live server processes.
+- Current: fix(operations): ignore action completions after institute changes.
+- 42c6654 test(realtime): prove delivery across live server processes.
 - c0fc188 fix(planning): discard stale operational refresh responses.
 - 28cdfc7 feat(realtime): notify planning clients of committed database revisions.
 - f4c1eb7 feat(realtime): reconnect planning clients and resynchronize after transport loss.
