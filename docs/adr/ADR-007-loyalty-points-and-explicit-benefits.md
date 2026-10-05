@@ -94,5 +94,13 @@ Its whitelisted intent is scoped to institute/customer/actor and retained across
 lost responses and remounts. It releases the intent only after the mutation and
 a fresh atomic customer snapshot succeed; failed refresh still requires same-key
 replay. Reception has no correction controls.
-Checkout action UI plus
-browser/tablet end-to-end verification remain required; production readiness is not inferred.
+Checkout rewards share the commercial mutation lease. Initial history failures
+block payment; scoped customer-not-found permits existing opaque legacy checkout.
+Application requires matching performed line/currency, sufficient balance and no
+active package/member coverage. Manager reversal uses scoped ticket history.
+Unknown mutation responses preserve whitelisted institute/ticket/customer/actor
+intent, freeze new price/customer/payment changes and require same-intent recovery
+followed by full operational refresh and loyalty reads. Current historical line IDs
+remain protected against removal. Original intent replay can proceed while another
+wallet holds a reconciliation latch, but never while its mutation lease is held.
+Interaction/recovery audit and browser/tablet end-to-end verification remain required; production readiness is not inferred.

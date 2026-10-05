@@ -399,6 +399,7 @@ test("package wallet recovers a lost consumption response, blocks uncertain paym
   globalThis.fetch = async (url, init) => {
     const path = new URL(String(url)).pathname;
     if (path.includes("/memberships/")) return new Response("[]", { headers: { "Content-Type": "application/json" } });
+    if (path.includes("/loyalty/") && path.endsWith("/snapshot")) return new Response(JSON.stringify({ detail: "Customer not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     let payload: any;
     if (init?.method === "POST") {
@@ -454,6 +455,7 @@ test("checkout identifies an anonymous customer and keeps uncertain identity cha
       assert.deepEqual(JSON.parse(String(init.body)), { customer_id: customer.id });
       attached = true; throw new Error("Lost identity response");
     }
+    if (path.includes("/loyalty/") && path.endsWith("/snapshot")) return new Response(JSON.stringify({ detail: "Customer not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     const value = path.includes("/customers/") ? path.endsWith(customer.id) ? customer : [customer] : [];
     return new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
@@ -750,6 +752,7 @@ test("checkout currency confirmation keeps payment locked until operational refr
   let refreshSucceeds = false, confirmations = 0;
   globalThis.fetch = async (url, init) => {
     if (init?.method === "PATCH") { confirmations++; assert.deepEqual(JSON.parse(String(init.body)), { currency: "EUR", reason: "Quote confirmation" }); throw new Error("Lost confirmation response"); }
+    if (String(url).includes("/loyalty/") && String(url).endsWith("/snapshot")) return new Response(JSON.stringify({ detail: "Customer not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     if (String(url).endsWith("/tenders")) return emptyGiftTender(ticket);
     return new Response(JSON.stringify({ currency: "EUR" }), { headers: { "Content-Type": "application/json" } });
   };
@@ -972,6 +975,7 @@ test("member checkout serializes wallets, recovers lost pricing and retains hist
       else { applied = true; await waiting; throw new Error("Lost member price response"); }
       return new Response("{}", { headers: { "Content-Type": "application/json" } });
     }
+    if (path.includes("/loyalty/") && path.endsWith("/snapshot")) return new Response(JSON.stringify({ detail: "Customer not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     const data = path.includes("/customers/") ? { id: "customer_member", display_name: "Member client", phone: null }
       : path.includes("/memberships/") ? path.endsWith("/benefits") ? applied ? [{ id: "benefit", ticket_line_id: "member-line", reversed_at: reversed ? "now" : null }] : []
@@ -1026,6 +1030,7 @@ test("a disposed membership write cannot refresh or unlock a newly selected chec
   globalThis.fetch = async (url, init) => {
     const address = new URL(String(url));
     const path = address.pathname;
+    if (path.includes("/loyalty/") && path.endsWith("/snapshot")) return new Response(JSON.stringify({ detail: "Customer not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     if (path.endsWith("/tenders")) return emptyGiftTender(shown);
     if (init?.method === "POST") {
       const id = path.includes("/old/") ? "old" : "new";
@@ -1387,5 +1392,48 @@ test("point correction preserves intent after lost response and incomplete ledge
     assert.match(document.body.textContent!, /Correction enregistree/);
     setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil", sub: "reception" }))}.signature`);
     await act(async () => render()); assert.equal(document.querySelector("button"), null);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
+});
+
+
+test("checkout loyalty freezes uncertain pricing and recovers apply and manager reversal", async () => {
+  const { LoyaltyWallet } = await import("../src/components/LoyaltyWallet");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "loyalty-cashier" }))}.signature`);
+  const ticket = { ...assignmentTicket, status: "ready_for_checkout", currency: "CHF", customer_id: "client",
+    lines: [{ id: "line", service_id: "svc", quantity: 1, total: 10, unit_price: 10, performed_by_employee_id: "emp" }] } as QueueTicket;
+  let applied = false, reversed = false, fresh = false, blocked = false, reverseAttempts = 0;
+  const bodies: any[] = [], paths: string[] = [], coverage: string[][] = [];
+  globalThis.fetch = async (url, init) => {
+    const path = String(url);
+    const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+    if (init?.method === "POST") {
+      paths.push(path); bodies.push(JSON.parse(String(init.body)));
+      if (path.endsWith("/reverse")) { reversed = true; if (++reverseAttempts === 1) throw new Error("Lost reversal"); }
+      else { applied = true; if (bodies.length === 1) throw new Error("Lost apply"); }
+      return json({ id: "redemption" });
+    }
+    if (path.endsWith("/snapshot")) return json({ balance: { customer_id: "client", points: applied && !reversed ? 20 : 30 },
+      redemptions: applied ? [{ id: "redemption", ticket_line_id: "line", reversed_at: reversed ? "2026-10-06T10:00:00Z" : null }] : [] });
+    return json([{ id: "reward", name: "Reduction", service_id: "svc", currency: "CHF", points_cost: 10, minimum_points: 20, discount_amount: "2.50" }]);
+  };
+  let root = createRoot(document.getElementById("root")!);
+  const render = () => root.render(<LoyaltyWallet ticket={ticket} blocked={false} excludedLines={[]} beginMutation={() => () => {}}
+    onRefresh={async () => fresh} onBusy={value => { blocked = value; }} onCoverage={active => coverage.push(active)} />);
+  const button = (text: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === text)!;
+  try {
+    await act(async () => render()); assert.equal(blocked, false);
+    await act(async () => button("Utiliser Reduction : 10 points").click()); assert.equal(blocked, true);
+    await act(async () => root.unmount()); root = createRoot(document.getElementById("root")!);
+    await act(async () => render()); assert.equal(blocked, true);
+    await act(async () => button("Reessayer la recompense conservee").click()); assert.equal(blocked, true);
+    fresh = true;
+    await act(async () => button("Reessayer la recompense conservee").click()); assert.equal(blocked, false);
+    assert.deepEqual(bodies[0], bodies[1]); assert.deepEqual(bodies[0], bodies[2]);
+    assert.deepEqual(coverage.at(-1), ["line"]);
+    await act(async () => button("Annuler la recompense").click()); assert.equal(blocked, true);
+    await act(async () => button("Reessayer la recompense conservee").click()); assert.equal(blocked, false);
+    assert.deepEqual(bodies[3], bodies[4]); assert.ok(paths[4].endsWith("/redemptions/redemption/reverse"));
+    assert.deepEqual(coverage.at(-1), []); assert.match(document.body.textContent!, /30 points disponibles/);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
 });
