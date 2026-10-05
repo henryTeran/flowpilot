@@ -1224,3 +1224,45 @@ test("loyalty overview rejects late old-customer facts and hides stale balances 
     assert.equal(document.querySelector("[role='alert']"), null);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); }
 });
+
+
+test("loyalty tier configuration recovers the same intent across remount and reception stays read-only", async () => {
+  const { LoyaltyTiers } = await import("../src/components/LoyaltyTiers");
+  const original = globalThis.fetch;
+  const token = `e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "tier-manager" }))}.signature`;
+  setAccessToken(token);
+  const bodies: any[] = [];
+  let configured: any;
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "POST") {
+      bodies.push(JSON.parse(String(init.body))); configured = { id: "tier", ...bodies.at(-1) };
+      if (bodies.length === 1) throw new Error("Lost response");
+      return new Response(JSON.stringify(configured), { headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify(configured ? [configured] : []), { headers: { "Content-Type": "application/json" } });
+  };
+  let root = createRoot(document.getElementById("root")!);
+  const button = (text: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === text)!;
+  try {
+    await act(async () => root.render(<LoyaltyTiers instituteId="inst" />));
+    const inputs = [...document.querySelectorAll<HTMLInputElement>("input")];
+    await act(async () => inputs.forEach((input, index) => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, ["Gold", "20", "Avantage declare"][index]);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }));
+    await act(async () => button("Configurer le niveau").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost response/);
+    assert.equal(document.querySelectorAll("input").length, 0);
+    await act(async () => root.unmount());
+    root = createRoot(document.getElementById("root")!);
+    await act(async () => root.render(<LoyaltyTiers instituteId="inst" />));
+    await act(async () => button("Reessayer le niveau conserve").click());
+    assert.deepEqual(bodies[0], bodies[1]);
+    assert.match(document.body.textContent!, /Niveau configure/);
+    assert.equal(sessionStorage.getItem("flowpilot.loyalty-tier:inst:tier-manager"), null);
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil", sub: "reception" }))}.signature`);
+    await act(async () => root.render(<LoyaltyTiers instituteId="inst" />));
+    assert.equal(button("Configurer le niveau"), undefined);
+    assert.match(document.body.textContent!, /Gold/);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
+});

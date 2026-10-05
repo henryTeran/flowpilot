@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8V_ATOMIC_LOYALTY_CUSTOMER_READ
+CURRENT_CHECKPOINT = PHASE8W_LOYALTY_TIER_CONFIGURATION
 STATUS = ACTIVE
 
 GATES:
@@ -8,11 +8,11 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS scoped issuance/tenders implemented at server/component scope; browser/tablet and external settlement remain open. LOYALTY = IN_PROGRESS: manual point ledger, explicit tiers and transactional checkout earning API implemented; explicit immutable reward terms configured; transactional application/reversal implemented; customer overview UI implemented. Manager configuration and checkout action UI remain.
+- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS. GIFTCARDS scoped issuance/tenders implemented at server/component scope; browser/tablet and external settlement remain open. LOYALTY = IN_PROGRESS: manual point ledger, explicit tiers and transactional checkout earning API implemented; explicit immutable reward terms configured; transactional application/reversal implemented; customer overview UI implemented. Manager tier configuration UI implemented. Earning/reward configuration, point correction and checkout action UI remain.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Frontend: 45 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 46 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Latest full backend: 239 passed, 48 opt-in PostgreSQL cases skipped locally. Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
@@ -43,12 +43,13 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE8W: loyalty manager configuration and checkout action UI (Master Plan section 29); preserve provider settlement for canonical payment/sales phases.
+- PHASE8X: loyalty earning/reward configuration, point correction and checkout action UI (Master Plan section 29); preserve provider settlement for canonical payment/sales phases.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(loyalty): read customer balance and history atomically.
+- Current: feat(loyalty): configure tiers with scoped retry recovery.
+- 39f540d atomic customer loyalty snapshot.
 - bb336f7 customer balance, tier and reward history overview.
 - 8f7811a transactional point spending and reward reversal.
 - 005cf46 explicit immutable service reward terms.

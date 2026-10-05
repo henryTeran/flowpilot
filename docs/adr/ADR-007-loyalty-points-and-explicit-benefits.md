@@ -75,5 +75,9 @@ not the complete LOYALTY gate. Customer balance/tier, point and redemption histo
 The customer snapshot endpoint reads balance and both histories under the institute
 lock in one transaction, preventing mixed readings during concurrent closure or
 correction. The overview uses this response, checks beneficiary/shape and clears facts during refresh and rejects obsolete institute/customer/token
-responses, including same-component context changes. Manager configuration and
-checkout action UI plus browser/tablet end-to-end verification remain required; production readiness is not inferred.
+responses, including same-component context changes. Manager tier configuration preserves a whitelisted pending intent in actor/institute
+scoped session storage before sending. Lost responses reuse the original key after
+remount; definite client rejection restores editable fields. Institute/token changes
+replace the form and invalidate late callbacks. Reception can read tiers.
+Earning/reward configuration, manual correction and checkout action UI plus
+browser/tablet end-to-end verification remain required; production readiness is not inferred.

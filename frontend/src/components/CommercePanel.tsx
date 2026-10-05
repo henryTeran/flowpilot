@@ -5,6 +5,7 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import type { Customer, Service } from "../types";
 import { CustomerPicker } from "./CustomerPicker";
 import { MembershipManagement } from "./MembershipManagement";
+import { LoyaltyTiers } from "./LoyaltyTiers";
 import { LoyaltyOverview } from "./LoyaltyOverview";
 import { GiftCardManagement } from "./GiftCardManagement";
 
@@ -115,6 +116,7 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
       {balances.map(balance => <p key={balance.id}>{balance.name} · {balance.usable_sessions} séances utilisables / {balance.remaining} restantes · expiration {readUtcDate(balance.expires_at).toLocaleDateString("fr")}</p>)}</div>}
     <MembershipManagement key={`${instituteId}:${customer?.id || ""}`} instituteId={instituteId} customer={customer} disabled={busy}
       onBusy={value => { membershipPending.current = value; setMembershipBusy(value); }} />
+    <LoyaltyTiers key={`tiers:${instituteId}`} instituteId={instituteId} />
     <LoyaltyOverview instituteId={instituteId} customer={customer} />
     <GiftCardManagement key={`gift:${instituteId}`} instituteId={instituteId} />
   </section>;
