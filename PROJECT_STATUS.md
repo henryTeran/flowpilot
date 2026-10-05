@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7G_BOOKING_CHECKOUT_HANDOFF
+CURRENT_CHECKPOINT = PHASE7H_LIVE_ACTION_RECALCULATION_VALIDATION
 STATUS = ACTIVE
 
 GATES:
@@ -8,10 +8,11 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - Customer reservation scope is the canonical named-customer authenticated operator workflow; no public portal was specified or claimed.
-- PHASE7 = IN_PROGRESS: REALTIME_SYNC passes at two-process protocol scope; full RECONNECT/live-board audit remain open; TABLET_UX is BLOCKED.
+- PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION pass at authenticated two-process protocol scope; browser RECONNECT and TABLET_UX remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Live two-process PostgreSQL suite: 2 passed, including walk-in/resource/extension/checkout and booking/arrival/no-show actions; each revision is followed by reader-side REST assertions.
 - Booking completion creates one linked checkout transactionally; replay, injected failure rollback and PostgreSQL competing finishes pass.
 - Backend full suite: 193 passed, 17 opt-in PostgreSQL cases skipped; PostgreSQL booking checkout/move bundle: 4 passed.
 - Migration a8c123f653be: SQLite/PostgreSQL parity/round-trips (2 passed), PostgreSQL upgrade/check passed.
@@ -48,12 +49,14 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7H: verify combined live action/recalculation coverage, then advance independent Commerce work while browser/tablet gates remain open.
+- PHASE8A: implement Commerce package lifecycle, then memberships, gift cards and loyalty; browser/tablet gates remain open separately.
+- Phase numbering follows the detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); the condensed outline's Phase 8 Client 360 label is stale.
 - Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: feat(booking): hand completed reservations to checkout transactionally.
+- Current: test(operations): verify live actions and recalculation across servers.
+- 16d0fcc feat(booking): hand completed reservations to checkout transactionally.
 - 3ff886c fix(operations): ignore action completions after institute changes.
 - 42c6654 test(realtime): prove delivery across live server processes.
 - c0fc188 fix(planning): discard stale operational refresh responses.

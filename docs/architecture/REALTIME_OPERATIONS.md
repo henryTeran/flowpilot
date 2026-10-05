@@ -74,9 +74,28 @@ and the production build pass, including the delayed-assignment App scenario.
 | FINISH | Walk-in and booking release capacity and create ready_for_checkout; booking has a durable checkout_ticket_id | Booking completion replay, failure rollback and PostgreSQL competing finishes pass |
 | PAYMENT_PENDING / COMPLETED / PAY | Linked booking and walk-in tickets use ready_for_checkout/in_checkout, paid; cashier/service attribution and replay | App finish-to-identification-to-caisse scenario passes; external provider settlement is Phase 9 |
 | PAUSE / EXTEND | Employee pause/dispo; session +5/+10, transactional extension replay | Pause is employee availability, not a suspended treatment; browser UX open |
-| Live recalculation | REST planning/availability and deterministic joint queue/resource projections, committed revision invalidation | Combined live action/recalculation audit remains open |
+| Live recalculation | REST planning/availability and deterministic joint queue/resource projections, committed revision invalidation | Combined two-process action/recalculation scenario passes; browser UX open |
 
 The booking `completed` status means treatment finished, not evidence of payment.
 The linked ticket is the checkout/payment record. Legacy completed bookings stay
-unlinked; no charge is fabricated from historical treatment status. LIVE_BOARD
-remains open pending the combined live action/recalculation audit and browser UX.
+unlinked; no charge is fabricated from historical treatment status. The combined
+live action/recalculation evidence below establishes functional protocol coverage;
+browser UX remains open.
+
+## Phase 7H live action/recalculation evidence
+
+The two-process PostgreSQL suite passes both protocol scenarios. Its combined
+scenario performs employee pause/resume, two walk-in arrivals, assignment, start,
+extension, finish, checkout and payment, followed by booking create/confirm/arrive/
+start/finish/payment and no-show. Every write produces a newer committed revision
+on the reader server's WebSocket before REST verification on that reader. It checks
+employee availability, active ownership, shared-room reservation lifecycle, the
+extended planning interval, the second ticket's resource-constrained projection,
+released capacity, linked booking checkout and recorded revenue.
+
+LIVE_BOARD and LIVE_RECALCULATION pass at this authenticated HTTP/WebSocket scope.
+Recorded payment means the existing operational payment record; external provider
+settlement is still Phase 9. RECONNECT has protocol recovery plus deterministic
+client lifecycle evidence; actual browser transport recovery and TABLET_UX remain
+open. Phase 7 is therefore not fully closed. Independent Phase 8 work can proceed
+without claiming tablet or production readiness.

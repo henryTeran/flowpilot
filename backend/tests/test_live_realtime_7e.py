@@ -10,6 +10,7 @@ import socket
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta
 from contextlib import contextmanager
 
 import httpx
@@ -21,6 +22,8 @@ from app.core.config import settings
 from app.modules.employees.models import Employee
 from app.modules.institutes.models import Institute
 from app.modules.realtime.revisions import mark_planning_changed
+from app.modules.resources.models import ResourceReservation
+from app.shared.time import utcnow
 from test_postgres_scheduling_4d import postgres_flow
 from test_realtime_tenant_isolation_2b import _ws_token
 
@@ -121,3 +124,92 @@ def test_cross_process_commits_and_reconnected_rest_resynchronization(postgres_f
                 recovered = json.loads(reconnected.recv(timeout=5))
                 assert recovered["event"] == "planning.changed"
                 assert recovered["revision"] > first["revision"]
+
+
+def test_live_actions_recalculate_employee_resource_and_checkout_state(postgres_flow, tmp_path):
+    if os.name == "nt":
+        pytest.skip("Inherited POSIX listener required; run in the disposable Linux test runner")
+    connect = pytest.importorskip("websockets.sync.client").connect
+    engine, institute, employee, service = postgres_flow
+    token = _ws_token(institute_id=institute)
+    headers = {"Authorization": f"Bearer {token}"}
+    with live_worker(engine, tmp_path, "actions") as (writer, _), live_worker(engine, tmp_path, "board") as (reader, _):
+        with httpx.Client(base_url=writer, headers=headers, timeout=5) as commands, \
+                httpx.Client(base_url=reader, headers=headers, timeout=5) as board:
+            manager_headers = {"Authorization": f"Bearer {_ws_token('responsable_institut', institute)}"}
+            prefix = f"/api/v1/resources/institutes/{institute}"
+            assert commands.post(prefix, headers=manager_headers, json={"name": "Live room", "kind": "room"}).status_code == 200
+            assert commands.patch(prefix + f"/services/{service}/requirements", headers=manager_headers,
+                                  json={"skills": [], "resources": [{"kind": "room"}]}).status_code == 200
+            ws_url = reader.replace("http://", "ws://") + f"/ws/institutes/{institute}/planning?token={token}"
+            with connect(ws_url, open_timeout=5) as ws:
+                revision = 0
+                def change(method, path, payload=None):
+                    nonlocal revision
+                    response = commands.request(method, "/api/v1" + path, json=payload)
+                    assert response.status_code == 200, response.text
+                    notice = json.loads(ws.recv(timeout=5))
+                    assert notice["event"] == "planning.changed" and notice["revision"] > revision
+                    revision = notice["revision"]
+                    return response.json()
+                def read(path):
+                    response = board.get("/api/v1" + path)
+                    assert response.status_code == 200, response.text
+                    return response.json()
+                def availability():
+                    return next(row for row in read(f"/planning/institutes/{institute}/availability")["employees"]
+                                if row["employee_id"] == employee)
+                def tickets():
+                    return read(f"/tickets/waiting?institute_id={institute}")
+                def reservation(ticket_id):
+                    from sqlalchemy import select
+                    with Session(engine) as db:
+                        row = db.scalar(select(ResourceReservation).where(ResourceReservation.ticket_id == ticket_id))
+                        return row.status, row.end_time
+
+                change("PATCH", f"/employees/{employee}/status", {"status": "pause"})
+                assert availability()["employee_status"] == "pause" and availability()["available_at"] is None
+                change("PATCH", f"/employees/{employee}/status", {"status": "available"})
+                assert availability()["available_at"] is not None
+                first = change("POST", "/tickets", {"institute_id": institute, "service_id": service})
+                second = change("POST", "/tickets", {"institute_id": institute, "service_id": service})
+                change("PATCH", f"/tickets/{first['id']}/assign", {"employee_id": employee})
+                assert reservation(first["id"])[0] == "reserved"
+                session = change("POST", "/planning/sessions/start", {"ticket_id": first["id"], "employee_id": employee, "service_id": service})
+                row = availability()
+                assert row["employee_status"] == "busy" and row["active_session_id"] == session["id"]
+                assert reservation(first["id"])[0] == "in_use"
+                extended = change("PATCH", f"/planning/sessions/{session['id']}/extend", {"minutes": 5, "idempotency_key": "live-extension"})
+                expected_end = datetime.fromisoformat(extended["planned_end_time"])
+                assert expected_end > datetime.fromisoformat(session["planned_end_time"])
+                assert datetime.fromisoformat(availability()["available_at"]) == expected_end
+                queued = next(ticket for ticket in tickets() if ticket["id"] == second["id"])
+                assert datetime.fromisoformat(queued["estimated_start_time"]) >= expected_end
+                sessions = next(row for row in read(f"/planning/institutes/{institute}/today")["rows"] if row["employee_id"] == employee)["sessions"]
+                assert next(row for row in sessions if row["id"] == session["id"])["planned_end_time"] == extended["planned_end_time"]
+                change("PATCH", f"/planning/sessions/{session['id']}/finish")
+                assert availability()["active_session_id"] is None and availability()["employee_status"] == "available"
+                assert reservation(first["id"])[0] == "released"
+                assert next(ticket for ticket in tickets() if ticket["id"] == first["id"])["status"] == "ready_for_checkout"
+                change("PATCH", f"/tickets/{first['id']}/checkout/start", {"employee_id": employee})
+                change("PATCH", f"/tickets/{first['id']}/checkout/pay", {"employee_id": employee, "payment_method": "cb"})
+                assert first["id"] not in {ticket["id"] for ticket in tickets()}
+                assert read(f"/tickets/chiffres?institute_id={institute}")["totals"]["total"] > 0
+
+                booking_payload = {"institute_id": institute, "employee_id": employee, "service_id": service,
+                                   "customer_name": "Live booking", "start_time": (utcnow() + timedelta(minutes=1)).isoformat()}
+                booking = change("POST", "/appointments", booking_payload)
+                booking_path = f"/appointments/{booking['id']}"
+                assert change("PATCH", booking_path + "/confirm")["status"] == "confirmed"
+                assert change("PATCH", booking_path + "/arrive")["status"] == "arrived"
+                change("PATCH", booking_path + "/start")
+                assert availability()["active_appointment_id"] == booking["id"]
+                finished = change("PATCH", booking_path + "/complete")
+                assert availability()["active_appointment_id"] is None
+                checkout = finished["checkout_ticket_id"]
+                assert next(ticket for ticket in tickets() if ticket["id"] == checkout)["status"] == "ready_for_checkout"
+                change("PATCH", f"/tickets/{checkout}/checkout/pay", {"employee_id": employee, "payment_method": "cb"})
+                assert checkout not in {ticket["id"] for ticket in tickets()}
+                absent = change("POST", "/appointments", {**booking_payload, "start_time": (utcnow() + timedelta(hours=2)).isoformat()})
+                assert change("PATCH", f"/appointments/{absent['id']}/no-show")["status"] == "no_show"
+                assert next(row for row in read(f"/appointments?institute_id={institute}") if row["id"] == absent["id"])["status"] == "no_show"
