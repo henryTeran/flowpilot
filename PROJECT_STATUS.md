@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 5
-CURRENT_CHECKPOINT = PHASE5B_DURABLE_RESERVATION_PRIMITIVES
+CURRENT_CHECKPOINT = PHASE5B_QUEUE_RESOURCE_LIFECYCLE
 STATUS = ACTIVE
 
 GATES:
@@ -12,6 +12,8 @@ GATES:
 
 TESTS:
 - Backend: 156 passed, 9 opt-in PostgreSQL cases skipped on SQLite; one TestClient deprecation warning.
+- Queue lifecycle checkpoint: full backend 168 passed, 9 skipped; final lifecycle/reset targeted check passed.
+- PostgreSQL scheduling/qualification regression: 8 passed; resource-specific race remains pending.
 - PostgreSQL Phase 5 bundle: 3 passed (qualification race and SQLite/PostgreSQL migration round-trips with metadata parity).
 - PostgreSQL Phase 4 scheduling races: 7 passed with the new schema.
 - Frontend: 13 passed; production build passed.
@@ -27,7 +29,9 @@ SECURITY:
 - Configuration and employee creation require responsable_institut and exact tenant; reception may read configuration.
 - Configuration and capacity writes share institute serialization; PostgreSQL assignment-versus-revocation race passed.
 - Qualification changes cannot invalidate committed tickets, active sessions or appointments.
-- Configured resource needs yield unknown capacity and reject assignment/start/booking until allocation is implemented.
+- Queue assignment/start/extension allocate resources transactionally; finish/unassignment/cancellation release them.
+- Committed resources cannot lose capabilities or operational status; in-use extensions retain physical resources.
+- Live reads and booking remain fail-closed for configured resource needs until their integration is implemented.
 - No provider or secret changes; BASE/JV separation preserved.
 
 BLOCKERS:
@@ -36,12 +40,13 @@ BLOCKERS:
 - Appointment lifecycle concurrency audit and larger load remain open.
 
 NEXT_STEP:
-- PHASE5B: integrate tested resource matcher with durable reservations, lifecycle release, extension conflicts and shared capacity projection.
+- PHASE5B: integrate booking lifecycle and live joint capacity projection; prove resource-specific PostgreSQL races.
 - Preserve browser gate as BLOCKED; do not claim complete Phase 4 or Phase 5 closure.
 - Details: docs/architecture/RESOURCES_AND_SKILLS.md and FLOW_CAPACITY_ENGINE.md.
 
 LAST_COMMITS:
-- Current checkpoint: feat(resources): persist transactional resource reservations.
+- Current checkpoint: feat(resources): reserve resources across queue service lifecycle.
+- d179bcc feat(resources): persist transactional resource reservations.
 - a8b7420 feat(resources): add deterministic interval allocation core.
 - da7a0f2 feat(resources): add tenant-scoped resources and qualification guards.
 - a566a0e feat(queue): guide assignment with duration-aware feasibility.

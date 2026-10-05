@@ -325,6 +325,8 @@ def create_demo_day(institute_id: str = DEMO_INSTITUTE_ID, db: Session = Depends
 
 def _reset_operational_data(db: Session, institute_id: str) -> None:
     from app.modules.planning.models import SessionExtension
+    from app.modules.resources.models import ResourceReservation
+    db.execute(delete(ResourceReservation).where(ResourceReservation.institute_id == institute_id))
     db.execute(delete(SessionExtension).where(SessionExtension.institute_id == institute_id))
     from app.modules.tickets.models import QueueEvent
     db.query(QueueEvent).filter(QueueEvent.institute_id == institute_id).delete(synchronize_session=False)

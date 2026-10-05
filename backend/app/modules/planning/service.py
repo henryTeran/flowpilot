@@ -313,8 +313,6 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     from app.modules.resources.repository import qualifies_for_services, ticket_services
     if not qualifies_for_services(db, ticket.institute_id, employee.id, ticket_services(db, ticket.institute_id, ticket.id)):
         raise business_error("La collaboratrice ne possede pas toutes les competences requises")
-    from app.modules.resources.repository import ensure_resource_capacity_known
-    ensure_resource_capacity_known(db, ticket.institute_id, ticket_services(db, ticket.institute_id, ticket.id))
 
     lines = _ticket_lines(db, ticket.id)
     if not lines:
@@ -372,6 +370,9 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
             raise business_error(
                 f"{employee.first_name} a un rendez-vous planifié sur ce créneau. Choisis une autre collaboratrice."
             )
+
+    from app.modules.resources.reservations import reserve_ticket
+    reserve_ticket(db, ticket, now, planned_end_time, in_use=True)
 
     for line in lines:
         # Toutes les lignes sont attribuées à la collaboratrice qui prend la cliente en cabine.
@@ -442,6 +443,8 @@ def finish_service_session(db: Session, session_id: str) -> ServiceSession:
                 # Session unique par ticket : quand la séance est terminée,
                 # le ticket complet passe en caisse.
                 db.refresh(ticket)
+                from app.modules.resources.reservations import release
+                release(db, ticket.institute_id, ticket_id=ticket.id)
                 transition_ticket(db, ticket, "ready_for_checkout", "queue.service_finished", session.employee_id)
                 db.add(ticket)
 
@@ -517,6 +520,12 @@ def extend_service_session(db: Session, session_id: str, minutes: int,
     ))
     if appointment:
         raise business_error("La prolongation chevauche un rendez-vous planifie")
+    if session.ticket_line_id:
+        line = db.get(TicketLine, session.ticket_line_id)
+        ticket = get_ticket(db, line.ticket_id) if line else None
+        if ticket:
+            from app.modules.resources.reservations import reserve_ticket
+            reserve_ticket(db, ticket, _ensure_aware(session.start_time), new_end, in_use=True)
     db.add(SessionExtension(
         id=new_id("ext"), institute_id=session.institute_id, session_id=session.id,
         idempotency_key=idempotency_key, minutes=minutes,

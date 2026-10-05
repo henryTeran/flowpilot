@@ -23,7 +23,7 @@ The pure `allocation_domain.py` core matches distinct resources to quantity and
 capability requirements across complete half-open intervals. It uses deterministic
 augmenting paths, excludes inactive/unknown occupancy and searches reservation-end
 boundaries for the earliest joint window. Eight unit cases validate these semantics.
-The core is not yet connected to database reservations or official scheduling writes.
+The core is connected to queue assignment/start and service extension writes.
 
 `ResourceReservation` and `reservations.py` now provide durable, institute-serialized
 interval ownership by exactly one ticket or appointment. Reserve/release primitives
@@ -32,12 +32,18 @@ Replay retains existing rows; failed matching leaves reservations unchanged. Tic
 and appointment owners share the same pool. Overdue unreleased reservations mark
 capacity unknown until the owner is resolved. Three transaction tests cover these
 behaviors; the new migration passes SQLite/PostgreSQL round-trips and schema parity.
-These primitives still need integration with operational lifecycle and live reads.
+Queue assignment reserves resources for the complete ticket duration. Starting
+revalidates the interval and marks resources in use; extension retains the same
+physical resources. Finish, unassignment and cancellation release ownership in the
+operational transaction. Identical requirements across sequential ticket services
+reuse their maximum quantity; different capabilities require distinct matching units.
+Resource capability/status changes are blocked while reservations remain committed.
+An HTTP lifecycle test exercises shared-room exclusion and failed-write atomicity.
 
-Resource allocation integration is not yet implemented. Configured resource requirements make
-capacity unknown and block assignment, start and booking. A catalog entry alone does
-not prove availability. Phase 5B must provide reservations, lifecycle release,
-extension collision handling and joint projections before resource gates can pass.
+Booking integration and live resource projections are not yet implemented. Live
+assignment options and estimates still report configured resource needs as unknown;
+booking writes still fail closed. Phase 5B must connect these reads and booking
+lifecycle, and prove resource-specific PostgreSQL races before resource gates pass.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.

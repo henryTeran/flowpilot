@@ -254,8 +254,10 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
     from app.modules.resources.repository import qualifies_for_services, ticket_services
     if not qualifies_for_services(db, ticket.institute_id, employee.id, ticket_services(db, ticket.institute_id, ticket.id)):
         raise business_error("La collaboratrice ne possede pas toutes les competences requises")
-    from app.modules.resources.repository import ensure_resource_capacity_known
-    ensure_resource_capacity_known(db, ticket.institute_id, ticket_services(db, ticket.institute_id, ticket.id))
+    from app.modules.resources.reservations import reserve_ticket
+    reservation_start = utcnow()
+    reservation_minutes = sum(line.duration_minutes * line.quantity for line in _ticket_lines(db, ticket.id))
+    reserve_ticket(db, ticket, reservation_start, reservation_start + timedelta(minutes=reservation_minutes))
     transition_ticket(db, ticket, "assigned", "queue.assigned", employee.id)
     ticket.assigned_employee_id = employee.id
     ticket.assigned_at = utcnow()
@@ -268,6 +270,8 @@ def unassign_ticket(db: Session, ticket_id: str) -> QueueTicket:
         return ticket
     if ticket.status != "assigned":
         raise business_error("Seul un ticket affecte peut retourner en attente")
+    from app.modules.resources.reservations import release
+    release(db, ticket.institute_id, ticket_id=ticket.id)
     transition_ticket(db, ticket, "waiting", "queue.unassigned", ticket.assigned_employee_id)
     ticket.assigned_employee_id = None
     ticket.assigned_at = None
@@ -291,6 +295,8 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     if ticket.status not in {"waiting", "assigned", "ready_for_checkout", "in_checkout"}:
         raise business_error("Ce ticket ne peut pas être annulé dans son état actuel")
 
+    from app.modules.resources.reservations import release
+    release(db, ticket.institute_id, ticket_id=ticket.id)
     transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
     ticket.assigned_employee_id = None
     ticket.assigned_at = None

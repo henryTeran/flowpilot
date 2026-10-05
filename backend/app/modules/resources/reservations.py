@@ -42,6 +42,9 @@ def reserve(db, institute_id, needs, start, end, *, ticket_id=None, appointment_
     now = utcnow()
     resources = list(db.scalars(select(Resource).where(Resource.institute_id == institute_id)
                                .execution_options(populate_existing=True)).all())
+    if any(row.status == "in_use" for row in existing):
+        occupied = {row.resource_id for row in existing}
+        resources = [resource for resource in resources if resource.id in occupied]
     timelines = [ResourceTimeline(resource.id, resource.kind, frozenset(resource.capabilities),
         tuple((aware(row.start_time), aware(row.end_time)) for row in others if row.resource_id == resource.id),
         resource.status == "active",
@@ -74,3 +77,18 @@ def release(db, institute_id, *, ticket_id=None, appointment_id=None):
                           owner_filter, ResourceReservation.status != "released")):
         row.status = "released"
     db.flush()
+
+
+def reserve_ticket(db, ticket, start, end, *, in_use=False):
+    from app.modules.resources.allocation_domain import ResourceNeed
+    from app.modules.resources.repository import resource_requirement_facts, ticket_services
+    facts = resource_requirement_facts(db, ticket.institute_id)
+    # One session performs the ticket's services sequentially. Reuse identical
+    # requirements across services, while retaining the pool for the full session.
+    quantities = {}
+    for service_id in ticket_services(db, ticket.institute_id, ticket.id):
+        for kind, capability, quantity in facts.get(service_id, []):
+            key = (kind, capability)
+            quantities[key] = max(quantities.get(key, 0), quantity)
+    needs = [ResourceNeed(kind, capability, quantity) for (kind, capability), quantity in sorted(quantities.items())]
+    return reserve(db, ticket.institute_id, needs, start, end, ticket_id=ticket.id, in_use=in_use)

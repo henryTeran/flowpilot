@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.modules.appointments.models import Appointment
 from app.modules.employees.models import Employee
 from app.modules.planning.models import ServiceSession
-from app.modules.resources.models import EmployeeSkill, Resource, ResourceConfigurationEvent, ResourceRequirement, ServiceRequirement
+from app.modules.resources.models import EmployeeSkill, Resource, ResourceConfigurationEvent, ResourceRequirement, ResourceReservation, ServiceRequirement
 from app.modules.resources.repository import requirement_facts, skill_facts
 from app.modules.resources.domain import has_required_skills
 from app.modules.resources.schemas import RequirementUpdate, ResourceCreate, ResourceUpdate, SkillUpdate
@@ -97,6 +97,12 @@ def update_resource(db: Session, institute_id: str, resource_id: str, payload: R
         values["capabilities"] = sorted(set(values["capabilities"]))
     if all(getattr(resource, key) == value for key, value in values.items()):
         return resource
+    if any(key in values and getattr(resource, key) != values[key] for key in ("capabilities", "status")):
+        committed = db.scalar(select(ResourceReservation.id).where(
+            ResourceReservation.institute_id == institute_id, ResourceReservation.resource_id == resource_id,
+            ResourceReservation.status != "released"))
+        if committed:
+            raise business_error("Libere les reservations avant de modifier la capacite de cette ressource")
     for key, value in values.items():
         setattr(resource, key, value)
     _event(db, institute_id, "resource.updated", resource_id, actor_id)
