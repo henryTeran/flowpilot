@@ -65,7 +65,23 @@ extension/booking across different employees. Each produces exactly one successf
 writer and one conflict, with matching persisted session/reservation boundaries.
 Injected assignment commit failure rolls back the reservation, ticket and event.
 Service-specific availability now searches joint resource/employee windows too.
-Remaining tenant/quantity/multi-service and window audits are needed for gate closure.
+Tenant/quantity/multi-service boundary tests prove that a foreign resource cannot
+satisfy local needs, nonmatching capabilities do not count toward quantities, and
+repeated ticket services reuse the maximum quantity for the full snapshot duration.
+
+## Phase 5 functional gate evidence
+
+| Canonical gate | Evidence | Result |
+| --- | --- | --- |
+| RESOURCE_SCHEDULING | Allocation domain; queue/booking lifecycle; live assignment and service availability; joint waiting projection; quantity/multi-service/tenant boundaries | PASS |
+| SKILL_MATCHING | Explicit requirements; all-line qualification; guarded revocation; tenant/RBAC tests; assignment-versus-revocation PostgreSQL race | PASS |
+| RESOURCE_CONFLICT | Booking/booking, assignment/booking and extension/booking PostgreSQL races across employees; rollback injection; release/overdue/boundary tests | PASS |
+
+Phase 5 canonical functional gates are closed. This does not establish real
+browser/tablet UX, production load performance or the complete Phase 6 hybrid
+booking workflow. Those gates remain separate and open. Phase 6 must preserve
+original booked timestamps and add movement/modification, confirmation and customer
+reservation while retaining existing employee/resource conflict guards.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.
