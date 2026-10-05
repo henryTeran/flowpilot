@@ -37,9 +37,19 @@ and optimization remain open.
 
 Tests prove commit visibility, rollback/no-op/replay semantics, queue-to-WebSocket
 delivery and tenant revision isolation. PostgreSQL concurrent workers cannot lose
-revision increments. These are database/ASGI checks, not proof of two live server
-processes or real browser reconnect. REALTIME_SYNC and full RECONNECT remain open
-until that integration evidence is gathered; TABLET_UX remains blocked.
+revision increments. The opt-in `test_live_realtime_7e.py` additionally starts two
+owned Uvicorn processes with inherited loopback listeners against a random test
+schema. An HTTP queue write on one reaches a WebSocket on the other; a foreign
+tenant commit and rolled-back local change do not notify that connection. After
+closing and reconnecting the transport, REST recovers offline writes and new
+notices arrive on the replacement connection. The live protocol/revision bundle
+passes two tests. Processes stop before the fixture removes its schema, including
+on test failure. Run this integration test in the Linux PostgreSQL test runner.
+
+REALTIME_SYNC is PASS at this two-process protocol scope. Client retry/heartbeat
+behavior is separately covered by deterministic frontend tests; reconnecting this
+protocol client does not prove browser recovery or tablet UX. Full RECONNECT and
+TABLET_UX remain open pending actual browser evidence and the live-board audit.
 
 Operational REST refreshes use a context/sequence gate: only the newest request
 for the selected institute and unchanged operator token can apply data or errors.
