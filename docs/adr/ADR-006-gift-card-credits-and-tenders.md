@@ -47,8 +47,10 @@ Those labels alone cannot establish that stored value paid an invoice.
 Issuance/lookup is an API foundation, not the full gift-card gate. Currency-bearing
 checkout facts, allocation/debit/reversal, gift/mixed closure and remaining due
 are implemented at API scope. Manager currency configuration and issuance interface
-are implemented with scoped same-intent recovery; cashier confirmation/tender interface
-and payment-provider settlement still require implementation and verification.
+are implemented with scoped same-intent recovery. Cashier confirmation/tender
+interfaces are implemented at component scope, including full/mixed payment intent.
+Actual browser/tablet validation, paid issuance and payment-provider settlement
+still require implementation or verification in their corresponding phases.
 Financial reports still require currency-separated aggregation before reporting
 mixed or unknown historical units; existing untyped totals are not an FX report.
 No exchange-rate conversion or cross-institute/BASE-JV credit pooling is introduced.

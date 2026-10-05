@@ -24,6 +24,12 @@ const availableOption: AssignmentOption = { employee_id: "emp", employee_name: "
   reason: "available from 10:00", available_from: "2026-10-05T10:00:00Z", available_until: null,
   service_duration_minutes: 45 };
 
+function emptyGiftTender(ticket: QueueTicket) {
+  return new Response(JSON.stringify({ ticket_id: ticket.id, currency: ticket.currency || null,
+    total: ticket.total_amount || 0, gift_amount: "0", remaining_due: ticket.total_amount || 0,
+    remainder_amount: "0", remainder_method: null, allocations: [] }), { headers: { "Content-Type": "application/json" } });
+}
+
 test("commercial validity dates preserve UTC across SQLite and PostgreSQL response formats", async () => {
   const { readUtcDate } = await import("../src/api/dates");
   assert.equal(readUtcDate("2026-10-05T23:30:00").getTime(), Date.parse("2026-10-05T23:30:00Z"));
@@ -393,6 +399,7 @@ test("package wallet recovers a lost consumption response, blocks uncertain paym
   globalThis.fetch = async (url, init) => {
     const path = new URL(String(url)).pathname;
     if (path.includes("/memberships/")) return new Response("[]", { headers: { "Content-Type": "application/json" } });
+    if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     let payload: any;
     if (init?.method === "POST") {
       posts++;
@@ -447,6 +454,7 @@ test("checkout identifies an anonymous customer and keeps uncertain identity cha
       assert.deepEqual(JSON.parse(String(init.body)), { customer_id: customer.id });
       attached = true; throw new Error("Lost identity response");
     }
+    if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     const value = path.includes("/customers/") ? path.endsWith(customer.id) ? customer : [customer] : [];
     return new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
   };
@@ -542,6 +550,117 @@ test("commerce manager recovers plan creation and customer grants with the origi
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+for (const covered of [5, 15]) test(`gift checkout recovers one debit across remount and chooses ${covered === 15 ? "full" : "mixed"} closure`, async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "gift-cashier" }))}.signature`);
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", currency: "EUR", total_amount: 15, lines: [] };
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", status: "available" };
+  let applied = false, refreshed = true;
+  const attempts: any[] = [], payments: any[] = [];
+  const reply = (data: unknown) => new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+  globalThis.fetch = async (url, init) => {
+    assert.equal(String(url).includes("bearer-secret"), false);
+    if (String(url).endsWith("/lookup")) return reply({ id: "card", currency: "EUR", remaining: applied ? 25 - covered : 25, usable_amount: applied ? 25 - covered : 25, status: "active" });
+    if (init?.method === "POST") {
+      attempts.push(JSON.parse(String(init.body))); applied = true;
+      if (attempts.length === 1) throw new Error("Lost debit response");
+      return reply({ id: "allocation" });
+    }
+    return reply({ ticket_id: ticket.id, currency: "EUR", total: "15", gift_amount: applied ? covered : 0,
+      remaining_due: applied ? 15 - covered : 15, remainder_amount: 0, remainder_method: null,
+      allocations: applied ? [{ id: "allocation", card_id: "card", currency: "EUR", amount: covered, reversed_at: null }] : [] });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const props = { ticket, services: [service], employees: [employee], cashierEmployee: employee, selectedPaymentMethod: "especes" as const,
+    onPaymentMethodChange() {}, onAddService() {}, onRemoveLine() {}, onPay(value?: unknown) { payments.push(value); }, onClose() {}, onCancelTicket() {}, async onRefresh() { return refreshed; } };
+  const input = (label: string, value: string) => {
+    const field = [...document.querySelectorAll("label")].find(item => item.textContent?.startsWith(label))!.querySelector("input")!;
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(field, value);
+    field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  };
+  const pay = () => document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!;
+  try {
+    await act(async () => root.render(<CheckoutPanel {...props} />));
+    assert.equal(pay().disabled, false);
+    await act(async () => input("Code cadeau", "bearer-secret"));
+    await act(async () => button("Rechercher la carte cadeau").click());
+    await act(async () => input("Montant cadeau à utiliser", String(covered)));
+    refreshed = false;
+    await act(async () => button("Utiliser ce crédit cadeau").click());
+    assert.equal(attempts.length, 1); assert.equal(pay().disabled, true);
+    assert.equal(sessionStorage.getItem("flowpilot.gift-tender:inst:ticket:gift-cashier")!.includes("bearer-secret"), false);
+    refreshed = true;
+    await act(async () => root.render(<CheckoutPanel key="recover" {...props} />));
+    assert.equal(pay().disabled, true);
+    await act(async () => button("Actualiser les paiements cadeaux").click());
+    assert.equal(pay().disabled, true);
+    await act(async () => button("Réessayer ce débit cadeau").click());
+    assert.deepEqual(attempts[0], attempts[1]); assert.ok(attempts[0].idempotency_key);
+    assert.equal(pay().disabled, false);
+    assert.equal(button("Clore en annulation").disabled, true);
+    assert.match(document.body.textContent!, /Crédit utilisé/);
+    assert.equal(document.body.textContent!.includes("CHF"), false);
+    await act(async () => pay().click());
+    assert.deepEqual(payments, [covered === 15 ? { payment_method: "carte_cadeau" } : { payment_method: "mixte", remainder_method: "especes" }]);
+    assert.equal(sessionStorage.getItem("flowpilot.gift-tender:inst:ticket:gift-cashier"), null);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("gift reversal recovery preserves price and freezes payment until the original correction is confirmed", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "gift-reverser" }))}.signature`);
+  let reversed = false;
+  const corrections: any[] = [];
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", currency: "CHF", total_amount: 15, lines: [] };
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", status: "available" };
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "POST") {
+      corrections.push(JSON.parse(String(init.body))); reversed = true;
+      if (corrections.length === 1) throw new Error("Lost reversal response");
+      return new Response("{}", { headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify({ ticket_id: ticket.id, currency: "CHF", total: 15, gift_amount: reversed ? 0 : 5,
+      remaining_due: reversed ? 15 : 10, remainder_amount: 0, remainder_method: null,
+      allocations: [{ id: "old-debit", card_id: "card", amount: 5, currency: "CHF", reversed_at: reversed ? "now" : null }] }), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const props = { ticket, services: [service], employees: [employee], cashierEmployee: employee, selectedPaymentMethod: "cb" as const,
+    onPaymentMethodChange() {}, onAddService() {}, onRemoveLine() {}, onPay() {}, onClose() {}, async onRefresh() { return true; } };
+  const pay = () => document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!;
+  try {
+    await act(async () => root.render(<CheckoutPanel {...props} />));
+    await act(async () => [...document.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent?.startsWith("Annuler le débit cadeau"))!.click());
+    assert.equal(pay().disabled, true); assert.match(document.body.textContent!, /Débit annulé/);
+    await act(async () => button("Réessayer cette annulation cadeau").click());
+    assert.deepEqual(corrections[0], corrections[1]); assert.equal(corrections.length, 2);
+    assert.equal(pay().disabled, false); assert.equal(ticket.total_amount, 15);
+    reversed = false;
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil", sub: "gift-reader" }))}.signature`);
+    await act(async () => root.render(<CheckoutPanel {...props} />));
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.startsWith("Annuler le débit cadeau")), false);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("gift tender read failures keep payment unavailable until server facts are verified", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  let readsWork = false;
+  const ticket: QueueTicket = { ...assignmentTicket, currency: "EUR", status: "ready_for_checkout", total_amount: 15 };
+  globalThis.fetch = async () => { if (!readsWork) throw new Error("Tender read unavailable"); return emptyGiftTender(ticket); };
+  const root = createRoot(document.getElementById("root")!);
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", status: "available" };
+  try {
+    await act(async () => root.render(<CheckoutPanel ticket={ticket} services={[service]} employees={[employee]} cashierEmployee={employee}
+      selectedPaymentMethod="cb" onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => {}} onPay={() => {}} onClose={() => {}} onRefresh={async () => true} />));
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    readsWork = true;
+    await act(async () => button("Actualiser les paiements cadeaux").click());
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, false);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
+});
+
 test("checkout currency confirmation keeps payment locked until operational refresh succeeds", async () => {
   const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
   const originalFetch = globalThis.fetch;
@@ -549,6 +668,7 @@ test("checkout currency confirmation keeps payment locked until operational refr
   let refreshSucceeds = false, confirmations = 0;
   globalThis.fetch = async (url, init) => {
     if (init?.method === "PATCH") { confirmations++; assert.deepEqual(JSON.parse(String(init.body)), { currency: "EUR", reason: "Quote confirmation" }); throw new Error("Lost confirmation response"); }
+    if (String(url).endsWith("/tenders")) return emptyGiftTender(ticket);
     return new Response(JSON.stringify({ currency: "EUR" }), { headers: { "Content-Type": "application/json" } });
   };
   const employee = { id: "emp", institute_id: "inst", first_name: "Test", status: "available" };
@@ -770,6 +890,7 @@ test("member checkout serializes wallets, recovers lost pricing and retains hist
       else { applied = true; await waiting; throw new Error("Lost member price response"); }
       return new Response("{}", { headers: { "Content-Type": "application/json" } });
     }
+    if (path.endsWith("/tenders")) return emptyGiftTender(ticket);
     const data = path.includes("/customers/") ? { id: "customer_member", display_name: "Member client", phone: null }
       : path.includes("/memberships/") ? path.endsWith("/benefits") ? applied ? [{ id: "benefit", ticket_line_id: "member-line", reversed_at: reversed ? "now" : null }] : []
       : [{ id: "member", name: "Monthly rights", status: "active", active_until: "2027-01-01T10:00:00Z" }]
@@ -823,6 +944,7 @@ test("a disposed membership write cannot refresh or unlock a newly selected chec
   globalThis.fetch = async (url, init) => {
     const address = new URL(String(url));
     const path = address.pathname;
+    if (path.endsWith("/tenders")) return emptyGiftTender(shown);
     if (init?.method === "POST") {
       const id = path.includes("/old/") ? "old" : "new";
       if (id === "new") newApplied = true;

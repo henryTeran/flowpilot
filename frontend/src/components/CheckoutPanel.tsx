@@ -3,6 +3,7 @@ import type { Customer, Employee, PaymentMethod, QueueTicket, Service } from "..
 import { PackageWallet } from "./PackageWallet";
 import { MembershipWallet } from "./MembershipWallet";
 import { CheckoutCurrency } from "./CheckoutCurrency";
+import { GiftCardWallet, cents, type GiftTender } from "./GiftCardWallet";
 import { CustomerPicker } from "./CustomerPicker";
 import { apiPatch } from "../api/client";
 import { getAccessToken } from "../api/session";
@@ -17,7 +18,7 @@ interface CheckoutPanelProps {
   onPaymentMethodChange: (method: PaymentMethod) => void;
   onAddService: (serviceId: string) => void;
   onRemoveLine: (lineId: string) => void;
-  onPay: () => void;
+  onPay: (payment?: { payment_method: PaymentMethod; remainder_method?: "cb" | "especes" | "cheque" }) => void;
   onClose: () => void;
   onCancelTicket?: (ticketId: string) => void;
   onReidentify?: () => void;
@@ -44,12 +45,15 @@ export function CheckoutPanel({
   onReidentify,
   onRefresh,
 }: CheckoutPanelProps) {
+  const accessToken = getAccessToken();
   const [serviceToAdd, setServiceToAdd] = useState("");
   const [printCustomerTicket, setPrintCustomerTicket] = useState(false);
   const [customer, setCustomer] = useState<Customer>();
   const [commerceBusy, setCommerceBusy] = useState(false);
   const [membershipBusy, setMembershipBusy] = useState(false);
   const [currencyBusy, setCurrencyBusy] = useState(false);
+  const [giftBusy, setGiftBusy] = useState(!!onRefresh);
+  const [giftTender, setGiftTender] = useState<GiftTender>();
   const [memberCoveredLines, setMemberCoveredLines] = useState<string[]>([]);
   const commercialWriter = useRef<symbol | null>(null);
   function beginCommercialMutation() {
@@ -68,11 +72,11 @@ export function CheckoutPanel({
     identityEpoch.current++; identityPending.current = false;
     setIdentifyOpen(false); setIdentityBusy(false); setIdentityError(undefined);
     return () => { identityEpoch.current++; };
-  }, [ticket?.id, ticket?.institute_id]);
+  }, [ticket?.id, ticket?.institute_id, accessToken]);
   useEffect(() => { setCoveredLines([]); setHistoricalLines([]); }, [ticket?.id]);
   useEffect(() => {
-    setCustomer(undefined); setCommerceBusy(false); setMembershipBusy(false); setCurrencyBusy(false); setMemberCoveredLines([]); commercialWriter.current = null;
-  }, [ticket?.id, ticket?.customer_id, ticket?.institute_id]);
+    setCustomer(undefined); setCommerceBusy(false); setMembershipBusy(false); setCurrencyBusy(false); setGiftBusy(!!onRefresh); setGiftTender(undefined); setMemberCoveredLines([]); commercialWriter.current = null;
+  }, [ticket?.id, ticket?.customer_id, ticket?.institute_id, accessToken]);
 
   async function identifyCustomer(value?: Customer, reconcileOnly = false) {
     if (!ticket || !onRefresh || identityPending.current) return;
@@ -115,7 +119,8 @@ export function CheckoutPanel({
   const total = ticket.total_amount ?? ticketLines.reduce((sum, line) => sum + Number(line.total || 0), 0);
   const creator = employees.find((employee) => employee.id === ticket.created_by_id);
   const assigned = employees.find((employee) => employee.id === ticket.assigned_employee_id);
-  const canEditLines = !commerceBusy && !membershipBusy && !currencyBusy && !identityBusy && ["ready_for_checkout", "in_checkout"].includes(ticket.status);
+  const giftActive = !!giftTender && cents(giftTender.gift_amount) > 0;
+  const canEditLines = !commerceBusy && !membershipBusy && !currencyBusy && !giftBusy && !giftActive && !identityBusy && ["ready_for_checkout", "in_checkout"].includes(ticket.status);
 
   function handleAddService() {
     if (!serviceToAdd) return;
@@ -145,7 +150,7 @@ export function CheckoutPanel({
               type="button"
               className="bm-cash-top-secondary"
               onClick={() => onCancelTicket?.(ticket.id)}
-              disabled={!onCancelTicket || ticket.status === "paid" || commerceBusy || membershipBusy || currencyBusy || identityBusy || coveredLines.length > 0 || memberCoveredLines.length > 0}
+              disabled={!onCancelTicket || ticket.status === "paid" || commerceBusy || membershipBusy || currencyBusy || giftBusy || giftActive || identityBusy || coveredLines.length > 0 || memberCoveredLines.length > 0}
             >
               Clore en annulation
             </button>
@@ -177,21 +182,24 @@ export function CheckoutPanel({
         {onRefresh && canEditLines && coveredLines.length === 0 && memberCoveredLines.length === 0 && <button type="button" onClick={() => setIdentifyOpen(value => !value)}>
           {ticket.customer_id ? "Changer de cliente" : "Identifier la cliente"}
         </button>}
-        {onRefresh && <CheckoutCurrency key={`currency:${ticket.institute_id}:${ticket.id}:${ticket.customer_id || ""}`} ticket={ticket}
-          blocked={commerceBusy || membershipBusy || identityBusy || identifyOpen} onRefresh={onRefresh} onBusy={setCurrencyBusy} beginMutation={beginCommercialMutation} />}
+        {onRefresh && <CheckoutCurrency key={`currency:${ticket.institute_id}:${ticket.id}:${ticket.customer_id || ""}:${accessToken}`} ticket={ticket}
+          blocked={commerceBusy || membershipBusy || giftBusy || identityBusy || identifyOpen} onRefresh={onRefresh} onBusy={setCurrencyBusy} beginMutation={beginCommercialMutation} />}
+        {onRefresh && <GiftCardWallet key={`gift:${ticket.institute_id}:${ticket.id}:${ticket.customer_id || ""}:${accessToken}`} ticket={ticket}
+          blocked={commerceBusy || membershipBusy || currencyBusy || identityBusy || identifyOpen} onRefresh={onRefresh}
+          onBusy={setGiftBusy} onTender={setGiftTender} beginMutation={beginCommercialMutation} />}
         {identifyOpen && !identityBusy && <CustomerPicker key={`${ticket.institute_id}:${ticket.id}`} instituteId={ticket.institute_id}
           selected={customer} onSelect={value => { void identifyCustomer(value); }} />}
         {identityError && <p role="alert">{identityError}</p>}
         {identityBusy && <button type="button" onClick={() => { void identifyCustomer(undefined, true); }}>Actualiser le ticket</button>}
-        {ticket.customer_id && onRefresh && !identifyOpen && !identityBusy && <PackageWallet key={`${ticket.institute_id}:${ticket.id}:${ticket.customer_id}`}
+        {ticket.customer_id && onRefresh && !identifyOpen && !identityBusy && <PackageWallet key={`${ticket.institute_id}:${ticket.id}:${ticket.customer_id}:${accessToken}`}
           ticket={ticket} onRefresh={onRefresh} onBusy={setCommerceBusy} onCustomer={setCustomer}
-          blocked={membershipBusy || currencyBusy} excludedLines={memberCoveredLines} beginMutation={beginCommercialMutation}
+          blocked={membershipBusy || currencyBusy || giftBusy || giftActive} excludedLines={memberCoveredLines} beginMutation={beginCommercialMutation}
           onCoverage={(active, historical) => {
             setCoveredLines(active);
             setHistoricalLines(previous => [...new Set([...previous, ...historical])]);
           }} />}
-        {ticket.customer_id && onRefresh && !identifyOpen && !identityBusy && <MembershipWallet key={`member:${ticket.institute_id}:${ticket.id}:${ticket.customer_id}`}
-          ticket={ticket} services={services} blocked={commerceBusy || currencyBusy} excludedLines={coveredLines} beginMutation={beginCommercialMutation}
+        {ticket.customer_id && onRefresh && !identifyOpen && !identityBusy && <MembershipWallet key={`member:${ticket.institute_id}:${ticket.id}:${ticket.customer_id}:${accessToken}`}
+          ticket={ticket} services={services} blocked={commerceBusy || currencyBusy || giftBusy || giftActive} excludedLines={coveredLines} beginMutation={beginCommercialMutation}
           onRefresh={onRefresh} onBusy={setMembershipBusy} onCoverage={(active, historical) => {
             setMemberCoveredLines(active); setHistoricalLines(previous => [...new Set([...previous, ...historical])]);
           }} />}
@@ -287,12 +295,11 @@ export function CheckoutPanel({
 
         <div className="bm-cash-total-box">
           <span>Total</span>
-          <strong>{formatNumber(total)} CHF</strong>
+          <strong>{formatCurrency(total, ticket.currency)}</strong>
         </div>
 
-        <button type="button" className="bm-gift-sale-button">
-          Creer un bon cadeau
-        </button>
+        <p>Émission des cartes cadeaux dans Offres, par la responsable.</p>
+        {giftActive && <p>{cents(giftTender!.remaining_due) === 0 ? "Paiement entièrement couvert par les cartes cadeaux" : "Choisir le moyen de paiement du complément"}</p>}
 
         <div className="bm-cash-payments-rounds">
           {PAYMENT_METHODS.map((method) => (
@@ -316,7 +323,11 @@ export function CheckoutPanel({
           />
         </label>
 
-        <button type="button" className="bm-final-cash-button" onClick={onPay} disabled={!cashierEmployee || commerceBusy || membershipBusy || currencyBusy || identityBusy}>
+        <button type="button" className="bm-final-cash-button" onClick={() => {
+          if (!giftActive) { onPay(); return; }
+          if (cents(giftTender!.remaining_due) === 0) onPay({ payment_method: "carte_cadeau" });
+          else if (["cb", "especes", "cheque"].includes(selectedPaymentMethod)) onPay({ payment_method: "mixte", remainder_method: selectedPaymentMethod as "cb" | "especes" | "cheque" });
+        }} disabled={!cashierEmployee || commerceBusy || membershipBusy || currencyBusy || giftBusy || identityBusy || ticket.status === "paid"}>
           Enregistrer le paiement
         </button>
 

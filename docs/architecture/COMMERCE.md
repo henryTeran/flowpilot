@@ -382,3 +382,31 @@ response or incomplete operational refresh keeps the latch; explicit refresh mus
 succeed before it releases payment, even if a partial read already supplied the
 currency. Disposed writes cannot refresh or unlock a different ticket. Gift lookup,
 debit/reversal and full/mixed payment controls remain the next UI scope.
+
+## Gift checkout checkpoint 8O
+
+The checkout wallet verifies the ticket's tender facts before enabling payment.
+Operator lookup sends the bearer code in a POST body, clears its input on success
+and keeps it only in component memory for balance reads. It is not placed in URLs
+or session recovery storage. Explicit decimal-cent amounts may debit scoped usable
+credit up to the remaining due; the server owns expiry, currency and balance truth.
+The service total now displays its recorded currency instead of a fixed CHF label.
+
+Lookup, debit, manager reversal and explicit reconciliation share the commercial
+mutation lease with packages, member prices and currency confirmation. Active
+credit freezes beneficiary/price/cancellation controls. Unreadable tender facts
+keep payment disabled. Debit/reversal requests have an actor/institute/ticket-scoped
+session recovery intent; after a lost response, the same operation must be confirmed
+before payment is released, even if a fresh ledger read already shows its effect.
+Recovery contains no bearer code or extra access token. Confirmed operations still
+require both a complete operational refresh and fresh tender/balance reads. A
+session-token change remounts the wallets and resets ownership of old operations.
+
+A fully covered invoice submits carte_cadeau. A positive complement submits mixte
+with the explicitly selected cb/especes/cheque remainder method; the App forwards
+that intent to the existing transactional closure API. Manager correction preserves
+care prices and records history; reception cannot reverse. Component checks cover
+lost-response recovery across remount, full/mixed intent, reversed history and
+fail-closed reads. These are not actual browser/tablet or external settlement proof.
+Paid issuance and payment-provider integration remain future payment/sales scope;
+Phase 8 loyalty and the final context/replay audit are still outstanding.

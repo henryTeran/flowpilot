@@ -583,7 +583,7 @@ export default function App() {
     }
   }
 
-  async function handlePayCheckout() {
+  async function handlePayCheckout(payment?: { payment_method: PaymentMethod; remainder_method?: "cb" | "especes" | "cheque" }) {
     const isCurrent = captureOperationalContext();
     if (!selectedCheckoutTicketId || !identifiedEmployeeId) {
       setError("Identifie la collaboratrice qui encaisse avant de valider le paiement.");
@@ -594,7 +594,8 @@ export default function App() {
     try {
       await apiPatch<QueueTicket>(`/tickets/${selectedCheckoutTicketId}/checkout/pay`, {
         employee_id: identifiedEmployeeId,
-        payment_method: selectedPaymentMethod,
+        payment_method: payment?.payment_method || selectedPaymentMethod,
+        ...(payment?.remainder_method ? { remainder_method: payment.remainder_method } : {}),
       });
       if (!isCurrent()) return;
 
