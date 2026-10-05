@@ -165,7 +165,8 @@ def assert_downgrade_preserves_reversal(engine, monkeypatch):
     config.set_main_option("script_location", str(Path(__file__).resolve().parents[1] / "migrations"))
     with monkeypatch.context() as patch:
         patch.setattr(settings, "DATABASE_URL", url.render_as_string(hide_password=False))
-        command.stamp(config, "head")
+        # Exercise this revision's refusal in isolation from future migrations.
+        command.stamp(config, "c0e345b875d0")
         with pytest.raises(RuntimeError, match="cannot preserve"):
             command.downgrade(config, "b9d234a764cf")
     with engine.connect() as connection:

@@ -11,6 +11,7 @@ from app.database.base import Base
 # Ensure all SQLAlchemy models are imported before autogenerate.
 from app.modules.appointments import models as appointments_models  # noqa: F401
 from app.modules.commerce import models as commerce_models  # noqa: F401
+from app.modules.customers import models as customers_models  # noqa: F401
 from app.modules.auth import models as auth_models  # noqa: F401
 from app.modules.employees import models as employees_models  # noqa: F401
 from app.modules.institutes import models as institutes_models  # noqa: F401

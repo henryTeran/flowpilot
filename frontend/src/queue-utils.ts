@@ -9,7 +9,7 @@ export function createArrivalIntent() {
   let fingerprint = "";
   let key = "";
   return {
-    keyFor(payload: { institute_id: string; service_ids: string[]; created_by_id?: string }) {
+    keyFor(payload: { institute_id: string; service_ids: string[]; created_by_id?: string; customer_id?: string }) {
       const next = JSON.stringify({ ...payload, service_ids: [...payload.service_ids].sort() });
       if (next !== fingerprint || !key) {
         fingerprint = next;

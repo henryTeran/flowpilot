@@ -13,8 +13,9 @@ one service, session count and validity in days. Issuance snapshots these terms 
 records its actor/time. Required institute-scoped replay keys recover one attribution
 or redemption; different intent with the same key rejects.
 
-Customer references use the existing ticket `customer_id` contract. This checkpoint
-does not create or claim a CRM profile. A redemption requires a matching customer
+Customer references use the existing ticket `customer_id` contract, extended by
+the minimal identity checkpoint below. The full Phase 12 CRM lifecycle is not
+claimed. A redemption requires a matching customer
 reference/service, a performed ticket line, and a ticket awaiting checkout/payment.
 It covers the full line quantity; partial line coverage is not implemented. A line
 can be covered once across all packages. Session balance, original line prices,
@@ -32,8 +33,8 @@ cashier employees. There are no LLM business decisions.
 Lines with commercial history cannot be removed. Tickets with active coverage
 cannot be cancelled; after reversal cancellation is permitted and history remains.
 Demo reset refuses to erase redemption-linked tickets rather than delete commercial
-history. Operator UI, customer selection and booking customer-reference binding
-remain package tasks. PACKAGES is IN_PROGRESS; memberships, gift cards and loyalty
+history. Package application/reversal controls in the operator UI remain package
+tasks. PACKAGES is IN_PROGRESS; memberships, gift cards and loyalty
 remain pending.
 
 Migration `b9d234a764cf` adds positive terms, nonnegative bounded balances, expiry,
@@ -73,3 +74,37 @@ against SQLite and a disposable PostgreSQL schema. Full backend: 198 passed, 21
 PostgreSQL cases skipped locally. Combined package/reversal/migration PostgreSQL
 bundle: 10 passed; final reversal suite: 5 passed, including cached-state duplicate
 reversals and reversal versus payment. Actual operator UI remains to implement.
+
+## Customer-selection checkpoint 8C
+
+Commercial beneficiary selection needs a persistent identity before the larger
+Phase 12 CRM lifecycle. The `customers` module provides exact-tenant operator
+creation, search and detail reads: display name, optional phone and creation actor/
+time. Required replay keys recover a creation after a lost response; changed facts
+reject. Names/phones are not unique and never automatically merge people. Search
+normalizes accents/case and phone formatting, escapes wildcard input and limits
+results. Empty searches do not enumerate the customer list.
+
+The walk-in Cliente step and booking form now share a customer picker with search,
+explicit selection and replay-safe creation. Names are shown instead of technical
+IDs. Anonymous arrival retains the existing direct service-selection path. The
+selected ID enters ticket creation and its replay fingerprint; changing institutes
+disposes the previous picker. Late search results cannot replace newer results.
+Bookings validate registered customer scope on creation/modification and propagate
+the selected identity into the completed booking's checkout ticket. Human booking
+names/phones remain visit snapshots rather than edits to the identity record.
+
+Legacy opaque ticket/package references remain readable and usable. Newly registered
+references are validated against the selected institute; unknown reserved customer
+IDs and foreign registered IDs reject. No historical names are merged or assigned
+identities by migration. Legacy booking replay fingerprints remain stable when no
+customer ID is supplied. Migration d1f456c986e1 passes SQLite/PostgreSQL round-trip/
+model parity and PostgreSQL upgrade/check; downgrade refuses populated identities.
+
+Backend full run: 200 passed, 21 PostgreSQL cases skipped; final identity checks:
+two passed. Identity/migration/reversal PostgreSQL-runner bundle: nine passed.
+Frontend: 25 tests and production build passed, including stale search protection,
+lost-response creation retry and named walk-in identity submission. HTTP coverage
+also completes a selected-customer booking and consumes its cure at checkout.
+These are component/protocol checks; browser/tablet gates and the package wallet UI
+remain open. Consent, customer lifecycle, marketing and full CRM are later work.

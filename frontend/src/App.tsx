@@ -323,8 +323,9 @@ export default function App() {
         institute_id: selectedInstituteId,
         service_id: firstServiceId,
         service_ids: result.selectedServiceIds,
+        customer_id: result.customer.customerId,
         created_by_id: identifiedEmployeeId || undefined,
-        idempotency_key: workflowIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: result.selectedServiceIds, created_by_id: identifiedEmployeeId || undefined }),
+        idempotency_key: workflowIntent.current.keyFor({ institute_id: selectedInstituteId, service_ids: result.selectedServiceIds, created_by_id: identifiedEmployeeId || undefined, customer_id: result.customer.customerId }),
       });
       if (!isCurrent()) return;
       workflowIntent.current.complete();
@@ -994,6 +995,8 @@ export default function App() {
         </ActionDrawer>
 
         <NewTicketWorkflow
+          key={selectedInstituteId}
+          instituteId={selectedInstituteId}
           open={ticketWorkflowOpen}
           creatorEmployee={identifiedEmployee}
           ticketStats={ticketStats}

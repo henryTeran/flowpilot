@@ -1,5 +1,13 @@
 export type ApiStatus = "idle" | "loading" | "success" | "error";
 
+export interface Customer {
+  id: string;
+  institute_id: string;
+  display_name: string;
+  phone: string | null;
+  created_at: string;
+}
+
 export interface Institute {
   id: string;
   name: string;
@@ -161,6 +169,7 @@ export interface InstituteDashboardRead {
 
 
 export interface Appointment {
+  customer_id?: string | null;
   checkout_ticket_id?: string | null;
   id: string;
   institute_id: string;
@@ -175,6 +184,7 @@ export interface Appointment {
 }
 
 export interface AppointmentCreatePayload {
+  customer_id?: string | null;
   idempotency_key?: string;
   institute_id: string;
   service_id: string;

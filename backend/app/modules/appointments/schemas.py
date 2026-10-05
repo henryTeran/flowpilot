@@ -8,6 +8,7 @@ class AppointmentCreate(BaseModel):
     service_id: str
     employee_id: str
     customer_name: str = Field(min_length=2, max_length=160)
+    customer_id: str | None = Field(default=None, min_length=1, max_length=80)
     phone: str | None = Field(default=None, max_length=40)
     start_time: datetime
     notes: str | None = Field(default=None, max_length=500)
@@ -24,12 +25,14 @@ class AppointmentUpdate(BaseModel):
     employee_id: str | None = Field(default=None, min_length=1)
     service_id: str | None = Field(default=None, min_length=1)
     customer_name: str | None = Field(default=None, min_length=2, max_length=160)
+    customer_id: str | None = Field(default=None, min_length=1, max_length=80)
     phone: str | None = Field(default=None, max_length=40)
     notes: str | None = Field(default=None, max_length=500)
 
 
 class AppointmentRead(BaseModel):
     id: str
+    customer_id: str | None = None
     checkout_ticket_id: str | None = None
     institute_id: str
     service_id: str

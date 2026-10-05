@@ -150,6 +150,7 @@ def prepare_booking_checkout(db: Session, appointment: Appointment) -> QueueTick
     if not service:
         raise not_found("Prestation du rendez-vous introuvable")
     ticket = QueueTicket(id=new_id("qt"), institute_id=appointment.institute_id,
+                        customer_id=appointment.customer_id,
                         ticket_number=_generate_ticket_number(db, appointment.institute_id),
                         status="ready_for_checkout", arrival_time=appointment.actual_end_time or utcnow(),
                         total_amount=service.price_passage or 0)
@@ -175,6 +176,9 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         creator = get_employee(db, payload.created_by_id)
         if not creator or creator.institute_id != payload.institute_id:
             raise business_error("Createur du ticket hors institut")
+
+    from app.modules.customers.repository import validate_customer_reference
+    validate_customer_reference(db, payload.institute_id, payload.customer_id)
 
     service_ids = _payload_service_ids(payload)
     if not service_ids:

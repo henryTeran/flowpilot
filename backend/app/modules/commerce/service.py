@@ -59,6 +59,8 @@ def issue_package(db: Session, institute, payload: PackageIssue, actor):
     plan = db.scalar(select(PackagePlan).where(PackagePlan.id == payload.plan_id, PackagePlan.institute_id == institute))
     if plan is None:
         raise not_found("Cure introuvable")
+    from app.modules.customers.repository import validate_customer_reference
+    validate_customer_reference(db, institute, payload.customer_id)
     service = get_service(db, plan.service_id)
     if service is None or service.status != "active":
         raise business_error("Cette cure ne propose plus une prestation active")

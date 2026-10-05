@@ -298,6 +298,80 @@ test("finishing a booking opens its linked checkout after cashier identification
   }
 });
 
+test("customer picker rejects obsolete search responses and retries creation with one intent", async () => {
+  const { CustomerPicker } = await import("../src/components/CustomerPicker");
+  const originalFetch = globalThis.fetch;
+  const customer = { id: "customer_selected", institute_id: "inst", display_name: "Émilie Dupont", phone: "+41 79", created_at: "2026-10-05T10:00:00Z" };
+  let oldSearch: (() => void) | undefined;
+  const keys: string[] = [];
+  const selections: any[] = [];
+  globalThis.fetch = async (url, init) => {
+    if (init?.method === "POST") {
+      keys.push(JSON.parse(String(init.body)).idempotency_key);
+      if (keys.length === 1) throw new Error("Lost response");
+      return new Response(JSON.stringify(customer), { headers: { "Content-Type": "application/json" } });
+    }
+    if (new URL(String(url)).searchParams.get("q") === "Old") {
+      return await new Promise<Response>(resolve => { oldSearch = () => resolve(new Response(JSON.stringify([
+        { ...customer, id: "old", display_name: "Obsolete customer" },
+      ]), { headers: { "Content-Type": "application/json" } })); });
+    }
+    return new Response(JSON.stringify([customer]), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const type = async (input: HTMLInputElement, value: string) => act(async () => {
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, value);
+    input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  });
+  const settleSearch = async () => act(async () => { await new Promise(resolve => setTimeout(resolve, 250)); });
+  try {
+    await act(async () => root.render(<CustomerPicker instituteId="inst" onSelect={value => selections.push(value)} />));
+    const search = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+    await type(search, "Old"); await settleSearch();
+    assert.ok(oldSearch);
+    await type(search, "Emilie"); await settleSearch();
+    assert.match(document.body.textContent!, /Émilie Dupont/);
+    await act(async () => oldSearch!());
+    assert.doesNotMatch(document.body.textContent!, /Obsolete customer/);
+    await act(async () => button("Émilie Dupont").click());
+    assert.equal(selections[0].id, customer.id);
+    await act(async () => button("Nouvelle cliente").click());
+    const name = [...document.querySelectorAll("label")].find(label => label.textContent?.includes("Nom de la cliente"))!.querySelector("input")!;
+    await type(name, "Émilie Dupont");
+    await act(async () => button("Enregistrer la cliente").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost response/);
+    await act(async () => button("Enregistrer la cliente").click());
+    assert.equal(keys.length, 2); assert.equal(keys[0], keys[1]);
+    assert.equal(selections[1].id, customer.id);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
+});
+
+test("named arrival submits the selected customer identity without displaying technical identifiers", async () => {
+  const originalFetch = globalThis.fetch;
+  const customer = { id: "customer_selected", institute_id: "inst", display_name: "Émilie Dupont", phone: "+41 79", created_at: "2026-10-05T10:00:00Z" };
+  globalThis.fetch = async () => new Response(JSON.stringify([customer]), { headers: { "Content-Type": "application/json" } });
+  const root = createRoot(document.getElementById("root")!);
+  let submitted: any;
+  try {
+    await act(async () => root.render(<NewTicketWorkflow open instituteId="inst" categories={[category]} services={[service]}
+      onClose={() => {}} onValidate={value => { submitted = value; }} />));
+    await act(async () => button("Cliente").click());
+    await act(async () => {
+      const input = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, "Emilie");
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 250)); });
+    await act(async () => button("Émilie Dupont").click());
+    assert.doesNotMatch(document.body.textContent!, /customer_selected/);
+    await act(async () => button("Prestations").click());
+    await act(async () => button("Aisselles").click());
+    await act(async () => button("Ajouter à la file").click());
+    assert.equal(submitted.customer.customerId, customer.id);
+    assert.equal(submitted.customer.lastName, customer.display_name);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; }
+});
+
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));
   assert.ok(element, `Missing button: ${text}`);

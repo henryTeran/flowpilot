@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import type { Employee, Service, ServiceCategory } from "../types";
+import type { Customer, Employee, Service, ServiceCategory } from "../types";
+import { CustomerPicker } from "./CustomerPicker";
 
 export interface NewTicketWorkflowResult {
   serviceId: string;
@@ -9,6 +10,7 @@ export interface NewTicketWorkflowResult {
     firstName: string;
     phone: string;
     identificationMode: string;
+    customerId?: string;
   };
   passageType: string;
 }
@@ -23,6 +25,7 @@ type TicketStats = {
 };
 
 interface NewTicketWorkflowProps {
+  instituteId?: string;
   open: boolean;
   creatorEmployee?: Employee;
   ticketStats?: TicketStats;
@@ -51,6 +54,7 @@ const passageTypes = [
 const stepLabels = ["Cliente", "Passage", "Prestations", "Validation"];
 
 export function NewTicketWorkflow({
+  instituteId,
   open,
   creatorEmployee,
   ticketStats,
@@ -62,6 +66,7 @@ export function NewTicketWorkflow({
 }: NewTicketWorkflowProps) {
   const [step, setStep] = useState(2);
   const [customerLastName, setCustomerLastName] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer>();
   const [customerFirstName, setCustomerFirstName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [identificationMode, setIdentificationMode] = useState("passage_bm");
@@ -124,6 +129,7 @@ export function NewTicketWorkflow({
           firstName: customerFirstName.trim(),
           phone: customerPhone.trim(),
           identificationMode,
+          ...(selectedCustomer ? { customerId: selectedCustomer.id } : {}),
         },
         passageType,
       });
@@ -138,6 +144,7 @@ export function NewTicketWorkflow({
   function resetAndClose() {
     setStep(2);
     setCustomerLastName("");
+    setSelectedCustomer(undefined);
     setCustomerFirstName("");
     setCustomerPhone("");
     setIdentificationMode("passage_bm");
@@ -178,7 +185,10 @@ export function NewTicketWorkflow({
                 </button>
               </div>
 
-              <div className="bm-customer-form clone-customer-form">
+              {instituteId ? <CustomerPicker instituteId={instituteId} selected={selectedCustomer} onSelect={customer => {
+                setSelectedCustomer(customer); setCustomerLastName(customer?.display_name || "");
+                setCustomerFirstName(""); setCustomerPhone(customer?.phone || "");
+              }} /> : <div className="bm-customer-form clone-customer-form">
                 <input
                   value={customerLastName}
                   onChange={(event) => setCustomerLastName(event.target.value)}
@@ -194,7 +204,7 @@ export function NewTicketWorkflow({
                   onChange={(event) => setCustomerPhone(event.target.value)}
                   placeholder="Numéro de téléphone"
                 />
-              </div>
+              </div>}
 
               <div className="bm-identification-mode-grid clone-identification-grid">
                 {identificationModes.map((mode) => (

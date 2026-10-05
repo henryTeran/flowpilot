@@ -19,6 +19,7 @@ class Appointment(Base):
     service_id: Mapped[str] = mapped_column(ForeignKey("services.id"), nullable=False, index=True)
     employee_id: Mapped[str] = mapped_column(ForeignKey("employees.id"), nullable=False, index=True)
     customer_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    customer_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
     start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
     end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)

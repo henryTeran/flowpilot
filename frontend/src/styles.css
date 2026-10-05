@@ -6644,3 +6644,9 @@ body {
 .flow-login-card input { width: 100%; min-height: 44px; border: 1px solid #b5c5d8; border-radius: 8px; padding: 10px 12px; font: inherit; }
 .flow-login-card [role="alert"] { color: #a12b2b; }
 .flow-session-exit { position: fixed; bottom: 12px; left: 14px; z-index: 30; border: 1px solid #c8d6e6; border-radius: 8px; background: white; color: #173c65; padding: 8px 12px; cursor: pointer; font-size: 12px; }
+.customer-picker { display: grid; gap: 10px; margin: 12px 0; }
+.customer-picker label { display: grid; gap: 5px; }
+.customer-picker input { width: 100%; min-height: 42px; }
+.customer-picker > div { display: grid; gap: 8px; }
+.customer-search-results { max-height: 220px; overflow-y: auto; }
+.customer-search-results button { display: flex; justify-content: space-between; gap: 12px; min-height: 44px; text-align: left; }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Appointment, AppointmentAction, AppointmentCreatePayload, AppointmentUpdatePayload, Employee, Service } from "../types";
+import { CustomerPicker } from "./CustomerPicker";
 
 interface AppointmentPanelProps {
   instituteId: string;
@@ -28,6 +29,7 @@ export function AppointmentPanel({
   const initialSlot = useMemo(() => getNextRoundedSlot(), []);
 
   const [customerName, setCustomerName] = useState("");
+  const [customerId, setCustomerId] = useState<string>();
   const [phone, setPhone] = useState("");
   const [serviceId, setServiceId] = useState(appointmentServices[0]?.id || "");
   const [employeeId, setEmployeeId] = useState(availableEmployees[0]?.id || "");
@@ -47,6 +49,7 @@ export function AppointmentPanel({
     const slot = localSlot(new Date(appointment.start_time));
     setEditingId(appointment.id);
     setCustomerName(appointment.customer_name);
+    setCustomerId(appointment.customer_id || undefined);
     setPhone(appointment.phone || "");
     setServiceId(appointment.service_id);
     setEmployeeId(appointment.employee_id);
@@ -95,6 +98,7 @@ export function AppointmentPanel({
         service_id: serviceId,
         employee_id: employeeId,
         customer_name: customerName.trim(),
+        customer_id: customerId || null,
         phone: phone.trim() || null,
         start_time: new Date(`${date}T${time}:00`).toISOString(),
       };
@@ -111,6 +115,7 @@ export function AppointmentPanel({
       }
       setEditingId(null);
       setCustomerName("");
+      setCustomerId(undefined);
       setPhone("");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Impossible d'enregistrer le rendez-vous");
@@ -142,12 +147,17 @@ export function AppointmentPanel({
           <span className="counter-badge">{appointments.length} RDV aujourd’hui</span>
         </div>
 
+        <CustomerPicker key={`${instituteId}:${editingId || "new"}`} instituteId={instituteId}
+          selected={customerId ? { id: customerId, display_name: customerName, phone: phone || null } : undefined}
+          clearLabel="Autre cliente" onSelect={customer => {
+            setCustomerId(customer?.id); setCustomerName(customer?.display_name || ""); setPhone(customer?.phone || "");
+          }} />
         <div className="appointment-grid-form">
           <label>
             Cliente
             <input
               value={customerName}
-              onChange={(event) => setCustomerName(event.target.value)}
+              onChange={(event) => { setCustomerName(event.target.value); setCustomerId(undefined); }}
               placeholder="Ex. Mme Dupont"
             />
           </label>
@@ -226,7 +236,7 @@ export function AppointmentPanel({
             {isSubmitting ? "Enregistrement..." : editingId ? "Enregistrer les modifications" : "Créer RDV"}
           </button>
         </div>
-        {editingId && <button type="button" disabled={isSubmitting} onClick={() => { setEditingId(null); setCustomerName(""); setPhone(""); }}>Annuler la modification</button>}
+        {editingId && <button type="button" disabled={isSubmitting} onClick={() => { setEditingId(null); setCustomerId(undefined); setCustomerName(""); setPhone(""); }}>Annuler la modification</button>}
         {formError && <p role="alert">{formError}</p>}
       </div>
 

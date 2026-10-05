@@ -6,7 +6,7 @@ from app.shared.time import utcnow
 
 
 def snapshot(appointment):
-    fields = ("status", "employee_id", "service_id", "start_time", "end_time",
+    fields = ("status", "employee_id", "service_id", "customer_id", "start_time", "end_time",
               "booked_start_time", "booked_end_time", "actual_start_time", "actual_end_time", "checkout_ticket_id")
     return {key: (value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value).isoformat() if isinstance(value, datetime) else value
             for key in fields for value in [getattr(appointment, key)]}

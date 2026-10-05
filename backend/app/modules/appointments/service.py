@@ -114,6 +114,8 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
     if len(payload.customer_name.strip()) < 2:
         raise business_error("Le nom de la cliente est requis")
     facts = payload.model_dump(exclude={"idempotency_key"})
+    if facts.get("customer_id") is None:
+        facts.pop("customer_id", None)  # Keep legacy booking replay fingerprints stable.
     facts["start_time"] = _ensure_aware(payload.start_time).astimezone(timezone.utc).isoformat()
     for key in ("customer_name", "phone", "notes"):
         if isinstance(facts.get(key), str):
@@ -126,6 +128,9 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
             if existing.creation_fingerprint != fingerprint:
                 raise business_error("La cle de rejeu appartient a une autre reservation")
             return existing
+    if payload.customer_id:
+        from app.modules.customers.repository import require_customer
+        require_customer(db, payload.institute_id, payload.customer_id)
     service = get_service(db, payload.service_id)
     if not service:
         raise not_found("Prestation introuvable")
@@ -196,6 +201,7 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
         service_id=payload.service_id,
         employee_id=payload.employee_id,
         customer_name=payload.customer_name.strip(),
+        customer_id=payload.customer_id,
         phone=payload.phone.strip() if payload.phone else None,
         start_time=start_time,
         end_time=end_time,
@@ -229,6 +235,9 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
             values[key] = values[key].strip()
     if "customer_name" in values and len(values["customer_name"]) < 2:
         raise business_error("Le nom de la cliente est requis")
+    if values.get("customer_id"):
+        from app.modules.customers.repository import require_customer
+        require_customer(db, appointment.institute_id, values["customer_id"])
     start = _ensure_aware(values.get("start_time", appointment.start_time))
     employee_id = values.get("employee_id", appointment.employee_id)
     service_id = values.get("service_id", appointment.service_id)

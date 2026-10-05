@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8B_PACKAGE_REVERSAL_BACKEND
+CURRENT_CHECKPOINT = PHASE8C_CUSTOMER_SELECTION_AND_BOOKING_BINDING
 STATUS = ACTIVE
 
 GATES:
@@ -8,11 +8,13 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle/reversal implemented; UI/customer binding remain. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle/reversal and customer-selection/binding implemented; checkout wallet/management UI remains. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Full backend run: 198 passed, 21 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Full backend run: 200 passed, 21 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Final identity checks: 2 passed; identity/migration/reversal PostgreSQL-runner bundle: 9 passed.
+- Migration d1f456c986e1: SQLite/PostgreSQL parity/round-trip and PostgreSQL upgrade/check passed.
 - Package/reversal/migration PostgreSQL bundle: 10 passed; final reversal suite: 5 passed, including reversal/payment and duplicate-credit races.
 - Migration c0e345b875d0: SQLite/PostgreSQL round-trip/model parity and PostgreSQL upgrade/check pass; reversed-history downgrade refusal verified on both databases.
 - Final local package/checkout/revision regressions: 12 passed, 1 PostgreSQL case skipped.
@@ -21,14 +23,14 @@ EVIDENCE:
 - Package migrations: SQLite/PostgreSQL round-trip/model-parity bundle with package tests: 5 passed; PostgreSQL upgrade/check passed.
 - Package HTTP checks cover role/tenant, expiry, customer match, replay, failed-flush rollback, covered checkout pricing and payment recovery.
 - Live two-process PostgreSQL suite: 2 passed; each walk-in/booking action revision followed by reader-side REST checks.
-- Last frontend validation: 23 tests and production build passed; JSDOM is component evidence only.
+- Frontend: 25 tests and production build passed; named arrival selection, stale search and replay-safe customer creation verified in JSDOM only.
 - Gate details: docs/architecture/RESOURCES_AND_SKILLS.md, HYBRID_BOOKING.md, REALTIME_OPERATIONS.md and COMMERCE.md.
 
 INVARIANTS:
 - Deterministic institute-scoped business truth; BASE/JV separation preserved.
 - Booking/resource/history/checkout handoff is transactional; legacy finished bookings are not rebilled.
 - Package balance, price coverage and immutable redemption history share one transaction and institute lock.
-- Customer references follow existing ticket customer_id; CRM profiles and public self-service are not claimed.
+- Minimal customer identities support selection; legacy references are preserved. Full Phase 12 CRM lifecycle and public self-service are not claimed.
 - Entitlement issuance does not claim a paid package sale or external payment settlement.
 - Demo reset cannot erase commercial redemption-linked tickets.
 
@@ -37,12 +39,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8C: operator/customer/booking integration for packages; then memberships, gift cards and loyalty.
+- PHASE8D: package wallet/issuance/application/reversal in checkout UI; then memberships, gift cards and loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(commerce): reverse package consumption safely before payment.
+- Current: feat(customers): select identities for arrivals and booking checkout.
+- bc4f874 feat(commerce): reverse package consumption safely before payment.
 - bf8dc72 feat(commerce): add scoped package balances and checkout consumption.
 - b3d941d test(operations): verify live actions and recalculation across servers.
 - 16d0fcc feat(booking): hand completed reservations to checkout transactionally.
