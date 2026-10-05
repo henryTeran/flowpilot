@@ -84,5 +84,10 @@ prevents configuration. Decimal rates accept French commas and retain exact stri
 precision. Activation/suspension creates a revision with reason and replay key;
 uncertain intent persists by institute/actor and refresh reads current policy rather
 than treating replay of an old revision as reactivation.
-Reward configuration, manual correction and checkout action UI plus
+Reward configuration exposes declared service, cost per session, minimum balance
+and decimal reduction per session in configured currency. Pending terms are
+whitelisted and preserved by institute/actor before sending. Replaying an existing
+intent remains possible when its service disappears from the active catalog; the
+API decides replay validity. Reception reads the catalog.
+Manual correction and checkout action UI plus
 browser/tablet end-to-end verification remain required; production readiness is not inferred.

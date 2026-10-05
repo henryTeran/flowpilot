@@ -1308,3 +1308,45 @@ test("earning policy uses declared currency and recovers a lost decimal-rate con
     assert.match(document.body.textContent!, /Version 1/);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
 });
+
+test("reward configuration preserves explicit service, point cost and decimal reduction across remount", async () => {
+  const { LoyaltyRewards } = await import("../src/components/LoyaltyRewards");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "reward-manager" }))}.signature`);
+  const bodies: any[] = [];
+  let reward: any;
+  let configured = true;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).endsWith("/settings")) return new Response(JSON.stringify(configured ? { currency: "CHF" } : { detail: "Configure currency" }), { status: configured ? 200 : 400, headers: { "Content-Type": "application/json" } });
+    if (init?.method === "POST") {
+      bodies.push(JSON.parse(String(init.body))); reward = { id: "reward", ...bodies.at(-1) };
+      if (bodies.length === 1) throw new Error("Lost reward response");
+      return new Response(JSON.stringify(reward), { headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify(reward ? [reward] : []), { headers: { "Content-Type": "application/json" } });
+  };
+  let root = createRoot(document.getElementById("root")!);
+  const button = (text: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === text)!;
+  try {
+    await act(async () => root.render(<LoyaltyRewards instituteId="inst" services={[service]} />));
+    await act(async () => {
+      const select = document.querySelector("select")!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!.call(select, "svc");
+      select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    });
+    await act(async () => [...document.querySelectorAll<HTMLInputElement>("input:not([type='checkbox'])")].forEach((input, index) => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, ["Reduction aisselles", "10", "20", "2,50"][index]);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }));
+    await act(async () => button("Configurer la recompense").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost reward response/);
+    await act(async () => root.unmount());
+    root = createRoot(document.getElementById("root")!);
+    await act(async () => root.render(<LoyaltyRewards instituteId="inst" services={[]} />));
+    await act(async () => button("Reessayer la recompense conservee").click());
+    assert.deepEqual(bodies[0], bodies[1]);
+    assert.equal(bodies[0].discount_amount, "2.50"); assert.equal(bodies[0].service_id, "svc"); assert.equal(bodies[0].points_cost, 10); assert.equal(bodies[0].minimum_points, 20); assert.equal(bodies[0].currency, "CHF");
+    assert.equal(sessionStorage.getItem("flowpilot.loyalty-reward:inst:reward-manager"), null);
+    assert.match(document.body.textContent!, /Recompense configuree/);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
+});
