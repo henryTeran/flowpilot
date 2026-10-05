@@ -11,6 +11,7 @@ class StartSession(BaseModel):
 
 class ExtendSession(BaseModel):
     minutes: int = Field(ge=5, le=60)
+    idempotency_key: str = Field(min_length=1, max_length=120)
 
 
 class ServiceSessionRead(BaseModel):

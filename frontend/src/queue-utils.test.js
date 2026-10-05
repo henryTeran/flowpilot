@@ -1,7 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { shouldOfferDelayedReleaseAction, compareQueueArrival, createArrivalIntent } from "./queue-utils.ts";
+import { shouldOfferDelayedReleaseAction, compareQueueArrival, createArrivalIntent, createExtensionIntents } from "./queue-utils.ts";
+
+test("extension retries preserve intent per session until success", () => {
+  const intents = createExtensionIntents();
+  const original = intents.keyFor("session-a", 10);
+  assert.equal(intents.keyFor("session-a", 10), original);
+  assert.notEqual(intents.keyFor("session-b", 10), original);
+  assert.equal(intents.keyFor("session-a", 10), original);
+  intents.complete("session-a");
+  const next = intents.keyFor("session-a", 10);
+  assert.notEqual(next, original);
+  assert.notEqual(intents.keyFor("session-a", 5), next);
+});
 
 test("queue order uses arrival and id even when estimates or assignment differ", () => {
   const rows = [

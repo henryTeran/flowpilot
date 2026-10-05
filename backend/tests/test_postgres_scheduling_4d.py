@@ -18,7 +18,7 @@ from app.modules.services.models import Service
 from app.modules.appointments.models import Appointment
 from app.modules.appointments.schemas import AppointmentCreate
 from app.modules.appointments.service import create_appointment
-from app.modules.planning.models import ServiceSession
+from app.modules.planning.models import ServiceSession, SessionExtension
 from app.modules.planning.service import start_service_session, extend_service_session
 from app.modules.tickets.models import QueueTicket
 from app.modules.tickets.schemas import TicketCreate
@@ -118,7 +118,7 @@ def test_extension_and_booking_cannot_both_create_overlap(postgres_flow):
         session_id, old_end = session.id, session.planned_end_time
     payload = AppointmentCreate(institute_id=institute, employee_id=employee, service_id=service,
                                 customer_name="Test", start_time=old_end + timedelta(minutes=5))
-    results = race(engine, [lambda db: extend_service_session(db, session_id, 10),
+    results = race(engine, [lambda db: extend_service_session(db, session_id, 10, "extend-booking-race"),
                             lambda db: create_appointment(db, payload)])
     assert sorted(status for status, _ in results) == ["conflict", "ok"]
 
@@ -142,3 +142,18 @@ def test_assignment_and_booking_share_the_same_capacity_lock(postgres_flow):
     results = race(engine, [lambda db: assign_ticket(db, ticket, employee),
                             lambda db: create_appointment(db, payload)])
     assert sorted(status for status, _ in results) == ["conflict", "ok"]
+
+
+def test_concurrent_extension_retry_applies_once(postgres_flow):
+    engine, institute, employee, service = postgres_flow
+    ticket = tickets(postgres_flow, 1)[0]
+    with Session(engine) as db:
+        session = start_service_session(db, ticket, employee, service)
+        session_id, duration = session.id, session.duration_minutes
+    results = race(engine, [lambda db: extend_service_session(db, session_id, 10, "same-extension"),
+                            lambda db: extend_service_session(db, session_id, 10, "same-extension")])
+    assert results[0] == results[1]
+    assert results[0][0] == "ok"
+    with Session(engine) as db:
+        assert db.get(ServiceSession, session_id).duration_minutes == duration + 10
+        assert len(db.scalars(select(SessionExtension)).all()) == 1

@@ -110,7 +110,7 @@ def test_live_queue_recalculates_after_extension_and_finish(client, setup_flow):
         assert response.status_code == 200
         return next(ticket for ticket in response.json() if ticket["id"] == second["id"])["estimated_start_time"]
     before = datetime.fromisoformat(estimate())
-    extended = client.patch(f"/api/v1/planning/sessions/{session['id']}/extend", headers=headers, json={"minutes": 10})
+    extended = client.patch(f"/api/v1/planning/sessions/{session['id']}/extend", headers=headers, json={"minutes": 10, "idempotency_key": "extend-wait"})
     assert extended.status_code == 200
     assert datetime.fromisoformat(estimate()) == before + timedelta(minutes=10)
     dashboard = client.get(f"/api/v1/dashboard/institutes/{institute}/live", headers=headers)

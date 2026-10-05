@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.modules.appointments.models import Appointment
 from app.modules.employees.repository import get_employee, list_by_institute
-from app.modules.planning.models import ServiceSession
+from app.modules.planning.models import ServiceSession, SessionExtension
 from app.modules.planning.repository import get_session, list_sessions_for_day
 from app.modules.planning.schemas import (
     AvailabilityEmployeeRead,
@@ -477,7 +477,10 @@ def finish_active_employee_session(db: Session, institute_id: str, employee_id: 
     return finish_service_session(db, active_session.id)
 
 
-def extend_service_session(db: Session, session_id: str, minutes: int) -> ServiceSession:
+def extend_service_session(db: Session, session_id: str, minutes: int,
+                           idempotency_key: str, requested_by: str | None = None) -> ServiceSession:
+    if not idempotency_key.strip() or len(idempotency_key) > 120:
+        raise business_error("Une cle de rejeu valide est obligatoire")
     if minutes not in {5, 10, 15, 20, 30, 45, 60}:
         raise business_error("Prolongation autorisée : 5, 10, 15, 20, 30, 45 ou 60 minutes")
 
@@ -487,6 +490,15 @@ def extend_service_session(db: Session, session_id: str, minutes: int) -> Servic
 
     lock_institute(db, session.institute_id)
     db.refresh(session)
+    existing = db.scalar(select(SessionExtension).where(
+        SessionExtension.institute_id == session.institute_id,
+        SessionExtension.session_id == session.id,
+        SessionExtension.idempotency_key == idempotency_key,
+    ))
+    if existing:
+        if existing.minutes != minutes:
+            raise business_error("La cle de rejeu appartient a une autre prolongation")
+        return session
     if session.status not in ACTIVE_SESSION_STATUSES:
         raise business_error("Seule une prestation active peut etre prolongee")
 
@@ -500,6 +512,12 @@ def extend_service_session(db: Session, session_id: str, minutes: int) -> Servic
     ))
     if appointment:
         raise business_error("La prolongation chevauche un rendez-vous planifie")
+    db.add(SessionExtension(
+        id=new_id("ext"), institute_id=session.institute_id, session_id=session.id,
+        idempotency_key=idempotency_key, minutes=minutes,
+        previous_end_time=_ensure_aware(session.planned_end_time), resulting_end_time=new_end,
+        requested_by=requested_by, occurred_at=utcnow(),
+    ))
     session.planned_end_time = new_end
     session.duration_minutes += minutes
     session.status = "extended"

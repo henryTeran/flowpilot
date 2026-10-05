@@ -29,9 +29,9 @@ def test_extension_conflict_is_atomic_and_boundary_is_allowed(client):
                            status="confirmed"))
         db.commit()
     path = f"/api/v1/planning/sessions/{session_id}/extend"
-    allowed = client.patch(path, headers=headers, json={"minutes": 5})
+    allowed = client.patch(path, headers=headers, json={"minutes": 5, "idempotency_key": "first"})
     assert allowed.status_code == 200
-    blocked = client.patch(path, headers=headers, json={"minutes": 5})
+    blocked = client.patch(path, headers=headers, json={"minutes": 5, "idempotency_key": "second"})
     assert blocked.status_code == 400
     with Session(main_module.engine) as db:
         session = db.get(ServiceSession, session_id)
@@ -40,4 +40,4 @@ def test_extension_conflict_is_atomic_and_boundary_is_allowed(client):
         assert db.query(QueueEvent).filter_by(ticket_id=ticket["id"], event_type="queue.service_extended").count() == 1
         db.get(Appointment, "extension-conflict").status = "cancelled"
         db.commit()
-    assert client.patch(path, headers=headers, json={"minutes": 5}).status_code == 200
+    assert client.patch(path, headers=headers, json={"minutes": 5, "idempotency_key": "second"}).status_code == 200

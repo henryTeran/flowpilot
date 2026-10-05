@@ -21,6 +21,14 @@ under the institute lock. Booking creation and service extension use the same Po
 institute lock. New bookings respect assigned walk-in reservations; extensions reject
 appointment overlaps atomically before changing duration or adding an event.
 
+Extension API calls require `idempotency_key` (1–120 characters, nonblank).
+The UI retains the key for retries and clears it after the write succeeds, before
+refreshing views. Per-session submission guards prevent overlapping UI requests.
+`session_extensions` records the before/after end times, minutes, requester and
+occurrence time in the same transaction as the session change and queue event.
+Matching retries return the current session without repeating the effect; a changed
+duration with the same key is rejected. Authorization precedes replay handling.
+
 ## Executable evidence
 
 From `backend`, run the normal suite against disposable SQLite fixtures:
@@ -39,7 +47,8 @@ python -m pytest tests/test_postgres_scheduling_4d.py -q
 
 Each PostgreSQL test creates and removes its own random schema. Tests cover competing
 assignments, starts, duplicate arrivals, overlapping bookings, extension versus booking,
-and assignment versus booking. These are simultaneous two-worker races, not a load test.
+assignment versus booking, and duplicate extension requests. These are simultaneous
+two-worker races, not a load test.
 Without an explicit PostgreSQL URL the tests are skipped, never counted as concurrency PASS.
 
 On an empty disposable PostgreSQL database, also run `alembic upgrade head`,
@@ -49,6 +58,8 @@ downgrade check on a user database.
 ## Remaining gates
 
 Availability helpers and planning now share unknown-capacity and chained-window semantics.
-Extension request replay safety, actual tablet/browser validation and
-larger concurrent load remain open. Resources and skills are Phase 5 inputs; the current
+Extension request replay safety is validated, including persistence-failure rollback.
+Actual tablet/browser validation and larger concurrent load remain open.
+No CUA browser surface was available during this checkpoint; JSDOM and build checks
+are not browser/tablet evidence. Resources and skills are Phase 5 inputs; the current
 projection does not claim to account for them. Production readiness is unverified.

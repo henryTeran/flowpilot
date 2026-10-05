@@ -103,4 +103,5 @@ def patch_extend_session(
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
     _require_session_scope(session_id, current_user, db)
-    return extend_service_session(db, session_id, payload.minutes)
+    return extend_service_session(db, session_id, payload.minutes, payload.idempotency_key,
+                                  requested_by=current_user.get("sub"))

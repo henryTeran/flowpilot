@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAccessToken } from "./api/session";
-import { createArrivalIntent, compareQueueArrival } from "./queue-utils";
+import { createArrivalIntent, createExtensionIntents, compareQueueArrival } from "./queue-utils";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
@@ -62,6 +62,8 @@ export default function App() {
   const arrivalIntent = useRef(createArrivalIntent());
   const workflowIntent = useRef(createArrivalIntent());
   const arrivalSubmitting = useRef(false);
+  const extensionIntents = useRef(createExtensionIntents());
+  const extendingSessions = useRef(new Set<string>());
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -427,12 +429,19 @@ export default function App() {
   }
 
   async function handleExtendSession(sessionId: string, minutes: number) {
+    if (extendingSessions.current.has(sessionId)) return;
+    extendingSessions.current.add(sessionId);
     setError(null);
     try {
-      await apiPatch(`/planning/sessions/${sessionId}/extend`, { minutes });
+      await apiPatch(`/planning/sessions/${sessionId}/extend`, {
+        minutes, idempotency_key: extensionIntents.current.keyFor(sessionId, minutes),
+      });
+      extensionIntents.current.complete(sessionId);
       await refreshOperationalData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible de prolonger la prestation");
+    } finally {
+      extendingSessions.current.delete(sessionId);
     }
   }
 

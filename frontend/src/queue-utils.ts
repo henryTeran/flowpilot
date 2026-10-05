@@ -21,6 +21,20 @@ export function createArrivalIntent() {
   };
 }
 
+export function createExtensionIntents() {
+  const intents = new Map<string, { minutes: number; key: string }>();
+  return {
+    keyFor(sessionId: string, minutes: number) {
+      const existing = intents.get(sessionId);
+      if (existing?.minutes === minutes) return existing.key;
+      const key = crypto.randomUUID();
+      intents.set(sessionId, { minutes, key });
+      return key;
+    },
+    complete(sessionId: string) { intents.delete(sessionId); },
+  };
+}
+
 export function shouldOfferDelayedReleaseAction(
   ticket: Pick<QueueTicket, "status" | "assigned_employee_id"> | undefined,
   employee: Pick<Employee, "status"> | null | undefined,
