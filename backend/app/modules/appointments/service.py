@@ -168,7 +168,7 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
         ).all()
     )
     for session in active_sessions:
-        if _has_overlap(start_time, end_time, session.start_time, session.planned_end_time):
+        if _ensure_aware(session.planned_end_time) <= utcnow() or _has_overlap(start_time, end_time, session.start_time, session.planned_end_time):
             raise business_error(
                 f"Conflit planning : {employee.first_name} a déjà une prestation sur ce créneau."
             )
@@ -183,7 +183,7 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
         ).all()
     )
     for appointment in active_appointments:
-        if _has_overlap(start_time, end_time, appointment.start_time, appointment.end_time):
+        if (appointment.status == "in_progress" and _ensure_aware(appointment.end_time) <= utcnow()) or _has_overlap(start_time, end_time, appointment.start_time, appointment.end_time):
             raise business_error(
                 f"Conflit RDV : {employee.first_name} a déjà un rendez-vous sur ce créneau."
             )
@@ -264,7 +264,8 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
         bookings = db.scalars(select(Appointment).where(Appointment.institute_id == appointment.institute_id,
             Appointment.employee_id == employee_id, Appointment.id != appointment.id,
             Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES))).all()
-        if any(_has_overlap(start, end, other.start_time, other.end_time) for other in bookings):
+        if any((other.status == "in_progress" and _ensure_aware(other.end_time) <= now)
+               or _has_overlap(start, end, other.start_time, other.end_time) for other in bookings):
             raise business_error("Un autre rendez-vous bloque ce creneau")
         # Resource matching must use the proposed service, but failure must not
         # flush proposed booking fields before it proves the new interval.
@@ -363,7 +364,7 @@ def start_appointment(db: Session, appointment_id: str, actor_id: str | None = N
     other_appointments = db.scalars(select(Appointment).where(
         Appointment.institute_id == appointment.institute_id, Appointment.employee_id == employee.id,
         Appointment.id != appointment.id, Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES))).all()
-    if any(_has_overlap(now, actual_end, other.start_time, other.end_time) for other in other_appointments):
+    if any(other.status == "in_progress" or _has_overlap(now, actual_end, other.start_time, other.end_time) for other in other_appointments):
         raise business_error("Le demarrage chevauche un autre rendez-vous")
     reserve_appointment(db, appointment, now, actual_end, in_use=True)
     appointment.booked_start_time = appointment.booked_start_time or appointment.start_time

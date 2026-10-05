@@ -55,5 +55,24 @@ PostgreSQL simultaneous duplicate requests prove one booking/resource/event; cli
 tests prove key retention after failure and replacement after success. Migration
 e6a901df431c preserves legacy rows and passes SQLite/PostgreSQL parity/round-trips.
 
-Complete hybrid booking gate audit remains open; public customer identity and a
-self-service portal are not claimed by this checkpoint.
+Overdue active sessions/appointments have unknown remaining occupancy and block
+creation or movement even into a later slot. Finishing restores capacity. Starting
+cannot overlap another in-progress appointment. Parameterized HTTP cases exercise
+both overdue sources and creation/movement recovery.
+
+## Phase 6 canonical functional gates
+
+| Gate | Evidence | Result |
+| --- | --- | --- |
+| HYBRID_BOOKING | Named customer create/confirm/edit/cancel workflow, operator controls, execution facts and atomic history | PASS |
+| BOOKING_CREATE | Creation replay, invalid-input/tenant guards, interval checks, SQLite/PostgreSQL migration parity | PASS |
+| BOOKING_MOVE | Resource/employee/walk-in guards, failed-move preservation, rollback injection, PostgreSQL competing-move race | PASS |
+| BOOKING_CANCEL | HTTP lifecycle releases capacity; history and state commit together | PASS |
+| RESOURCE_RESERVATION | Shared pool, full-duration matching, quantity/capability/tenant cases and PostgreSQL resource races | PASS |
+| COEXISTENCE_WALKIN_BOOKING | Assigned walk-in and service/extension collision checks; PostgreSQL cross-operation races; overdue unknown-capacity recovery | PASS |
+
+Phase 6 functional gates are closed within the canonical authenticated operator
+reservation workflow. A public self-service portal is not specified or claimed.
+Real browser/tablet UX and load validation remain separate open gates; Phase 7 must
+verify real-time synchronization and reconnection rather than infer them from these
+transaction tests.
