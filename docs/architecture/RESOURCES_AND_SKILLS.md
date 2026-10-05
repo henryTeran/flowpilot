@@ -60,7 +60,12 @@ If an assigned ticket cannot be projected, its existing resource commitment rema
 Missing or overdue unknown resource capacity yields no fabricated estimate. Extension
 and finish update the facts used by queue/dashboard reads. Five pure cases and an
 HTTP-backed lifecycle check cover contention, owner exclusion and overdue capacity.
-Broader cross-operation races and remaining path audits are still needed for closure.
+PostgreSQL resource races now cover booking/booking, assignment/booking and
+extension/booking across different employees. Each produces exactly one successful
+writer and one conflict, with matching persisted session/reservation boundaries.
+Injected assignment commit failure rolls back the reservation, ticket and event.
+Service-specific availability now searches joint resource/employee windows too.
+Remaining tenant/quantity/multi-service and window audits are needed for gate closure.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.

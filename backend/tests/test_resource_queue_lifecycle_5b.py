@@ -20,6 +20,8 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
     tickets = [_create_ticket(client, institute, services[0]["id"])["id"] for _ in range(2)]
     options = lambda ticket: client.get(f"/api/v1/availability/{ticket}/assignment-options?institute_id={institute}", headers=operator).json()["options"]
     assert any(option["assignable"] for option in options(tickets[0]))
+    availability = lambda: client.get(f"/api/v1/availability/employees/{employees[1]['id']}?institute_id={institute}&service_id={services[0]['id']}", headers=operator).json()
+    assert availability()["available"]
     with Session(main_module.engine) as db:
         projections = waiting_projections(db, institute)
         assert projections[tickets[0]].estimated_start_time is not None
@@ -27,6 +29,7 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
     assign = lambda ticket, employee: client.patch(f"/api/v1/tickets/{ticket}/assign", headers=operator,
                                                    json={"employee_id": employee})
     assert assign(tickets[0], employees[0]["id"]).status_code == 200
+    assert not availability()["available"]
     assert next(option for option in options(tickets[0]) if option["employee_id"] == employees[0]["id"])["assignable"]
     assert all(not option["assignable"] for option in options(tickets[1]))
     assert client.patch(f"{prefix}/{resource['id']}", headers=manager, json={"status": "maintenance"}).status_code == 400

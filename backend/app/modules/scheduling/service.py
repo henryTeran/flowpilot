@@ -76,6 +76,32 @@ def availability_engine(
     ready = max([now] + [_ensure_aware(session.planned_end_time) for session in sessions])
     windows = free_windows(ready, [(_ensure_aware(appt.start_time),
                                    _ensure_aware(appt.end_time), appt.id) for appt in appointments])
+    resource_delayed = False
+    if service_id:
+        from app.modules.resources.repository import resource_requirement_facts
+        from app.modules.resources.reservations import resource_timelines
+        from app.modules.resources.allocation_domain import ResourceNeed, next_resource_window
+        from app.modules.services.models import Service
+        needs = tuple(ResourceNeed(*need) for need in resource_requirement_facts(db, institute_id).get(service_id, []))
+        if needs:
+            service = db.get(Service, service_id)
+            duration = (service.duration_max or service.duration_min) if service else 0
+            if duration <= 0:
+                return unknown(AvailabilityReason.RESOURCE_CAPACITY_UNKNOWN)
+            resources = resource_timelines(db, institute_id, now=now)
+            joint_windows = []
+            for begin, end, evidence_id in windows:
+                match = next_resource_window(resources, needs, begin, duration, latest_end=end)
+                if match is None:
+                    continue
+                boundaries = [end] if end else []
+                boundaries.extend(start for resource in resources if resource.resource_id in match.resource_ids
+                                  for start, _ in resource.reservations if start > match.start)
+                joint_windows.append((match.start, min(boundaries) if boundaries else None, evidence_id))
+            if not joint_windows:
+                return unknown(AvailabilityReason.RESOURCE_CAPACITY_UNKNOWN)
+            resource_delayed = joint_windows[0][0] > windows[0][0]
+            windows = joint_windows
     active_session = max(sessions, key=lambda item: _ensure_aware(item.planned_end_time), default=None)
     if active_session:
         reason = AvailabilityReason.IN_PROGRESS_SESSION
@@ -83,6 +109,8 @@ def availability_engine(
         reason = AvailabilityReason.UPCOMING_APPOINTMENT
     else:
         reason = AvailabilityReason.AVAILABLE_NOW
+    if resource_delayed:
+        reason = AvailabilityReason.RESOURCE_RESERVED
     begin, end, previous_appointment = windows[0]
     current_slot = AvailabilitySlot(employee_id, institute_id, begin, end, reason,
         blocking_session_id=active_session.id if active_session else None,
