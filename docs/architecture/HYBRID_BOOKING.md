@@ -13,6 +13,12 @@ claim. SQLite/PostgreSQL round-trip tests preserve a seeded legacy appointment a
 verify schema parity. Booking lifecycle tests verify booked facts survive start and
 execution timestamps distinguish completion from cancellation/no-show.
 
-Safe movement/modification, confirmation, customer reservation and complete hybrid
+`PATCH /api/v1/appointments/{id}/confirm` transitions scheduled to confirmed under
+the institute lock. Confirmed retries return the current booking without changing
+its interval or reservation. Other states reject confirmation; existing booking
+RBAC/tenant checks run before mutation. HTTP tests cover replay, reservation/booked
+fact preservation, foreign tenant, missing booking and cancellation rejection.
+
+Safe movement/modification, customer reservation and complete hybrid
 booking gate validation remain open. Moves must atomically revalidate qualifications,
 employee/walk-in conflicts and resource intervals under the institute lock.

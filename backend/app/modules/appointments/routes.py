@@ -8,6 +8,7 @@ from app.modules.appointments.schemas import AppointmentCreate, AppointmentRead
 from app.modules.appointments.service import (
     cancel_appointment,
     complete_appointment,
+    confirm_appointment,
     create_appointment,
     list_today_appointments,
     mark_appointment_arrived,
@@ -46,6 +47,16 @@ def post_appointment(
 ) -> AppointmentRead:
     require_same_institute(current_user, payload.institute_id)
     return create_appointment(db, payload)
+
+
+@router.patch("/{appointment_id}/confirm", response_model=AppointmentRead)
+def patch_confirm_appointment(
+    appointment_id: str,
+    current_user: dict[str, str | None] = Depends(require_ticket_manager),
+    db: Session = Depends(get_db),
+) -> AppointmentRead:
+    _require_appointment_access(appointment_id, current_user, db)
+    return confirm_appointment(db, appointment_id)
 
 
 @router.patch("/{appointment_id}/arrive", response_model=AppointmentRead)

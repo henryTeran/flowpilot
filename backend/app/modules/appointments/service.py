@@ -191,6 +191,20 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
     return save_appointment(db, appointment)
 
 
+def confirm_appointment(db: Session, appointment_id: str) -> Appointment:
+    appointment = get_appointment(db, appointment_id)
+    if not appointment:
+        raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
+    if appointment.status == "confirmed":
+        return appointment
+    if appointment.status != "scheduled":
+        raise business_error("Seul un rendez-vous planifie peut etre confirme")
+    appointment.status = "confirmed"
+    return save_appointment(db, appointment)
+
+
 def mark_appointment_arrived(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
