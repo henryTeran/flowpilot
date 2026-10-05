@@ -1,5 +1,7 @@
 from datetime import timedelta, timezone
 from decimal import Decimal
+from hashlib import sha256
+import json
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -38,10 +40,21 @@ def scoped_package(db, institute, identifier):
 
 def create_plan(db: Session, institute, payload: PackagePlanCreate):
     lock_institute(db, institute)
+    fingerprint = None
+    if payload.idempotency_key:
+        fingerprint = sha256(json.dumps(payload.model_dump(exclude={"idempotency_key"}),
+                                       sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        existing = db.scalar(select(PackagePlan).where(PackagePlan.institute_id == institute,
+                                      PackagePlan.idempotency_key == payload.idempotency_key))
+        if existing:
+            if existing.creation_fingerprint != fingerprint:
+                raise business_error("Cette cle de rejeu appartient a une autre configuration")
+            return existing
     service = get_service(db, payload.service_id)
     if service is None or service.status != "active":
         raise business_error("Prestation active requise")
-    plan = PackagePlan(id=new_id("pp"), institute_id=institute, **payload.model_dump())
+    plan = PackagePlan(id=new_id("pp"), institute_id=institute,
+                       creation_fingerprint=fingerprint, **payload.model_dump())
     db.add(plan)
     db.commit()
     db.refresh(plan)

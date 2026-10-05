@@ -6653,3 +6653,9 @@ body {
 .package-wallet { display: grid; gap: 10px; padding: 16px; border: 1px solid #e7d9e1; border-radius: 12px; margin: 12px 0; }
 .package-wallet > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .package-wallet button { min-height: 44px; }
+.commerce-panel { display: grid; gap: 16px; padding: 24px; background: white; border-radius: 16px; margin: 24px; }
+.commerce-panel fieldset { border: 0; padding: 0; display: grid; gap: 12px; }
+.commerce-panel label { display: grid; gap: 6px; }
+.commerce-panel input, .commerce-panel select, .commerce-panel button { min-height: 44px; padding: 8px 12px; }
+.commerce-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.commerce-plans article { padding: 16px; border: 1px solid #e7d9e1; border-radius: 12px; }

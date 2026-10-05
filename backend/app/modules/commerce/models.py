@@ -8,13 +8,21 @@ from app.database.base import Base
 
 class PackagePlan(Base):
     __tablename__ = "package_plans"
-    __table_args__ = (CheckConstraint("sessions > 0 AND valid_days > 0", name="ck_package_plan_terms"),)
+    __table_args__ = (
+        CheckConstraint("sessions > 0 AND valid_days > 0", name="ck_package_plan_terms"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_package_plan_creation_replay"),
+        CheckConstraint("(idempotency_key IS NULL AND creation_fingerprint IS NULL) OR "
+                        "(idempotency_key IS NOT NULL AND creation_fingerprint IS NOT NULL)",
+                        name="ck_package_plan_creation_replay"),
+    )
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
     service_id: Mapped[str] = mapped_column(ForeignKey("services.id"))
     name: Mapped[str] = mapped_column(String(120))
     sessions: Mapped[int] = mapped_column(Integer)
     valid_days: Mapped[int] = mapped_column(Integer)
+    idempotency_key: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    creation_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class CustomerPackage(Base):

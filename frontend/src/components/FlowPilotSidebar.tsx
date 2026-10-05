@@ -23,6 +23,7 @@ interface FlowPilotSidebarProps {
   onOpenPlanning?: () => void;
   onOpenTickets: () => void;
   onOpenDashboard: () => void;
+  onOpenOffers?: () => void;
 }
 
 export function FlowPilotSidebar({
@@ -30,11 +31,13 @@ export function FlowPilotSidebar({
   onOpenPlanning,
   onOpenTickets,
   onOpenDashboard,
+  onOpenOffers,
 }: FlowPilotSidebarProps) {
   function handleClick(itemId: string) {
     if (itemId === "planning") onOpenPlanning?.();
     if (itemId === "tickets") onOpenTickets();
     if (itemId === "dashboard") onOpenDashboard();
+    if (itemId === "offres") onOpenOffers?.();
   }
 
   return (

@@ -13,6 +13,7 @@ class PackagePlanCreate(BaseModel):
     service_id: Identifier
     sessions: int = Field(ge=1, le=1000, strict=True)
     valid_days: int = Field(ge=1, le=3650, strict=True)
+    idempotency_key: ReplayKey | None = None
 
 
 class PackageIssue(BaseModel):

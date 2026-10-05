@@ -6,6 +6,7 @@ import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
 import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
+import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
@@ -61,7 +62,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
-  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres">("planning");
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -721,10 +722,11 @@ export default function App() {
   return (
     <div className="bm-app-shell">
       <FlowPilotSidebar
-        activeItem={mainView === "chiffres" ? "dashboard" : mainView === "tickets" ? "tickets" : "planning"}
+        activeItem={mainView === "chiffres" ? "dashboard" : mainView}
         onOpenPlanning={() => { setActiveDrawer(null); setMainView("planning"); }}
         onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
+        onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
       />
 
       <div className="bm-content-shell">
@@ -759,6 +761,8 @@ export default function App() {
 
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
+
+        {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (
           <>
@@ -1061,13 +1065,15 @@ function isCheckoutTicket(status: string) {
   return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
 }
 
-function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres") {
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres") {
+  if (view === "offres") return "Accueil / Offres";
   if (view === "tickets") return "Accueil / Tickets";
   if (view === "chiffres") return "Accueil / Chiffres";
   return "Accueil / Planning";
 }
 
-function getTopTitle(view: "planning" | "tickets" | "chiffres") {
+function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres") {
+  if (view === "offres") return "Offres";
   if (view === "tickets") return "Tickets";
   if (view === "chiffres") return "Chiffres";
   return "Planning institut";

@@ -476,6 +476,64 @@ test("checkout identifies an anonymous customer and keeps uncertain identity cha
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+test("commerce manager recovers plan creation and customer grants with the original replay keys", async () => {
+  const { CommercePanel } = await import("../src/components/CommercePanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  const plan = { id: "plan", name: "Cure test", service_id: "svc", sessions: 5, valid_days: 90 };
+  const customer = { id: "customer_test", display_name: "Selected manager client", phone: null };
+  const keys: Record<string, string[]> = { plan: [], issue: [] };
+  let created = false;
+  let issued = false;
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    if (init?.method === "POST") {
+      const payload = JSON.parse(String(init.body));
+      const kind = path.endsWith("/package-plans") ? "plan" : "issue";
+      keys[kind].push(payload.idempotency_key);
+      if (kind === "plan") { assert.equal(payload.sessions, 5); created = true; }
+      else { assert.equal(payload.customer_id, customer.id); assert.equal(payload.plan_id, plan.id); issued = true; }
+      if (keys[kind].length === 1) throw new Error("Lost response");
+      return new Response(JSON.stringify(kind === "plan" ? plan : { id: "package" }), { headers: { "Content-Type": "application/json" } });
+    }
+    const value = path.includes("/customers/") ? [customer] : path.endsWith("/package-plans") ? created ? [plan] : []
+      : issued ? [{ id: "package", name: plan.name, remaining: 5, usable_sessions: 5, expires_at: "2027-01-01T10:00:00Z" }] : [];
+    return new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const input = async (selector: string, value: string) => act(async () => {
+    const element = document.querySelector<HTMLInputElement | HTMLSelectElement>(selector)!;
+    const prototype = element.tagName === "SELECT" ? dom.window.HTMLSelectElement.prototype : dom.window.HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(prototype, "value")!.set!.call(element, value);
+    element.dispatchEvent(new dom.window.Event(element.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
+  });
+  try {
+    await act(async () => root.render(<CommercePanel instituteId="inst" services={[service]} />));
+    await input("input[maxlength='120']", plan.name);
+    await input("form select", "svc");
+    const submit = () => document.querySelector("form")!.dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
+    await act(async () => { submit(); });
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost response/);
+    await act(async () => { submit(); });
+    assert.ok(keys.plan[0]); assert.equal(keys.plan[0], keys.plan[1]);
+    assert.match(document.querySelector("[role='status']")!.textContent!, /Forfait configuré/);
+    await input("input[type='search']", "Selected");
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 250)); });
+    await act(async () => button(customer.display_name).click());
+    const selectors = document.querySelectorAll("select");
+    await act(async () => { selectors[1].value = "plan"; selectors[1].dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+    await act(async () => button("Attribuer le forfait").click());
+    await act(async () => button("Attribuer le forfait").click());
+    assert.ok(keys.issue[0]); assert.equal(keys.issue[0], keys.issue[1]);
+    assert.match(document.body.textContent!, /5 séances utilisables/);
+    assert.equal(button("Attribuer le forfait").disabled, true);
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil" }))}.signature`);
+    await act(async () => root.render(<CommercePanel key="operator" instituteId="inst" services={[service]} />));
+    assert.equal(document.querySelector("form"), null);
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Attribuer le forfait")), false);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));
   assert.ok(element, `Missing button: ${text}`);

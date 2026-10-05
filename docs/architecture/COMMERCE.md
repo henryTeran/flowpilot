@@ -158,3 +158,31 @@ PostgreSQL beneficiary-versus-consumption and beneficiary-versus-payment races.
 JSDOM verifies anonymous selection, lost-response blocking and explicit recovery.
 Actual browser/tablet gates remain open. Package management/issuance UI and the
 sale/settlement flow still remain; this checkpoint does not close PACKAGES.
+
+## Package-management checkpoint 8F
+
+The institute's Offres screen lists cure terms and customer balances. Managers can
+configure a cure's service, number of sessions and validity in days, select/register
+a customer, and grant the cure. Reception can consult customer packages but cannot
+configure or grant them. Token claims only control presentation: existing exact
+institute/manager API checks remain authoritative. Terms are immutable here; a new
+configuration creates a new plan, while issued packages retain their term snapshots.
+Grant success clears the selected plan, requiring deliberate reselection for another
+grant. The screen explicitly distinguishes granted rights from an encashed sale.
+
+New configuration submissions carry stable replay keys, as grants already do.
+Migration e2a567da97f2 adds institute-scoped plan replay keys and immutable creation
+fingerprints. Repeated identical configuration returns the original plan even if
+its service has since become inactive; a changed intent with that key is refused.
+Existing plans and older API callers without keys remain compatible. The institute
+lock serializes concurrent same-key creation. Downgrade refuses to discard keyed
+creation recovery; the empty/legacy migration round-trip remains supported.
+
+Validation: full backend suite 202 passed/24 opt-in cases skipped; final local replay
+test passed. Actual PostgreSQL replay/package/migration bundle: seven passed, including
+same-intent creation race, keyed downgrade refusal and migration/model parity/round-trip.
+Frontend: 28 tests and production build pass, with configuration/grant lost-response
+retry and reception presentation restrictions checked in JSDOM. No real browser/tablet
+proof is claimed. The detailed Phase 8 PACKAGES functional scope (cures, sessions,
+consumption, expiration) now passes at these server/component scopes. Memberships,
+gift cards and loyalty remain pending; paid sale/external settlement is Phase 9 work.
