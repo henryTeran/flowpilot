@@ -8,3 +8,11 @@ export function setAccessToken(token: string | null) {
   if (token) sessionStorage.setItem(SESSION_KEY, token);
   else sessionStorage.removeItem(SESSION_KEY);
 }
+
+// Presentation only; the API remains authoritative for permission checks.
+export function getOperatorRole() {
+  try {
+    const claims = JSON.parse(atob((getAccessToken() || "").split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof claims.role === "string" ? claims.role : undefined;
+  } catch { return undefined; }
+}

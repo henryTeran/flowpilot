@@ -246,3 +246,42 @@ duplicate reversal with cached rows. HTTP checks cover scope, two-unit pricing,
 expiry boundary, replay, historical guards and rollback after price/history flush.
 Final checks also verify transactional revision rollback and replay stability.
 The membership management/wallet interface remains next; MEMBERSHIPS stays open.
+
+## Membership-interface checkpoint 8I
+
+Offres now includes membership formulas, registered-customer attribution, renewal
+and renewal-history consultation. Managers see the write controls; reception can
+consult customer rights. API permissions remain authoritative. Mandatory replay
+keys stay unchanged when retrying configuration, attribution or renewal after a
+lost response. Customer selection is frozen while a write/refresh is outstanding,
+including late customer-creation callbacks. Rights attribution/renewal is explicitly
+distinguished from an encashed sale and automatic billing.
+
+Checkout lists membership validity and offers member pricing for performed lines
+with a declared, reducing tariff. The API revalidates beneficiary, validity, prices
+and coverage at application. Managers can reverse the recorded advantage before
+payment. Package and member wallets report their active/historical coverage to the
+panel: active coverage blocks beneficiary correction/cancellation, while observed
+historical lines remain protected after reversal. Server history guards are still
+authoritative after a fresh mount.
+
+A shared lease serializes both wallets' mutations and reconciliation. Separate
+uncertainty flags prevent one wallet from unlocking payment while the other remains
+unconfirmed. Refresh remains available to recover uncertainty. Read history plus
+successful operational-price refresh are required before payment unlocks. Superseded
+or disposed reads cannot start follow-up history requests, refresh another checkout
+or unlock its pending operation. Lease release also cannot release a newer context's
+lease. Package wallet lifecycle checks now cover StrictMode cleanup/recreation.
+
+Validity displays interpret offset-free SQLite timestamps as UTC, consistent with
+PostgreSQL's offset-bearing responses. This changes presentation only; server time
+remains the authority for membership/package eligibility.
+
+Frontend validation: 34 tests and production build pass, including configuration/
+grant/renewal lost-response retry, wallet serialization, uncertain-price blocking,
+reversal/history guards, disposed-write isolation, StrictMode delayed-read rejection
+and SQLite/PostgreSQL timestamp parity. These are JSDOM/component checks. Combined
+with the recorded lifecycle/pricing HTTP and real PostgreSQL evidence, detailed
+Phase 8 MEMBERSHIPS functional server/component scope passes. Actual browser/tablet,
+production load and external settlement remain unverified. Gift cards and loyalty
+are the remaining Phase 8 domains.

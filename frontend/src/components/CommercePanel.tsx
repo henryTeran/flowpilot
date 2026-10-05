@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet, apiPost } from "../api/client";
-import { getAccessToken } from "../api/session";
+import { readUtcDate } from "../api/dates";
+import { getAccessToken, getOperatorRole } from "../api/session";
 import type { Customer, Service } from "../types";
 import { CustomerPicker } from "./CustomerPicker";
+import { MembershipManagement } from "./MembershipManagement";
 
 type Plan = { id: string; name: string; service_id: string; sessions: number; valid_days: number };
 type Balance = { id: string; name: string; remaining: number; usable_sessions: number; expires_at: string };
@@ -18,6 +20,8 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
   const [days, setDays] = useState("90");
   const [planId, setPlanId] = useState("");
   const [busy, setBusy] = useState(false);
+  const [membershipBusy, setMembershipBusy] = useState(false);
+  const membershipPending = useRef(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const epoch = useRef(0);
@@ -27,8 +31,7 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
   const intents = useRef(new Map<string, { fingerprint: string; key: string }>());
   const token = getAccessToken();
   const prefix = `/commerce/institutes/${encodeURIComponent(instituteId)}`;
-  let manager = false;
-  try { manager = JSON.parse(atob((token || "").split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role === "responsable_institut"; } catch {}
+  const manager = getOperatorRole() === "responsable_institut";
   useEffect(() => {
     const stamp = ++epoch.current;
     const request = ++planSequence.current;
@@ -48,7 +51,7 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
   }, [customer?.id, instituteId, token]);
 
   async function write(kind: "plan" | "issue") {
-    if (pending.current || !manager) return;
+    if (pending.current || membershipPending.current || !manager) return;
     const stamp = epoch.current;
     const current = () => stamp === epoch.current && token === getAccessToken();
     const payload = kind === "plan"
@@ -88,7 +91,7 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
       <p>{plan.sessions} séances · validité {plan.valid_days} jours</p>
     </article>)}</div>
     {manager && <form onSubmit={event => { event.preventDefault(); void write("plan"); }}>
-      <h3>Configurer un forfait</h3><fieldset disabled={busy}>
+      <h3>Configurer un forfait</h3><fieldset disabled={busy || membershipBusy}>
         <label>Nom du forfait<input maxLength={120} value={name} onChange={event => setName(event.target.value)} /></label>
         <label>Prestation<select value={serviceId} onChange={event => setServiceId(event.target.value)}><option value="">Choisir</option>
           {services.filter(service => service.status === "active").map(service => <option key={service.id} value={service.id}>{service.name}</option>)}</select></label>
@@ -98,8 +101,8 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
       </fieldset>
     </form>}
     <h3>{manager ? "Attribuer des droits" : "Consulter les forfaits d’une cliente"}</h3>
-    <fieldset disabled={busy}><CustomerPicker instituteId={instituteId} selected={customer} onSelect={value => {
-      if (!pending.current) { setCustomer(value); setMessage(undefined); }
+    <fieldset disabled={busy || membershipBusy}><CustomerPicker instituteId={instituteId} selected={customer} onSelect={value => {
+      if (!pending.current && !membershipPending.current) { setCustomer(value); setMessage(undefined); }
     }} />
       {manager && <><p>Cette attribution accorde des séances. Elle ne constitue pas une vente encaissée.</p>
         <label>Forfait<select value={planId} onChange={event => setPlanId(event.target.value)}><option value="">Choisir</option>
@@ -107,6 +110,8 @@ export function CommercePanel({ instituteId, services }: { instituteId: string; 
         <button type="button" disabled={!customer || !planId} onClick={() => void write("issue")}>Attribuer le forfait</button></>}
     </fieldset>
     {customer && <div><h3>Forfaits de {customer.display_name}</h3>{balancesLoaded && balances.length === 0 && <p>Aucun forfait enregistré</p>}
-      {balances.map(balance => <p key={balance.id}>{balance.name} · {balance.usable_sessions} séances utilisables / {balance.remaining} restantes · expiration {new Date(balance.expires_at).toLocaleDateString("fr")}</p>)}</div>}
+      {balances.map(balance => <p key={balance.id}>{balance.name} · {balance.usable_sessions} séances utilisables / {balance.remaining} restantes · expiration {readUtcDate(balance.expires_at).toLocaleDateString("fr")}</p>)}</div>}
+    <MembershipManagement key={`${instituteId}:${customer?.id || ""}`} instituteId={instituteId} customer={customer} disabled={busy}
+      onBusy={value => { membershipPending.current = value; setMembershipBusy(value); }} />
   </section>;
 }

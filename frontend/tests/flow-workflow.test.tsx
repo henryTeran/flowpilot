@@ -24,6 +24,12 @@ const availableOption: AssignmentOption = { employee_id: "emp", employee_name: "
   reason: "available from 10:00", available_from: "2026-10-05T10:00:00Z", available_until: null,
   service_duration_minutes: 45 };
 
+test("commercial validity dates preserve UTC across SQLite and PostgreSQL response formats", async () => {
+  const { readUtcDate } = await import("../src/api/dates");
+  assert.equal(readUtcDate("2026-10-05T23:30:00").getTime(), Date.parse("2026-10-05T23:30:00Z"));
+  assert.equal(readUtcDate("2026-10-06T01:30:00+02:00").getTime(), Date.parse("2026-10-05T23:30:00Z"));
+});
+
 test("booking editor retries failed movement and exposes confirmation only for scheduled bookings", async () => {
   const root = createRoot(document.getElementById("root")!);
   const appointment = { id: "booking", institute_id: "inst", employee_id: "emp", service_id: "svc",
@@ -386,6 +392,7 @@ test("package wallet recovers a lost consumption response, blocks uncertain paym
       unit_price: 15, total: 15, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" }] };
   globalThis.fetch = async (url, init) => {
     const path = new URL(String(url)).pathname;
+    if (path.includes("/memberships/")) return new Response("[]", { headers: { "Content-Type": "application/json" } });
     let payload: any;
     if (init?.method === "POST") {
       posts++;
@@ -487,6 +494,7 @@ test("commerce manager recovers plan creation and customer grants with the origi
   let issued = false;
   globalThis.fetch = async (url, init) => {
     const path = new URL(String(url)).pathname;
+    if (path.includes("/memberships/")) return new Response("[]", { headers: { "Content-Type": "application/json" } });
     if (init?.method === "POST") {
       const payload = JSON.parse(String(init.body));
       const kind = path.endsWith("/package-plans") ? "plan" : "issue";
@@ -533,6 +541,209 @@ test("commerce manager recovers plan creation and customer grants with the origi
     assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Attribuer le forfait")), false);
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
+
+test("membership management retries configuration, issue and renewal without changing their replay keys", async () => {
+  const { MembershipManagement } = await import("../src/components/MembershipManagement");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  const customer = { id: "customer_member", institute_id: "inst", display_name: "Member client", phone: null, created_at: "2026-10-05T10:00:00Z" };
+  const plan = { id: "member-plan", name: "Monthly rights", valid_days: 30 };
+  const keys: Record<string, string[]> = { plan: [], issue: [], renew: [] };
+  let created = false; let issued = false; let renewed = false;
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    if (init?.method === "POST") {
+      const payload = JSON.parse(String(init.body));
+      const kind = path.endsWith("/plans") ? "plan" : path.endsWith("/renew") ? "renew" : "issue";
+      keys[kind].push(payload.idempotency_key);
+      if (kind === "plan") { created = true; assert.equal(payload.valid_days, 30); }
+      else if (kind === "issue") { issued = true; assert.equal(payload.customer_id, customer.id); }
+      else renewed = true;
+      if (keys[kind].length === 1) throw new Error("Lost membership response");
+      return new Response(JSON.stringify({ id: kind }), { headers: { "Content-Type": "application/json" } });
+    }
+    const data = path.endsWith("/plans") ? created ? [plan] : [] : path.endsWith("/history")
+      ? renewed ? [{ id: "renewal", occurred_at: "2026-10-05T11:00:00Z", active_until: "2026-12-04T10:00:00Z" }] : []
+      : issued ? [{ id: "member", name: plan.name, status: "active", active_from: "2026-10-05T10:00:00Z", active_until: renewed ? "2026-12-04T10:00:00Z" : "2026-11-04T10:00:00Z" }] : [];
+    return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const busy: boolean[] = [];
+  try {
+    await act(async () => root.render(<MembershipManagement instituteId="inst" customer={customer} disabled={false} onBusy={value => busy.push(value)} />));
+    await act(async () => {
+      const input = document.querySelector<HTMLInputElement>("input[maxlength='120']")!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, plan.name);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    const submit = () => document.querySelector("form")!.dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
+    await act(async () => { submit(); });
+    await act(async () => { submit(); });
+    assert.ok(keys.plan[0]); assert.equal(keys.plan[0], keys.plan[1]);
+    await act(async () => {
+      const select = document.querySelector<HTMLSelectElement>("select")!;
+      select.value = plan.id; select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    });
+    await act(async () => button("Attribuer l’abonnement").click());
+    await act(async () => button("Attribuer l’abonnement").click());
+    assert.ok(keys.issue[0]); assert.equal(keys.issue[0], keys.issue[1]);
+    assert.equal(button("Attribuer l’abonnement").disabled, true);
+    await act(async () => button("Renouveler Monthly rights").click());
+    await act(async () => button("Renouveler Monthly rights").click());
+    assert.ok(keys.renew[0]); assert.equal(keys.renew[0], keys.renew[1]);
+    assert.match(document.body.textContent!, /Historique des renouvellements/);
+    assert.match(document.body.textContent!, /04\/12\/2026/);
+    assert.deepEqual(busy, [true, false, true, false, true, false, true, false, true, false, true, false]);
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil" }))}.signature`);
+    await act(async () => root.render(<MembershipManagement key="reception" instituteId="inst" customer={customer} disabled={false} onBusy={() => {}} />));
+    assert.equal(document.querySelector("form"), null);
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Renouveler")), false);
+    assert.match(document.body.textContent!, /Monthly rights/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("member checkout serializes wallets, recovers lost pricing and retains historical line protections", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  let applied = false; let reversed = false; let reconciles = false;
+  let posts = 0; let resolvePost!: () => void;
+  const waiting = new Promise<void>(resolve => { resolvePost = resolve; });
+  const ticket: QueueTicket = { ...assignmentTicket, status: "ready_for_checkout", customer_id: "customer_member", total_amount: 20,
+    lines: [{ id: "member-line", ticket_id: "ticket", service_id: "svc", quantity: 1, duration_minutes: 10,
+      unit_price: 15, total: 15, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" },
+      { id: "uncovered-line", ticket_id: "ticket", service_id: "unquoted", quantity: 1, duration_minutes: 10,
+        unit_price: 5, total: 5, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" }] };
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    if (init?.method === "POST") {
+      posts++; assert.ok(path.includes("/memberships/"));
+      if (path.endsWith("/reverse")) reversed = true;
+      else { applied = true; await waiting; throw new Error("Lost member price response"); }
+      return new Response("{}", { headers: { "Content-Type": "application/json" } });
+    }
+    const data = path.includes("/customers/") ? { id: "customer_member", display_name: "Member client", phone: null }
+      : path.includes("/memberships/") ? path.endsWith("/benefits") ? applied ? [{ id: "benefit", ticket_line_id: "member-line", reversed_at: reversed ? "now" : null }] : []
+      : [{ id: "member", name: "Monthly rights", status: "active", active_until: "2027-01-01T10:00:00Z" }]
+      : path.endsWith("/history") ? [] : [{ id: "package", name: "Cure", service_id: "svc", remaining: 2, usable_sessions: 2, status: "active", expires_at: "2027-01-01T10:00:00Z" }];
+    return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", skills: [], status: "available" };
+  const render = () => root.render(<CheckoutPanel ticket={ticket} services={[{ ...service, price_member: 9.9 }]} employees={[employee]} cashierEmployee={employee}
+    selectedPaymentMethod="cb" onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => {}}
+    onPay={() => {}} onClose={() => {}} onCancelTicket={() => {}} onRefresh={async () => {
+      if (!reconciles) return false;
+      const memberLinePrice = applied && !reversed ? 9.9 : 15;
+      ticket.total_amount = memberLinePrice + 5;
+      ticket.lines![0].unit_price = memberLinePrice; ticket.lines![0].total = memberLinePrice;
+      render(); return true;
+    }} />);
+  try {
+    await act(async () => render());
+    const cureButton = button("Utiliser 1 séance");
+    await act(async () => { button("Appliquer le tarif membre").click(); cureButton.click(); });
+    assert.equal(posts, 1);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    await act(async () => { resolvePost(); });
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    assert.equal(button("Clore en annulation").disabled, true);
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Utiliser 1 séance")), false);
+    reconciles = true;
+    await act(async () => button("Actualiser les abonnements en caisse").click());
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, false);
+    await act(async () => button("Annuler le tarif membre").click());
+    assert.equal(posts, 2); assert.equal(ticket.total_amount, 20);
+    assert.ok(button("Utiliser 1 séance"));
+    assert.equal(button("Clore en annulation").disabled, false);
+    const removeButtons = document.querySelectorAll<HTMLButtonElement>(".bm-cash-trash");
+    assert.equal(removeButtons[0].disabled, true);
+    assert.equal(removeButtons[1].disabled, false);
+  } finally { resolvePost(); await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("a disposed membership write cannot refresh or unlock a newly selected checkout", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  const releases: Record<string, () => void> = {};
+  let newApplied = false; let refreshes = 0;
+  const makeTicket = (id: string): QueueTicket => ({ ...assignmentTicket, id, customer_id: id, status: "ready_for_checkout", total_amount: 15,
+    lines: [{ id: `${id}-line`, ticket_id: id, service_id: "svc", quantity: 1, duration_minutes: 10,
+      unit_price: 15, total: 15, revenue_category: "care", performed_by_employee_id: "emp", status: "completed" }] });
+  let shown = makeTicket("old");
+  globalThis.fetch = async (url, init) => {
+    const address = new URL(String(url));
+    const path = address.pathname;
+    if (init?.method === "POST") {
+      const id = path.includes("/old/") ? "old" : "new";
+      if (id === "new") newApplied = true;
+      await new Promise<void>(resolve => { releases[id] = resolve; });
+      return new Response("{}", { headers: { "Content-Type": "application/json" } });
+    }
+    const value = path.includes("/customers/") ? { id: shown.customer_id, display_name: "Client" }
+      : path.includes("/memberships/") ? path.endsWith("/benefits") ? newApplied && path.includes("/new/")
+        ? [{ id: "new-benefit", ticket_line_id: "new-line", reversed_at: null }] : []
+        : [{ id: address.searchParams.get("customer_id"), name: "Member", status: "active", active_until: "2027-01-01T10:00:00Z" }]
+      : [];
+    return new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+  };
+  const root = createRoot(document.getElementById("root")!);
+  const employee = { id: "emp", institute_id: "inst", first_name: "Cashier", skills: [], status: "available" };
+  const render = () => root.render(<CheckoutPanel ticket={shown} services={[{ ...service, price_member: 9.9 }]} employees={[employee]} cashierEmployee={employee}
+    selectedPaymentMethod="cb" onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => {}}
+    onPay={() => {}} onClose={() => {}} onRefresh={async () => {
+      refreshes++; shown.total_amount = 9.9; shown.lines![0].total = 9.9; shown.lines![0].unit_price = 9.9; render(); return true;
+    }} />);
+  try {
+    await act(async () => render());
+    await act(async () => button("Appliquer le tarif membre").click());
+    assert.ok(releases.old);
+    shown = makeTicket("new");
+    await act(async () => render());
+    await act(async () => button("Appliquer le tarif membre").click());
+    assert.ok(releases.new);
+    await act(async () => releases.old());
+    assert.equal(refreshes, 0);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, true);
+    await act(async () => releases.new());
+    assert.equal(refreshes, 1);
+    assert.equal(document.querySelector<HTMLButtonElement>(".bm-final-cash-button")!.disabled, false);
+  } finally { Object.values(releases).forEach(release => release()); await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+for (const kind of ["package", "membership"] as const) {
+  test(`${kind} wallet discards a delayed read from a disposed StrictMode lifecycle`, async () => {
+    const { PackageWallet } = await import("../src/components/PackageWallet");
+    const { MembershipWallet } = await import("../src/components/MembershipWallet");
+    const originalFetch = globalThis.fetch;
+    setAccessToken("wallet-read-operator");
+    let release!: (response: Response) => void;
+    const first = new Promise<Response>(resolve => { release = resolve; });
+    let lists = 0; let histories = 0;
+    globalThis.fetch = async url => {
+      const path = new URL(String(url)).pathname;
+      if (path.includes("/customers/")) return new Response(JSON.stringify({ id: "customer_read", display_name: "Read client" }), { headers: { "Content-Type": "application/json" } });
+      if (path.endsWith("/history") || path.endsWith("/benefits")) histories++;
+      else if (++lists === 1) return first;
+      return new Response("[]", { headers: { "Content-Type": "application/json" } });
+    };
+    const root = createRoot(document.getElementById("root")!);
+    const ticket = { ...assignmentTicket, customer_id: "customer_read", status: "ready_for_checkout" };
+    const callbacks = { onRefresh: async () => true, onBusy() {}, onCoverage() {} };
+    try {
+      await act(async () => root.render(<React.StrictMode>{kind === "package"
+        ? <PackageWallet ticket={ticket} {...callbacks} onCustomer={() => {}} />
+        : <MembershipWallet ticket={ticket} services={[service]} blocked={false} excludedLines={[]} beginMutation={() => () => {}} {...callbacks} />}</React.StrictMode>));
+      assert.equal(lists, 2);
+      await act(async () => release(new Response(JSON.stringify([{ id: "obsolete", name: "Obsolete wallet read", status: "active",
+        service_id: "svc", remaining: 1, usable_sessions: 1, expires_at: "2027-01-01T10:00:00Z", active_until: "2027-01-01T10:00:00Z" }]),
+        { headers: { "Content-Type": "application/json" } })));
+      assert.equal(histories, 0);
+      assert.equal(document.body.textContent!.includes("Obsolete wallet read"), false);
+    } finally { release(new Response("[]")); await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+  });
+}
 
 function button(text: string) {
   const element = [...document.querySelectorAll("button")].find((item) => item.textContent?.includes(text));

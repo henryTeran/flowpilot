@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8H_MEMBERSHIP_CHECKOUT_PRICING
+CURRENT_CHECKPOINT = PHASE8I_MEMBERSHIP_INTERFACE
 STATUS = ACTIVE
 
 GATES:
@@ -8,7 +8,7 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES functional server/component scope PASS. MEMBERSHIPS lifecycle and checkout pricing/correction APIs implemented; interface remains. GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES / MEMBERSHIPS functional server/component scope PASS, including management and checkout interfaces. GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
@@ -31,7 +31,7 @@ EVIDENCE:
 - Package migrations: SQLite/PostgreSQL round-trip/model-parity bundle with package tests: 5 passed; PostgreSQL upgrade/check passed.
 - Package HTTP checks cover role/tenant, expiry, customer match, replay, failed-flush rollback, covered checkout pricing and payment recovery.
 - Live two-process PostgreSQL suite: 2 passed; each walk-in/booking action revision followed by reader-side REST checks.
-- Frontend: 28 tests and production build passed; configuration/grant retry, wallet/identity recovery, uncertain-payment blocking and reversal verified in JSDOM only.
+- Frontend: 34 tests and production build passed; membership configuration/grant/renewal retry, wallet serialization, uncertain-price blocking, disposed-context isolation, StrictMode reads and UTC date parity verified in JSDOM only.
 - Gate details: docs/architecture/RESOURCES_AND_SKILLS.md, HYBRID_BOOKING.md, REALTIME_OPERATIONS.md and COMMERCE.md.
 
 INVARIANTS:
@@ -41,6 +41,7 @@ INVARIANTS:
 - Checkout customer correction uses the same lock; active coverage and paid states prevent beneficiary changes.
 - Membership grant/renewal uses registered scoped identities, snapshotted terms and transactional validity/history; granting rights does not claim settled payment.
 - Member pricing uses declared catalog prices and immutable application/reversal facts; active package/member coverage cannot stack.
+- Checkout wallets share a scoped mutation lease; one wallet cannot unlock payment while the other remains unconfirmed.
 - Minimal customer identities support selection; legacy references are preserved. Full Phase 12 CRM lifecycle and public self-service are not claimed.
 - Entitlement issuance does not claim a paid package sale or external payment settlement.
 - Demo reset cannot erase commercial redemption-linked tickets.
@@ -50,12 +51,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8I: membership management and checkout-wallet interface; then gift cards and loyalty.
+- PHASE8J: gift card issuance/use/expiration/balance; then loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(memberships): apply and reverse member pricing transactionally.
+- Current: feat(memberships): manage rights and reconcile member pricing in checkout.
+- c3f3db6 feat(memberships): apply and reverse member pricing transactionally.
 - 9424a92 feat(memberships): grant and renew scoped rights with immutable history.
 - ca3a33a feat(commerce): configure and grant packages with replay-safe recovery.
 - 817cb80 feat(checkout): identify anonymous customers safely before payment.
