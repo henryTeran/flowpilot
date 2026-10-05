@@ -310,6 +310,11 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
         raise business_error("Cette collaboratrice n'est pas disponible")
 
     ensure_employee_queue_capacity(db, ticket, employee.id)
+    from app.modules.resources.repository import qualifies_for_services, ticket_services
+    if not qualifies_for_services(db, ticket.institute_id, employee.id, ticket_services(db, ticket.institute_id, ticket.id)):
+        raise business_error("La collaboratrice ne possede pas toutes les competences requises")
+    from app.modules.resources.repository import ensure_resource_capacity_known
+    ensure_resource_capacity_known(db, ticket.institute_id, ticket_services(db, ticket.institute_id, ticket.id))
 
     lines = _ticket_lines(db, ticket.id)
     if not lines:

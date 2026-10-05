@@ -24,6 +24,7 @@ class AvailabilityReason(str, Enum):
     BUSY_UNTIL = "busy_until"  # Will be available at specific time
     SESSION_OVERDUE = "session_overdue"
     CAPACITY_UNKNOWN = "capacity_unknown"
+    SKILLS_MISSING = "skills_missing"
     
 
 @dataclass

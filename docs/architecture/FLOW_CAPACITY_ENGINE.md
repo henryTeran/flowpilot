@@ -69,5 +69,7 @@ Availability helpers and planning now share unknown-capacity and chained-window 
 Extension request replay safety is validated, including persistence-failure rollback.
 Actual tablet/browser validation and larger concurrent load remain open.
 No CUA browser surface was available during this checkpoint; JSDOM and build checks
-are not browser/tablet evidence. Resources and skills are Phase 5 inputs; the current
-projection does not claim to account for them. Production readiness is unverified.
+are not browser/tablet evidence. Phase 5A adds explicit qualifications to assignment,
+booking, start and waiting projection. Configured resource requirements currently
+produce unknown capacity until Phase 5B implements allocation. See
+`RESOURCES_AND_SKILLS.md`. Production readiness is unverified.

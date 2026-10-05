@@ -28,8 +28,9 @@ def post_employee(
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> EmployeeRead:
-    require_same_institute(current_user, payload.institute_id)
-    return create_employee(db, payload)
+    if current_user.get("institute_id") != payload.institute_id or current_user.get("role") != "responsable_institut":
+        raise HTTPException(status_code=403, detail="Creation reservee a la responsable de cet institut")
+    return create_employee(db, payload, current_user.get("sub"))
 
 
 @router.patch("/{employee_id}/status", response_model=EmployeeRead)

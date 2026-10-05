@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Literal
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from typing import Annotated, Literal
 
 EmployeeStatus = Literal["available", "busy", "pause", "absent", "offline"]
 
@@ -8,7 +8,7 @@ class EmployeeCreate(BaseModel):
     institute_id: str
     first_name: str = Field(min_length=2, max_length=120)
     code: str | None = None
-    skills: list[str] = Field(default_factory=list)
+    skills: list[Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]] = Field(default_factory=list, max_length=100)
     status: EmployeeStatus = "available"
 
 

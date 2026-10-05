@@ -8,6 +8,7 @@ class EmployeeTimeline:
     employee_id: str
     available_from: datetime
     appointments: tuple[tuple[datetime, datetime], ...] = ()
+    skills: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -15,6 +16,8 @@ class QueueWork:
     ticket_id: str
     duration_minutes: int
     assigned_employee_id: str | None = None
+    required_skills: frozenset[str] = frozenset()
+    resource_capacity_known: bool = True
 
 
 @dataclass(frozen=True)
@@ -50,9 +53,11 @@ def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork]) -> 
         candidates = [work.assigned_employee_id] if work.assigned_employee_id else list(timelines)
         starts = [(next_fitting_start(cursors[employee_id], work.duration_minutes,
                                       timelines[employee_id].appointments), employee_id)
-                  for employee_id in candidates if employee_id in timelines and work.duration_minutes > 0]
+                  for employee_id in candidates if employee_id in timelines and work.duration_minutes > 0
+                  and work.required_skills.issubset(timelines[employee_id].skills) and work.resource_capacity_known]
         if not starts:
-            results[work.ticket_id] = WaitProjection(work.ticket_id, None, None, None, "capacity_unknown")
+            reason = "capacity_unknown" if work.resource_capacity_known else "resource_capacity_unknown"
+            results[work.ticket_id] = WaitProjection(work.ticket_id, None, None, None, reason)
             continue
         start, employee_id = min(starts)
         end = start + timedelta(minutes=work.duration_minutes)

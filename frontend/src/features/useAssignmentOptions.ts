@@ -48,6 +48,8 @@ export function assignmentReason(reason: string) {
     in_progress_session: "Cette collaboratrice est encore en prestation.",
     upcoming_appointment: "Un rendez-vous occupe ce créneau.",
     capacity_unknown: "La prochaine disponibilité est indéterminée.",
+    skills_missing: "Cette séance nécessite des compétences supplémentaires.",
+    resource_capacity_unknown: "La disponibilité des ressources de cette séance est indéterminée.",
   };
   return reasons[reason] || "Cette collaboratrice ne peut pas prendre cette séance maintenant.";
 }

@@ -57,6 +57,10 @@ def availability_engine(
                    "absent": AvailabilityReason.EMPLOYEE_ABSENT,
                    "offline": AvailabilityReason.EMPLOYEE_OFFLINE}
         return unknown(reasons.get(employee.status, AvailabilityReason.CAPACITY_UNKNOWN))
+    if service_id:
+        from app.modules.resources.repository import qualifies_for_services
+        if not qualifies_for_services(db, institute_id, employee_id, [service_id]):
+            return unknown(AvailabilityReason.SKILLS_MISSING)
 
     sessions = repo.list_active_sessions(db, institute_id, employee_id)
     overdue = next((session for session in sessions

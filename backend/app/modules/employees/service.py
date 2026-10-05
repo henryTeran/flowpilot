@@ -38,8 +38,15 @@ def _get_current_employee_appointment(db: Session, employee: Employee) -> Appoin
     ).first()
 
 
-def create_employee(db: Session, payload: EmployeeCreate) -> Employee:
+def create_employee(db: Session, payload: EmployeeCreate, actor_id: str | None = None) -> Employee:
+    from app.modules.resources.service import sync_employee_skills
+    from app.modules.resources.models import ResourceConfigurationEvent
+    lock_institute(db, payload.institute_id)
     employee = Employee(id=new_id("emp"), **payload.model_dump())
+    db.add(employee)
+    sync_employee_skills(db, employee)
+    db.add(ResourceConfigurationEvent(id=new_id("rce"), institute_id=employee.institute_id,
+        event_type="employee.created", target_id=employee.id, actor_id=actor_id, occurred_at=utcnow()))
     return save_employee(db, employee)
 
 

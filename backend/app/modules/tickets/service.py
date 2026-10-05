@@ -112,10 +112,11 @@ def _has_active_employee_blocker(db: Session, institute_id: str, employee_id: st
     return has_active_session or has_active_appointment
 
 
-def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int):
+def estimate_start_time(db: Session, institute_id: str, service_duration_minutes: int,
+                        service_ids: list[str] | None = None):
     from app.modules.scheduling.waiting_service import waiting_projections
 
-    return waiting_projections(db, institute_id, new_duration=service_duration_minutes)[
+    return waiting_projections(db, institute_id, new_duration=service_duration_minutes, new_service_ids=service_ids)[
         "__new_arrival__"
     ].estimated_start_time
 
@@ -177,7 +178,7 @@ def create_queue_ticket(db: Session, payload: TicketCreate) -> QueueTicket:
         subscription_id=payload.subscription_id,
         status="waiting",
         arrival_time=now,
-        estimated_start_time=estimate_start_time(db, payload.institute_id, total_duration),
+        estimated_start_time=estimate_start_time(db, payload.institute_id, total_duration, service_ids),
         created_by_id=payload.created_by_id,
         total_amount=total_amount,
     )
@@ -250,6 +251,11 @@ def assign_ticket(db: Session, ticket_id: str, employee_id: str) -> QueueTicket:
         raise business_error("La collaboratrice est encore occupée par une prestation ou un rendez-vous en cours")
 
     ensure_employee_queue_capacity(db, ticket, employee.id)
+    from app.modules.resources.repository import qualifies_for_services, ticket_services
+    if not qualifies_for_services(db, ticket.institute_id, employee.id, ticket_services(db, ticket.institute_id, ticket.id)):
+        raise business_error("La collaboratrice ne possede pas toutes les competences requises")
+    from app.modules.resources.repository import ensure_resource_capacity_known
+    ensure_resource_capacity_known(db, ticket.institute_id, ticket_services(db, ticket.institute_id, ticket.id))
     transition_ticket(db, ticket, "assigned", "queue.assigned", employee.id)
     ticket.assigned_employee_id = employee.id
     ticket.assigned_at = utcnow()

@@ -170,6 +170,10 @@ def init_demo_data(db: Session = Depends(get_db)):
             )
         )
 
+    from app.modules.resources.service import sync_employee_skills
+    db.flush()
+    for employee in db.scalars(select(Employee).where(Employee.institute_id == institute.id)).all():
+        sync_employee_skills(db, employee)
     db.commit()
 
     return ok(

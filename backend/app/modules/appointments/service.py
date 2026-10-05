@@ -118,6 +118,11 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
 
     if employee.institute_id != payload.institute_id:
         raise business_error("La collaboratrice ne fait pas partie de cet institut")
+    from app.modules.resources.repository import qualifies_for_services
+    if not qualifies_for_services(db, payload.institute_id, employee.id, [payload.service_id]):
+        raise business_error("La collaboratrice ne possede pas toutes les competences requises")
+    from app.modules.resources.repository import ensure_resource_capacity_known
+    ensure_resource_capacity_known(db, payload.institute_id, [payload.service_id])
 
     start_time = _ensure_aware(payload.start_time)
     if start_time < utcnow() - timedelta(minutes=2):
@@ -204,6 +209,8 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
 
     if appointment.status not in {"scheduled", "confirmed", "arrived"}:
         raise business_error("Ce rendez-vous ne peut pas être démarré")
@@ -211,6 +218,11 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     employee = get_employee(db, appointment.employee_id)
     if not employee:
         raise not_found("Collaboratrice introuvable")
+    from app.modules.resources.repository import qualifies_for_services
+    if not qualifies_for_services(db, appointment.institute_id, employee.id, [appointment.service_id]):
+        raise business_error("La collaboratrice ne possede pas toutes les competences requises")
+    from app.modules.resources.repository import ensure_resource_capacity_known
+    ensure_resource_capacity_known(db, appointment.institute_id, [appointment.service_id])
 
     active_session = _get_active_employee_session(db, appointment.institute_id, appointment.employee_id)
     if active_session:

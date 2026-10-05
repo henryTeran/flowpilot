@@ -108,6 +108,14 @@ def assignment_options_for_ticket(
     
     # Get availability pool (Phase 4A)
     availability_results = availability_pool(db, institute_id, now=now)
+    from app.modules.resources.repository import requirement_facts, skill_facts
+    from app.modules.resources.domain import has_required_skills
+    requirements = requirement_facts(db, institute_id)
+    needed_skills = set().union(*(requirements.get(line.service_id, set()) for line in lines))
+    qualifications = skill_facts(db, institute_id)
+    from app.modules.resources.repository import resource_requirement_facts
+    resource_needs = resource_requirement_facts(db, institute_id)
+    resource_capacity_known = not any(resource_needs.get(line.service_id) for line in lines)
     reserved_employees = set(db.scalars(select(QueueTicket.assigned_employee_id).where(
         QueueTicket.institute_id == institute_id,
         QueueTicket.status == "assigned",
@@ -137,6 +145,10 @@ def assignment_options_for_ticket(
             assignable, reason = False, "employee_reserved"
         if ticket.assigned_employee_id and ticket.assigned_employee_id != employee.id:
             assignable, reason = False, "ticket_already_assigned"
+        if not has_required_skills(qualifications.get(employee.id, set()), needed_skills):
+            assignable, reason = False, "skills_missing"
+        if not resource_capacity_known:
+            assignable, reason = False, "resource_capacity_unknown"
         
         # Calculate projected end time
         available_from = avail_result.current_slot.available_from if avail_result.current_slot else None

@@ -14,6 +14,7 @@ from app.modules.auth import models as auth_models  # noqa: F401
 from app.modules.employees import models as employees_models  # noqa: F401
 from app.modules.institutes import models as institutes_models  # noqa: F401
 from app.modules.planning import models as planning_models  # noqa: F401
+from app.modules.resources import models as resources_models  # noqa: F401
 from app.modules.services import models as services_models  # noqa: F401
 from app.modules.tickets import models as tickets_models  # noqa: F401
 
@@ -23,7 +24,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Keep Alembic aligned with the runtime DB URL from environment/settings.
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 target_metadata = Base.metadata
 
