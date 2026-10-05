@@ -29,5 +29,12 @@ required fields cannot be cleared. Appointment routes require an exact token ten
 HTTP tests cover conflicts, replay, metadata, invalid states and tenant rejection;
 a PostgreSQL race proves that two moves cannot take the same room interval.
 
-Customer reservation, frontend movement controls, durable booking change history and
+The operator panel now offers confirmation and reuses its booking form for scheduled
+or confirmed appointment edits. Failed saves preserve fields and show a retryable
+error; successful saves return to creation. Date/time prefill uses local date and
+time consistently. The App sends edits through the guarded PATCH endpoint. Component
+tests cover confirmation visibility and movement failure/retry; these are JSDOM
+checks, not real browser/tablet evidence.
+
+Customer reservation, durable booking change history and
 complete hybrid booking gate validation remain open.

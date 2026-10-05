@@ -183,7 +183,9 @@ export interface AppointmentCreatePayload {
   notes?: string | null;
 }
 
-export type AppointmentAction = "arrive" | "start" | "complete" | "no-show" | "cancel";
+export type AppointmentAction = "confirm" | "arrive" | "start" | "complete" | "no-show" | "cancel";
+
+export type AppointmentUpdatePayload = Partial<Omit<AppointmentCreatePayload, "institute_id">>;
 
 
 export type PaymentMethod = "cb" | "especes" | "cheque" | "carte_cadeau" | "mixte";

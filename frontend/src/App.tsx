@@ -20,6 +20,7 @@ import type {
   Appointment,
   AppointmentAction,
   AppointmentCreatePayload,
+  AppointmentUpdatePayload,
   Employee,
   Institute,
   ChiffresSummary,
@@ -566,6 +567,17 @@ export default function App() {
     }
   }
 
+  async function handleUpdateAppointment(appointmentId: string, payload: AppointmentUpdatePayload) {
+    setError(null);
+    try {
+      await apiPatch<Appointment>(`/appointments/${appointmentId}`, payload);
+      await refreshOperationalData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de modifier le rendez-vous");
+      throw err;
+    }
+  }
+
   async function handleAppointmentAction(appointmentId: string, action: AppointmentAction) {
     setError(null);
     try {
@@ -881,6 +893,7 @@ export default function App() {
             services={services}
             appointments={appointments}
             onCreateAppointment={handleCreateAppointment}
+            onUpdateAppointment={handleUpdateAppointment}
             onAppointmentAction={handleAppointmentAction}
           />
         </ActionDrawer>

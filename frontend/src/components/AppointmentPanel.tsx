@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Appointment, AppointmentAction, AppointmentCreatePayload, Employee, Service } from "../types";
+import type { Appointment, AppointmentAction, AppointmentCreatePayload, AppointmentUpdatePayload, Employee, Service } from "../types";
 
 interface AppointmentPanelProps {
   instituteId: string;
@@ -7,6 +7,7 @@ interface AppointmentPanelProps {
   services: Service[];
   appointments: Appointment[];
   onCreateAppointment: (payload: AppointmentCreatePayload) => Promise<void>;
+  onUpdateAppointment?: (appointmentId: string, payload: AppointmentUpdatePayload) => Promise<void>;
   onAppointmentAction: (appointmentId: string, action: AppointmentAction) => Promise<void>;
 }
 
@@ -19,6 +20,7 @@ export function AppointmentPanel({
   services,
   appointments,
   onCreateAppointment,
+  onUpdateAppointment,
   onAppointmentAction,
 }: AppointmentPanelProps) {
   const appointmentServices = services.filter((service) => service.status === "active");
@@ -34,6 +36,23 @@ export function AppointmentPanel({
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => { setEditingId(null); setFormError(null); setCustomerName(""); setPhone(""); }, [instituteId]);
+
+  function editAppointment(appointment: Appointment) {
+    if (isSubmitting || actionLoadingId) return;
+    const slot = localSlot(new Date(appointment.start_time));
+    setEditingId(appointment.id);
+    setCustomerName(appointment.customer_name);
+    setPhone(appointment.phone || "");
+    setServiceId(appointment.service_id);
+    setEmployeeId(appointment.employee_id);
+    setDate(slot.date);
+    setTime(slot.time);
+    setFormError(null);
+  }
 
   useEffect(() => {
     if (!serviceId && appointmentServices.length > 0) {
@@ -42,7 +61,7 @@ export function AppointmentPanel({
   }, [appointmentServices, serviceId]);
 
   useEffect(() => {
-    if (!employeeId && availableEmployees.length > 0) {
+    if (!availableEmployees.some(employee => employee.id === employeeId) && availableEmployees.length > 0) {
       setEmployeeId(availableEmployees[0].id);
     }
   }, [availableEmployees, employeeId]);
@@ -64,29 +83,43 @@ export function AppointmentPanel({
     : historyAppointments;
 
   async function handleSubmit() {
+    if (isSubmitting) return;
     if (!instituteId || !serviceId || !employeeId || !customerName.trim() || !date || !time) return;
 
     setIsSubmitting(true);
+    setFormError(null);
     try {
-      await onCreateAppointment({
+      const payload = {
         institute_id: instituteId,
         service_id: serviceId,
         employee_id: employeeId,
         customer_name: customerName.trim(),
         phone: phone.trim() || null,
         start_time: new Date(`${date}T${time}:00`).toISOString(),
-      });
+      };
+      if (editingId && onUpdateAppointment) {
+        const { institute_id, ...changes } = payload;
+        await onUpdateAppointment(editingId, changes);
+      } else {
+        await onCreateAppointment(payload);
+      }
+      setEditingId(null);
       setCustomerName("");
       setPhone("");
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Impossible d'enregistrer le rendez-vous");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   async function handleAction(appointmentId: string, action: AppointmentAction) {
+    if (isSubmitting || actionLoadingId) return;
     setActionLoadingId(`${appointmentId}:${action}`);
     try {
       await onAppointmentAction(appointmentId, action);
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Impossible de modifier le rendez-vous");
     } finally {
       setActionLoadingId(null);
     }
@@ -184,9 +217,11 @@ export function AppointmentPanel({
             onClick={handleSubmit}
             disabled={isSubmitting || !customerName.trim() || !serviceId || !employeeId}
           >
-            {isSubmitting ? "Création..." : "Créer RDV"}
+            {isSubmitting ? "Enregistrement..." : editingId ? "Enregistrer les modifications" : "Créer RDV"}
           </button>
         </div>
+        {editingId && <button type="button" disabled={isSubmitting} onClick={() => { setEditingId(null); setCustomerName(""); setPhone(""); }}>Annuler la modification</button>}
+        {formError && <p role="alert">{formError}</p>}
       </div>
 
       <div className="appointment-list-card">
@@ -222,6 +257,7 @@ export function AppointmentPanel({
                 services={services}
                 actionLoadingId={actionLoadingId}
                 onAction={handleAction}
+                onEdit={onUpdateAppointment ? editAppointment : undefined}
               />
             ))}
           </div>
@@ -277,6 +313,7 @@ function AppointmentCard({
   services,
   actionLoadingId,
   onAction,
+  onEdit,
   readonly = false,
 }: {
   appointment: Appointment;
@@ -284,6 +321,7 @@ function AppointmentCard({
   services: Service[];
   actionLoadingId: string | null;
   onAction: (appointmentId: string, action: AppointmentAction) => Promise<void>;
+  onEdit?: (appointment: Appointment) => void;
   readonly?: boolean;
 }) {
   const service = services.find((item) => item.id === appointment.service_id);
@@ -306,6 +344,7 @@ function AppointmentCard({
 
       {!readonly && actions.length > 0 && (
         <div className="appointment-actions">
+          {onEdit && ["scheduled", "confirmed"].includes(appointment.status) && <button type="button" disabled={Boolean(actionLoadingId)} onClick={() => onEdit(appointment)}>Modifier</button>}
           {actions.map((action) => {
             const loading = actionLoadingId === `${appointment.id}:${action}`;
             return (
@@ -327,6 +366,7 @@ function AppointmentCard({
 }
 
 function getAvailableActions(status: string): AppointmentAction[] {
+  if (status === "scheduled") return ["confirm", "arrive", "start", "no-show", "cancel"];
   if (["scheduled", "confirmed"].includes(status)) {
     return ["arrive", "start", "no-show", "cancel"];
   }
@@ -345,10 +385,12 @@ function getAvailableActions(status: string): AppointmentAction[] {
 function getNextRoundedSlot() {
   const now = new Date();
   now.setMinutes(Math.ceil((now.getMinutes() + 10) / 15) * 15, 0, 0);
-  return {
-    date: now.toISOString().slice(0, 10),
-    time: now.toTimeString().slice(0, 5),
-  };
+  return localSlot(now);
+}
+
+function localSlot(value: Date) {
+  const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
+  return { date: local.toISOString().slice(0, 10), time: local.toISOString().slice(11, 16) };
 }
 
 function formatTime(value: string) {
@@ -385,6 +427,7 @@ function translateAppointmentStatus(status: string) {
 
 function translateAppointmentAction(action: AppointmentAction) {
   const labels: Record<AppointmentAction, string> = {
+    confirm: "Confirmer",
     arrive: "Arrivée",
     start: "Démarrer",
     complete: "Terminer",

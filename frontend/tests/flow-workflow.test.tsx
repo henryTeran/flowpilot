@@ -7,6 +7,7 @@ import { apiGet, apiPost } from "../src/api/client";
 import { setAccessToken } from "../src/api/session";
 import { useAssignmentOptions } from "../src/features/useAssignmentOptions";
 import { QueuePanel } from "../src/components/QueuePanel";
+import { AppointmentPanel } from "../src/components/AppointmentPanel";
 import type { QueueTicket, AssignmentOption } from "../src/types";
 
 const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "http://localhost:5173" });
@@ -22,6 +23,38 @@ const assignmentTicket: QueueTicket = { id: "ticket", institute_id: "inst", tick
 const availableOption: AssignmentOption = { employee_id: "emp", employee_name: "Test", assignable: true,
   reason: "available from 10:00", available_from: "2026-10-05T10:00:00Z", available_until: null,
   service_duration_minutes: 45 };
+
+test("booking editor retries failed movement and exposes confirmation only for scheduled bookings", async () => {
+  const root = createRoot(document.getElementById("root")!);
+  const appointment = { id: "booking", institute_id: "inst", employee_id: "emp", service_id: "svc",
+    customer_name: "Test client", start_time: "2026-10-05T10:00:00Z", end_time: "2026-10-05T10:20:00Z", status: "scheduled" };
+  let attempts = 0;
+  const actions: string[] = [];
+  const props = { instituteId: "inst", employees: [{ id: "emp", institute_id: "inst", first_name: "Test", status: "available" }],
+    services: [service], appointments: [appointment], async onCreateAppointment() { assert.fail("Editing must update"); },
+    async onUpdateAppointment(id: string, payload: any) {
+      assert.equal(id, "booking");
+      assert.equal(payload.customer_name, "Test client");
+      assert.equal(payload.employee_id, "emp");
+      assert.equal("institute_id" in payload, false);
+      if (++attempts === 1) throw new Error("Room conflict");
+    }, async onAppointmentAction(id: string, action: string) { actions.push(`${id}:${action}`); } };
+  const find = (label: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === label)!;
+  try {
+    await act(async () => root.render(<AppointmentPanel {...props} />));
+    await act(async () => find("Confirmer").click());
+    assert.deepEqual(actions, ["booking:confirm"]);
+    await act(async () => find("Modifier").click());
+    await act(async () => find("Enregistrer les modifications").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Room conflict/);
+    assert.ok(find("Enregistrer les modifications"));
+    await act(async () => find("Enregistrer les modifications").click());
+    assert.equal(attempts, 2);
+    assert.ok(find("Créer RDV"));
+    await act(async () => root.render(<AppointmentPanel {...props} appointments={[{ ...appointment, status: "confirmed" }]} />));
+    assert.equal(find("Confirmer"), undefined);
+  } finally { await act(async () => root.unmount()); }
+});
 
 test("queue actions use duration-aware feasibility, fail closed while loading, and offer retry", async () => {
   const root = createRoot(document.getElementById("root")!);
