@@ -79,5 +79,10 @@ responses, including same-component context changes. Manager tier configuration 
 scoped session storage before sending. Lost responses reuse the original key after
 remount; definite client rejection restores editable fields. Institute/token changes
 replace the form and invalidate late callbacks. Reception can read tiers.
-Earning/reward configuration, manual correction and checkout action UI plus
+The earning form reads configured currency and current policy; a missing currency
+prevents configuration. Decimal rates accept French commas and retain exact string
+precision. Activation/suspension creates a revision with reason and replay key;
+uncertain intent persists by institute/actor and refresh reads current policy rather
+than treating replay of an old revision as reactivation.
+Reward configuration, manual correction and checkout action UI plus
 browser/tablet end-to-end verification remain required; production readiness is not inferred.

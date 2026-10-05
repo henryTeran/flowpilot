@@ -1266,3 +1266,45 @@ test("loyalty tier configuration recovers the same intent across remount and rec
     assert.match(document.body.textContent!, /Gold/);
   } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
 });
+
+
+test("earning policy uses declared currency and recovers a lost decimal-rate configuration", async () => {
+  const { LoyaltyEarningSettings } = await import("../src/components/LoyaltyEarningSettings");
+  const original = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "policy-manager" }))}.signature`);
+  const bodies: any[] = [];
+  let policy: any = null;
+  let configured = false;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).endsWith("/settings")) return new Response(JSON.stringify(configured ? { currency: "CHF" } : { detail: "Configure currency" }), { status: configured ? 200 : 400, headers: { "Content-Type": "application/json" } });
+    if (init?.method === "POST") {
+      bodies.push(JSON.parse(String(init.body))); policy = { revision: 1, ...bodies.at(-1) };
+      if (bodies.length === 1) throw new Error("Lost policy response");
+      return new Response(JSON.stringify(policy), { headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify(policy), { headers: { "Content-Type": "application/json" } });
+  };
+  let root = createRoot(document.getElementById("root")!);
+  const button = (text: string) => [...document.querySelectorAll<HTMLButtonElement>("button")].find(row => row.textContent === text)!;
+  try {
+    await act(async () => root.render(<LoyaltyEarningSettings instituteId="inst" />));
+    assert.match(document.body.textContent!, /Configurez la devise/);
+    assert.equal(button("Enregistrer le programme"), undefined);
+    configured = true;
+    await act(async () => button("Actualiser le programme").click());
+    await act(async () => [...document.querySelectorAll<HTMLInputElement>("input:not([type='checkbox'])")].forEach((input, index) => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, ["1,5", "Programme explicite"][index]);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    }));
+    await act(async () => button("Enregistrer le programme").click());
+    assert.match(document.querySelector("[role='alert']")!.textContent!, /Lost policy response/);
+    await act(async () => root.unmount());
+    root = createRoot(document.getElementById("root")!);
+    await act(async () => root.render(<LoyaltyEarningSettings instituteId="inst" />));
+    await act(async () => button("Reessayer le programme conserve").click());
+    assert.deepEqual(bodies[0], bodies[1]);
+    assert.equal(bodies[0].points_per_unit, "1.5"); assert.equal(bodies[0].currency, "CHF");
+    assert.equal(sessionStorage.getItem("flowpilot.loyalty-policy:inst:policy-manager"), null);
+    assert.match(document.body.textContent!, /Version 1/);
+  } finally { globalThis.fetch = original; await act(async () => root.unmount()); setAccessToken(null); }
+});
