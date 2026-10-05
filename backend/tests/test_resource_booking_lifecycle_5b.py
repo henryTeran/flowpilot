@@ -24,6 +24,8 @@ def test_booking_reserves_shared_room_and_final_actions_release(client, final_ac
     booked = client.post("/api/v1/appointments", headers=operator, json=payload)
     assert booked.status_code == 200, booked.text
     appointment_id = booked.json()["id"]
+    assert booked.json()["booked_start_time"] == booked.json()["start_time"]
+    assert booked.json()["actual_start_time"] is None
     payload["employee_id"] = employees[1]["id"]
     assert client.post("/api/v1/appointments", headers=operator, json=payload).status_code == 400
     ticket = _create_ticket(client, institute, services[0]["id"])
@@ -31,8 +33,14 @@ def test_booking_reserves_shared_room_and_final_actions_release(client, final_ac
                                  json={"employee_id": employees[1]["id"]})
     assert assign().status_code == 400
     if final_action == "complete":
-        assert client.patch(f"/api/v1/appointments/{appointment_id}/start", headers=operator).status_code == 200
+        started = client.patch(f"/api/v1/appointments/{appointment_id}/start", headers=operator)
+        assert started.status_code == 200
+        assert started.json()["booked_start_time"] == booked.json()["booked_start_time"]
+        assert started.json()["booked_end_time"] == booked.json()["booked_end_time"]
+        assert started.json()["actual_start_time"] == started.json()["start_time"]
         with Session(main_module.engine) as db:
             assert db.scalar(select(ResourceReservation)).status == "in_use"
-    assert client.patch(f"/api/v1/appointments/{appointment_id}/{final_action}", headers=operator).status_code == 200
+    finalized = client.patch(f"/api/v1/appointments/{appointment_id}/{final_action}", headers=operator)
+    assert finalized.status_code == 200
+    assert (finalized.json()["actual_end_time"] is not None) == (final_action == "complete")
     assert assign().status_code == 200

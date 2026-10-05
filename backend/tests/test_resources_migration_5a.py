@@ -43,10 +43,15 @@ def test_resource_migration_backfills_and_preserves_legacy_skills(tmp_path, monk
             connection.execute(text("INSERT INTO institutes (id,region_id,name,city,timezone,status) VALUES ('inst','region','Institute','City','Europe/Berlin','active')"))
             connection.execute(text("INSERT INTO employees (id,institute_id,first_name,skills,status) VALUES ('emp','inst','Test',:skills,'available')"),
                                {"skills": json.dumps(["EPILATION", "SPECIAL", "SPECIAL"])})
+            connection.execute(text("INSERT INTO service_categories (id,name,code) VALUES ('cat','Category','TEST')"))
+            connection.execute(text("INSERT INTO services (id,category_id,name,duration_min,requires_machine,requires_appointment,status) VALUES ('svc','cat','Service',20,false,false,'active')"))
+            connection.execute(text("INSERT INTO appointments (id,institute_id,service_id,employee_id,customer_name,start_time,end_time,status) VALUES ('appt','inst','svc','emp','Test','2026-10-05 10:00:00','2026-10-05 10:20:00','scheduled')"))
         command.upgrade(config, "head")
         with engine.connect() as connection:
             codes = connection.execute(text("SELECT skill_code FROM employee_skills ORDER BY skill_code")).scalars().all()
             assert codes == ["EPILATION", "SPECIAL"]
+            preserved = connection.execute(text("SELECT booked_start_time = start_time, booked_end_time = end_time, actual_start_time, actual_end_time FROM appointments WHERE id='appt'")).one()
+            assert tuple(preserved) == (True, True, None, None)
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
         command.downgrade(config, "8a4d71f0b2c9")
         with engine.connect() as connection:

@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 6
-CURRENT_CHECKPOINT = PHASE5_CLOSURE_AND_PHASE6_HANDOFF
+CURRENT_CHECKPOINT = PHASE6A_BOOKED_AND_EXECUTION_INTERVALS
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,14 @@ GATES:
 - SKILL_MATCHING = PASS (all ticket services; assignment/start/booking; commitment-safe configuration).
 - RESOURCE_CONFLICT = PASS (shared institute serialization; three actual resource races; failure rollback).
 - PHASE5 = CLOSED for canonical functional gates; load and browser proof are separate, unverified gates.
-- PHASE6 = IN_PROGRESS (create/cancel/resource lifecycle present; move, confirm, booking history and customer reservation remain).
+- PHASE6 = IN_PROGRESS (create/cancel/resource lifecycle and booked/execution facts present; move, confirm and customer reservation remain).
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Planning/availability/prior-migration regression: 20 passed.
+- Phase 6A lifecycle/migration bundle: 4 passed, 1 PostgreSQL case skipped locally.
+- PostgreSQL migration/race bundle: 5 passed; seeded legacy appointment migration rerun: 2 passed (SQLite/PostgreSQL).
+- Migration c4e780bd219a upgrade/check passed; booked facts preserved and historical actual times remain null.
 - Last full backend suite: 177 passed, 12 opt-in PostgreSQL cases skipped on SQLite.
 - New resource tenant/quantity/multi-service boundary cases: 2 passed (not a claim of a new full-suite run).
 - PostgreSQL race bundle: 11 passed, including 3 resource races across different employees.
@@ -34,11 +38,12 @@ BLOCKERS:
 - Deep load and production readiness are unverified; no business decision blocks Phase 6.
 
 NEXT_STEP:
-- PHASE6A: preserve booked-versus-execution interval history, then add safe booking modification/movement, confirmation and customer reservation.
+- PHASE6B: safe booking modification/movement, confirmation and customer reservation; booked/execution timestamps now separate.
 - Validate coexistence with assigned walk-ins and resource reservations under the institute lock.
 
 LAST_COMMITS:
-- Current: test(resources): close functional resource and qualification gates.
+- Current: feat(booking): preserve booked and actual appointment timestamps.
+- d2ce8de test(resources): close functional resource and qualification gates.
 - 9dcbe46 fix(scheduling): account for resources in service availability.
 - b3197c2 feat(scheduling): project joint employee and resource waiting capacity.
 

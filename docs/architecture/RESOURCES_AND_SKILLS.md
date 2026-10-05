@@ -81,7 +81,8 @@ Phase 5 canonical functional gates are closed. This does not establish real
 browser/tablet UX, production load performance or the complete Phase 6 hybrid
 booking workflow. Those gates remain separate and open. Phase 6 must preserve
 original booked timestamps and add movement/modification, confirmation and customer
-reservation while retaining existing employee/resource conflict guards.
+reservation while retaining existing employee/resource conflict guards. Phase 6A now
+stores separate booked/execution facts; see `HYBRID_BOOKING.md` for migration limits.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.

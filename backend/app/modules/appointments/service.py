@@ -179,6 +179,8 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
         phone=payload.phone.strip() if payload.phone else None,
         start_time=start_time,
         end_time=end_time,
+        booked_start_time=start_time,
+        booked_end_time=end_time,
         status="scheduled",
         notes=payload.notes.strip() if payload.notes else None,
     )
@@ -251,6 +253,9 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     if any(_has_overlap(now, actual_end, other.start_time, other.end_time) for other in other_appointments):
         raise business_error("Le demarrage chevauche un autre rendez-vous")
     reserve_appointment(db, appointment, now, actual_end, in_use=True)
+    appointment.booked_start_time = appointment.booked_start_time or appointment.start_time
+    appointment.booked_end_time = appointment.booked_end_time or appointment.end_time
+    appointment.actual_start_time = now
     appointment.start_time, appointment.end_time = now, actual_end
 
     appointment.status = "in_progress"
@@ -274,6 +279,7 @@ def complete_appointment(db: Session, appointment_id: str) -> Appointment:
 
     from app.modules.resources.reservations import release
     release(db, appointment.institute_id, appointment_id=appointment.id)
+    appointment.actual_end_time = utcnow()
     appointment.status = "completed"
     employee = get_employee(db, appointment.employee_id)
     if employee:

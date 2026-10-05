@@ -26,6 +26,10 @@ class AppointmentRead(BaseModel):
     phone: str | None
     start_time: datetime
     end_time: datetime
+    booked_start_time: datetime | None = None
+    booked_end_time: datetime | None = None
+    actual_start_time: datetime | None = None
+    actual_end_time: datetime | None = None
     status: str
     notes: str | None
 
