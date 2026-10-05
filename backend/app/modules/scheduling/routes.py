@@ -124,10 +124,8 @@ def get_ticket_assignment_options(
     
     try:
         options = assignment_options_for_ticket(db, institute_id, ticket_id)
-    except NotFound:
+    except ValueError:
         raise HTTPException(status_code=404, detail="Ticket not found")
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     
     service_duration = options[0].service_duration_minutes if options else 0
     

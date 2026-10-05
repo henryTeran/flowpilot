@@ -8,8 +8,10 @@ Reuses Phase 4A availability engine.
 from datetime import datetime, timedelta, timezone
 import math
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.modules.employees.models import Employee
+from app.modules.tickets.models import QueueTicket
 from app.modules.scheduling.models import AssignmentOption
 from app.modules.scheduling.service import availability_engine, availability_pool
 from app.modules.scheduling.repository_4b import (
@@ -101,6 +103,8 @@ def assignment_options_for_ticket(
     # Tenant scope check
     if ticket.institute_id != institute_id:
         raise ValueError(f"Ticket not found in institute {institute_id}")
+    if ticket.status not in {"waiting", "assigned"}:
+        raise ValueError("Ticket is not waiting for assignment")
     
     # Calculate service duration
     service_duration = calculate_ticket_duration(lines)
@@ -109,6 +113,12 @@ def assignment_options_for_ticket(
     
     # Get availability pool (Phase 4A)
     availability_results = availability_pool(db, institute_id, now=now)
+    reserved_employees = set(db.scalars(select(QueueTicket.assigned_employee_id).where(
+        QueueTicket.institute_id == institute_id,
+        QueueTicket.status == "assigned",
+        QueueTicket.id != ticket_id,
+        QueueTicket.assigned_employee_id.is_not(None),
+    )).all())
     
     # Build assignment options
     options: list[AssignmentOption] = []
@@ -126,6 +136,12 @@ def assignment_options_for_ticket(
             service_duration_minutes=service_duration,
             available_until=avail_result.current_slot.available_until if avail_result.current_slot else None,
         )
+        if employee.status != "available":
+            assignable, reason = False, "employee_unavailable"
+        if employee.id in reserved_employees:
+            assignable, reason = False, "employee_reserved"
+        if ticket.assigned_employee_id and ticket.assigned_employee_id != employee.id:
+            assignable, reason = False, "ticket_already_assigned"
         
         # Calculate projected end time
         available_from = _ensure_aware(avail_result.current_slot.available_from if avail_result.current_slot else now)
