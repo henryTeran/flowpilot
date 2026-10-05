@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7A_REALTIME_TENANT_AND_CONNECTION_GUARDS
+CURRENT_CHECKPOINT = PHASE7B_CLIENT_RECONNECT_AND_RESYNCHRONIZATION
 STATUS = ACTIVE
 
 GATES:
@@ -12,6 +12,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Frontend: 18 tests and production build passed; reconnect, heartbeat timeout, resynchronization, stale socket and cleanup simulations pass.
 - WebSocket tenant/role and connection lifecycle bundle: 7 passed; these do not prove committed-change synchronization.
 - Backend full suite: 184 passed, 14 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
 - Phase 6 audit targeted checks: 5 passed; final overdue session/appointment creation/movement recovery: 2 passed.
@@ -33,12 +34,13 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7B: committed-change notifications, reconnect/resynchronization and stale-context protection; strict tenant/connection guards now implemented.
-- Current WebSocket sends ping/pong; client has no reconnect loop. Do not infer live synchronization PASS from transactional tests.
+- PHASE7C: committed-change notifications and end-to-end delivery/reconnect validation; client connection lifecycle is implemented.
+- Current server sends ping/pong; notifications are not yet wired. Do not infer live synchronization PASS from component simulations.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: fix(realtime): isolate scoped connections and tolerate closed transports.
+- Current: feat(realtime): reconnect planning clients and resynchronize after transport loss.
+- f1b968e fix(realtime): isolate scoped connections and tolerate closed transports.
 - 9ec32ce fix(booking): reject unknown overdue capacity and close functional booking gates.
 - 18bccd5 feat(booking): recover customer reservations after retried creation.
 - f00068c feat(booking): persist transactional booking change history.

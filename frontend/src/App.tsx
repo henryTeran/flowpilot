@@ -15,6 +15,7 @@ import { PlanningBoard } from "./components/PlanningBoard";
 import { resolveNextCheckoutTicket } from "./checkout-utils";
 import { QueuePanel } from "./components/QueuePanel";
 import { useAssignmentOptions } from "./features/useAssignmentOptions";
+import { connectPlanning } from "./features/planningConnection";
 import { TicketsHomePanel } from "./components/TicketsHomePanel";
 import type {
   Appointment,
@@ -244,21 +245,11 @@ export default function App() {
 
   useEffect(() => {
     if (!selectedInstituteId) return;
-    setRealtimeStatus("connecting");
-    const socket = new WebSocket(`${WS_BASE_URL}/institutes/${encodeURIComponent(selectedInstituteId)}/planning?token=${encodeURIComponent(getAccessToken() || "")}`);
-    const pingInterval = window.setInterval(() => {
-      if (socket.readyState === WebSocket.OPEN) socket.send("ping");
-    }, 20000);
-
-    socket.onopen = () => setRealtimeStatus("connected");
-    socket.onclose = () => setRealtimeStatus("disconnected");
-    socket.onerror = () => setRealtimeStatus("disconnected");
-    socket.onmessage = () => void refreshOperationalData();
-
-    return () => {
-      window.clearInterval(pingInterval);
-      socket.close();
-    };
+    return connectPlanning({
+      url: `${WS_BASE_URL}/institutes/${encodeURIComponent(selectedInstituteId)}/planning?token=${encodeURIComponent(getAccessToken() || "")}`,
+      onStatus: setRealtimeStatus,
+      onRefresh: () => void refreshOperationalData(),
+    });
   }, [selectedInstituteId, refreshOperationalData]);
 
   useEffect(() => {
