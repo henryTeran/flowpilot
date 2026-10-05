@@ -10,6 +10,23 @@ export type GiftTender = { ticket_id: string; currency: "CHF" | "EUR" | null; to
 type Card = { id: string; currency: "CHF" | "EUR"; remaining: Money; usable_amount: Money; status: string };
 type Operation = { path: string; payload: object; label: string };
 
+function readRecovery(raw: string, prefix: string, ticketId: string): Operation {
+  const saved = JSON.parse(raw);
+  if (typeof saved.path !== "string" || !saved.path.startsWith(`${prefix}/`) || !saved.payload) throw new Error("Demande cadeau à vérifier");
+  const payload = saved.payload;
+  const suffix = saved.path.slice(prefix.length);
+  if (/^\/[^/]+\/allocations$/.test(suffix) && payload.ticket_id === ticketId
+      && typeof payload.amount === "string" && /^\d{1,8}(\.\d{1,2})?$/.test(payload.amount) && cents(payload.amount) > 0
+      && typeof payload.idempotency_key === "string" && payload.idempotency_key.trim().length > 0 && payload.idempotency_key.length <= 120) {
+    return { path: saved.path, label: "Réessayer ce débit cadeau", payload: { ticket_id: ticketId, amount: payload.amount, idempotency_key: payload.idempotency_key } };
+  }
+  if (/^\/allocations\/[^/]+\/reverse$/.test(suffix) && typeof payload.reason === "string"
+      && payload.reason.trim().length >= 3 && payload.reason.length <= 240) {
+    return { path: saved.path, label: "Réessayer cette annulation cadeau", payload: { reason: payload.reason } };
+  }
+  throw new Error("Demande cadeau incompatible avec ce ticket");
+}
+
 export function cents(value: Money) {
   const match = /^(\d{1,10})(?:\.(\d{1,2}))?$/.exec(String(value));
   if (!match) throw new Error("Montant serveur invalide");
@@ -53,26 +70,26 @@ export function GiftCardWallet({ ticket, blocked, onRefresh, onBusy, onTender, b
     setView(value); if (updated) setCard(updated); callbacks.current.onTender(value); return true;
   }
   useEffect(() => {
-    epoch.current++;
+    epoch.current++; reads.current++; writing.current = false; bearer.current = ""; operation.current = undefined;
+    setView(undefined); setCard(undefined); setCode(""); setAmount(""); setRetry(undefined); setError(undefined); setBusy(true);
     if (recoveryKey) {
       try {
         const raw = sessionStorage.getItem(recoveryKey);
         if (raw) {
-          const saved = JSON.parse(raw) as Operation;
-          if (!saved.path.startsWith(`${prefix}/`) || !saved.payload || typeof saved.label !== "string") throw new Error("Demande cadeau à vérifier");
+          const saved = readRecovery(raw, prefix, ticket.id);
           operation.current = saved; setRetry(saved);
         }
       } catch (failure) { setError(failure instanceof Error ? failure.message : "Récupération indisponible"); }
     }
     callbacks.current.onBusy(true);
     return () => { epoch.current++; reads.current++; };
-  }, []);
+  }, [ticket.id, ticket.institute_id, token]);
   useEffect(() => {
     if (writing.current) return;
     const current = capture(); callbacks.current.onBusy(true); setBusy(true);
     void reload().then(loaded => { if (current() && loaded && !writing.current) { callbacks.current.onBusy(!!operation.current); setBusy(false); } })
       .catch(failure => { if (current()) { setBusy(false); setView(undefined); setError(failure instanceof Error ? failure.message : "Paiements non vérifiés"); } });
-  }, [ticket.total_amount, ticket.currency, ticket.status]);
+  }, [ticket.id, ticket.institute_id, token, ticket.total_amount, ticket.currency, ticket.status]);
 
   async function lookup() {
     if (writing.current || blocked || !code.trim()) return;
@@ -97,6 +114,13 @@ export function GiftCardWallet({ ticket, blocked, onRefresh, onBusy, onTender, b
     if (writing.current || blocked) return;
     const selected = next || operation.current;
     if (!selected) return;
+    if (selected.path.endsWith("/reverse")) {
+      const segments = selected.path.split("/");
+      const identifier = segments[segments.length - 2];
+      if (!manager || !view?.allocations.some(row => row.id === identifier)) {
+        setError("Vérifier ce débit dans l'historique du ticket avec la responsable"); return;
+      }
+    }
     const release = callbacks.current.beginMutation(); if (!release) return;
     const current = capture(); operation.current = selected; setRetry(selected);
     writing.current = true; reads.current++; setBusy(true); callbacks.current.onBusy(true); setError(undefined);

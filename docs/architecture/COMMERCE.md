@@ -410,3 +410,15 @@ lost-response recovery across remount, full/mixed intent, reversed history and
 fail-closed reads. These are not actual browser/tablet or external settlement proof.
 Paid issuance and payment-provider integration remain future payment/sales scope;
 Phase 8 loyalty and the final context/replay audit are still outstanding.
+
+## Gift recovery audit checkpoint 8P
+
+Gift recovery now reconstructs only allowed debit/reversal fields. A debit intent
+must name the current ticket and contain a valid amount/replay key; a reversal must
+resolve to the current ticket's fetched allocation history and require the manager
+role. Labels from browser storage cannot introduce additional actions or payload
+fields. Component-local ticket/institute/token changes reset bearer and operation
+state independently of caller keys. Late completions cannot refresh a newer ticket,
+release its mutation lease, or clear its payment latch. Tests prove these cases,
+including rejection of a foreign-ticket debit and an unrelated historical reversal.
+The next canonical Phase 8 domain is loyalty: points, levels, benefits and history.

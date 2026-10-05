@@ -643,6 +643,87 @@ test("gift reversal recovery preserves price and freezes payment until the origi
   } finally { await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
 });
 
+test("late gift debit completion cannot refresh or release the writer for another ticket", async () => {
+  const { GiftCardWallet } = await import("../src/components/GiftCardWallet");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut" }))}.signature`);
+  const finishes: Record<string, (value: Response) => void> = {};
+  const applied: Record<string, boolean> = {};
+  const busy: boolean[] = [];
+  let refreshes = 0, lease: symbol | null = null;
+  const reply = (data: unknown) => new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+  globalThis.fetch = async (url, init) => {
+    const path = new URL(String(url)).pathname;
+    if (path.endsWith("/lookup")) {
+      const code = JSON.parse(String(init?.body)).code;
+      return reply({ id: `card-${code}`, currency: "CHF", remaining: 25, usable_amount: 25, status: "active" });
+    }
+    if (init?.method === "POST") {
+      const id = JSON.parse(String(init.body)).ticket_id; applied[id] = true;
+      return new Promise(resolve => { finishes[id] = resolve; });
+    }
+    const id = path.split("/").at(-2)!;
+    return reply({ ticket_id: id, currency: "CHF", total: 15, gift_amount: applied[id] ? 5 : 0,
+      remaining_due: applied[id] ? 10 : 15, remainder_amount: 0, remainder_method: null,
+      allocations: applied[id] ? [{ id: `debit-${id}`, card_id: `card-${id}`, amount: 5, currency: "CHF", reversed_at: null }] : [] });
+  };
+  const props = { blocked: false, async onRefresh() { refreshes++; return true; }, onBusy(value: boolean) { busy.push(value); }, onTender() {},
+    beginMutation() { if (lease) return null; const stamp = Symbol(); lease = stamp; return () => { if (lease === stamp) lease = null; }; } };
+  const root = createRoot(document.getElementById("root")!);
+  const render = (id: string) => root.render(<GiftCardWallet {...props} ticket={{ ...assignmentTicket, id, currency: "CHF", status: "ready_for_checkout", total_amount: 15 }} />);
+  const input = (label: string, value: string) => {
+    const field = [...document.querySelectorAll("label")].find(item => item.textContent?.startsWith(label))!.querySelector("input")!;
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(field, value);
+    field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  };
+  try {
+    await act(async () => render("old"));
+    await act(async () => input("Code cadeau", "old"));
+    await act(async () => button("Rechercher la carte cadeau").click());
+    await act(async () => input("Montant cadeau à utiliser", "5"));
+    await act(async () => button("Utiliser ce crédit cadeau").click());
+    assert.ok(finishes.old);
+    lease = null; // CheckoutPanel resets writer ownership when its ticket context changes.
+    await act(async () => render("new"));
+    await act(async () => input("Code cadeau", "new"));
+    await act(async () => button("Rechercher la carte cadeau").click());
+    await act(async () => input("Montant cadeau à utiliser", "5"));
+    await act(async () => button("Utiliser ce crédit cadeau").click());
+    assert.ok(finishes.new); refreshes = 0;
+    await act(async () => finishes.old(reply({ id: "debit-old" })));
+    assert.equal(refreshes, 0); assert.equal(busy.at(-1), true); assert.ok(lease);
+    await act(async () => finishes.new(reply({ id: "debit-new" })));
+    assert.equal(refreshes, 1); assert.equal(busy.at(-1), false); assert.equal(lease, null);
+    assert.equal(document.body.textContent!.includes("old"), false);
+  } finally { Object.values(finishes).forEach(finish => finish(reply({}))); await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
+test("gift recovery refuses a debit payload belonging to a different ticket", async () => {
+  const { GiftCardWallet } = await import("../src/components/GiftCardWallet");
+  const originalFetch = globalThis.fetch;
+  setAccessToken(`e30.${btoa(JSON.stringify({ role: "accueil", sub: "scoped-reader" }))}.signature`);
+  const key = "flowpilot.gift-tender:inst:ticket:scoped-reader";
+  sessionStorage.setItem(key, JSON.stringify({ path: "/gift-cards/institutes/inst/card/allocations", label: "Recover",
+    payload: { ticket_id: "another-ticket", amount: "5", idempotency_key: "foreign-intent" } }));
+  let writes = 0;
+  globalThis.fetch = async (url, init) => { if (init?.method === "POST") writes++; return emptyGiftTender(assignmentTicket); };
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await act(async () => root.render(<GiftCardWallet ticket={assignmentTicket} blocked={false} onBusy={() => {}} onTender={() => {}} onRefresh={async () => true} beginMutation={() => () => {}} />));
+    assert.match(document.body.textContent!, /incompatible avec ce ticket/);
+    assert.equal([...document.querySelectorAll("button")].some(item => item.textContent?.includes("Réessayer ce débit")), false);
+    await act(async () => button("Actualiser les paiements cadeaux").click());
+    assert.equal(writes, 0);
+    sessionStorage.setItem(key, JSON.stringify({ path: "/gift-cards/institutes/inst/allocations/foreign-debit/reverse",
+      payload: { reason: "Stored correction" }, label: "Recover reversal" }));
+    setAccessToken(`e30.${btoa(JSON.stringify({ role: "responsable_institut", sub: "scoped-reader" }))}.signature`);
+    await act(async () => root.render(<GiftCardWallet ticket={assignmentTicket} blocked={false} onBusy={() => {}} onTender={() => {}} onRefresh={async () => true} beginMutation={() => () => {}} />));
+    await act(async () => button("Réessayer cette annulation cadeau").click());
+    assert.match(document.body.textContent!, /historique du ticket/);
+    assert.equal(writes, 0);
+  } finally { sessionStorage.removeItem(key); await act(async () => root.unmount()); globalThis.fetch = originalFetch; setAccessToken(null); }
+});
+
 test("gift tender read failures keep payment unavailable until server facts are verified", async () => {
   const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
   const originalFetch = globalThis.fetch;
