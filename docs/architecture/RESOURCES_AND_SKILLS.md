@@ -52,8 +52,15 @@ concurrently. These are focused races, not load evidence.
 Live assignment options use the same tenant-scoped resource timelines and interval
 matcher as writes. They exclude the owning ticket's reservation, keep competitors
 blocked, and restore eligibility on release. HTTP checks verify these transitions.
-Waiting estimates still report configured resource needs as unknown. Phase 5B must
-connect joint employee/resource projections before resource scheduling gates pass.
+Waiting estimates now search joint employee/resource windows. Every candidate
+resource window is rechecked against the employee's appointments; projected earlier
+tickets consume the selected resources for their complete duration. Assigned tickets
+retain priority and exclude only their own persisted reservation when recalculating.
+If an assigned ticket cannot be projected, its existing resource commitment remains.
+Missing or overdue unknown resource capacity yields no fabricated estimate. Extension
+and finish update the facts used by queue/dashboard reads. Five pure cases and an
+HTTP-backed lifecycle check cover contention, owner exclusion and overdue capacity.
+Broader cross-operation races and remaining path audits are still needed for closure.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.

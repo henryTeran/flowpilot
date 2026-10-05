@@ -53,7 +53,7 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
     ).order_by(QueueTicket.arrival_time, QueueTicket.id)).all()
     durations = {}
     ticket_skills = {}
-    unknown_resource_tickets = set()
+    ticket_needs = {}
     for ticket_id, minutes, quantity, service_id in db.execute(select(
         TicketLine.ticket_id, TicketLine.duration_minutes, TicketLine.quantity, TicketLine.service_id,
     ).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
@@ -61,14 +61,30 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
     )):
         durations[ticket_id] = durations.get(ticket_id, 0) + minutes * quantity
         ticket_skills.setdefault(ticket_id, set()).update(requirements.get(service_id, set()))
-        if resource_needs.get(service_id):
-            unknown_resource_tickets.add(ticket_id)
+        for kind, capability, amount in resource_needs.get(service_id, []):
+            needs = ticket_needs.setdefault(ticket_id, {})
+            needs[(kind, capability)] = max(needs.get((kind, capability), 0), amount)
+    from app.modules.resources.allocation_domain import ResourceNeed
+    from app.modules.resources.models import ResourceReservation
+    from app.modules.resources.reservations import resource_timelines
+    owned = {}
+    for row in db.scalars(select(ResourceReservation).where(ResourceReservation.institute_id == institute_id,
+                            ResourceReservation.ticket_id.in_([ticket.id for ticket in tickets]),
+                            ResourceReservation.status != "released")):
+        owned.setdefault(row.ticket_id, []).append((row.resource_id, aware(row.start_time), aware(row.end_time)))
     queue = [QueueWork(ticket.id, durations.get(ticket.id, 0), ticket.assigned_employee_id,
-                       frozenset(ticket_skills.get(ticket.id, set())), ticket.id not in unknown_resource_tickets)
+                       frozenset(ticket_skills.get(ticket.id, set())), resource_needs=tuple(
+                           ResourceNeed(kind, capability, amount) for (kind, capability), amount
+                           in sorted(ticket_needs.get(ticket.id, {}).items())),
+                       owned_reservations=tuple(owned.get(ticket.id, [])))
              for ticket in tickets]
     if new_duration is not None:
         needed = set().union(*(requirements.get(service_id, set()) for service_id in new_service_ids or []))
-        known_resources = not any(resource_needs.get(service_id) for service_id in new_service_ids or [])
+        needs = {}
+        for service_id in new_service_ids or []:
+            for kind, capability, amount in resource_needs.get(service_id, []):
+                needs[(kind, capability)] = max(needs.get((kind, capability), 0), amount)
         queue.append(QueueWork("__new_arrival__", new_duration, required_skills=frozenset(needed),
-                              resource_capacity_known=known_resources))
-    return project_queue(timelines, queue)
+                              resource_needs=tuple(ResourceNeed(kind, capability, amount)
+                                  for (kind, capability), amount in sorted(needs.items()))))
+    return project_queue(timelines, queue, tuple(resource_timelines(db, institute_id, now=now)))

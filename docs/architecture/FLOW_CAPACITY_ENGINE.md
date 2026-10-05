@@ -70,6 +70,7 @@ Extension request replay safety is validated, including persistence-failure roll
 Actual tablet/browser validation and larger concurrent load remain open.
 No CUA browser surface was available during this checkpoint; JSDOM and build checks
 are not browser/tablet evidence. Phase 5A adds explicit qualifications to assignment,
-booking, start and waiting projection. Configured resource requirements currently
-produce unknown capacity until Phase 5B implements allocation. See
+booking, start and waiting projection. Phase 5B matches explicit resource requirements
+in assignment/start/booking/extension and joint waiting projections. Missing or
+overdue unknown capacity produces no estimate. Resource gate audit remains open. See
 `RESOURCES_AND_SKILLS.md`. Production readiness is unverified.

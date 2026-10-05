@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import app.main as main_module
 from app.modules.resources.models import ResourceReservation
 from app.modules.tickets.models import QueueTicket
+from app.modules.scheduling.waiting_service import aware, waiting_projections
 from test_ticket_workflow import _auth_headers, _bootstrap_reference_data, _create_ticket
 
 
@@ -18,6 +20,10 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
     tickets = [_create_ticket(client, institute, services[0]["id"])["id"] for _ in range(2)]
     options = lambda ticket: client.get(f"/api/v1/availability/{ticket}/assignment-options?institute_id={institute}", headers=operator).json()["options"]
     assert any(option["assignable"] for option in options(tickets[0]))
+    with Session(main_module.engine) as db:
+        projections = waiting_projections(db, institute)
+        assert projections[tickets[0]].estimated_start_time is not None
+        assert projections[tickets[1]].estimated_start_time >= projections[tickets[0]].estimated_end_time
     assign = lambda ticket, employee: client.patch(f"/api/v1/tickets/{ticket}/assign", headers=operator,
                                                    json={"employee_id": employee})
     assert assign(tickets[0], employees[0]["id"]).status_code == 200
@@ -42,6 +48,10 @@ def test_shared_resource_assignment_start_extension_finish_and_release(client):
         assert row.status == "in_use"
         assert row.end_time.isoformat().startswith(extended.json()["planned_end_time"][:19])
         assert len(db.scalars(select(ResourceReservation)).all()) == 1
+        projections = waiting_projections(db, institute)
+        assert projections[tickets[1]].estimated_start_time >= aware(datetime.fromisoformat(extended.json()["planned_end_time"]))
+        overdue = waiting_projections(db, institute, now=aware(datetime.fromisoformat(extended.json()["planned_end_time"])) + timedelta(minutes=1))
+        assert overdue[tickets[1]].estimated_start_time is None
     assert client.patch(f"/api/v1/planning/sessions/{session['id']}/finish", headers=operator).status_code == 200
     assert any(option["assignable"] for option in options(tickets[1]))
     assert assign(tickets[1], employees[1]["id"]).status_code == 200

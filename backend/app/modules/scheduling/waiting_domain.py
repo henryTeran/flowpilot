@@ -1,6 +1,7 @@
 """Pure, deterministic queue projection. Estimates never authorize a write."""
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
+from app.modules.resources.allocation_domain import ResourceNeed, ResourceTimeline, next_resource_window
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,8 @@ class QueueWork:
     assigned_employee_id: str | None = None
     required_skills: frozenset[str] = frozenset()
     resource_capacity_known: bool = True
+    resource_needs: tuple[ResourceNeed, ...] = ()
+    owned_reservations: tuple[tuple[str, datetime, datetime], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -41,7 +44,8 @@ def next_fitting_start(start: datetime, duration: int, appointments) -> datetime
     return start
 
 
-def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork]) -> dict[str, WaitProjection]:
+def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork],
+                  resources: tuple[ResourceTimeline, ...] = ()) -> dict[str, WaitProjection]:
     timelines = {employee.employee_id: employee for employee in employees}
     cursors = {employee.employee_id: employee.available_from for employee in employees}
     results = {}
@@ -51,16 +55,39 @@ def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork]) -> 
     ordered += [work for work in queue if not work.assigned_employee_id]
     for work in ordered:
         candidates = [work.assigned_employee_id] if work.assigned_employee_id else list(timelines)
-        starts = [(next_fitting_start(cursors[employee_id], work.duration_minutes,
-                                      timelines[employee_id].appointments), employee_id)
-                  for employee_id in candidates if employee_id in timelines and work.duration_minutes > 0
-                  and work.required_skills.issubset(timelines[employee_id].skills) and work.resource_capacity_known]
+        # Ignore only this ticket's persisted reservation while recalculating it.
+        # Other commitments remain intact if this ticket cannot be projected.
+        usable = tuple(replace(resource, reservations=tuple(interval for interval in resource.reservations
+            if (resource.resource_id, *interval) not in work.owned_reservations)) for resource in resources)
+        starts = []
+        matches = {}
+        for employee_id in candidates:
+            if employee_id not in timelines or work.duration_minutes <= 0 or not work.resource_capacity_known:
+                continue
+            employee = timelines[employee_id]
+            if not work.required_skills.issubset(employee.skills):
+                continue
+            start = cursors[employee_id]
+            while True:
+                start = next_fitting_start(start, work.duration_minutes, employee.appointments)
+                match = next_resource_window(usable, work.resource_needs, start, work.duration_minutes)
+                if match is None:
+                    break
+                fitted = next_fitting_start(match.start, work.duration_minutes, employee.appointments)
+                if fitted == match.start:
+                    starts.append((match.start, employee_id))
+                    matches[employee_id] = match
+                    break
+                start = fitted
         if not starts:
             reason = "capacity_unknown" if work.resource_capacity_known else "resource_capacity_unknown"
             results[work.ticket_id] = WaitProjection(work.ticket_id, None, None, None, reason)
             continue
         start, employee_id = min(starts)
         end = start + timedelta(minutes=work.duration_minutes)
+        selected = matches[employee_id].resource_ids
+        resources = tuple(replace(resource, reservations=resource.reservations + ((start, end),))
+                          if resource.resource_id in selected else resource for resource in usable)
         cursors[employee_id] = end
         results[work.ticket_id] = WaitProjection(work.ticket_id, employee_id, start, end, "projected")
     return results

@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 5
-CURRENT_CHECKPOINT = PHASE5B_LIVE_RESOURCE_ASSIGNMENT_OPTIONS
+CURRENT_CHECKPOINT = PHASE5B_JOINT_RESOURCE_WAITING_PROJECTION
 STATUS = ACTIVE
 
 GATES:
@@ -11,6 +11,9 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 TESTS:
+- Joint projection checkpoint: backend 176 passed, 10 skipped; final extension/overdue lifecycle check passed.
+- Joint resource waiting domain: 5 new cases; targeted waiting/resource bundle 35 passed.
+- PostgreSQL resource/scheduling/qualification races: 9 passed.
 - Resource option/lifecycle/qualification bundle: 25 passed; augmented HTTP option lifecycle rerun passed.
 - PostgreSQL shared-room race passed after shared resource-fact loader refactor.
 - Booking resource checkpoint: backend 171 passed, 10 skipped; final booking lifecycle targeted 3 passed.
@@ -37,7 +40,7 @@ SECURITY:
 - Committed resources cannot lose capabilities or operational status; in-use extensions retain physical resources.
 - Booking create/start reserve the shared resource pool; complete/cancel/no-show release under institute serialization.
 - Live assignment options use the same tenant-scoped resource timeline and full-interval matcher as writes, excluding the owning ticket's reservation.
-- Waiting estimates remain unknown for configured resource needs until joint projection is implemented.
+- Waiting estimates now jointly match qualified employees and resource windows, project shared-resource contention, and preserve unknown overdue capacity.
 - No provider or secret changes; BASE/JV separation preserved.
 
 BLOCKERS:
@@ -46,13 +49,14 @@ BLOCKERS:
 - Appointment lifecycle concurrency audit and larger load remain open.
 
 NEXT_STEP:
-- PHASE5B: integrate live joint capacity projection and broaden cross-operation resource race evidence.
+- PHASE5B: broaden cross-operation resource races, fault/tenant evidence and audit remaining resource scheduling paths before closing gates.
 - PHASE6: booking movement and distinct booked/execution timestamp history remain open.
 - Preserve browser gate as BLOCKED; do not claim complete Phase 4 or Phase 5 closure.
 - Details: docs/architecture/RESOURCES_AND_SKILLS.md and FLOW_CAPACITY_ENGINE.md.
 
 LAST_COMMITS:
-- Current checkpoint: feat(scheduling): expose resource-aware live assignment options.
+- Current checkpoint: feat(scheduling): project joint employee and resource waiting capacity.
+- c001458 feat(scheduling): expose resource-aware live assignment options.
 - 43bd1a7 feat(booking): reserve shared resources through appointment lifecycle.
 - 4644ad7 feat(resources): reserve resources across queue service lifecycle.
 - d179bcc feat(resources): persist transactional resource reservations.
