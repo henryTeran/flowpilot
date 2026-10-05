@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { shouldOfferDelayedReleaseAction, compareQueueArrival } from "../queue-utils";
 import type { Employee, PlanningAvailability, QueueTicket, Service, ServiceCategory } from "../types";
+import { assignmentReason, type AssignmentState } from "../features/useAssignmentOptions";
 
 interface QueuePanelProps {
   tickets: QueueTicket[];
@@ -8,6 +9,7 @@ interface QueuePanelProps {
   categories: ServiceCategory[];
   employees: Employee[];
   availability?: PlanningAvailability;
+  assignment: AssignmentState;
   selectedCategoryId: string;
   selectedServiceId: string;
   selectedTicketId: string;
@@ -37,6 +39,7 @@ export function QueuePanel({
   categories,
   employees,
   availability,
+  assignment,
   selectedCategoryId,
   selectedServiceId,
   selectedTicketId,
@@ -77,7 +80,8 @@ export function QueuePanel({
     lockedEmployeeId && selectedEmployeeId && lockedEmployeeId !== selectedEmployeeId,
   );
   const reservedElsewhere = (employeeId: string) => tickets.some((ticket) => ticket.status === "assigned" && ticket.assigned_employee_id === employeeId && ticket.id !== selectedTicketId);
-  const employeeCanStart = Boolean(selectedEmployee && selectedEmployee.status === "available" && !reservedElsewhere(selectedEmployee.id));
+  const selectedOption = assignment.options.find((option) => option.employee_id === selectedEmployeeId);
+  const employeeCanStart = assignment.status === "ready" && Boolean(selectedOption?.assignable);
   const canAssignTicket = Boolean(selectedTicketIsWaiting && selectedEmployeeId && employeeCanStart);
   const canStartSession = Boolean(
     selectedTicketIsActionable &&
@@ -91,7 +95,9 @@ export function QueuePanel({
   const inProgressTickets = tickets.filter((ticket) => ticket.status === "in_progress");
   const checkoutTickets = tickets.filter((ticket) => CHECKOUT_TICKET_STATUSES.has(ticket.status));
   const actionableTickets = tickets.filter((ticket) => ACTIONABLE_TICKET_STATUSES.has(ticket.status));
-  const availableEmployees = employees.filter((employee) => employee.status === "available" && !reservedElsewhere(employee.id));
+  const availableEmployees = employees.filter((employee) => selectedTicketIsActionable
+    ? assignment.status === "ready" && assignment.options.some((option) => option.employee_id === employee.id && option.assignable)
+    : employee.status === "available" && !reservedElsewhere(employee.id));
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   const filteredWaitingTickets = sortQueueTickets(
@@ -272,14 +278,23 @@ export function QueuePanel({
         >
           <option value="">Choisir une collaboratrice</option>
           {employees.map((employee) => {
-            const disabled = employee.status !== "available" || reservedElsewhere(employee.id) || Boolean(lockedEmployeeId && lockedEmployeeId !== employee.id);
+            const option = assignment.options.find((item) => item.employee_id === employee.id);
+            const disabled = assignment.status !== "ready" || !option?.assignable;
             return (
               <option key={employee.id} value={employee.id} disabled={disabled}>
-                {employee.first_name} · {translateStatus(employee.status)}
+                {employee.first_name} · {option && !option.assignable ? assignmentReason(option.reason) : translateStatus(employee.status)}
               </option>
             );
           })}
         </select>
+
+        {selectedTicketIsActionable && assignment.status === "loading" && <p role="status">Vérification des disponibilités…</p>}
+        {selectedTicketIsActionable && assignment.status === "error" && <div role="alert">
+          <p>Impossible de vérifier les disponibilités.</p>
+          <button className="secondary-button" onClick={assignment.retry}>Réessayer</button>
+        </div>}
+        {selectedTicketIsActionable && assignment.status === "ready" && !assignment.options.some((option) => option.assignable) &&
+          <p className="inline-warning">Aucune collaboratrice ne peut prendre cette séance maintenant.</p>}
 
         {availableEmployees.length > 0 && (
           <div className="quick-employee-block">
@@ -302,8 +317,9 @@ export function QueuePanel({
         <div className="selected-summary selected-summary-stack">
           <span>Séance complète</span>
           <strong>{formatTicketSessionLabel(selectedTicketServices, selectedTicketService || selectedService)}</strong>
+          {selectedTicket?.standard_duration_minutes !== undefined && <small>{selectedTicket.standard_duration_minutes} min réservées pour ce ticket</small>}
           {selectedTicketServices.length > 1 && (
-            <small>La collaboratrice démarre le ticket complet : {sumDuration(selectedTicketServices)} min cumulées</small>
+            <small>La collaboratrice démarre le ticket complet : {selectedTicket?.standard_duration_minutes ?? sumDuration(selectedTicketServices)} min cumulées</small>
           )}
         </div>
 

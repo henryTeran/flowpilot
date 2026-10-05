@@ -89,6 +89,16 @@ export interface ServiceSession {
   status: string;
 }
 
+export interface AssignmentOption {
+  employee_id: string;
+  employee_name: string;
+  assignable: boolean;
+  reason: string;
+  available_from: string | null;
+  available_until: string | null;
+  service_duration_minutes: number;
+}
+
 export interface PlanningEmployeeRow {
   employee_id: string;
   employee_name: string;

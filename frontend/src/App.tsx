@@ -14,6 +14,7 @@ import { NewTicketWorkflow, type NewTicketWorkflowResult } from "./components/Ne
 import { PlanningBoard } from "./components/PlanningBoard";
 import { resolveNextCheckoutTicket } from "./checkout-utils";
 import { QueuePanel } from "./components/QueuePanel";
+import { useAssignmentOptions } from "./features/useAssignmentOptions";
 import { TicketsHomePanel } from "./components/TicketsHomePanel";
 import type {
   Appointment,
@@ -74,6 +75,18 @@ export default function App() {
     () => tickets.find((ticket) => ticket.id === selectedTicketId),
     [tickets, selectedTicketId]
   );
+  const assignment = useAssignmentOptions(selectedInstituteId, selectedTicket);
+  useEffect(() => {
+    if (selectedTicket?.assigned_employee_id) {
+      setSelectedEmployeeId(selectedTicket.assigned_employee_id);
+      return;
+    }
+    if (assignment.status !== "ready") return;
+    if (!assignment.options.some((option) => option.employee_id === selectedEmployeeId && option.assignable)) {
+      const next = assignment.options.find((option) => option.assignable);
+      if (next) setSelectedEmployeeId(next.employee_id);
+    }
+  }, [assignment.status, assignment.options, selectedEmployeeId, selectedTicket?.assigned_employee_id]);
 
   const selectedCheckoutTicket = useMemo(
     () => tickets.find((ticket) => ticket.id === selectedCheckoutTicketId),
@@ -318,6 +331,7 @@ export default function App() {
 
   async function handleAssignTicket() {
     if (!selectedTicketId || !selectedEmployeeId) return;
+    if (assignment.status !== "ready" || !assignment.options.some((option) => option.employee_id === selectedEmployeeId && option.assignable)) return;
 
     if (!selectedTicket || selectedTicket.status !== "waiting") {
       setError("Seul un ticket en attente peut être affecté.");
@@ -337,6 +351,7 @@ export default function App() {
 
   async function handleStartSession() {
     if (!selectedTicketId || !selectedEmployeeId) return;
+    if (assignment.status !== "ready" || !assignment.options.some((option) => option.employee_id === selectedEmployeeId && option.assignable)) return;
 
     if (!selectedTicket || !["waiting", "assigned"].includes(selectedTicket.status)) {
       setError("Ce ticket est déjà en cours ou terminé. Il ne peut plus être redémarré.");
@@ -725,7 +740,7 @@ export default function App() {
                 employees={employees}
                 selectedTicketId={selectedTicketId}
                 ticketServiceMap={ticketServiceMap}
-                onTicketSelect={handleTicketSelection}
+                onTicketSelect={(ticketId) => { handleTicketSelection(ticketId); setActiveDrawer("tickets"); }}
                 onOpenTickets={() => setActiveDrawer("tickets")}
                 onFinishActiveEmployeeSession={handleFinishActiveEmployeeSession}
                 onChangeEmployeeStatus={handleChangeEmployeeStatus}
@@ -773,6 +788,7 @@ export default function App() {
           onClose={() => setActiveDrawer(null)}
         >
           <QueuePanel
+            assignment={assignment}
             tickets={tickets}
             services={services}
             categories={categories}
@@ -805,6 +821,7 @@ export default function App() {
           onClose={() => setActiveDrawer(null)}
         >
           <QueuePanel
+            assignment={assignment}
             tickets={tickets}
             services={services}
             categories={categories}

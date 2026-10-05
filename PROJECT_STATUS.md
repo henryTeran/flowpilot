@@ -1,12 +1,13 @@
 CURRENT_PHASE = PHASE 4
-CURRENT_CHECKPOINT = PHASE4F_EXTENSION_REPLAY
+CURRENT_CHECKPOINT = PHASE4G_ASSIGNMENT_UI
 STATUS = ACTIVE
 
 GATES:
 - PHASE_0 / PHASE_1 / PHASE_2 / PHASE_3 = CLOSED (historical checkpoints preserved)
 - AVAILABILITY_ENGINE = PASS (known free windows across all appointments; unknown paused/absent/offline/overdue/unexplained busy capacity; planning consumes same engine)
 - PHASE4E_AVAILABILITY_WINDOWS = PASS
-- QUEUE_ASSIGNMENT = PARTIAL (duration-aware writes already implemented; API router now registered; reservations reflected in options)
+- QUEUE_ASSIGNMENT = PASS (duration-aware writes and API, reservations, fail-closed UI, feasible default, stale-context protection; browser UX gate remains separately blocked)
+- PHASE4G_ASSIGNMENT_UI = PASS (JSDOM workflow evidence; not browser validation)
 - PHASE4B_API_RECONCILIATION = PASS
 - WAITING_TIME_ENGINE = PASS (Phase 4 inputs: durations, FIFO, explicit reservations, active sessions, appointments and operational status; resources/skills follow Phase 5)
 - PHASE4C_WAITING_PROJECTION = PASS
@@ -22,7 +23,8 @@ TESTS:
 - Backend baseline: 106 passed.
 - Backend after Phase 4F: 137 passed; 7 opt-in PostgreSQL tests skipped in local SQLite run.
 - Extension replay/fault/tenant/migration targeted bundle: 21 passed.
-- Frontend: 10 tests passed; production build passed.
+- Frontend: 13 tests passed; production build passed.
+- JSDOM verifies selection + start in 2 actions, feasibility-based disabling, failed-check retry, duration snapshot display, and stale ticket/tenant response rejection.
 - New extension migration 8a4d71f0b2c9: PostgreSQL upgrade/downgrade/re-upgrade and model parity passed; SQLite migration/legacy-preservation tests passed.
 - Availability/planning targeted regression: 45 passed; 10 new window/unknown-capacity cases.
 - Separate PostgreSQL run: 7 passed (test_postgres_scheduling_4d.py); random test schemas cleaned automatically.
@@ -37,7 +39,7 @@ TESTS:
 - FLOWPILOT_TEST_POSTGRES_URL=postgresql://postgres@127.0.0.1:5432/flowpilot_validation inside runner.
 - Deep PostgreSQL load = DEFERRED; no 1000-operation stress claim.
 - Browser/tablet UX = BLOCKED (CUA getState returned apps=[] and browsers=[]; no actual browser surface available).
-- UI assignment-feasibility integration still requires audit; this blocker does not prevent independent implementation.
+- Assignment-feasibility UI integration passes automated checks; browser blocker does not prevent Phase 5 implementation.
 
 SECURITY:
 - Missing/foreign ticket options return generic 404; unauthorized roles/tenants return 403.
@@ -47,7 +49,8 @@ SECURITY:
 - No provider or secret changes.
 
 LAST_COMMITS:
-- Current checkpoint: feat(planning): make service extensions durably replay safe
+- Current checkpoint: feat(queue): guide assignment with duration-aware feasibility
+- 5a20caf feat(planning): make service extensions durably replay safe
 - dfdfec5 fix(scheduling): preserve unknown capacity and chained availability windows
 - ce0b36b fix(scheduling): serialize booking and extension capacity conflicts
 - 864a063 feat(scheduling): project live appointment-aware queue waiting times
@@ -62,7 +65,9 @@ BLOCKERS:
 - Browser validation blocked by missing enabled browser surface; proceed with independent roadmap work.
 
 NEXT_STEP:
-- PHASE4G: integrate duration-aware assignment options into existing UI; then proceed to Phase 5 resources/skills with browser gate explicitly open.
+- PHASE5A: resources/skills foundations and constraints, integrated into the existing capacity services.
+- Preserve Phase 4 browser gate as BLOCKED; do not claim complete Phase 4 closure.
+- Appointment lifecycle concurrency remains open for the booking phase; independent Phase 5 implementation can safely proceed.
 - Phase 4 remains open until these gates pass; then proceed to resources/skills.
 - Implementation and validation details: docs/architecture/FLOW_CAPACITY_ENGINE.md.
 - Waiting projection is read-only; it does not authorize assignment or start.

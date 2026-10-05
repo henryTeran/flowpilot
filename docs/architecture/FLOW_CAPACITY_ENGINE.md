@@ -29,6 +29,14 @@ occurrence time in the same transaction as the session change and queue event.
 Matching retries return the current session without repeating the effect; a changed
 duration with the same key is rejected. Authorization precedes replay handling.
 
+The queue UI reads duration-aware assignment options for its selected ticket and
+institute. Loading or failed checks disable assignment/start and expose a retry.
+Conflicting employees remain visible with an explanation; eligible employees form
+the quick choices. Selecting a planning-queue ticket opens the existing drawer and
+preselects a feasible employee, so starting normally takes two actions.
+Late responses from a previous ticket or institute cannot replace current options.
+These options improve the UI; backend writes still revalidate concurrent state.
+
 ## Executable evidence
 
 From `backend`, run the normal suite against disposable SQLite fixtures:
