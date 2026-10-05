@@ -39,3 +39,28 @@ def test_provider_values_do_not_inherit_decimal_context_or_mutable_headers():
         raw.headers["signature"] = "changed"
     with pytest.raises(ValueError):
         RawWebhook("body", headers)
+
+
+
+@pytest.mark.parametrize("kind,status", [("authorize", "authorized"), ("capture", "captured"), ("refund", "refunded"), ("cancel", "cancelled")])
+def test_results_match_original_amount_reference_and_operation(kind, status):
+    from app.modules.payments.provider import OperationKind, validate_result
+    value = PaymentAmount(Decimal("10.35"), "CHF")
+    request = PaymentRequest("inst", "ticket", value, "operation", "actor")
+    operation = OperationKind(kind)
+    reference = None if kind == "authorize" else "original"
+    for outcome in (ProviderStatus(status), ProviderStatus.PENDING, ProviderStatus.FAILED):
+        result = ProviderResult("original", outcome, value)
+        assert validate_result(request, operation, result, reference) is result
+    for other in ProviderStatus:
+        if other not in {ProviderStatus(status), ProviderStatus.PENDING, ProviderStatus.FAILED}:
+            with pytest.raises(ValueError):
+                validate_result(request, operation, ProviderResult("original", other, value), reference)
+    for wrong in (PaymentAmount(Decimal("10.35"), "EUR"), PaymentAmount(Decimal("10.34"), "CHF")):
+        with pytest.raises(ValueError):
+            validate_result(request, operation, ProviderResult("original", ProviderStatus(status), wrong), reference)
+    with pytest.raises(ValueError):
+        validate_result(request, operation, ProviderResult("other", ProviderStatus(status), value), "original")
+    if kind != "authorize":
+        with pytest.raises(ValueError):
+            validate_result(request, operation, ProviderResult("original", ProviderStatus(status), value))

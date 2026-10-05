@@ -107,3 +107,37 @@ class PaymentProvider(Protocol):
     def refund(self, request: PaymentRequest, provider_payment_id: str) -> ProviderResult: ...
     def cancel(self, request: PaymentRequest, provider_payment_id: str) -> ProviderResult: ...
     def webhook(self, event: RawWebhook) -> VerifiedWebhook: ...
+
+
+class OperationKind(str, Enum):
+    AUTHORIZE = "authorize"
+    CAPTURE = "capture"
+    REFUND = "refund"
+    CANCEL = "cancel"
+
+
+def validate_result(request: PaymentRequest, operation: OperationKind,
+                    result: ProviderResult, provider_payment_id: str | None = None) -> ProviderResult:
+    """Validate against stored intent before applying any business facts.
+
+    Authentication and lookup of the stored institute/account/operation remain
+    domain responsibilities. Matching amount alone never establishes ownership.
+    Pending and failed outcomes are valid observations, not settlement facts.
+    """
+    if not isinstance(request, PaymentRequest) or not isinstance(operation, OperationKind) or not isinstance(result, ProviderResult):
+        raise ValueError("Typed stored request, operation and provider result required")
+    expected = {OperationKind.AUTHORIZE: ProviderStatus.AUTHORIZED,
+                OperationKind.CAPTURE: ProviderStatus.CAPTURED,
+                OperationKind.REFUND: ProviderStatus.REFUNDED,
+                OperationKind.CANCEL: ProviderStatus.CANCELLED}[operation]
+    if operation is not OperationKind.AUTHORIZE and provider_payment_id is None:
+        raise ValueError("Stored provider reference required")
+    if provider_payment_id is not None:
+        identifier(provider_payment_id, 240)
+        if result.provider_payment_id != provider_payment_id:
+            raise ValueError("Provider reference does not match stored operation")
+    if result.value != request.value:
+        raise ValueError("Provider amount or currency does not match stored operation")
+    if result.status not in {expected, ProviderStatus.PENDING, ProviderStatus.FAILED}:
+        raise ValueError("Provider outcome does not match operation kind")
+    return result

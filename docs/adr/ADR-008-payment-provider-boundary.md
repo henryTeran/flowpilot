@@ -20,8 +20,11 @@ emitting VerifiedWebhook. Public endpoints must not accept a verified flag or th
 internal output type. Tenant/ticket must be resolved from stored provider references.
 
 This checkpoint supplies no live adapter, default provider, capture, refund or
-webhook endpoint. Provider-result validation against original intent, durable
-operations, transactional application, replay/concurrency and real integration
+webhook endpoint. Result validation now rejects changed amount/currency, mismatched stored
+reference, missing reference for capture/refund/cancel and a status from another
+operation. Pending/failed are observations and never imply settlement. Stored
+account/tenant lookup and authentication still remain domain responsibilities.
+Durable operations, transactional application, replay/concurrency and real integration
 verification remain required. Existing cashier closure is an internal confirmation;
 it cannot establish external settlement. All Phase 9 gates remain open.
 

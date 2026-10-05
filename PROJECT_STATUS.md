@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9A_PROVIDER_CONTRACT_FOUNDATION
+CURRENT_CHECKPOINT = PHASE9B_PROVIDER_RESULT_CORRELATION
 STATUS = ACTIVE
 
 GATES:
@@ -15,7 +15,7 @@ GATES:
 EVIDENCE:
 - Frontend: 53 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
-- Payment provider boundary: 2 focused tests passed; no live adapter, settlement or webhook lifecycle is claimed.
+- Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
 - Latest full backend: 243 passed, 49 opt-in PostgreSQL cases skipped locally. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
@@ -47,12 +47,13 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE9B: persist scoped payment intent/operations and implement capture/refund/cancel/webhook application with strict replay, unit and provider-reference checks (Master Plan section 30).
+- PHASE9C: persist scoped payment intent/operations and implement capture/refund/cancel/webhook application with strict replay, unit and provider-reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): define scoped provider operation contracts.
+- Current: feat(payments): validate results against original operation intent.
+- 45d9252 typed provider contract and Commerce evidence audit.
 - f043f7e ticket-wide commercial-history protection.
 - 35fbd04 scoped loyalty recovery/eligibility audit.
 - 23544bb checkout rewards and recovery.
