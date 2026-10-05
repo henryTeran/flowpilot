@@ -58,3 +58,20 @@ class ResourceConfigurationEvent(Base):
     target_id: Mapped[str] = mapped_column(String(80), nullable=False)
     actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ResourceReservation(Base):
+    __tablename__ = "resource_reservations"
+    __table_args__ = (
+        CheckConstraint("(ticket_id IS NOT NULL AND appointment_id IS NULL) OR (ticket_id IS NULL AND appointment_id IS NOT NULL)", name="ck_resource_reservation_owner"),
+        CheckConstraint("end_time > start_time", name="ck_resource_reservation_interval"),
+        CheckConstraint("status IN ('reserved','in_use','released')", name="ck_resource_reservation_status"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    resource_id: Mapped[str] = mapped_column(ForeignKey("resources.id"), nullable=False, index=True)
+    ticket_id: Mapped[str | None] = mapped_column(ForeignKey("queue_tickets.id"), nullable=True, index=True)
+    appointment_id: Mapped[str | None] = mapped_column(ForeignKey("appointments.id"), nullable=True, index=True)
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="reserved")

@@ -25,6 +25,15 @@ augmenting paths, excludes inactive/unknown occupancy and searches reservation-e
 boundaries for the earliest joint window. Eight unit cases validate these semantics.
 The core is not yet connected to database reservations or official scheduling writes.
 
+`ResourceReservation` and `reservations.py` now provide durable, institute-serialized
+interval ownership by exactly one ticket or appointment. Reserve/release primitives
+flush without committing so their caller can update operational state atomically.
+Replay retains existing rows; failed matching leaves reservations unchanged. Ticket
+and appointment owners share the same pool. Overdue unreleased reservations mark
+capacity unknown until the owner is resolved. Three transaction tests cover these
+behaviors; the new migration passes SQLite/PostgreSQL round-trips and schema parity.
+These primitives still need integration with operational lifecycle and live reads.
+
 Resource allocation integration is not yet implemented. Configured resource requirements make
 capacity unknown and block assignment, start and booking. A catalog entry alone does
 not prove availability. Phase 5B must provide reservations, lifecycle release,

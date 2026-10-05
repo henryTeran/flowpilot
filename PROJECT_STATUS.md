@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 5
-CURRENT_CHECKPOINT = PHASE5B_RESOURCE_ALLOCATION_CORE
+CURRENT_CHECKPOINT = PHASE5B_DURABLE_RESERVATION_PRIMITIVES
 STATUS = ACTIVE
 
 GATES:
@@ -16,6 +16,8 @@ TESTS:
 - PostgreSQL Phase 4 scheduling races: 7 passed with the new schema.
 - Frontend: 13 passed; production build passed.
 - Resource allocation domain: 8 passed (deterministic capability/quantity matching, complete intervals, unknown occupancy, joint windows and boundaries).
+- Reservation primitives: 3 passed (replay, cross-owner conflicts, release/rollback and overdue unknown occupancy).
+- Migration b3d620a481f9: PostgreSQL upgrade/check passed; SQLite/PostgreSQL round-trip bundle 2 passed with metadata parity.
 - Migration a1c935e720d4 preserves legacy employee JSON and deduplicates normalized skills; downgrade/re-upgrade passed.
 - PostgreSQL upgrade head and alembic check passed in disposable validation database.
 - JSDOM workflow checks are component evidence, not browser/tablet proof.
@@ -39,7 +41,8 @@ NEXT_STEP:
 - Details: docs/architecture/RESOURCES_AND_SKILLS.md and FLOW_CAPACITY_ENGINE.md.
 
 LAST_COMMITS:
-- Current checkpoint: feat(resources): add deterministic interval allocation core.
+- Current checkpoint: feat(resources): persist transactional resource reservations.
+- a8b7420 feat(resources): add deterministic interval allocation core.
 - da7a0f2 feat(resources): add tenant-scoped resources and qualification guards.
 - a566a0e feat(queue): guide assignment with duration-aware feasibility.
 - 5a20caf feat(planning): make service extensions durably replay safe.
