@@ -121,8 +121,6 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
     from app.modules.resources.repository import qualifies_for_services
     if not qualifies_for_services(db, payload.institute_id, employee.id, [payload.service_id]):
         raise business_error("La collaboratrice ne possede pas toutes les competences requises")
-    from app.modules.resources.repository import ensure_resource_capacity_known
-    ensure_resource_capacity_known(db, payload.institute_id, [payload.service_id])
 
     start_time = _ensure_aware(payload.start_time)
     if start_time < utcnow() - timedelta(minutes=2):
@@ -184,6 +182,10 @@ def create_appointment(db: Session, payload: AppointmentCreate) -> Appointment:
         status="scheduled",
         notes=payload.notes.strip() if payload.notes else None,
     )
+    db.add(appointment)
+    db.flush()
+    from app.modules.resources.reservations import reserve_appointment
+    reserve_appointment(db, appointment, start_time, end_time)
     return save_appointment(db, appointment)
 
 
@@ -191,6 +193,8 @@ def mark_appointment_arrived(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
 
     if appointment.status not in {"scheduled", "confirmed"}:
         raise business_error("Seul un rendez-vous planifié peut passer en arrivée")
@@ -221,8 +225,6 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     from app.modules.resources.repository import qualifies_for_services
     if not qualifies_for_services(db, appointment.institute_id, employee.id, [appointment.service_id]):
         raise business_error("La collaboratrice ne possede pas toutes les competences requises")
-    from app.modules.resources.repository import ensure_resource_capacity_known
-    ensure_resource_capacity_known(db, appointment.institute_id, [appointment.service_id])
 
     active_session = _get_active_employee_session(db, appointment.institute_id, appointment.employee_id)
     if active_session:
@@ -233,6 +235,23 @@ def start_appointment(db: Session, appointment_id: str) -> Appointment:
     now = utcnow()
     if now < _ensure_aware(appointment.start_time) - timedelta(minutes=15):
         raise business_error("Ce rendez-vous est encore trop tôt pour être démarré")
+
+    from app.modules.resources.reservations import reserve_appointment
+    # Reserve the full original duration from actual start, including late starts.
+    duration = _ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time)
+    actual_end = now + duration
+    assigned_ticket = db.scalar(select(QueueTicket.id).where(
+        QueueTicket.institute_id == appointment.institute_id,
+        QueueTicket.assigned_employee_id == employee.id, QueueTicket.status == "assigned"))
+    if assigned_ticket:
+        raise business_error("Un ticket affecte reserve cette collaboratrice")
+    other_appointments = db.scalars(select(Appointment).where(
+        Appointment.institute_id == appointment.institute_id, Appointment.employee_id == employee.id,
+        Appointment.id != appointment.id, Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES))).all()
+    if any(_has_overlap(now, actual_end, other.start_time, other.end_time) for other in other_appointments):
+        raise business_error("Le demarrage chevauche un autre rendez-vous")
+    reserve_appointment(db, appointment, now, actual_end, in_use=True)
+    appointment.start_time, appointment.end_time = now, actual_end
 
     appointment.status = "in_progress"
     employee.status = "busy"
@@ -247,10 +266,14 @@ def complete_appointment(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
 
     if appointment.status not in {"arrived", "in_progress"}:
         raise business_error("Seul un rendez-vous arrivé ou en cours peut être terminé")
 
+    from app.modules.resources.reservations import release
+    release(db, appointment.institute_id, appointment_id=appointment.id)
     appointment.status = "completed"
     employee = get_employee(db, appointment.employee_id)
     if employee:
@@ -266,10 +289,14 @@ def mark_appointment_no_show(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
 
     if appointment.status not in {"scheduled", "confirmed", "arrived"}:
         raise business_error("Ce rendez-vous ne peut pas être marqué absent")
 
+    from app.modules.resources.reservations import release
+    release(db, appointment.institute_id, appointment_id=appointment.id)
     appointment.status = "no_show"
     employee = get_employee(db, appointment.employee_id)
     if employee:
@@ -285,12 +312,16 @@ def cancel_appointment(db: Session, appointment_id: str) -> Appointment:
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
 
     _assert_not_final(appointment)
 
     if appointment.status == "in_progress":
         raise business_error("Un rendez-vous en cours doit être terminé, pas annulé")
 
+    from app.modules.resources.reservations import release
+    release(db, appointment.institute_id, appointment_id=appointment.id)
     appointment.status = "cancelled"
     employee = get_employee(db, appointment.employee_id)
     if employee:

@@ -92,3 +92,12 @@ def reserve_ticket(db, ticket, start, end, *, in_use=False):
             quantities[key] = max(quantities.get(key, 0), quantity)
     needs = [ResourceNeed(kind, capability, quantity) for (kind, capability), quantity in sorted(quantities.items())]
     return reserve(db, ticket.institute_id, needs, start, end, ticket_id=ticket.id, in_use=in_use)
+
+
+def reserve_appointment(db, appointment, start, end, *, in_use=False):
+    from app.modules.resources.allocation_domain import ResourceNeed
+    from app.modules.resources.repository import resource_requirement_facts
+    facts = resource_requirement_facts(db, appointment.institute_id)
+    needs = [ResourceNeed(*need) for need in facts.get(appointment.service_id, [])]
+    return reserve(db, appointment.institute_id, needs, start, end,
+                   appointment_id=appointment.id, in_use=in_use)

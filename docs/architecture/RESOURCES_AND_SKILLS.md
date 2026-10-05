@@ -40,10 +40,18 @@ reuse their maximum quantity; different capabilities require distinct matching u
 Resource capability/status changes are blocked while reservations remain committed.
 An HTTP lifecycle test exercises shared-room exclusion and failed-write atomicity.
 
-Booking integration and live resource projections are not yet implemented. Live
-assignment options and estimates still report configured resource needs as unknown;
-booking writes still fail closed. Phase 5B must connect these reads and booking
-lifecycle, and prove resource-specific PostgreSQL races before resource gates pass.
+Bookings now reserve from the same resource pool. Starting revalidates the full
+duration from actual start and updates the interval; completion, cancellation and
+no-show release reservations. Arrival and final transitions share institute locking.
+The existing appointment start/end fields represent the updated execution interval;
+separate original booked timestamps and booking movement remain Phase 6 work.
+Three HTTP cases cover shared-room booking/walk-in conflicts and release. An actual
+PostgreSQL two-worker race proves that different employees cannot book one room
+concurrently. These are focused races, not load evidence.
+
+Live assignment options and estimates still report configured resource needs as
+unknown. Phase 5B must connect joint employee/resource projections before resource
+scheduling gates can pass.
 
 Evidence: `test_resources_skills_5a.py` exercises roles, tenants, configuration replay,
 all-line qualification checks, reservation guards and unknown resource capacity.
