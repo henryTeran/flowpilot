@@ -6,7 +6,7 @@ from app.core.permissions import require_ticket_manager
 from app.modules.customers.repository import require_customer
 from app.modules.loyalty import service
 from app.modules.loyalty.models import LoyaltyEntry, LoyaltyTier, LoyaltyReward, LoyaltyRedemption
-from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead, RewardCreate, RewardRead, RewardApply, RewardReverse, RedemptionRead
+from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead, RewardCreate, RewardRead, RewardApply, RewardReverse, RedemptionRead, CustomerSnapshot
 from app.modules.tickets.repository import lock_institute
 from app.modules.loyalty import earning, redemption
 from app.modules.loyalty.models import LoyaltyEarning
@@ -101,3 +101,16 @@ def redemption_history(institute_id: str, customer_id: str, user=Depends(operato
     require_customer(db, institute_id, customer_id)
     return list(db.scalars(select(LoyaltyRedemption).where(LoyaltyRedemption.institute_id == institute_id,
         LoyaltyRedemption.customer_id == customer_id).order_by(LoyaltyRedemption.occurred_at, LoyaltyRedemption.id)))
+
+
+
+@router.get("/customers/{customer_id}/snapshot", response_model=CustomerSnapshot)
+def customer_snapshot(institute_id: str, customer_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    # All loyalty writers serialize on this lock; keep it until response facts are loaded.
+    lock_institute(db, institute_id)
+    snapshot_balance = service.balance(db, institute_id, customer_id)
+    entries = list(db.scalars(select(LoyaltyEntry).where(LoyaltyEntry.institute_id == institute_id,
+        LoyaltyEntry.customer_id == customer_id).order_by(LoyaltyEntry.occurred_at, LoyaltyEntry.id)))
+    redemptions = list(db.scalars(select(LoyaltyRedemption).where(LoyaltyRedemption.institute_id == institute_id,
+        LoyaltyRedemption.customer_id == customer_id).order_by(LoyaltyRedemption.occurred_at, LoyaltyRedemption.id)))
+    return dict(balance=snapshot_balance, entries=entries, redemptions=redemptions)

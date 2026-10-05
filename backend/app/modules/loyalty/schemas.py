@@ -121,3 +121,9 @@ class RedemptionRead(BaseModel):
     reversed_at: datetime | None
     reversed_by: str | None
     reversal_reason: str | None
+
+
+class CustomerSnapshot(BaseModel):
+    balance: BalanceRead
+    entries: list[EntryRead]
+    redemptions: list[RedemptionRead]

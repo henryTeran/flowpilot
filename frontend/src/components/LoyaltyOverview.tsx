@@ -26,10 +26,13 @@ export function LoyaltyOverview({ instituteId, customer }: { instituteId: string
     setBusy(true); setFacts(undefined); setError(undefined);
     const path = `/loyalty/institutes/${encodeURIComponent(instituteId)}/customers/${encodeURIComponent(customer.id)}`;
     try {
-      const [balance, entries, redemptions] = await Promise.all([
-        apiGet<Balance>(path), apiGet<Entry[]>(`${path}/history`), apiGet<Redemption[]>(`${path}/redemptions`),
-      ]);
-      if (current()) setFacts({ scope, balance, entries, redemptions });
+      const snapshot = await apiGet<Omit<Facts, "scope">>(`${path}/snapshot`);
+      if (!snapshot?.balance || snapshot.balance.customer_id !== customer.id ||
+          !Number.isSafeInteger(snapshot.balance.points) || snapshot.balance.points < 0 ||
+          !Array.isArray(snapshot.entries) || !Array.isArray(snapshot.redemptions)) {
+        throw new Error("Lecture de fidelite incomplete");
+      }
+      if (current()) setFacts({ ...snapshot, scope });
     } catch (reason) {
       if (current()) setError(reason instanceof Error ? reason.message : "Fidelite indisponible");
     } finally { if (current()) setBusy(false); }
