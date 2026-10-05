@@ -58,3 +58,28 @@ def create_tier(db, institute, payload, actor):
     db.commit()
     db.refresh(row)
     return row
+
+
+def create_reward(db, institute, payload, actor):
+    from app.modules.loyalty.models import LoyaltyReward
+    from app.modules.gift_cards.service import require_settings
+    from app.modules.services.repository import get_service
+    lock_institute(db, institute)
+    old = db.scalar(select(LoyaltyReward).where(LoyaltyReward.institute_id == institute,
+                                              LoyaltyReward.idempotency_key == payload.idempotency_key))
+    if old:
+        if any(getattr(old, field) != value for field, value in payload.model_dump().items()):
+            raise business_error("Cette cle appartient a une autre recompense")
+        return old
+    settings = require_settings(db, institute)
+    db.refresh(settings)
+    if settings.currency != payload.currency:
+        raise business_error("La recompense doit utiliser la devise configuree")
+    if get_service(db, payload.service_id) is None:
+        raise business_error("Prestation declaree requise pour la recompense")
+    row = LoyaltyReward(id=new_id("lr"), institute_id=institute,
+                        actor_id=actor, created_at=utcnow(), **payload.model_dump())
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row

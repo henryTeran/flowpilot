@@ -72,3 +72,21 @@ class EarningRead(BaseModel):
     points: int
     actor_id: str
     occurred_at: datetime
+
+
+class RewardCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+    service_id: Annotated[str, StringConstraints(min_length=1, max_length=80)]
+    points_cost: int = Field(strict=True, gt=0, le=1_000_000_000)
+    minimum_points: int = Field(strict=True, ge=0, le=1_000_000_000)
+    discount_amount: Decimal = Field(gt=0, max_digits=10, decimal_places=2)
+    currency: Annotated[str, StringConstraints(pattern=r"^(CHF|EUR)$")]
+    idempotency_key: ReplayKey
+
+
+class RewardRead(RewardCreate):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    actor_id: str
+    created_at: datetime

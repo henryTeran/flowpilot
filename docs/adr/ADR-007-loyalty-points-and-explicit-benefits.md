@@ -41,7 +41,13 @@ earning conversion, threshold or monetary reward was specified by the source pla
   earnings. Enabled earning requires signed institute context and confirmed ticket
   currency. Rate changes serialize with closure; earning is cashier confirmation,
   not proof of provider settlement.
-- Refuse nonempty ledger, tier, earning or policy downgrades before DDL. Demo reset
+- Configure immutable rewards with explicit service, currency, positive fixed
+  reduction, positive point cost and independent minimum balance threshold.
+  Manager creation is scoped and replay-safe; no reward is inferred from tier
+  descriptions. Reward creation serializes with currency configuration and freezes
+  its unit. This catalog alone does not spend points or change ticket prices;
+  transactional application/reversal remains required.
+- Refuse nonempty ledger, tier, earning, policy or reward downgrades before DDL. Demo reset
   cannot erase tickets linked to earning history.
 
 ## Verification and remaining work

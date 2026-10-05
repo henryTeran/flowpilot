@@ -5,8 +5,8 @@ from app.database.session import get_db
 from app.core.permissions import require_ticket_manager
 from app.modules.customers.repository import require_customer
 from app.modules.loyalty import service
-from app.modules.loyalty.models import LoyaltyEntry, LoyaltyTier
-from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead
+from app.modules.loyalty.models import LoyaltyEntry, LoyaltyTier, LoyaltyReward
+from app.modules.loyalty.schemas import AdjustmentCreate, BalanceRead, EntryRead, TierCreate, TierRead, RewardCreate, RewardRead
 from app.modules.tickets.repository import lock_institute
 from app.modules.loyalty import earning
 from app.modules.loyalty.models import LoyaltyEarning
@@ -71,3 +71,15 @@ def earnings(institute_id: str, customer_id: str, user=Depends(operator), db: Se
     require_customer(db, institute_id, customer_id)
     return list(db.scalars(select(LoyaltyEarning).where(LoyaltyEarning.institute_id == institute_id,
         LoyaltyEarning.customer_id == customer_id).order_by(LoyaltyEarning.occurred_at, LoyaltyEarning.ticket_id)))
+
+
+
+@router.get("/rewards", response_model=list[RewardRead])
+def rewards(institute_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return list(db.scalars(select(LoyaltyReward).where(LoyaltyReward.institute_id == institute_id)
+                          .order_by(LoyaltyReward.created_at, LoyaltyReward.id)))
+
+
+@router.post("/rewards", response_model=RewardRead)
+def configure_reward(institute_id: str, payload: RewardCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return service.create_reward(db, institute_id, payload, user["sub"])

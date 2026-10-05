@@ -41,9 +41,11 @@ def configure_currency(db, institute, currency, actor):
             return row
         if db.scalar(select(GiftCard.id).where(GiftCard.institute_id == institute)):
             raise business_error("La devise ne peut plus changer apres emission d'une carte cadeau")
-        from app.modules.loyalty.models import LoyaltyEarningPolicy
+        from app.modules.loyalty.models import LoyaltyEarningPolicy, LoyaltyReward
         if db.scalar(select(LoyaltyEarningPolicy.id).where(LoyaltyEarningPolicy.institute_id == institute)):
             raise business_error("La devise du programme de fidelite est deja enregistree")
+        if db.scalar(select(LoyaltyReward.id).where(LoyaltyReward.institute_id == institute)):
+            raise business_error("La devise des recompenses est deja enregistree")
         row.currency, row.updated_at, row.actor_id = currency, utcnow(), actor
     else:
         row = GiftCardSettings(institute_id=institute, currency=currency, updated_at=utcnow(), actor_id=actor)

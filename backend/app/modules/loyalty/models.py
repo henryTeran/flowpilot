@@ -76,3 +76,24 @@ class LoyaltyEarning(Base):
     points: Mapped[int] = mapped_column(BigInteger)
     actor_id: Mapped[str] = mapped_column(String(160))
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class LoyaltyReward(Base):
+    __tablename__ = "loyalty_rewards"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_loyalty_reward_replay"),
+        CheckConstraint("points_cost > 0 AND minimum_points >= 0", name="ck_loyalty_reward_points"),
+        CheckConstraint("discount_amount > 0", name="ck_loyalty_reward_amount"),
+        CheckConstraint("currency IN ('CHF', 'EUR')", name="ck_loyalty_reward_currency"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    service_id: Mapped[str] = mapped_column(ForeignKey("services.id"))
+    name: Mapped[str] = mapped_column(String(120))
+    points_cost: Mapped[int] = mapped_column(BigInteger)
+    minimum_points: Mapped[int] = mapped_column(BigInteger)
+    discount_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    idempotency_key: Mapped[str] = mapped_column(String(120))
+    actor_id: Mapped[str] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
