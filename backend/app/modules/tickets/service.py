@@ -47,6 +47,11 @@ def attach_checkout_customer(db: Session, ticket_id: str, customer_id: str | Non
     ).where(TicketLine.ticket_id == ticket.id, PackageRedemption.reversed_at.is_(None)))
     if covered:
         raise business_error("Annuler l'utilisation du forfait avant de changer de cliente")
+    from app.modules.memberships.models import MembershipBenefit
+    if db.scalar(select(MembershipBenefit.id).join(TicketLine,
+        TicketLine.id == MembershipBenefit.ticket_line_id).where(
+        TicketLine.ticket_id == ticket.id, MembershipBenefit.reversed_at.is_(None))):
+        raise business_error("Annuler l'avantage membre avant de changer de cliente")
     ticket.customer_id = customer_id
     record_event(db, ticket, "queue.customer_changed", ticket.status)
     db.commit()
@@ -350,6 +355,10 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     if db.scalar(select(PackageRedemption.id).join(TicketLine, PackageRedemption.ticket_line_id == TicketLine.id)
                  .where(TicketLine.ticket_id == ticket.id, PackageRedemption.reversed_at.is_(None))):
         raise business_error("Annuler d'abord la consommation du forfait avant ce ticket")
+    from app.modules.memberships.models import MembershipBenefit
+    if db.scalar(select(MembershipBenefit.id).join(TicketLine, MembershipBenefit.ticket_line_id == TicketLine.id)
+                 .where(TicketLine.ticket_id == ticket.id, MembershipBenefit.reversed_at.is_(None))):
+        raise business_error("Annuler d'abord l'avantage membre avant ce ticket")
 
     from app.modules.resources.reservations import release
     release(db, ticket.institute_id, ticket_id=ticket.id)
@@ -417,6 +426,9 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
     from app.modules.commerce.models import PackageRedemption
     if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id)):
         raise business_error("L'historique commercial de cette prestation interdit sa suppression")
+    from app.modules.memberships.models import MembershipBenefit
+    if db.scalar(select(MembershipBenefit.id).where(MembershipBenefit.ticket_line_id == line.id)):
+        raise business_error("L'historique des avantages interdit la suppression de cette prestation")
 
     lines = _ticket_lines(db, ticket.id)
     if len(lines) <= 1:

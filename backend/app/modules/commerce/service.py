@@ -111,6 +111,10 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
     if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id,
                                                   PackageRedemption.reversed_at.is_(None))):
         raise business_error("Cette prestation est deja couverte par un forfait")
+    from app.modules.memberships.models import MembershipBenefit
+    if db.scalar(select(MembershipBenefit.id).where(MembershipBenefit.ticket_line_id == line.id,
+                                                   MembershipBenefit.reversed_at.is_(None))):
+        raise business_error("Annuler l'avantage membre avant d'utiliser un forfait")
     now = utcnow()
     if package_view(package, now)["usable_sessions"] < line.quantity or line.quantity <= 0:
         raise business_error("Forfait expire ou solde de seances insuffisant")

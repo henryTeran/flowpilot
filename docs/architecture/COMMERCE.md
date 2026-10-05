@@ -214,3 +214,35 @@ and model parity remain supported.
 This is the lifecycle API foundation. Existing service.price_member values have not
 yet been applied from these rights; checkout benefit/reversal/coverage integration
 and manager/customer interface remain next. MEMBERSHIPS is not closed.
+
+## Membership-pricing checkpoint 8H
+
+Explicit checkout application now verifies the registered beneficiary, a currently
+active membership and a performed line. It uses the service's declared price_member,
+with decimal cent rounding, and requires a real reduction from the recorded line
+price. Missing/negative/nonfinite/nonreducing prices do not infer an advantage.
+Application stores quantity, original/member unit and total prices, time and signed
+actor. Line prices, ticket total, benefit ledger and queue event commit together;
+planning invalidation follows the same transaction through the existing line/event
+hooks. Legacy ticket.subscription_id alone never grants these benefits.
+
+Active package coverage and active membership pricing are mutually exclusive in
+both directions. Institute serialization prevents conflicting application, customer
+correction and payment. Same-intent application returns its existing fact, including
+after reversal or payment, without repricing from a changed catalog. Managers can
+reverse before payment using a required reason; this restores exact recorded prices,
+retains history and cannot undo newer coverage on a repeated old reversal. Later
+catalog/expiry changes do not rewrite applied pricing. Reapplication needs a new key.
+
+Active benefit coverage blocks ticket cancellation/customer correction until reversal.
+Any historical benefit blocks line deletion and demo reset, preserving financial
+facts. Migration a4c789fcb914 adds partial active-line uniqueness and price/reversal
+consistency constraints; populated downgrade is refused. SQLite/PostgreSQL empty
+round-trip/model parity and PostgreSQL upgrade/check pass.
+
+Actual PostgreSQL membership/package/reversal regression bundle: 18 passed. Races
+cover benefit versus package/payment/beneficiary and reversal versus payment, plus
+duplicate reversal with cached rows. HTTP checks cover scope, two-unit pricing,
+expiry boundary, replay, historical guards and rollback after price/history flush.
+Final checks also verify transactional revision rollback and replay stability.
+The membership management/wallet interface remains next; MEMBERSHIPS stays open.

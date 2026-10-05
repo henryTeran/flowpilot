@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8G_MEMBERSHIP_LIFECYCLE
+CURRENT_CHECKPOINT = PHASE8H_MEMBERSHIP_CHECKOUT_PRICING
 STATUS = ACTIVE
 
 GATES:
@@ -8,12 +8,14 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES functional server/component scope PASS. MEMBERSHIPS lifecycle API implemented; checkout benefits and interface remain. GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES functional server/component scope PASS. MEMBERSHIPS lifecycle and checkout pricing/correction APIs implemented; interface remains. GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Full backend run: 204 passed, 29 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Full backend run: 206 passed, 33 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
 - Final local membership lifecycle checks: 2 passed, 5 opt-in PostgreSQL cases skipped.
+- Membership/package/reversal PostgreSQL regression bundle: 18 passed; final benefit/revision checks: 6 passed in PostgreSQL runner (2 locally, 4 opt-in races skipped).
+- Migration a4c789fcb914: PostgreSQL upgrade/check passed; SQLite/PostgreSQL round-trip/model parity and nonempty downgrade refusal verified.
 - Package configuration replay/package/migration PostgreSQL bundle: 7 passed; final local replay guard test: 1 passed, 1 opt-in case skipped.
 - Migration e2a567da97f2: PostgreSQL upgrade/check passed; SQLite/PostgreSQL round-trip/model parity and keyed downgrade refusal verified.
 - Membership lifecycle/migration PostgreSQL bundle: 9 passed, including overlapping-grant prevention, replay, preloaded-expiry renewal races and replacement-versus-restart race.
@@ -38,6 +40,7 @@ INVARIANTS:
 - Package balance, price coverage and immutable redemption history share one transaction and institute lock.
 - Checkout customer correction uses the same lock; active coverage and paid states prevent beneficiary changes.
 - Membership grant/renewal uses registered scoped identities, snapshotted terms and transactional validity/history; granting rights does not claim settled payment.
+- Member pricing uses declared catalog prices and immutable application/reversal facts; active package/member coverage cannot stack.
 - Minimal customer identities support selection; legacy references are preserved. Full Phase 12 CRM lifecycle and public self-service are not claimed.
 - Entitlement issuance does not claim a paid package sale or external payment settlement.
 - Demo reset cannot erase commercial redemption-linked tickets.
@@ -47,12 +50,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8H: membership checkout benefits/corrections and management interface; then gift cards and loyalty.
+- PHASE8I: membership management and checkout-wallet interface; then gift cards and loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(memberships): grant and renew scoped rights with immutable history.
+- Current: feat(memberships): apply and reverse member pricing transactionally.
+- 9424a92 feat(memberships): grant and renew scoped rights with immutable history.
 - ca3a33a feat(commerce): configure and grant packages with replay-safe recovery.
 - 817cb80 feat(checkout): identify anonymous customers safely before payment.
 - e80c598 feat(commerce): apply and reverse packages from checkout.

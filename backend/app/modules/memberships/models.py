@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
@@ -56,3 +56,33 @@ class MembershipRenewal(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     idempotency_key: Mapped[str] = mapped_column(String(120))
     actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+
+
+class MembershipBenefit(Base):
+    __tablename__ = "membership_benefits"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_membership_benefit_replay"),
+        Index("uq_membership_benefit_active_line", "ticket_line_id", unique=True,
+              sqlite_where=text("reversed_at IS NULL"), postgresql_where=text("reversed_at IS NULL")),
+        CheckConstraint("quantity > 0 AND original_unit_price >= 0 AND original_total >= 0 AND "
+                        "member_unit_price >= 0 AND member_total >= 0 AND member_unit_price < original_unit_price "
+                        "AND member_total < original_total", name="ck_membership_benefit_prices"),
+        CheckConstraint("(reversed_at IS NULL AND reversed_by IS NULL AND reversal_reason IS NULL) OR "
+                        "(reversed_at IS NOT NULL AND reversal_reason IS NOT NULL AND reversed_at >= occurred_at)",
+                        name="ck_membership_benefit_reversal"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    membership_id: Mapped[str] = mapped_column(ForeignKey("customer_memberships.id"), index=True)
+    ticket_line_id: Mapped[str] = mapped_column(ForeignKey("ticket_lines.id"))
+    quantity: Mapped[int] = mapped_column(Integer)
+    original_unit_price: Mapped[float] = mapped_column(Numeric(10, 2))
+    original_total: Mapped[float] = mapped_column(Numeric(10, 2))
+    member_unit_price: Mapped[float] = mapped_column(Numeric(10, 2))
+    member_total: Mapped[float] = mapped_column(Numeric(10, 2))
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    idempotency_key: Mapped[str] = mapped_column(String(120))
+    actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    reversed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reversed_by: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    reversal_reason: Mapped[str | None] = mapped_column(String(240), nullable=True)
