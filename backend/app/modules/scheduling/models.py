@@ -22,6 +22,8 @@ class AvailabilityReason(str, Enum):
     EMPLOYEE_ABSENT = "employee_absent"  # Status = absent
     EMPLOYEE_OFFLINE = "employee_offline"  # Status = offline
     BUSY_UNTIL = "busy_until"  # Will be available at specific time
+    SESSION_OVERDUE = "session_overdue"
+    CAPACITY_UNKNOWN = "capacity_unknown"
     
 
 @dataclass
@@ -30,7 +32,7 @@ class AvailabilitySlot:
     
     employee_id: str
     institute_id: str
-    available_from: datetime  # When employee becomes available (ISO 8601 aware)
+    available_from: datetime | None  # None when the remaining capacity is unknown
     available_until: datetime | None  # When employee will become unavailable (if known), else None
     reason: AvailabilityReason
     blocking_session_id: str | None = None  # ServiceSession.id if blocked by session
@@ -42,7 +44,7 @@ class AvailabilitySlot:
         return {
             "employee_id": self.employee_id,
             "institute_id": self.institute_id,
-            "available_from": self.available_from.isoformat(),
+            "available_from": self.available_from.isoformat() if self.available_from else None,
             "available_until": self.available_until.isoformat() if self.available_until else None,
             "reason": self.reason.value,
             "blocking_session_id": self.blocking_session_id,
@@ -93,7 +95,7 @@ class AssignmentOption:
     institute_id: str
     ticket_id: str
     assignable: bool  # Can the full service duration fit in available window?
-    available_from: datetime  # When employee becomes available
+    available_from: datetime | None  # None when no start can be projected
     available_until: datetime | None  # When employee will become unavailable (if known)
     service_duration_minutes: int  # Total service duration for this ticket
     projected_end_time: datetime | None  # When service would end if assigned now (if assignable)
@@ -108,7 +110,7 @@ class AssignmentOption:
             "institute_id": self.institute_id,
             "ticket_id": self.ticket_id,
             "assignable": self.assignable,
-            "available_from": self.available_from.isoformat(),
+            "available_from": self.available_from.isoformat() if self.available_from else None,
             "available_until": self.available_until.isoformat() if self.available_until else None,
             "service_duration_minutes": self.service_duration_minutes,
             "projected_end_time": self.projected_end_time.isoformat() if self.projected_end_time else None,

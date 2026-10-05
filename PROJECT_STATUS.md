@@ -1,10 +1,11 @@
 CURRENT_PHASE = PHASE 4
-CURRENT_CHECKPOINT = PHASE4D_CONFLICT_SERIALIZATION
+CURRENT_CHECKPOINT = PHASE4E_AVAILABILITY_WINDOWS
 STATUS = ACTIVE
 
 GATES:
 - PHASE_0 / PHASE_1 / PHASE_2 / PHASE_3 = CLOSED (historical checkpoints preserved)
-- AVAILABILITY_ENGINE = PARTIAL (existing 17 tests pass; future-slot and overdue-session semantics need audit)
+- AVAILABILITY_ENGINE = PASS (known free windows across all appointments; unknown paused/absent/offline/overdue/unexplained busy capacity; planning consumes same engine)
+- PHASE4E_AVAILABILITY_WINDOWS = PASS
 - QUEUE_ASSIGNMENT = PARTIAL (duration-aware writes already implemented; API router now registered; reservations reflected in options)
 - PHASE4B_API_RECONCILIATION = PASS
 - WAITING_TIME_ENGINE = PASS (Phase 4 inputs: durations, FIFO, explicit reservations, active sessions, appointments and operational status; resources/skills follow Phase 5)
@@ -18,7 +19,8 @@ GATES:
 
 TESTS:
 - Backend baseline: 106 passed.
-- Backend after Phase 4D: 120 passed; 6 opt-in PostgreSQL tests skipped in local SQLite run.
+- Backend after Phase 4E: 130 passed; 6 opt-in PostgreSQL tests skipped in local SQLite run.
+- Availability/planning targeted regression: 45 passed; 10 new window/unknown-capacity cases.
 - Separate PostgreSQL run: 6 passed (test_postgres_scheduling_4d.py); random test schemas cleaned automatically.
 - Extension boundary/atomic conflict test passes: failed writes do not change duration or event count.
 - Waiting projection: 11 tests cover boundaries, multiple appointments, FIFO/ties, parallel workers, reservations, quantity snapshots, tenant isolation, overdue/paused unknown capacity, extension/finish recalculation and dashboard consistency.
@@ -38,7 +40,8 @@ SECURITY:
 - No new schema, provider or secret changes.
 
 LAST_COMMITS:
-- Current checkpoint: fix(scheduling): serialize booking and extension capacity conflicts
+- Current checkpoint: fix(scheduling): preserve unknown capacity and chained availability windows
+- ce0b36b fix(scheduling): serialize booking and extension capacity conflicts
 - 864a063 feat(scheduling): project live appointment-aware queue waiting times
 - bdd4cf4 fix(scheduling): expose reservation-aware scheduling APIs
 - 8c4b699 chore(status): close Phase 4B and prepare Phase 4C
@@ -50,7 +53,7 @@ BLOCKERS:
 - PostgreSQL concurrency now exercised directly; larger load and extension replay safety remain open.
 
 NEXT_STEP:
-- PHASE4E: reconcile unknown/chained availability semantics, extension replay safety, and browser UX.
+- PHASE4F: durable extension replay safety; then browser/tablet workflow validation.
 - Phase 4 remains open until these gates pass; then proceed to resources/skills.
 - Implementation and validation details: docs/architecture/FLOW_CAPACITY_ENGINE.md.
 - Waiting projection is read-only; it does not authorize assignment or start.

@@ -6,30 +6,25 @@ Reuses Phase 4A availability engine.
 """
 
 from datetime import datetime, timedelta, timezone
-import math
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from app.modules.employees.models import Employee
 from app.modules.tickets.models import QueueTicket
 from app.modules.scheduling.models import AssignmentOption
-from app.modules.scheduling.service import availability_engine, availability_pool
+from app.modules.scheduling.service import availability_pool
 from app.modules.scheduling.repository_4b import (
     get_ticket_with_lines,
     calculate_ticket_duration,
-    list_employees_by_institute,
     get_employee_by_id,
     _ensure_aware,
-    _minutes_until,
 )
-from app.shared.exceptions import not_found as not_found_error
 from app.shared.time import utcnow
 
 
 def _reasonfor_assignable(
     available: bool,
     reason: str,
-    available_from: datetime,
+    available_from: datetime | None,
     service_duration_minutes: int,
     available_until: datetime | None,
 ) -> tuple[bool, str]:
@@ -42,7 +37,7 @@ def _reasonfor_assignable(
     
     Returns: (assignable: bool, reason: str)
     """
-    if not available:
+    if not available or available_from is None:
         # Not available at all
         return False, reason
     
@@ -132,7 +127,7 @@ def assignment_options_for_ticket(
         assignable, reason = _reasonfor_assignable(
             available=avail_result.available,
             reason=avail_result.current_slot.reason.value if avail_result.current_slot else "unknown",
-            available_from=avail_result.current_slot.available_from if avail_result.current_slot else now,
+            available_from=avail_result.current_slot.available_from if avail_result.current_slot else None,
             service_duration_minutes=service_duration,
             available_until=avail_result.current_slot.available_until if avail_result.current_slot else None,
         )
@@ -144,8 +139,8 @@ def assignment_options_for_ticket(
             assignable, reason = False, "ticket_already_assigned"
         
         # Calculate projected end time
-        available_from = _ensure_aware(avail_result.current_slot.available_from if avail_result.current_slot else now)
-        projected_end = available_from + timedelta(minutes=service_duration) if assignable else None
+        available_from = avail_result.current_slot.available_from if avail_result.current_slot else None
+        projected_end = available_from + timedelta(minutes=service_duration) if assignable and available_from else None
         
         option = AssignmentOption(
             employee_id=avail_result.employee_id,
@@ -170,7 +165,8 @@ def assignment_options_for_ticket(
     options.sort(
         key=lambda o: (
             not o.assignable,  # False (assignable) comes before True (not assignable)
-            o.available_from,
+            o.available_from is None,
+            o.available_from or datetime.max.replace(tzinfo=timezone.utc),
             o.employee_id,
         )
     )

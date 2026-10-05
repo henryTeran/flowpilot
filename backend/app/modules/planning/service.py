@@ -205,11 +205,13 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
     """
     now = utcnow()
     employees = list_by_institute(db, institute_id)
-    sessions = [
-        session
-        for session in list_sessions_for_day(db, institute_id, now)
-        if session.status in ACTIVE_SESSION_STATUSES
-    ]
+    sessions = list(db.scalars(select(ServiceSession).where(
+        ServiceSession.institute_id == institute_id,
+        ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+    )).all())
+    from app.modules.scheduling.service import availability_pool
+    availability_by_employee = {result.employee_id: result
+                                for result in availability_pool(db, institute_id, now=now)}
 
     active_sessions_by_employee: dict[str, list[ServiceSession]] = {}
     for session in sessions:
@@ -224,31 +226,21 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
             default=None,
         )
 
-        is_late = bool(active_session and _is_session_late(active_session, now))
+        overdue = next((session for session in employee_sessions if _is_session_late(session, now)), None)
+        if overdue:
+            active_session = overdue
         current_appointment = _get_current_employee_appointment(db, institute_id, employee.id, now)
-
+        result = availability_by_employee[employee.id]
+        available_at = result.current_slot.available_from if result.current_slot else None
+        wait_minutes = _minutes_until(available_at, now)
         if employee.status in UNAVAILABLE_EMPLOYEE_STATUSES:
             display_status = employee.status
-            available_at = None
-            wait_minutes = None
-        elif active_session and is_late:
-            # Prestation dépassée : disponibilité inconnue tant que l'action Fin n'est pas faite.
+        elif overdue:
             display_status = "delayed"
-            available_at = None
-            wait_minutes = None
-        elif active_session:
+        elif active_session or current_appointment:
             display_status = "busy"
-            available_at = _ensure_aware(active_session.planned_end_time)
-            wait_minutes = _minutes_until(available_at, now)
-        elif current_appointment:
-            # RDV sous appel en cours : la collaboratrice est occupée jusqu'à la fin du RDV.
-            display_status = "busy"
-            available_at = _ensure_aware(current_appointment.end_time)
-            wait_minutes = _minutes_until(available_at, now)
         else:
             display_status = employee.status
-            available_at = now if employee.status == "available" else None
-            wait_minutes = _minutes_until(available_at, now)
 
         rows.append(
             AvailabilityEmployeeRead(
@@ -263,7 +255,7 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
         )
 
     available_rows = [row for row in rows if row.available_at is not None]
-    next_row = min(available_rows, key=lambda row: _ensure_aware(row.available_at)) if available_rows else None
+    next_row = min(available_rows, key=lambda row: (_ensure_aware(row.available_at), row.employee_id)) if available_rows else None
 
     waiting_tickets_count = db.scalars(
         select(QueueTicket).where(

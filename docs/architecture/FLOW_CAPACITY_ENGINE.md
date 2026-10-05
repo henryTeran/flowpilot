@@ -48,7 +48,7 @@ downgrade check on a user database.
 
 ## Remaining gates
 
-Phase 4A helper semantics (unknown availability and chained future appointments) need
-reconciliation. Extension request replay safety, actual tablet/browser validation and
+Availability helpers and planning now share unknown-capacity and chained-window semantics.
+Extension request replay safety, actual tablet/browser validation and
 larger concurrent load remain open. Resources and skills are Phase 5 inputs; the current
 projection does not claim to account for them. Production readiness is unverified.

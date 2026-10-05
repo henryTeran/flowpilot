@@ -343,7 +343,7 @@ class TestEdgeCases:
     """Test edge cases and boundary conditions."""
     
     def test_session_ends_exactly_now(self, db_session, institute_id, employee_available, now):
-        """Session ending exactly at current time should be considered finished."""
+        """An active session at its planned end remains blocked with unknown capacity."""
         # Session that ended exactly now (planned_end_time = now)
         session = ServiceSession(
             id="sess-edge-001",
@@ -363,7 +363,8 @@ class TestEdgeCases:
         
         # Session blocks until it ends; if it ends at now, still blocks
         assert result.available is False
-        assert result.current_slot.reason == AvailabilityReason.IN_PROGRESS_SESSION
+        assert result.current_slot.reason == AvailabilityReason.SESSION_OVERDUE
+        assert result.current_slot.available_from is None
     
     
     def test_appointment_ends_exactly_now(self, db_session, institute_id, employee_available, now):

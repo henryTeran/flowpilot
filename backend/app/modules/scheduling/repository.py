@@ -21,6 +21,24 @@ ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived", "in_progress
 UNAVAILABLE_EMPLOYEE_STATUSES = {"pause", "absent", "offline"}
 
 
+def list_active_sessions(db: Session, institute_id: str, employee_id: str) -> list[ServiceSession]:
+    return list(db.scalars(select(ServiceSession).where(
+        ServiceSession.institute_id == institute_id,
+        ServiceSession.employee_id == employee_id,
+        ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
+    ).order_by(ServiceSession.planned_end_time, ServiceSession.id)).all())
+
+
+def list_remaining_appointments(db: Session, institute_id: str, employee_id: str,
+                                now: datetime) -> list[Appointment]:
+    return list(db.scalars(select(Appointment).where(
+        Appointment.institute_id == institute_id,
+        Appointment.employee_id == employee_id,
+        Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+        Appointment.end_time > now,
+    ).order_by(Appointment.start_time, Appointment.id)).all())
+
+
 def get_employee_by_id(db: Session, employee_id: str) -> Employee | None:
     """Get employee record."""
     return db.get(Employee, employee_id)
