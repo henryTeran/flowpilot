@@ -145,6 +145,43 @@ test("assignment hook ignores stale ticket and tenant responses", async () => {
   }
 });
 
+test("late operational response from a prior institute cannot overwrite the planning board", async () => {
+  const { default: App } = await import("../src/App");
+  const originalFetch = globalThis.fetch;
+  const originalWebSocket = globalThis.WebSocket;
+  const pending: Array<() => void> = [];
+  class FakeSocket { readyState = 0; close() {} send() {} }
+  globalThis.WebSocket = FakeSocket as unknown as typeof WebSocket;
+  globalThis.fetch = async url => {
+    const parsed = new URL(String(url));
+    const path = parsed.pathname.replace("/api/v1", "");
+    const institute = parsed.searchParams.get("institute_id") || (/\/institutes\/(one|two)\//.exec(path)?.[1]);
+    let payload: any = [];
+    if (path === "/institutes") payload = ["one", "two"].map(id => ({ id, name: id, city: "Test", timezone: "Europe/Berlin", status: "active" }));
+    else if (path.endsWith("/today")) payload = { institute_id: institute, rows: [{ employee_id: `${institute}-emp`, employee_name: `${institute} board`, employee_status: "available", sessions: [] }] };
+    else if (path.endsWith("/availability")) payload = { institute_id: institute, employees: [], active_sessions: 0, waiting_tickets: 0 };
+    else if (path === "/tickets/chiffres") payload = { institute_id: institute, rows: [], totals: { total: 0, soins: 0, ventes: 0, contrats: 0, pourboires: 0 } };
+    const response = () => new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+    if (institute === "one") return await new Promise<Response>(resolve => pending.push(() => resolve(response())));
+    return response();
+  };
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await act(async () => root.render(<App />));
+    assert.ok(pending.length >= 6);
+    const select = document.querySelector<HTMLSelectElement>(".bm-top-controls select")!;
+    await act(async () => { select.value = "two"; select.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+    assert.match(document.body.textContent!, /two board/);
+    await act(async () => pending.forEach(resolve => resolve()));
+    assert.match(document.body.textContent!, /two board/);
+    assert.doesNotMatch(document.body.textContent!, /one board/);
+  } finally {
+    await act(async () => root.unmount());
+    globalThis.fetch = originalFetch;
+    globalThis.WebSocket = originalWebSocket;
+  }
+});
+
 test("selecting a ticket and starting uses the feasible employee in two actions", async () => {
   const { default: App } = await import("../src/App");
   const originalFetch = globalThis.fetch;

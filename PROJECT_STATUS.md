@@ -1,5 +1,5 @@
 ﻿CURRENT_PHASE = PHASE 7
-CURRENT_CHECKPOINT = PHASE7C_COMMITTED_DATABASE_REVISION_DELIVERY
+CURRENT_CHECKPOINT = PHASE7D_STALE_OPERATIONAL_REFRESH_PROTECTION
 STATUS = ACTIVE
 
 GATES:
@@ -12,6 +12,8 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Frontend: 20 tests and production build passed; an App integration test proves a delayed prior-institute response cannot overwrite the current board.
+- Refreshes accept only the newest request in the active institute/token context; institute changes clear operational selections and views.
 - Revision delivery checkpoint: backend 192 passed, 15 opt-in PostgreSQL cases skipped locally; PostgreSQL race bundle 14 passed.
 - Migration f7b012e542ad: upgrade/check and SQLite/PostgreSQL round-trip/model parity passed.
 - Revision transaction/rollback/replay checks passed; ASGI committed queue-to-WebSocket delivery and tenant scope checks passed.
@@ -38,12 +40,13 @@ BLOCKERS:
 - Deep load and production readiness remain unverified; no business decision blocks Phase 7.
 
 NEXT_STEP:
-- PHASE7D: live two-worker WebSocket delivery/reconnect validation and stale REST response protection.
+- PHASE7E: live two-worker WebSocket delivery/reconnect validation.
 - Server sends committed revision changes through one-second database polling. Do not infer browser or load PASS from ASGI/component checks.
 - Preserve TABLET_UX as BLOCKED until actual browser evidence is available.
 
 LAST_COMMITS:
-- Current: feat(realtime): notify planning clients of committed database revisions.
+- Current: fix(planning): discard stale operational refresh responses.
+- 28cdfc7 feat(realtime): notify planning clients of committed database revisions.
 - f4c1eb7 feat(realtime): reconnect planning clients and resynchronize after transport loss.
 - f1b968e fix(realtime): isolate scoped connections and tolerate closed transports.
 - 9ec32ce fix(booking): reject unknown overdue capacity and close functional booking gates.

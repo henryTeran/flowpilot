@@ -16,6 +16,7 @@ import { resolveNextCheckoutTicket } from "./checkout-utils";
 import { QueuePanel } from "./components/QueuePanel";
 import { useAssignmentOptions } from "./features/useAssignmentOptions";
 import { connectPlanning } from "./features/planningConnection";
+import { createRefreshGate } from "./features/refreshGate";
 import { TicketsHomePanel } from "./components/TicketsHomePanel";
 import type {
   Appointment,
@@ -36,6 +37,9 @@ import type {
 export default function App() {
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [selectedInstituteId, setSelectedInstituteId] = useState("");
+  const operationalRefreshGate = useRef(createRefreshGate());
+  operationalRefreshGate.current.setContext(selectedInstituteId);
+  useEffect(() => () => operationalRefreshGate.current.invalidate(), []);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -67,6 +71,13 @@ export default function App() {
   const arrivalSubmitting = useRef(false);
   const extensionIntents = useRef(createExtensionIntents());
   const extendingSessions = useRef(new Set<string>());
+
+  useEffect(() => {
+    setEmployees([]); setTickets([]); setPlanning(undefined); setAvailability(undefined);
+    setChiffres(undefined); setAppointments([]); setTicketServiceMap({});
+    setSelectedTicketId(""); setSelectedCheckoutTicketId(""); setSelectedEmployeeId("");
+    setIdentifiedEmployeeId(""); setActiveDrawer(null); setIdentityModalOpen(false); setTicketWorkflowOpen(false);
+  }, [selectedInstituteId]);
 
   const selectedInstitute = useMemo(
     () => institutes.find((institute) => institute.id === selectedInstituteId),
@@ -208,6 +219,9 @@ export default function App() {
 
   const refreshOperationalData = useCallback(async () => {
     if (!selectedInstituteId) return;
+    const request = operationalRefreshGate.current.begin(selectedInstituteId);
+    if (request === null) return;
+    const token = getAccessToken();
     setError(null);
     try {
       const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, chiffresResponse, appointmentsResponse] = await Promise.all([
@@ -219,19 +233,20 @@ export default function App() {
         apiGet<Appointment[]>(`/appointments?institute_id=${encodeURIComponent(selectedInstituteId)}`),
       ]);
 
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return;
       setEmployees(employeesResponse);
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
       setAvailability(availabilityResponse);
       setChiffres(chiffresResponse);
       setAppointments(appointmentsResponse);
-      if (!selectedEmployeeId && employeesResponse.length > 0) {
-        setSelectedEmployeeId(employeesResponse[0].id);
-      }
+      setSelectedEmployeeId(current => employeesResponse.some(employee => employee.id === current)
+        ? current : employeesResponse[0]?.id || "");
     } catch (err) {
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return;
       setError(err instanceof Error ? err.message : "Erreur pendant le rafraîchissement");
     }
-  }, [selectedInstituteId, selectedEmployeeId]);
+  }, [selectedInstituteId]);
 
   useEffect(() => {
     void loadStaticData();

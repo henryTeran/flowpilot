@@ -40,3 +40,10 @@ delivery and tenant revision isolation. PostgreSQL concurrent workers cannot los
 revision increments. These are database/ASGI checks, not proof of two live server
 processes or real browser reconnect. REALTIME_SYNC and full RECONNECT remain open
 until that integration evidence is gathered; TABLET_UX remains blocked.
+
+Operational REST refreshes use a context/sequence gate: only the newest request
+for the selected institute and unchanged operator token can apply data or errors.
+Changing institutes clears operational views and selections. Employee selection
+does not recreate the WebSocket. Twenty frontend tests and the production build
+pass, including an App integration test that resolves old-institute requests after
+the new board has loaded. This remains component evidence, not tablet validation.

@@ -1,6 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { connectPlanning } from "../src/features/planningConnection";
+import { createRefreshGate } from "../src/features/refreshGate";
+
+test("operational refresh rejects prior tenant, older responses and disposed requests", () => {
+  const gate = createRefreshGate();
+  gate.setContext("one");
+  const first = gate.begin("one");
+  const second = gate.begin("one");
+  assert.equal(gate.current(first), false);
+  assert.equal(gate.current(second), true);
+  gate.setContext("two");
+  assert.equal(gate.current(second), false);
+  assert.equal(gate.begin("one"), null);
+  const latest = gate.begin("two");
+  assert.equal(gate.current(latest), true);
+  gate.invalidate();
+  assert.equal(gate.current(latest), false);
+});
 
 class FakeSocket {
   readyState = 0;
