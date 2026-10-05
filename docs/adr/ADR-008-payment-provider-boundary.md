@@ -30,3 +30,18 @@ it cannot establish external settlement. All Phase 9 gates remain open.
 
 Focused tests check decimal units, precision, immutable intent, typed results,
 bounded identifiers, raw input validation and copied secret-bearing headers.
+
+
+Immutable PaymentIntent records now persist provider/account alias, ticket/institute,
+operation, original decimal amount/currency, provider reference, signed actor and
+replay key before adapter I/O. The institute lock and scoped unique key serialize
+creation. Changed terms (including original actor) fail; identical replay returns
+the stored request even if the ticket quote changes later. Unknown/mismatched
+institute ticket and unconfirmed currency cannot create a request. Account aliases
+are identifiers, never credentials. Any intent protects its linked ticket from demo
+reset and a nonempty downgrade refuses before DDL.
+
+Persistence is not authorization to dispatch: quote and parent-operation checks,
+sealing business changes during I/O, execution state, authenticated provider facts,
+refund budgets and transactionally applying capture to checkout remain pending.
+No public endpoint or live provider call is added at this checkpoint.

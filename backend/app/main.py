@@ -16,6 +16,7 @@ from app.modules.customers.routes import router as customers_router
 from app.modules.memberships.routes import router as memberships_router
 from app.modules.gift_cards.routes import router as gift_cards_router
 from app.modules.loyalty.routes import router as loyalty_router
+from app.modules.payments import models as payments_models  # noqa: F401
 from app.modules.auth.routes import router as auth_router
 from app.modules.dashboard.routes import router as dashboard_router
 from app.modules.dev.routes import router as dev_router

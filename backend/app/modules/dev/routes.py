@@ -328,6 +328,9 @@ def _reset_operational_data(db: Session, institute_id: str) -> None:
     lock_institute(db, institute_id)
     from app.modules.commerce.models import PackageRedemption
     from app.shared.exceptions import business_error
+    from app.modules.payments.models import PaymentIntent
+    if db.scalar(select(PaymentIntent.id).where(PaymentIntent.institute_id == institute_id)):
+        raise business_error("Les intentions de paiement interdisent la reinitialisation de ces tickets")
     if db.scalar(select(PackageRedemption.id).where(PackageRedemption.institute_id == institute_id)):
         raise business_error("Les consommations commerciales interdisent la reinitialisation de ces tickets")
     from app.modules.memberships.models import MembershipBenefit

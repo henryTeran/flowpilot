@@ -18,6 +18,7 @@ from app.modules.institutes import models as institutes_models  # noqa: F401
 from app.modules.memberships import models as memberships_models  # noqa: F401
 from app.modules.gift_cards import models as gift_cards_models  # noqa: F401
 from app.modules.loyalty import models as loyalty_models  # noqa: F401
+from app.modules.payments import models as payments_models  # noqa: F401
 from app.modules.planning import models as planning_models  # noqa: F401
 from app.modules.resources import models as resources_models  # noqa: F401
 from app.modules.realtime import models as realtime_models  # noqa: F401
