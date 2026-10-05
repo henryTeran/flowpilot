@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -42,8 +42,12 @@ class PackageRedemption(Base):
     __tablename__ = "package_redemptions"
     __table_args__ = (
         UniqueConstraint("institute_id", "idempotency_key", name="uq_package_redeem_replay"),
-        UniqueConstraint("ticket_line_id", name="uq_package_redeem_line"),
+        Index("uq_package_redeem_active_line", "ticket_line_id", unique=True,
+              sqlite_where=text("reversed_at IS NULL"), postgresql_where=text("reversed_at IS NULL")),
         CheckConstraint("sessions > 0", name="ck_package_redeem_sessions"),
+        CheckConstraint("(reversed_at IS NULL AND reversed_by IS NULL AND reversal_reason IS NULL) OR "
+                        "(reversed_at IS NOT NULL AND reversal_reason IS NOT NULL AND reversed_at >= occurred_at)",
+                        name="ck_package_reversal_facts"),
     )
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
@@ -55,3 +59,6 @@ class PackageRedemption(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     idempotency_key: Mapped[str] = mapped_column(String(120))
     actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    reversed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reversed_by: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    reversal_reason: Mapped[str | None] = mapped_column(String(200), nullable=True)

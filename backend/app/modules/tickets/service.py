@@ -321,7 +321,7 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
 
     from app.modules.commerce.models import PackageRedemption
     if db.scalar(select(PackageRedemption.id).join(TicketLine, PackageRedemption.ticket_line_id == TicketLine.id)
-                 .where(TicketLine.ticket_id == ticket.id)):
+                 .where(TicketLine.ticket_id == ticket.id, PackageRedemption.reversed_at.is_(None))):
         raise business_error("Annuler d'abord la consommation du forfait avant ce ticket")
 
     from app.modules.resources.reservations import release
@@ -389,7 +389,7 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
 
     from app.modules.commerce.models import PackageRedemption
     if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id)):
-        raise business_error("Cette prestation est couverte par un forfait et ne peut pas etre retiree")
+        raise business_error("L'historique commercial de cette prestation interdit sa suppression")
 
     lines = _ticket_lines(db, ticket.id)
     if len(lines) <= 1:

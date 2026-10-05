@@ -60,3 +60,11 @@ class RedemptionRead(BaseModel):
     original_total: float | None
     occurred_at: datetime
     actor_id: str | None
+    reversed_at: datetime | None = None
+    reversed_by: str | None = None
+    reversal_reason: str | None = None
+
+
+class PackageReverse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]

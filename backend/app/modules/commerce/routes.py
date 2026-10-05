@@ -6,7 +6,7 @@ from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.commerce import service
 from app.modules.commerce.models import CustomerPackage, PackagePlan, PackageRedemption
-from app.modules.commerce.schemas import PackageConsume, PackageIssue, PackagePlanCreate, PackagePlanRead, PackageRead, RedemptionRead
+from app.modules.commerce.schemas import PackageConsume, PackageIssue, PackagePlanCreate, PackagePlanRead, PackageRead, PackageReverse, RedemptionRead
 
 router = APIRouter(prefix="/commerce/institutes/{institute_id}", tags=["commerce"])
 
@@ -54,3 +54,9 @@ def history(institute_id: str, package_id: str, user=Depends(scoped_operator), d
     service.scoped_package(db, institute_id, package_id)
     return db.scalars(select(PackageRedemption).where(PackageRedemption.package_id == package_id,
         PackageRedemption.institute_id == institute_id).order_by(PackageRedemption.occurred_at, PackageRedemption.id)).all()
+
+
+@router.post("/package-redemptions/{redemption_id}/reverse", response_model=RedemptionRead)
+def reverse(institute_id: str, redemption_id: str, payload: PackageReverse,
+            user=Depends(manager), db: Session = Depends(get_db)):
+    return service.reverse_package_consumption(db, institute_id, redemption_id, payload.reason, user.get("sub"))

@@ -93,7 +93,8 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
         raise business_error("La cliente et la prestation doivent correspondre au forfait")
     if ticket.status not in {"ready_for_checkout", "in_checkout"} or not line.performed_by_employee_id:
         raise business_error("Consommer le forfait apres la prestation et avant le paiement")
-    if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id)):
+    if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id,
+                                                  PackageRedemption.reversed_at.is_(None))):
         raise business_error("Cette prestation est deja couverte par un forfait")
     now = utcnow()
     if package_view(package, now)["usable_sessions"] < line.quantity or line.quantity <= 0:
@@ -109,6 +110,46 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
     ticket.total_amount = sum((item.total or Decimal("0") for item in db.scalars(
         select(TicketLine).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
     record_event(db, ticket, "commerce.package_redeemed", ticket.status, line.performed_by_employee_id)
+    db.commit()
+    db.refresh(redemption)
+    return redemption
+
+
+def reverse_package_consumption(db: Session, institute, identifier, reason, actor):
+    """Reverse once before payment; retain the original consumption and its prices."""
+    lock_institute(db, institute)
+    redemption = db.scalar(select(PackageRedemption).where(PackageRedemption.id == identifier,
+                                                          PackageRedemption.institute_id == institute))
+    if redemption is None:
+        raise not_found("Consommation introuvable")
+    db.refresh(redemption)
+    if redemption.reversed_at is not None:
+        if redemption.reversal_reason != reason:
+            raise business_error("Cette consommation est deja annulee avec un autre motif")
+        return redemption
+    line = db.get(TicketLine, redemption.ticket_line_id)
+    ticket = db.get(QueueTicket, line.ticket_id) if line else None
+    if ticket is None or ticket.institute_id != institute:
+        raise not_found("Ligne de caisse introuvable")
+    db.refresh(ticket)
+    db.refresh(line)
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Annulation du forfait impossible apres paiement ou annulation du ticket")
+    package = scoped_package(db, institute, redemption.package_id)
+    db.refresh(package)
+    if package.consumed < redemption.sessions:
+        raise business_error("Solde commercial incoherent")
+    # Expiration is unchanged: restoring recorded balance does not revive it.
+    package.consumed -= redemption.sessions
+    line.unit_price = redemption.original_unit_price
+    line.total = redemption.original_total
+    redemption.reversed_at = utcnow()
+    redemption.reversed_by = actor
+    redemption.reversal_reason = reason
+    db.flush()
+    ticket.total_amount = sum((item.total or Decimal("0") for item in db.scalars(
+        select(TicketLine).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
+    record_event(db, ticket, "commerce.package_reversed", ticket.status, line.performed_by_employee_id)
     db.commit()
     db.refresh(redemption)
     return redemption

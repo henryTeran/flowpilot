@@ -29,11 +29,12 @@ to implement with the commercial UI and PaymentProvider phase. Package consumpti
 removes the covered session's checkout charge; it does not reassign performing or
 cashier employees. There are no LLM business decisions.
 
-Covered lines cannot be removed and covered tickets cannot be cancelled until a
-commercial reversal workflow exists. Demo reset refuses to erase redemption-linked
-tickets rather than delete commercial history. API/UI reversal, customer selection
-and booking customer-reference binding are next package tasks. PACKAGES is still
-IN_PROGRESS; memberships, gift cards and loyalty remain pending.
+Lines with commercial history cannot be removed. Tickets with active coverage
+cannot be cancelled; after reversal cancellation is permitted and history remains.
+Demo reset refuses to erase redemption-linked tickets rather than delete commercial
+history. Operator UI, customer selection and booking customer-reference binding
+remain package tasks. PACKAGES is IN_PROGRESS; memberships, gift cards and loyalty
+remain pending.
 
 Migration `b9d234a764cf` adds positive terms, nonnegative bounded balances, expiry,
 foreign keys, scoped replay uniqueness and one-redemption-per-line constraints.
@@ -46,3 +47,29 @@ explicit refresh prevents stale ORM identity-map values from authorizing a secon
 debit. Final package suite in the PostgreSQL runner: three passed. Full local backend
 run: 195 passed, 19 PostgreSQL cases skipped; final local package/checkout/revision
 regressions: 12 passed, one skipped. Browser/UI package validation is still pending.
+
+## Reversal checkpoint 8B
+
+The manager-only `POST /package-redemptions/{id}/reverse` restores the consumed
+session count and the exact recorded line price before payment. It requires a
+nonempty reason and stores reversal actor/time/reason on the original consumption;
+original consumption facts are retained. Repeating the same reversal returns its
+current state, without another credit or price change; a changed reason rejects.
+Expiry remains unchanged, so reversing an expired package restores recorded balance
+without making sessions usable. Paid/cancelled tickets reject a new reversal.
+Refund/settlement after payment remains PaymentProvider work in Phase 9.
+
+Consumption replay after reversal returns the reversed record. Reapplying coverage
+requires a new intent/key and creates a new historical consumption. A partial unique
+index permits one active coverage per line while retaining prior reversed rows.
+Replaying an earlier reversal cannot affect a newer application. Price, total,
+balance, event and reversal facts share one institute-locked transaction; failure
+after flush rolls everything back.
+
+Migration c0e345b875d0 passes SQLite/PostgreSQL round-trip/model parity and PostgreSQL
+upgrade/check. Downgrade with reversal facts refuses before schema changes rather
+than reinterpret reversed history as active consumption; this guard is exercised
+against SQLite and a disposable PostgreSQL schema. Full backend: 198 passed, 21
+PostgreSQL cases skipped locally. Combined package/reversal/migration PostgreSQL
+bundle: 10 passed; final reversal suite: 5 passed, including cached-state duplicate
+reversals and reversal versus payment. Actual operator UI remains to implement.

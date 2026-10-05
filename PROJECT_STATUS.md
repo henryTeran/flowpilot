@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8A_PACKAGE_BACKEND_LIFECYCLE
+CURRENT_CHECKPOINT = PHASE8B_PACKAGE_REVERSAL_BACKEND
 STATUS = ACTIVE
 
 GATES:
@@ -8,11 +8,13 @@ GATES:
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
-- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle implemented; UI/reversal/customer binding remain. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
+- PHASE8 = IN_PROGRESS: PACKAGES backend lifecycle/reversal implemented; UI/customer binding remain. MEMBERSHIPS / GIFTCARDS / LOYALTY = PENDING.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Full backend run: 195 passed, 19 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Full backend run: 198 passed, 21 opt-in PostgreSQL cases skipped locally; one TestClient deprecation warning.
+- Package/reversal/migration PostgreSQL bundle: 10 passed; final reversal suite: 5 passed, including reversal/payment and duplicate-credit races.
+- Migration c0e345b875d0: SQLite/PostgreSQL round-trip/model parity and PostgreSQL upgrade/check pass; reversed-history downgrade refusal verified on both databases.
 - Final local package/checkout/revision regressions: 12 passed, 1 PostgreSQL case skipped.
 - PostgreSQL final package suite: 3 passed, including two preloaded stale balances competing for the last session.
 - PostgreSQL package/booking-move/revision regression bundle: 6 passed.
@@ -35,12 +37,13 @@ BLOCKERS:
 - Deep load, external settlement and production readiness remain unverified.
 
 NEXT_STEP:
-- PHASE8B: package reversal and operator/customer/booking integration; then memberships, gift cards and loyalty.
+- PHASE8C: operator/customer/booking integration for packages; then memberships, gift cards and loyalty.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(commerce): add scoped package balances and checkout consumption.
+- Current: feat(commerce): reverse package consumption safely before payment.
+- bf8dc72 feat(commerce): add scoped package balances and checkout consumption.
 - b3d941d test(operations): verify live actions and recalculation across servers.
 - 16d0fcc feat(booking): hand completed reservations to checkout transactionally.
 - 3ff886c fix(operations): ignore action completions after institute changes.
