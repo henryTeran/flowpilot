@@ -268,8 +268,8 @@ export function CheckoutPanel({
                     type="button"
                     className="bm-cash-trash"
                     onClick={() => onRemoveLine(line.id)}
-                    disabled={!removable || historicalLines.includes(line.id)}
-                    title={removable ? "Retirer cette prestation" : "Impossible de retirer la dernière prestation"}
+                    disabled={!removable || line.commercial_history || historicalLines.includes(line.id)}
+                    title={line.commercial_history || historicalLines.includes(line.id) ? "Historique commercial a conserver" : removable ? "Retirer cette prestation" : "Impossible de retirer la dernière prestation"}
                   >
                     🗑
                   </button>

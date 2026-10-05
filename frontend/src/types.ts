@@ -47,6 +47,7 @@ export interface Service {
 }
 
 export interface TicketLine {
+  commercial_history?: boolean;
   id: string;
   ticket_id: string;
   service_id: string;

@@ -112,6 +112,9 @@ POST. Payloads are reconstructed from whitelisted fields. Malformed balance,
 redemption or reward reads fail closed. External ticket reads clear stale eligibility
 and latch payment until a valid read returns; coverage filtering uses current ticket
 lines. Old context completion cannot refresh or release a newer commercial lease.
-Ticket-wide historical protection after beneficiary change/remount remains to be
-exposed in UI metadata; backend commercial-history removal guards already reject
-such deletion irrespective of the currently selected beneficiary.
+Ticket lines expose computed `commercial_history` metadata from a single scoped
+union of package, member and loyalty records, including reversals. It does not
+depend on the current beneficiary and reveals no previous customer identity.
+Checkout removal controls use this flag as well as wallet history, so protection
+survives beneficiary changes and remounts. Backend removal guards remain the
+authority during concurrent mutations; no database backfill or stored flag is used.

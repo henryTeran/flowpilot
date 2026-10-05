@@ -53,6 +53,7 @@ class TicketLineAdd(BaseModel):
 
 
 class TicketLineRead(BaseModel):
+    commercial_history: bool = False
     id: str
     ticket_id: str
     service_id: str

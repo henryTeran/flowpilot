@@ -1514,3 +1514,29 @@ test("late loyalty writer cannot refresh or release the commercial lease of a ne
     sessionStorage.removeItem("flowpilot.loyalty-checkout:inst:second:client:lease-audit");
   }
 });
+
+
+test("ticket commercial-history metadata protects reversed lines after beneficiary change and remount", async () => {
+  const { CheckoutPanel } = await import("../src/components/CheckoutPanel");
+  let removed = 0;
+  const ticket = { ...assignmentTicket, status: "ready_for_checkout", customer_id: "new-client", total_amount: 30,
+    lines: [{ id: "historic", ticket_id: "ticket", service_id: "svc", quantity: 1, total: 15, unit_price: 15,
+      duration_minutes: 10, revenue_category: "service", commercial_history: true },
+      { id: "plain", ticket_id: "ticket", service_id: "svc", quantity: 1, total: 15, unit_price: 15,
+      duration_minutes: 10, revenue_category: "service", commercial_history: false }] } as QueueTicket;
+  let root = createRoot(document.getElementById("root")!);
+  let mounted = true;
+  const render = () => root.render(<CheckoutPanel ticket={ticket} services={[service]} employees={[]} selectedPaymentMethod="cb"
+    onPaymentMethodChange={() => {}} onAddService={() => {}} onRemoveLine={() => { removed++; }} onPay={() => {}} onClose={() => {}} />);
+  try {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await act(async () => render());
+      const protectedButton = document.querySelector<HTMLButtonElement>('button[title="Historique commercial a conserver"]')!;
+      assert.ok(protectedButton); assert.equal(protectedButton.disabled, true);
+      await act(async () => protectedButton.click()); assert.equal(removed, 0);
+      assert.equal(document.querySelector<HTMLButtonElement>('button[title="Retirer cette prestation"]')!.disabled, false);
+      await act(async () => root.unmount()); mounted = false;
+      if (attempt === 0) { root = createRoot(document.getElementById("root")!); mounted = true; }
+    }
+  } finally { if (mounted) await act(async () => root.unmount()); }
+});

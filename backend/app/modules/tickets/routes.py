@@ -97,6 +97,8 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         ).all()
     )
 
+    from app.modules.tickets.commercial_history import protected_line_ids
+    commercial_history = protected_line_ids(db, ticket.institute_id, [line.id for line in lines])
     estimated_start = ticket.estimated_start_time
     if ticket.status in {"waiting", "assigned"}:
         projections = projections if projections is not None else waiting_projections(db, ticket.institute_id)
@@ -138,6 +140,7 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
                 revenue_category=line.revenue_category,
                 performed_by_employee_id=line.performed_by_employee_id,
                 status=_line_status(db, ticket, line),
+                commercial_history=line.id in commercial_history,
             )
             for line in lines
         ],

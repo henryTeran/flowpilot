@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 8
-CURRENT_CHECKPOINT = PHASE8AB_LOYALTY_RECOVERY_SCOPE_AUDIT
+CURRENT_CHECKPOINT = PHASE8AC_TICKET_COMMERCIAL_HISTORY_METADATA
 STATUS = ACTIVE
 
 GATES:
@@ -12,9 +12,10 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Frontend: 52 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 53 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
-- Latest full backend: 239 passed, 48 opt-in PostgreSQL cases skipped locally. Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
+- Latest full backend: 243 passed, 49 opt-in PostgreSQL cases skipped locally. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
+- Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
 - Migrations through 1bde5603268b: SQLite/PostgreSQL round-trip/model parity, PostgreSQL upgrade/check and nonempty commercial-history downgrade guards passed; tier-only, point-ledger, earning-policy, earned-ticket, reward-term and redemption guards verified.
@@ -41,16 +42,16 @@ INVARIANTS:
 BLOCKERS:
 - Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
 - Deep load, external settlement and production readiness remain unverified.
-- Checkout history fetched by current beneficiary can omit earlier reversed commercial facts after a beneficiary change/remount; backend removal guards remain authoritative. Ticket-wide protection metadata is next.
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE8AC: ticket-wide commercial-history protection after beneficiary change/remount, then canonical Phase 9 payment abstraction (Master Plan section 29); preserve provider settlement for canonical payment/sales phases.
+- PHASE8AD: verify Commerce gate coverage and hand off to canonical Phase 9 payment abstraction (Master Plan section 29); preserve provider settlement for canonical payment/sales phases.
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(loyalty): validate scoped recovery and refresh eligibility safely.
+- Current: fix(checkout): preserve line protection across beneficiary changes.
+- 35fbd04 scoped loyalty recovery and eligibility refresh audit.
 - 23544bb checkout reward application/reversal recovery.
 - 137dff1 scoped manual customer point correction.
 - 2a164fd service reward configuration and recovery.
