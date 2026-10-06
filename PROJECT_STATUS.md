@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10J_ORIGINAL_INVOICE_PROVENANCE
+CURRENT_CHECKPOINT = PHASE10K_SIGNED_SUPPLIER_DIRECTORY
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -108,14 +108,16 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE10: implement institute-scoped suppliers and purchase orders with explicit article/unit terms, exact partial receipts linked to stock movements and original replay, then bounded reorder/forecast reads from signed stock facts and pinned service norms. Remaining supplier/order/reorder/forecast and physical acceptance gates stay open. Do not infer consumption rules from the example recipe.
+- PHASE10: continue institute-scoped purchase orders backed by the signed supplier directory, with explicit article/unit terms, exact partial receipts linked to stock movements and original replay, then bounded reorder/forecast reads from signed stock facts and pinned service norms. Remaining supplier/order/reorder/forecast and physical acceptance gates stay open. Do not infer consumption rules from the example recipe.
 - Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Inventory foundation is in progress independently of Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current checkpoint: feat(inventory): retain original appointment invoice provenance.
+- Current checkpoint: feat(inventory): add signed institute supplier directory.
+- 14854d6 date-aware planning blocks across midnight.
+- Previous: 18681f4 original appointment invoice provenance.
 - Previous: 4d4e7e1 fix(checkout): preserve absolute queue instants and institute hours.
 - 1afeacd retained signed invoice corrections and execution history.
 - cd68645 native measured consumption and original recovery.
@@ -197,3 +199,12 @@ PHASE10J_ORIGINAL_INVOICE_PROVENANCE:
 - Production TypeScript/Vite build and 20 signed Edge backend cases pass; extended correction-to-consumption context passes another 2 desktop/tablet cases with owned cleanup. Tablet screenshot reviewed: readable removal explanation, no implicit quantity or no-material default. Frontend: 113 passed, including metadata rejection and recovery after billing context changes.
 - PostgreSQL-enabled worklist/original-provenance/existing migrations bundle: 9 passed. Dedicated provenance/new migration bundle: 4 passed, covering all three ownership constraints, no backfill, model parity and refusal before downgrade DDL. Final booking/correction bundle: 7 passed, including concurrent completion and rollback of the new fact.
 - Full backend run completed: 358 passed, 84 opt-in skips, one failure from the old test-injection signature. Its signature and rollback assertions were repaired; the final focused booking/correction bundle passes. Exact last-failure rerun (`pytest -q --lf`): 1 passed; no remaining observed failure. No clean full-run claim is made for the pre-repair run. Full product and production gates remain open.
+
+PHASE10K_SIGNED_SUPPLIER_DIRECTORY:
+- Institute-owned supplier references and names now have signed reason/actor, original key and UTC instant. Scoped reads are bounded and original identities are retrievable; managers create and reception reads. Identical replay returns the original; changed terms/actor and duplicate references are refused under the institute lock. No stock mutation, default supplier or outbound message is created.
+- Native Inventory supplier directory opens on demand, preserves saved creations by institute/actor across lost replies and reload, checks original identity then fresh directory before clearing, hides failed/mismatched reads, and ignores late prior-token/scope replies. Only definite creation rejection permits correcting a refused request; later read failure retains the original request.
+- Migration 0a675be2c4d9 adds an empty supplier table with future order ownership uniqueness. Empty roundtrip, no backfill, model parity and refusal before downgrade DDL preserve recorded identities and existing history. ADR-013 records the procurement foundation.
+- Frontend: 121 passed; initial production build and two native supplier Edge cases pass on desktop/tablet. Supplier/migration bundle: 8 passed with PostgreSQL enabled, including concurrent creation. Relevant inventory regression: 34 passed with PostgreSQL enabled, covering ledger, original recipes/bases/consumption, worklist and migration/history guards. Final production build and combined signed Edge backend suite: 22 passed (11 desktop, 11 touch-enabled tablet-landscape), with owned fixture cleanup. Final supplier-only cases after scoped fieldset spacing improvement: 2 passed with production rebuild and cleanup; tablet screenshot reviewed, readable labels/inputs and no document horizontal overflow.
+- The first combined run had 21 passed and one test failure: it assumed checkout closed after payment although another unpaid ticket automatically opened. Preserved this existing workflow. The corrected test binds checkout to its actual ticket ID, proves the paid ticket was replaced/closed, then uses native Retour before navigating to consumption. No forced pointer click, altered payment behavior or fixture deletion is used.
+- NEXT: immutable institute-scoped purchase orders referencing supplier and explicit stock articles/units, exact partial receipts linked atomically to stock movements and original replay, then reorder/forecast reads. Full Phase 10, physical tablet and production-provider/accounting gates remain open.
+- A subsequent combined run exposed a real midnight boundary defect: current sessions ending the following day were discarded because the chart compared only clock hours. Their invisible active state then blocked subsequent fixtures. Planning session/appointment blocks now use civil-day offsets, clip at day boundaries, distinguish previous/future days and bound minimum visual widths at the right edge. Three new frontend regressions pass. Browser clocks and institute/provider rules were not altered; broader institute-timezone planning audit remains open.

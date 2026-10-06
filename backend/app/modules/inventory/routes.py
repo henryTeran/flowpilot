@@ -7,10 +7,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.inventory import service
+from app.modules.inventory import service, suppliers
 from app.modules.inventory.models import StockMovement
 from app.modules.inventory.schemas import ItemCreate, ItemRead, MovementCreate, MovementRead
 from app.modules.inventory.schemas import RecipeCreate, RecipeRead
+from app.modules.inventory.schemas import SupplierCreate, SupplierRead
 from app.modules.inventory.models import StockRecipe
 from app.modules.inventory import recipes
 
@@ -28,6 +29,22 @@ def manager(user=Depends(operator)):
     if user["role"] != "responsable_institut":
         raise HTTPException(403, "Gestion de stock reservee a la responsable")
     return user
+
+
+@router.get("/suppliers", response_model=list[SupplierRead])
+def supplier_list(institute_id: str, limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0, le=100000),
+                  user=Depends(operator), db: Session = Depends(get_db)):
+    return suppliers.list_suppliers(db, institute_id, limit, offset)
+
+
+@router.post("/suppliers", response_model=SupplierRead)
+def supplier_create(institute_id: str, payload: SupplierCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return suppliers.create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/suppliers/{supplier_id}", response_model=SupplierRead)
+def supplier_original(institute_id: str, supplier_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return suppliers.snapshot(suppliers.require_supplier(db, institute_id, supplier_id))
 
 
 @router.get("/items", response_model=list[ItemRead])

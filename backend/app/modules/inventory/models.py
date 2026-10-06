@@ -4,6 +4,23 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
 
+class StockSupplier(Base):
+    __tablename__ = "stock_suppliers"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "id", name="uq_stock_supplier_owner"),
+        UniqueConstraint("institute_id", "reference", name="uq_stock_supplier_reference"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_supplier_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    reference: Mapped[str] = mapped_column(String(80), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class StockItem(Base):
     __tablename__ = "stock_items"
     __table_args__ = (

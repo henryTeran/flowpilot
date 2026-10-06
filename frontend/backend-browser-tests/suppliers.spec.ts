@@ -1,0 +1,42 @@
+import { expect, test } from "@playwright/test";
+
+test("native supplier directory recovers a signed original after lost reply without stock changes", async ({ page, request }, info) => {
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, api = "http://127.0.0.1:4198/api/v1/inventory/institutes/demo-institute-geneve";
+  const before = await (await request.get(`${api}/items`, { headers })).json();
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  await page.getByRole("button", { name: "Fournisseurs", exact: true }).click();
+  const directory = page.getByRole("region", { name: "Fournisseurs de l’institut" });
+  const form = directory.getByRole("form", { name: "Ajouter un fournisseur" });
+  await form.getByLabel("Référence fournisseur").fill(`SUP-${info.project.name}`);
+  await form.getByLabel("Nom du fournisseur").fill(`Fournisseur cabine ${info.project.name}`);
+  await form.getByLabel("Motif d’ajout du fournisseur").fill("Fournisseur approuvé pour achats institut");
+  let original: any;
+  await page.route(`${api}/suppliers`, async route => {
+    if (route.request().method() !== "POST") return route.continue();
+    const result = await route.fetch(); expect(result.status()).toBe(200);
+    original = await result.json(); await route.abort("failed");
+  }, { times: 1 });
+  await form.getByRole("button", { name: "Enregistrer le fournisseur", exact: true }).click();
+  await expect(form.getByRole("alert")).toBeVisible();
+  await expect(form.getByRole("button", { name: "Reprendre le fournisseur conservé" })).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  await page.getByRole("button", { name: "Fournisseurs", exact: true }).click();
+  const replay = page.waitForResponse(response => response.url() === `${api}/suppliers` && response.request().method() === "POST");
+  await form.getByRole("button", { name: "Reprendre le fournisseur conservé" }).click();
+  expect(await (await replay).json()).toEqual(original);
+  await expect(form.getByRole("status")).toContainText("Fournisseur enregistré");
+  expect(original.actor_id).toBe("browser-manager");
+  const suppliers = await (await request.get(`${api}/suppliers`, { headers })).json();
+  expect(suppliers.filter((row: any) => row.reference === original.reference)).toEqual([original]);
+  expect(await (await request.get(`${api}/items`, { headers })).json()).toEqual(before);
+  expect(await page.evaluate(() => Object.keys(sessionStorage).filter(key => key.startsWith("flowpilot.supplier-request:")).length)).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  await directory.screenshot({ path: info.outputPath("supplier-directory.png") });
+});

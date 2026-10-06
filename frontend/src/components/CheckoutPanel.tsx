@@ -137,7 +137,7 @@ export function CheckoutPanel({
   }
 
   return (
-    <section className="bm-checkout-clone">
+    <section className="bm-checkout-clone" data-ticket-id={ticket.id}>
       <main className="bm-checkout-main-card">
         <header className="bm-ticket-cash-header">
           <button type="button" className="bm-cash-back" onClick={onClose} aria-label="Retour">

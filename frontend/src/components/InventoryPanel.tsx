@@ -1,4 +1,5 @@
 import { StockConsumptions } from "./StockConsumptions";
+import { StockSuppliers } from "./StockSuppliers";
 import { StockRecipes } from "./StockRecipes";
 import type { Service } from "../types";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -15,6 +16,7 @@ export function InventoryPanel({ instituteId, timezone = "UTC", services = [] }:
 function Catalogue({ institute, timezone, services }: { institute: string; timezone: string; services: Service[] }) {
   const token = getAccessToken(), manager = getOperatorRole() === "responsable_institut";
   const [consumptionRevision, setConsumptionRevision] = useState(0);
+  const [showSuppliers, suppliers] = useState(false);
   const [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [selected, select] = useState<string>();
   const [loading, setLoading] = useState(true), [error, setError] = useState<string>();
   const mounted = useRef(false), sequence = useRef(0);
@@ -32,7 +34,8 @@ function Catalogue({ institute, timezone, services }: { institute: string; timez
   }
   useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; sequence.current++; }; }, [offset]);
   return <main className="bm-inventory" aria-label="Inventaire">
-    <header><h2>Inventaire</h2><button type="button" onClick={() => void load()} disabled={loading}>Actualiser le stock</button></header>
+    <header><h2>Inventaire</h2><button type="button" aria-expanded={showSuppliers} onClick={() => suppliers(!showSuppliers)}>Fournisseurs</button><button type="button" onClick={() => void load()} disabled={loading}>Actualiser le stock</button></header>
+    {showSuppliers && <StockSuppliers institute={institute} />}
     <p>Quantités enregistrées par article et unité. Les entrées et ajustements conservent leur historique.</p>
     {loading && <p role="status">Lecture du stock…</p>}{error && <p role="alert">{error}</p>}
     {items?.length === 0 && <p>{offset ? "Aucun article sur cette page." : "Aucun article enregistré."}</p>}

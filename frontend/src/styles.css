@@ -6694,3 +6694,16 @@ body {
 .bm-checkout-clone .bm-cash-removed-lines h3 { margin: 0 0 12px; }
 .bm-checkout-clone .bm-cash-removed-lines p { margin: 8px 0; line-height: 1.5; }
 .bm-checkout-clone .bm-cash-removed-lines article { margin-top: 16px; }
+
+.bm-stock-suppliers .bm-stock-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.bm-stock-suppliers .bm-stock-form label { display: grid; gap: 6px; min-width: 0; }
+.bm-stock-suppliers .bm-stock-form input { width: 100%; box-sizing: border-box; }
+.bm-stock-suppliers .bm-stock-form fieldset > button { grid-column: 1 / -1; justify-self: start; }

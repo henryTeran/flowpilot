@@ -10,6 +10,26 @@ ReplayKey = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1
 Quantity = Annotated[Decimal, Field(max_digits=15, decimal_places=3, ge=-MAX_QUANTITY, le=MAX_QUANTITY)]
 
 
+class SupplierCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reference: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$")]
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+    reason: Reason
+    idempotency_key: ReplayKey
+
+
+class SupplierRead(SupplierCreate):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    institute_id: str
+    actor_id: str
+    created_at: datetime
+
+    @field_serializer("created_at")
+    def timestamp(self, value):
+        return explicit_utc_instant(value)
+
+
 class ItemCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     sku: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80, pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$")]

@@ -56,6 +56,9 @@ test("native unpaid correction retains original execution after lost reply and p
   expect(receipt.total_amount).toBe(ticket.total_amount - line.total);
   expect(receipt.removed_lines).toEqual(committed.removed_lines);
   expect(await (await request.patch(path, { headers })).json()).toEqual(receipt);
+  await expect.poll(async () => await checkout.count() ? await checkout.getAttribute("data-ticket-id") : null).not.toBe(ticket.id);
+  if (await checkout.count()) await checkout.getByRole("button", { name: "Retour", exact: true }).click();
+  await expect(checkout).not.toBeVisible();
   await page.getByRole("button", { name: "Inventaire", exact: true }).click();
   const work = page.getByRole("region", { name: "Consommations par prestation" });
   await work.locator(".bm-stock-card").filter({ hasText: ticket.ticket_number }).filter({ hasText: "Retirée de la facture" }).click();

@@ -1344,8 +1344,9 @@ from invoice, payment and loyalty totals (ADR-011). Phase 10I also fixes queue/e
 instant metadata and institute-local cashier hours, verified in foreign-workstation
 Edge cases. Phase 10J captures original appointment invoice provenance and shows
 billing exclusion independently of measured consumption (ADR-012), with no
-historical backfill or automatic zero usage. Next: institute-scoped suppliers,
-purchase orders, exact partial receipt movements, reorder and forecasts. No physical
+historical backfill or automatic zero usage. Phase 10K adds the signed institute
+supplier directory and original creation recovery (ADR-013). Next: purchase
+orders, exact partial receipt movements, reorder and forecasts. No physical
 tablet, production settlement or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce
