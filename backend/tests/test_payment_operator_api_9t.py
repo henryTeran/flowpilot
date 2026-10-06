@@ -1,4 +1,5 @@
 from decimal import Decimal
+from fastapi import HTTPException
 import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
@@ -179,3 +180,55 @@ def test_raw_webhook_authentication_recovery_and_receipt_replay(flow):
     # Stored terminal outcome recovers without another transport call.
     assert dispatch(flow, identifier).json()["status"] == "authorized"
     assert len(adapter.calls) == 1
+
+
+@pytest.mark.parametrize("kind", ["authorize", "capture", "cancel", "refund"])
+def test_adapter_http_rejection_is_unknown_and_keeps_original_recovery(flow, kind, monkeypatch):
+    client, institute, _, employee, adapter = flow
+    authorization = prepare(flow).json()["id"]
+    identifier, role = authorization, "accueil"
+    if kind != "authorize":
+        assert dispatch(flow, authorization).status_code == 200
+        parent = authorization
+        if kind == "refund":
+            capture = prepare(flow, "capture", "capture", authorization).json()["id"]
+            assert dispatch(flow, capture).status_code == 200
+            path = f"/api/v1/payments/institutes/{institute}/intents/{capture}/checkout"
+            assert client.post(path, headers=_auth_headers(institute_id=institute), json={"employee_id": employee, "method": "cb"}).status_code == 200
+            parent, role = capture, "responsable_institut"
+        identifier = prepare(flow, kind, kind, parent, role=role).json()["id"]
+    original = getattr(adapter, kind)
+    def http_error(*args):
+        raise HTTPException(400, "PRIVATE PROVIDER REJECTION", headers={"x-private": "secret"})
+    monkeypatch.setattr(adapter, kind, http_error)
+    result = dispatch(flow, identifier, role=role)
+    assert result.status_code == 503
+    assert "PRIVATE" not in result.text and "x-private" not in result.headers
+    snapshot = client.get(f"/api/v1/payments/institutes/{institute}/tickets/{flow[2]}/snapshot", headers=_auth_headers(institute_id=institute)).json()
+    assert next(row for row in snapshot["operations"] if row["id"] == identifier)["status"] == "unknown"
+    if kind != "refund":
+        assert snapshot["protected"]
+    else:
+        assert prepare(flow, "refund", "competing-refund", parent, role=role).status_code == 400
+    monkeypatch.setattr(adapter, kind, original)
+    recovered = dispatch(flow, identifier, role=role)
+    assert recovered.status_code == 200
+    assert recovered.json()["status"] == {"authorize": "authorized", "capture": "captured", "cancel": "cancelled", "refund": "refunded"}[kind]
+
+
+def test_adapter_webhook_http_error_cannot_escape_or_acknowledge_a_receipt(flow, monkeypatch):
+    client, institute, _, _, adapter = flow
+    authorization = prepare(flow).json()["id"]
+    adapter.timeout = True
+    assert dispatch(flow, authorization).status_code == 503
+    original = adapter.webhook
+    def http_error(event):
+        raise HTTPException(401, "PRIVATE SIGNATURE DETAILS")
+    monkeypatch.setattr(adapter, "webhook", http_error)
+    path = f"/api/v1/payments/institutes/{institute}/webhook"
+    result = client.post(path, content=b"original-provider-event", headers={"x-test-signature": "test-authenticated"})
+    assert result.status_code == 503 and "PRIVATE" not in result.text
+    with Session(main_module.engine) as db:
+        assert list(db.scalars(select(WebhookReceipt))) == []
+    monkeypatch.setattr(adapter, "webhook", original)
+    assert client.post(path, content=b"original-provider-event", headers={"x-test-signature": "test-authenticated"}).json() == {"received": True}

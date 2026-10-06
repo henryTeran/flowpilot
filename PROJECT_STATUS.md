@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9T_SCOPED_OPERATOR_PAYMENT_API
+CURRENT_CHECKPOINT = PHASE9T1_ADAPTER_HTTP_RECOVERY_GUARD
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,8 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Adapter HTTP exceptions are now normalized inside the provider-call boundary, separately from FlowPilot preflight/domain HTTP errors. They retain unknown execution/refund reservations and return generic recovery responses, never a false definitive rejection. Webhook adapter HTTP exceptions cannot acknowledge or write a receipt. Five new cases verify all four operations and callback recovery, including exclusion of private provider details/headers.
+- Final HTTP-error/dispatch/refund/webhook regression: 24 passed, 4 opt-in PostgreSQL skips locally; 28 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain cases actual PostgreSQL). Prior full backend baseline: 310 passed, 66 opt-in skips; no new full-suite claim for this focused correction.
 - Operator payment HTTP routes now prepare immutable requests, dispatch original signed intents, apply confirmed captures and receive authenticated raw webhooks. Empty server binding configuration refuses with 503; no fake/default provider. Parent references/accounts are resolved server-side. Unknown transport preserves durable protection and original-key recovery. Endpoint tests use an explicit simulated adapter; real provider integration and operator dispatch UI remain open.
 - Payment operator API: 5 final local cases passed; operator/dispatch/checkout/refund/webhook bundle with PostgreSQL enabled: 27 passed (HTTP fixtures remain SQLite; opted-in domain cases use actual PostgreSQL). Full backend: 310 passed, 66 opt-in skips. No schema change or real external settlement. API contract: docs/architecture/PAYMENT_OPERATOR_API.md.
 - Signed refund decision UI: 7 focused cases within 62 passing frontend tests; production build passed. Explicit zero retention/negative deduction, intent persistence before POST, lost-response recovery without another POST, exact receipt-key matching, refresh-failure latch, late-session isolation, cashier read-only/confirmed-refund gating and definitive rejection correction verified. Fresh CUA apps=[] and browsers=[]; actual browser/tablet remains open.
@@ -77,7 +79,8 @@ NEXT_STEP:
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): expose scoped operator payment orchestration.
+- Current: fix(payments): preserve unknown recovery for adapter HTTP errors.
+- 18e6f13 scoped operator payment orchestration API.
 - 46012b2 signed refund loyalty mutation/recovery UI.
 - be53cbd scoped signed refund decision recovery read.
 - 9a7fea9 checkout payment history read UI.

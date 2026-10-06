@@ -29,7 +29,9 @@ signed JWT subject supplies the actor. A returned ID identifies the durable inte
 
 Save the original terms and key before POST. After a lost preparation response, retry
 those terms and key. Dispatch that ID without changing actor or terms. A 503 during
-dispatch means recover the same intent: it cannot establish provider failure. Consult
+dispatch means recover the same intent: it cannot establish provider failure.
+HTTP exceptions raised by an adapter are transport uncertainty too; they do not
+become FlowPilot business rejections or expose provider details/headers. Consult
 the snapshot, where a sealed request without an outcome is unknown. Pending/unknown
 requests retain existing protection and reservations. Terminal dispatch replay uses
 the stored outcome without another provider call. Changing the configured account

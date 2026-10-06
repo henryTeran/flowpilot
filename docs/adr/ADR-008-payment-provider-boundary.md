@@ -335,3 +335,15 @@ receipts. There is no public binding registration or default payment adapter. Th
 application factory accepts explicit trusted bindings; production provider credential
 loading, real authentication/transport and operator payment dispatch UI are still
 required. Test adapters prove routing and recovery behavior only, not settlement.
+
+
+Provider callbacks may themselves raise framework HTTP exceptions. These must not
+escape as FlowPilot domain rejections: an HTTP 4xx from transport does not establish
+authenticated terminal provider failure. A shared adapter-call boundary converts
+such exceptions into transport uncertainty before the operator/webhook API handles
+them. Domain/preflight HTTP errors raised outside adapter calls keep their original
+meaning. Operator responses contain only the generic same-intent recovery message;
+private adapter details and headers are not forwarded. Existing execution seals and
+refund reservations remain intact. Webhook failures acknowledge no delivery and
+create no receipt; the original event may be retried. Only a validated typed provider
+outcome can record terminal failure and release the corresponding protection/budget.

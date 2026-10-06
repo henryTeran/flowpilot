@@ -1,7 +1,7 @@
 """Authenticate raw input through server-selected adapter, then apply atomically."""
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from app.modules.payments.dispatch import ProviderBinding
+from app.modules.payments.dispatch import ProviderBinding, call_adapter
 from app.modules.payments.provider import RawWebhook, VerifiedWebhook
 from app.modules.payments.models import PaymentIntent, WebhookReceipt
 from app.modules.tickets.repository import lock_institute
@@ -12,7 +12,7 @@ from app.shared.time import utcnow
 def receive_webhook(session_factory, binding: ProviderBinding, raw: RawWebhook):
     if not isinstance(binding, ProviderBinding) or not isinstance(raw, RawWebhook):
         raise ValueError("Trusted binding and raw webhook required")
-    event = binding.adapter.webhook(raw)  # Authenticate before opening a SQL session.
+    event = call_adapter(binding.adapter.webhook, raw)  # Authenticate before opening a SQL session.
     if not isinstance(event, VerifiedWebhook) or event.operation_key is None:
         raise business_error("Evenement authentifie et operation explicite requis")
     with session_factory() as db:

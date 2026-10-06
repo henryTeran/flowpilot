@@ -1,11 +1,20 @@
 """Trusted account-bound authorization dispatch, with no transaction across I/O."""
 from dataclasses import dataclass, field
+from fastapi import HTTPException
 from sqlalchemy import select
 from app.modules.payments.provider import PaymentProvider, ProviderResult, ProviderStatus, PaymentAmount, identifier
 from app.modules.payments.models import PaymentIntent, PaymentOutcome
 from app.modules.payments.executions import seal_authorization
 from app.modules.payments.outcomes import record_authorization_outcome
 from app.shared.exceptions import business_error, not_found
+
+
+def call_adapter(callback, *args):
+    """An adapter HTTP error is transport uncertainty, never a domain rejection."""
+    try:
+        return callback(*args)
+    except HTTPException as failure:
+        raise RuntimeError("Provider transport outcome requires recovery") from failure
 
 
 @dataclass(frozen=True)
@@ -46,7 +55,7 @@ def dispatch_authorization(session_factory, institute_id, intent_id, binding: Pr
             return ProviderResult(terminal.provider_payment_id, ProviderStatus(terminal.status),
                                   PaymentAmount(terminal.amount, terminal.currency))
     # The persisted seal remains active; the SQL session and its locks are closed.
-    result = binding.adapter.authorize(request)
+    result = call_adapter(binding.adapter.authorize, request)
     with session_factory() as db:
         record_authorization_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
     return result
@@ -74,7 +83,7 @@ def dispatch_parent_operation(session_factory, institute_id, intent_id, binding:
             return ProviderResult(terminal.provider_payment_id, ProviderStatus(terminal.status),
                                   PaymentAmount(terminal.amount, terminal.currency))
     method = binding.adapter.capture if kind == "capture" else binding.adapter.cancel
-    result = method(request, reference)
+    result = call_adapter(method, request, reference)
     with session_factory() as db:
         record_parent_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
     return result
@@ -100,7 +109,7 @@ def dispatch_refund(session_factory, institute_id, intent_id, binding: ProviderB
         if terminal is not None:
             return ProviderResult(terminal.provider_payment_id, ProviderStatus(terminal.status),
                                   PaymentAmount(terminal.amount, terminal.currency))
-    result = binding.adapter.refund(request, reference)
+    result = call_adapter(binding.adapter.refund, request, reference)
     with session_factory() as db:
         record_refund_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
     return result
