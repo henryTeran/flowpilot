@@ -63,7 +63,7 @@ actor or initial balance in the request body. Unknown fields are refused.
 
 ## Remaining work
 
-This foundation is not full inventory acceptance. Operator UI, versioned service
+This foundation is not full inventory acceptance. Versioned service
 recipes and consumption facts, supplier/order workflows, explicit receiving links,
 reorder decisions and demand forecasts remain to be implemented and verified.
 Threshold indication alone is not an automatic purchase order or forecast. No
@@ -71,3 +71,35 @@ example HydraFacial recipe is installed as a business default. Consumption and
 reversal timing must preserve real performed-service history and concurrent stock
 integrity. Stock quantities are neither sale revenue nor proof of procurement
 payment. All four Phase 10 gates remain open until their complete scope is proved.
+
+
+## Native stock UI
+
+The Inventory navigation opens a scoped, paginated catalogue with exact quantities,
+threshold indicators, article detail and movement history. History dates use the
+selected institute timezone, with an explicitly labelled UTC fallback. Managers
+create articles and record receipts or signed adjustments; reception may read.
+Server RBAC remains authoritative and direct cashier writes are refused.
+
+Original write terms and keys are saved to session storage before POST, scoped by
+institute, signed subject and article/action. Frozen requests survive reload and
+transport uncertainty. A matching response plus successful fresh reads are required
+before clearing the request. Definite 400/404/422 refusals release the rejected
+draft; unknown/transport failures retain it. No new key is generated for recovery.
+Creation responses are checked against original catalogue fields and actor;
+movement responses additionally match original key, item, quantity and reason.
+
+Scoped components and request sequences prevent stale or late old-session reads
+and writes from publishing. Failed catalogue reads hide both catalogue quantities
+and selected article facts and disable mutations until a fresh read succeeds.
+Article identity remains mounted during a write refresh, without showing stale
+quantities, so a confirmed request can clear its original recovery state safely.
+
+Seven focused frontend tests run within a 92-test passing suite. Real signed Edge
+browser sessions verify creation, a receipt committed before its transport reply
+is intentionally aborted, reload/recovery with the same movement ID/key, one
+adjustment, exact balance and cashier read-only access. Desktop and touch-enabled
+tablet-landscape pass; the native screenshot has been visually reviewed. This is
+disposable SQLite browser evidence, not physical-tablet, PostgreSQL UI load or full
+inventory acceptance. Service consumption, supplier/order and reorder/forecast
+workflows are still required before closing Phase 10 gates.

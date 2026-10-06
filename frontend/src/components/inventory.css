@@ -1,0 +1,23 @@
+.bm-inventory { width: 100%; padding: 24px; color: #23333b; }
+.bm-inventory header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+.bm-inventory h2, .bm-inventory h3 { margin: 0 0 12px; }
+.bm-inventory button, .bm-inventory input, .bm-inventory select { min-height: 44px; padding: 10px 14px; border: 1px solid #ccd8dc; border-radius: 10px; font: inherit; }
+.bm-inventory button { cursor: pointer; background: #fff; color: #244550; }
+.bm-inventory button:disabled { opacity: .55; cursor: default; }
+.bm-inventory button:focus-visible, .bm-inventory input:focus-visible, .bm-inventory select:focus-visible { outline: 3px solid #267781; outline-offset: 3px; }
+.bm-stock-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 20px; }
+.bm-stock-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; text-align: left; overflow-wrap: anywhere; }
+.bm-stock-card[aria-pressed="true"] { border-color: #267781; background: #eaf5f3; }
+.bm-stock-card em { font-size: .9rem; color: #805400; }
+.bm-stock-pages { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+.bm-stock-form, .bm-stock-detail { margin-top: 24px; padding: 20px; border: 1px solid #d7e1e3; border-radius: 16px; background: #fff; }
+.bm-stock-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0; }
+.bm-stock-fields label { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.bm-stock-fields input, .bm-stock-fields select { width: 100%; box-sizing: border-box; }
+.bm-stock-fields p { align-self: center; }
+.bm-stock-form > button { background: #245b63; color: #fff; }
+.bm-stock-detail ol { padding-left: 24px; }
+.bm-stock-detail li { margin: 12px 0; overflow-wrap: anywhere; }
+.bm-stock-detail li span { display: block; margin-top: 5px; color: #596b73; }
+.bm-inventory [role="alert"] { color: #9b2525; }
+@media (max-width: 700px) { .bm-inventory { padding: 14px; } .bm-stock-form, .bm-stock-detail { padding: 14px; } .bm-stock-grid, .bm-stock-fields { grid-template-columns: 1fr; } }

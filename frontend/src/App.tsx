@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getAccessToken } from "./api/session";
+import { getAccessToken, getOperatorRole } from "./api/session";
 import { createArrivalIntent, createExtensionIntents, compareQueueArrival } from "./queue-utils";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
 import { ActionDrawer } from "./components/ActionDrawer";
 import { AppointmentPanel } from "./components/AppointmentPanel";
 import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
+import { InventoryPanel } from "./components/InventoryPanel";
 import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
 import { PaymentCashflows } from "./components/PaymentCashflows";
@@ -64,7 +65,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
-  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres">("planning");
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -738,6 +739,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         onOpenPlanning={() => { setActiveDrawer(null); setMainView("planning"); }}
         onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
+        onOpenInventory={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("inventory"); } : undefined}
         onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
         onLogout={onLogout}
       />
@@ -775,6 +777,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
+        {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} />}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (
@@ -1080,14 +1083,16 @@ function isCheckoutTicket(status: string) {
   return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
 }
 
-function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres") {
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory") {
+  if (view === "inventory") return "Accueil / Inventaire";
   if (view === "offres") return "Accueil / Offres";
   if (view === "tickets") return "Accueil / Tickets";
   if (view === "chiffres") return "Accueil / Chiffres";
   return "Accueil / Planning";
 }
 
-function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres") {
+function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory") {
+  if (view === "inventory") return "Inventaire";
   if (view === "offres") return "Offres";
   if (view === "tickets") return "Tickets";
   if (view === "chiffres") return "Chiffres";
