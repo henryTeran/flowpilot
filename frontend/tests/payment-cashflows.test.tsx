@@ -9,7 +9,10 @@ Object.assign(globalThis, { window: dom.window, document: dom.window.document, s
 const { createRoot } = await import("react-dom/client");
 const token = (subject: string, role = "responsable_institut") => `h.${Buffer.from(JSON.stringify({ sub: subject, role })).toString("base64url")}.s`;
 const response = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
-const account = (currency = "CHF", account_id = "account", captured = "10.35") => ({ provider: "provider", account_id, currency, captured, applied: captured, unapplied: "0.00", refunded: "3.00", refund_reserved: "2.00", net_confirmed: "7.35" });
+const account = (currency = "CHF", account_id = "account", captured = "10.35") => {
+  const net = (BigInt(captured.replace(".", "")) - 300n).toString().padStart(3, "0");
+  return { provider: "provider", account_id, currency, captured, applied: captured, unapplied: "0.00", refunded: "3.00", refund_reserved: "2.00", net_confirmed: `${net.slice(0, -2)}.${net.slice(-2)}` };
+};
 const facts = (institute_id = "inst", accounts = [account()]) => ({ institute_id, accounts });
 
 test("cashflows are manager-only and never request an empty institute", async () => {
@@ -61,5 +64,33 @@ test("late old institute and token reads cannot publish current cashflows", asyn
     await act(async () => resolveOld(response(facts("old", [account("CHF", "old-account", "99.99")]))));
     assert.match(document.body.textContent!, /20,50 EUR/);
     assert.doesNotMatch(document.body.textContent!, /99,99|old-account/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = original; setAccessToken(null); }
+});
+
+test("malformed or inconsistent account snapshots never publish financial facts", async () => {
+  const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
+  setAccessToken(token("manager"));
+  const good = account();
+  const invalid = [
+    [good, good], [{ ...good, currency: "USD" }], [{ ...good, captured: 10.35 }],
+    [{ ...good, net_confirmed: "7.34" }], [{ ...good, unapplied: "0.01" }],
+    [{ ...good, refund_reserved: "8.00" }], [{ ...good, applied: undefined }],
+    [{ ...good, captured: "NaN" }],
+  ];
+  let next: unknown = facts();
+  globalThis.fetch = async () => response(next);
+  try {
+    await act(async () => root.render(<PaymentCashflows instituteId="inst" />));
+    for (const accounts of invalid) {
+      next = { institute_id: "inst", accounts };
+      await act(async () => document.querySelector<HTMLButtonElement>("button")!.click());
+      assert.ok(document.querySelector('[role="alert"]'));
+      assert.equal(document.querySelectorAll("dl").length, 0);
+      assert.equal(document.querySelector<HTMLButtonElement>("button")!.disabled, false);
+    }
+    next = facts();
+    await act(async () => document.querySelector<HTMLButtonElement>("button")!.click());
+    assert.match(document.body.textContent!, /7,35 CHF/);
+    assert.equal(document.querySelector('[role="alert"]'), null);
   } finally { await act(async () => root.unmount()); globalThis.fetch = original; setAccessToken(null); }
 });

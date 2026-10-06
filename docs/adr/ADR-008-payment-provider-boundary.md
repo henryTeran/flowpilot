@@ -478,3 +478,13 @@ is only a convenience; the signed server role and institute remain authoritative
 No mutation or provider dispatch is triggered. Three component regressions pass
 within the 84-test frontend suite, and TypeScript/Vite build passes. Browser/tablet
 visual verification and actual provider/accounting integration remain open.
+
+
+Cashflow presentation additionally checks the existing ledger relationships in
+exact BigInt cents: captured = applied + unapplied, captured = refunded + net,
+and refunded + reserved <= applied. These are consistency checks on recorded
+server facts, not a client settlement calculation or repair. An invalid account
+rejects the entire snapshot; duplicate groups, missing/nondecimal monetary values
+and unsupported currencies are rejected too. A subsequent valid read recovers.
+Four focused tests, including eight invalid-response variants, pass within the
+85-test frontend suite; TypeScript/Vite build passes. Production gates remain open.

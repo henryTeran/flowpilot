@@ -15,6 +15,12 @@ function valid(value: Snapshot, institute: string) {
   return value.accounts.every(row => {
     if (!row || typeof row.provider !== "string" || !row.provider.trim() || typeof row.account_id !== "string" || !row.account_id.trim() ||
         !["CHF", "EUR"].includes(row.currency) || amounts.some(key => typeof row[key] !== "string" || !/^\d+\.\d{2}$/.test(row[key]))) return false;
+    // Validate the recorded ledger relationships in exact cents, without deriving
+    // a replacement amount or publishing a partially inconsistent account.
+    const cents = (key: typeof amounts[number]) => BigInt(row[key].replace(".", ""));
+    if (cents("captured") !== cents("applied") + cents("unapplied") ||
+        cents("captured") !== cents("refunded") + cents("net_confirmed") ||
+        cents("refunded") + cents("refund_reserved") > cents("applied")) return false;
     const key = JSON.stringify([row.provider, row.account_id, row.currency]);
     if (seen.has(key)) return false;
     seen.add(key);
