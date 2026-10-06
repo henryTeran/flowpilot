@@ -5,7 +5,7 @@ from app.modules.payments.provider import OperationKind
 from app.shared.exceptions import business_error
 
 
-def validate_parent_operation(db, request, kind, provider, account_id, reference):
+def validate_parent_operation(db, request, kind, provider, account_id, reference, *, current_intent_id=None):
     """Caller holds institute lock. Reserve full authorization for capture/cancel.
 
     Refund requires captured settlement facts; authorization is not refundable cash.
@@ -25,10 +25,18 @@ def validate_parent_operation(db, request, kind, provider, account_id, reference
         raise business_error("Autorisation confirmee et encore protegee requise")
     if (fact.amount, fact.currency) != (request.value.amount, request.value.currency):
         raise business_error("Montant et devise doivent correspondre a l'autorisation complete")
-    if db.scalar(select(PaymentIntent.id).where(
-            PaymentIntent.institute_id == request.institute_id,
-            PaymentIntent.provider == provider, PaymentIntent.account_id == account_id,
-            PaymentIntent.provider_payment_id == reference,
-            PaymentIntent.kind.in_(["capture", "cancel"]))):
+    reserved = select(PaymentIntent.id).where(
+        PaymentIntent.institute_id == request.institute_id,
+        PaymentIntent.provider == provider, PaymentIntent.account_id == account_id,
+        PaymentIntent.provider_payment_id == reference,
+        PaymentIntent.kind.in_(["capture", "cancel"]))
+    from app.modules.payments.models import ParentOperationOutcome
+    failed = select(ParentOperationOutcome.id).where(
+        ParentOperationOutcome.intent_id == PaymentIntent.id,
+        ParentOperationOutcome.status == "failed").exists()
+    reserved = reserved.where(~failed)
+    if current_intent_id:
+        reserved = reserved.where(PaymentIntent.id != current_intent_id)
+    if db.scalar(reserved):
         raise business_error("Une capture ou annulation est deja reservee; recuperer son resultat")
     return parent

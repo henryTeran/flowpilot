@@ -54,3 +54,35 @@ def record_authorization_outcome(db, institute_id, intent_id, provider, account_
         raise business_error("Reference prestataire deja enregistree; verifier le resultat")
     db.refresh(row)
     return row
+
+
+
+def record_parent_outcome(db, institute_id, intent_id, provider, account_id, result):
+    """Trusted adapter result only. Capture stays protected until checkout applies it."""
+    from app.modules.payments.models import ParentOperationExecution, ParentOperationOutcome
+    lock_institute(db, institute_id)
+    intent = db.scalar(select(PaymentIntent).where(PaymentIntent.id == intent_id,
+                                                  PaymentIntent.institute_id == institute_id))
+    if intent is None:
+        raise not_found("Intention de paiement introuvable")
+    if intent.kind not in {"capture", "cancel"} or (intent.provider, intent.account_id) != (provider, account_id):
+        raise business_error("Compte ou operation incompatible")
+    execution = db.get(ParentOperationExecution, intent_id)
+    if execution is None:
+        raise business_error("Execution durable requise avant resultat prestataire")
+    validate_result(original_request(intent), OperationKind(intent.kind), result, intent.provider_payment_id)
+    rows = list(db.scalars(select(ParentOperationOutcome).where(ParentOperationOutcome.intent_id == intent_id)))
+    old = next((row for row in rows if row.status == result.status.value), None)
+    if old is not None:
+        return old
+    if any(row.status != "pending" for row in rows):
+        raise business_error("Le resultat terminal ne peut pas etre remplace")
+    row = ParentOperationOutcome(id=new_id("ppo"), intent_id=intent_id, status=result.status.value,
+               provider_payment_id=result.provider_payment_id, amount=result.value.amount,
+               currency=result.value.currency, observed_at=utcnow())
+    db.add(row)
+    if result.status is ProviderStatus.CANCELLED:
+        db.get(PaymentExecution, execution.parent_intent_id).released_at = row.observed_at
+    db.commit()
+    db.refresh(row)
+    return row

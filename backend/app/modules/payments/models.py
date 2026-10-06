@@ -64,3 +64,27 @@ class PaymentReference(Base):
     account_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     provider_payment_id: Mapped[str] = mapped_column(String(240), primary_key=True)
     intent_id: Mapped[str] = mapped_column(ForeignKey("payment_intents.id"), unique=True)
+
+
+class ParentOperationExecution(Base):
+    """Durable child dispatch seal; parent keeps ticket protection during I/O."""
+    __tablename__ = "payment_parent_executions"
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_intents.id"), primary_key=True)
+    parent_intent_id: Mapped[str] = mapped_column(ForeignKey("payment_executions.intent_id"), index=True)
+    sealed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ParentOperationOutcome(Base):
+    __tablename__ = "payment_parent_outcomes"
+    __table_args__ = (
+        UniqueConstraint("intent_id", "status", name="uq_payment_parent_outcome_status"),
+        CheckConstraint("status IN ('pending', 'failed', 'captured', 'cancelled')", name="ck_payment_parent_outcome_status"),
+        CheckConstraint("amount > 0 AND currency IN ('CHF', 'EUR')", name="ck_payment_parent_outcome_value"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_parent_executions.intent_id"), index=True)
+    status: Mapped[str] = mapped_column(String(20))
+    provider_payment_id: Mapped[str] = mapped_column(String(240))
+    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

@@ -32,3 +32,31 @@ def seal_authorization(db, institute_id, intent_id):
                             ticket_id=intent.ticket_id, sealed_at=utcnow()))
     db.commit()  # The durable seal must exist before any external call.
     return request
+
+
+
+def seal_parent_operation(db, institute_id, intent_id):
+    """Validate and seal capture/cancel before I/O; do not release the parent.
+
+    A recovery replay returns original conditions before rechecking parent state.
+    Capture/cancel outcomes and checkout application are separate required steps.
+    """
+    from app.modules.payments.models import ParentOperationExecution
+    from app.modules.payments.provider import OperationKind
+    from app.modules.payments.parents import validate_parent_operation
+    lock_institute(db, institute_id)
+    intent = db.scalar(select(PaymentIntent).where(PaymentIntent.id == intent_id,
+                                                  PaymentIntent.institute_id == institute_id))
+    if intent is None:
+        raise not_found("Intention de paiement introuvable")
+    if intent.kind not in {"capture", "cancel"}:
+        raise business_error("Execution reservee a la capture ou annulation")
+    old = db.get(ParentOperationExecution, intent_id)
+    if old is not None:
+        return original_request(intent)
+    request = original_request(intent)
+    parent = validate_parent_operation(db, request, OperationKind(intent.kind), intent.provider,
+                         intent.account_id, intent.provider_payment_id, current_intent_id=intent_id)
+    db.add(ParentOperationExecution(intent_id=intent_id, parent_intent_id=parent.id, sealed_at=utcnow()))
+    db.commit()
+    return request

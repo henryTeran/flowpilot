@@ -123,3 +123,24 @@ Unresolved prepared requests are not abandoned or released implicitly; their dur
 execution/result recovery must follow. Refund preparation requires captured facts
 and is rejected until that ledger exists. No capture/cancel dispatch, settlement,
 parent release or checkout application is claimed by these prerequisite checks.
+
+
+Capture/cancel now have their own durable execution seals and immutable observation
+ledger. The seal snapshots the parent link after validating the original request;
+recovery reuses original terms before reconsidering parent state. The account-bound
+dispatcher closes its SQL session before calling capture/cancel and returns stored
+terminal observations without new provider I/O. Exact request value, status and
+stored reference validation precede every outcome write.
+
+Pending/unknown retains parent protection. Confirmed cancellation releases the
+parent in the same transaction as its immutable fact. Confirmed capture retains
+protection until captured settlement is applied to checkout, preventing an unrelated
+cashier closure or new charge in the interim. Explicit child failure leaves the
+parent authorization active and allows another capture/cancel request; historical
+failed requests and seals remain immutable. Terminal conflicts cannot rewrite facts.
+Interrupted persistence cannot release the parent. The new migration refuses to
+downgrade nonempty execution or outcome history before dropping any table.
+
+These internal adapter simulation checks do not establish external integration or
+production settlement. Captured checkout application, refund budgets and execution,
+webhook authentication/replay, real providers and operator UI remain required.

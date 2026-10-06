@@ -50,3 +50,31 @@ def dispatch_authorization(session_factory, institute_id, intent_id, binding: Pr
     with session_factory() as db:
         record_authorization_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
     return result
+
+
+
+def dispatch_parent_operation(session_factory, institute_id, intent_id, binding: ProviderBinding):
+    from app.modules.payments.models import ParentOperationOutcome
+    from app.modules.payments.executions import seal_parent_operation
+    from app.modules.payments.outcomes import record_parent_outcome
+    if not isinstance(binding, ProviderBinding) or binding.institute_id != institute_id:
+        raise business_error("Configuration prestataire de cet institut requise")
+    with session_factory() as db:
+        intent = db.scalar(select(PaymentIntent).where(PaymentIntent.id == intent_id,
+                                                      PaymentIntent.institute_id == institute_id))
+        if intent is None:
+            raise not_found("Intention de paiement introuvable")
+        if intent.kind not in {"capture", "cancel"} or (intent.provider, intent.account_id) != (binding.provider, binding.account_id):
+            raise business_error("Compte ou operation incompatible")
+        kind, reference = intent.kind, intent.provider_payment_id
+        request = seal_parent_operation(db, institute_id, intent_id)
+        terminal = db.scalar(select(ParentOperationOutcome).where(ParentOperationOutcome.intent_id == intent_id,
+                                                                  ParentOperationOutcome.status != "pending"))
+        if terminal is not None:
+            return ProviderResult(terminal.provider_payment_id, ProviderStatus(terminal.status),
+                                  PaymentAmount(terminal.amount, terminal.currency))
+    method = binding.adapter.capture if kind == "capture" else binding.adapter.cancel
+    result = method(request, reference)
+    with session_factory() as db:
+        record_parent_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
+    return result
