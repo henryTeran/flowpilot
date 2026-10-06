@@ -11,6 +11,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
+from decimal import Decimal
 from contextlib import contextmanager
 
 import httpx
@@ -197,7 +198,7 @@ def test_live_actions_recalculate_employee_resource_and_checkout_state(postgres_
                 change("PATCH", f"/tickets/{first['id']}/checkout/pay", {"employee_id": employee, "payment_method": "cb"})
                 assert first["id"] not in {ticket["id"] for ticket in tickets()}
                 report = read(f"/tickets/chiffres?institute_id={institute}")
-                assert report["currency"] == "CHF" and report["totals"]["total"] > 0
+                assert report["currency"] == "CHF" and Decimal(report["totals"]["total"]) > 0
 
                 booking_payload = {"institute_id": institute, "employee_id": employee, "service_id": service,
                                    "customer_name": "Live booking", "start_time": (utcnow() + timedelta(minutes=1)).isoformat()}

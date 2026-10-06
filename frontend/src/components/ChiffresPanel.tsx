@@ -14,7 +14,7 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
   const currency = group?.currency || chiffres?.currency;
   const rows = group?.rows || chiffres?.rows || [];
   const totals = group?.totals || chiffres?.totals;
-  const display = (value: number | null | undefined) => formatAmount(currency ? value : null);
+  const display = (value: string | null | undefined) => formatAmount(currency ? value : null);
 
   return (
     <section className="bm-chiffres-screen">
@@ -85,13 +85,11 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
   );
 }
 
-function formatAmount(value: number | null | undefined) {
-  if (value === null || value === undefined) return "\u2014";
-  const amount = value;
-  return new Intl.NumberFormat("fr-CH", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+function formatAmount(value: string | null | undefined) {
+  if (typeof value !== "string") return "\u2014";
+  const parts = /^(-?)(\d+)\.(\d{2})$/.exec(value);
+  if (!parts) return "\u2014";
+  return `${parts[1]}${parts[2].replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")},${parts[3]}`;
 }
 
 function formatPeriod(value?: string) {

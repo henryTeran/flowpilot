@@ -207,12 +207,12 @@ export type PaymentMethod = "cb" | "especes" | "cheque" | "carte_cadeau" | "mixt
 export interface EmployeeChiffres {
   employee_id: string;
   employee_name: string;
-  soins: number | null;
-  ventes: number | null;
-  contrats: number | null;
-  pourboires: number | null;
-  moyenne: number | null;
-  total: number | null;
+  soins: string | null;
+  ventes: string | null;
+  contrats: string | null;
+  pourboires: string | null;
+  moyenne: string | null;
+  total: string | null;
   tickets: number;
   prestations: number;
 }

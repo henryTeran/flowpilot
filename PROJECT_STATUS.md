@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AA_CURRENCY_SCOPED_CHIFFRES
+CURRENT_CHECKPOINT = PHASE9AB_DECIMAL_CHIFFRES_API
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,8 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Chiffres monetary DTO fields now remain Decimal and serialize as two-decimal strings; the UI formats recorded digits directly without JavaScript Number conversion. API/UI regression preserves 90071992547409.93 cents exactly. Final local report/checkout bundle: 11 passed, 1 opt-in skip. Frontend: 79 passed and production build passed. Nullable unknown/mixed totals and original-currency groups remain unchanged. No migration or bank settlement claim.
+- Final report serialization/PostgreSQL/two-process HTTP-WebSocket bundle: 6 passed. Prior full backend baseline remains 319 passed / 67 opt-in skips; no new full-suite claim for this focused serialization correction. Browser/tablet remains open.
 - Chiffres now groups original paid-ticket currency, uses Decimal accumulation under precision 28, shares one source ticket set/period, and returns null legacy monetary totals for mixed/unknown units. Unknown historical tickets are counted without monetary aggregation. UI selects labelled CHF/EUR groups and hides unlabelled totals. Focused report/checkout tests: 10 passed, 1 opt-in skip locally; report suite: 3 passed with actual PostgreSQL enabled. Frontend: 78 passed and build passed. ADR-009 records contract/nullability and scope.
 - Full backend regression after report contract change: 319 passed, 67 opt-in skips. Final report component checks after initial-loading wording guard: 2 passed and build passed. No migration or production/tablet claim.
 - Final two-process PostgreSQL HTTP/WebSocket protocol: 2 passed after explicit institute/invoice currency setup. Currency confirmation is a REST commercial mutation, not a planning-event notification; the fixture preserves actual planning event assertions. Actual browser/tablet verification remains open.
@@ -48,7 +50,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 78 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 79 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
@@ -89,7 +91,8 @@ NEXT_STEP:
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(reporting): separate original invoice currencies in Chiffres.
+- Current: fix(reporting): preserve exact decimal amounts through Chiffres API and UI.
+- b650956 original invoice currency reporting.
 - e733262 HTTP cashflow and refund loyalty integration audit.
 - 28866e3 obsolete prepared authorization recovery guard.
 - 3b7f955 initial authorization from exact server quote UI.

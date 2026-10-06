@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator, field_serializer
 
 
 class TicketCreate(BaseModel):
@@ -119,14 +120,19 @@ class EmployeeChiffresRead(BaseModel):
 
     employee_id: str
     employee_name: str
-    soins: float | None = 0.0
-    ventes: float | None = 0.0
-    contrats: float | None = 0.0
-    pourboires: float | None = 0.0
-    moyenne: float | None = 0.0
-    total: float | None = 0.0
+    soins: Decimal | None = Decimal("0.00")
+    ventes: Decimal | None = Decimal("0.00")
+    contrats: Decimal | None = Decimal("0.00")
+    pourboires: Decimal | None = Decimal("0.00")
+    moyenne: Decimal | None = Decimal("0.00")
+    total: Decimal | None = Decimal("0.00")
     tickets: int = 0
     prestations: int = 0
+
+
+    @field_serializer("soins", "ventes", "contrats", "pourboires", "moyenne", "total")
+    def monetary_text(self, value):
+        return format(value, ".2f") if value is not None else None
 
 
 class CurrencyChiffresRead(BaseModel):

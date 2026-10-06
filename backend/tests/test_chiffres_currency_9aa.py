@@ -29,8 +29,8 @@ def exercise(engine, institute, employee, care):
     assert report.totals.tickets == 4 and report.unknown_currency_tickets == 1
     assert all(row.total is None for row in report.rows)
     groups = {group.currency: group for group in report.currency_groups}
-    assert groups["CHF"].totals.total == 10.45 and groups["CHF"].totals.tickets == 2
-    assert groups["EUR"].totals.total == 20.10 and groups["EUR"].totals.tickets == 1
+    assert groups["CHF"].totals.total == Decimal("10.45") and groups["CHF"].totals.tickets == 2
+    assert groups["EUR"].totals.total == Decimal("20.10") and groups["EUR"].totals.tickets == 1
     return report
 
 
@@ -43,6 +43,7 @@ def test_currency_report_separates_historical_units_and_scopes_http(client):
     assert response.json()["totals"]["total"] is None
     assert response.json()["unknown_currency_tickets"] == 1
     assert {row["currency"] for row in response.json()["currency_groups"]} == {"CHF", "EUR"}
+    assert {row["currency"]: row["totals"]["total"] for row in response.json()["currency_groups"]} == {"CHF": "10.45", "EUR": "20.10"}
     assert client.get(path, headers=_auth_headers(institute_id="foreign")).status_code == 403
 
 
@@ -51,10 +52,17 @@ def test_single_known_currency_keeps_a_comparable_total(client):
     seed(main_module.engine, institute, employees[0]["id"], services[0]["id"], [("EUR", "10.35"), ("EUR", "0.10")])
     with Session(main_module.engine) as db:
         report = get_chiffres_by_employee(db, institute)
-    assert report.currency == "EUR" and report.totals.total == 10.45
+    assert report.currency == "EUR" and report.totals.total == Decimal("10.45")
     assert report.unknown_currency_tickets == 0
     assert report.currency_groups[0].totals.total == report.totals.total
 
 
 def test_report_currency_actual_postgresql(postgres_flow):
     exercise(*postgres_flow)
+
+
+def test_report_serialization_preserves_cents_above_javascript_safe_integer():
+    from app.modules.tickets.schemas import EmployeeChiffresRead
+    row = EmployeeChiffresRead(employee_id="staff", employee_name="Employee", total=Decimal("90071992547409.93"))
+    assert row.model_dump(mode="json")["total"] == "90071992547409.93"
+    assert row.model_dump(mode="json")["soins"] == "0.00"
