@@ -78,3 +78,29 @@ def dispatch_parent_operation(session_factory, institute_id, intent_id, binding:
     with session_factory() as db:
         record_parent_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
     return result
+
+
+
+def dispatch_refund(session_factory, institute_id, intent_id, binding: ProviderBinding):
+    from app.modules.payments.models import RefundOutcome
+    from app.modules.payments.refunds import seal_refund, record_refund_outcome
+    if not isinstance(binding, ProviderBinding) or binding.institute_id != institute_id:
+        raise business_error("Configuration prestataire de cet institut requise")
+    with session_factory() as db:
+        intent = db.scalar(select(PaymentIntent).where(PaymentIntent.id == intent_id,
+                                                      PaymentIntent.institute_id == institute_id))
+        if intent is None:
+            raise not_found("Intention de paiement introuvable")
+        if (intent.kind, intent.provider, intent.account_id) != ("refund", binding.provider, binding.account_id):
+            raise business_error("Compte ou operation incompatible")
+        reference = intent.provider_payment_id
+        request = seal_refund(db, institute_id, intent_id)
+        terminal = db.scalar(select(RefundOutcome).where(RefundOutcome.intent_id == intent_id,
+                                                        RefundOutcome.status != "pending"))
+        if terminal is not None:
+            return ProviderResult(terminal.provider_payment_id, ProviderStatus(terminal.status),
+                                  PaymentAmount(terminal.amount, terminal.currency))
+    result = binding.adapter.refund(request, reference)
+    with session_factory() as db:
+        record_refund_outcome(db, institute_id, intent_id, binding.provider, binding.account_id, result)
+    return result

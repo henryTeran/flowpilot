@@ -180,3 +180,21 @@ This checkpoint prepares immutable refund requests only. There is no refund disp
 or outgoing settlement fact yet, and no implicit release of failed reservations.
 Verified refund failure release, execution recovery, accounting/loyalty consequences,
 real adapters and webhook processing remain required. Paid service history is unchanged.
+
+
+Refund execution now seals the immutable request against its captured parent before
+external I/O. First sealing excludes only its validated matching reservation from
+budget revalidation; recovery preserves the original request without re-reserving.
+The account-bound dispatcher closes its SQL session before calling refund and returns
+existing terminal observations without another provider call. Immutable pending/
+refunded/failed outcomes require the durable seal, exact amount/currency, original
+reference and configured provider/account. Terminal outcomes cannot be replaced.
+
+Only a persisted explicit failed outcome makes its reservation available again;
+unknown transport or interrupted persistence retains capacity. Successful refunds
+continue consuming the captured budget. Original requests/seals/facts are retained.
+No paid service or loyalty history is rewritten automatically: refund accounting,
+loyalty adjustment policy and operator workflow require explicit implementation.
+SQLite/PostgreSQL nonempty history guards refuse downgrade before DDL. Test adapters
+prove recovery/concurrency only; real integration and authenticated webhook handling
+remain open, and no public payment endpoint is introduced.

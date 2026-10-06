@@ -99,3 +99,26 @@ class CaptureApplication(Base):
     actor_id: Mapped[str] = mapped_column(String(160))
     method: Mapped[str] = mapped_column(String(20))
     applied_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RefundExecution(Base):
+    __tablename__ = "payment_refund_executions"
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_intents.id"), primary_key=True)
+    capture_intent_id: Mapped[str] = mapped_column(ForeignKey("payment_parent_executions.intent_id"), index=True)
+    sealed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RefundOutcome(Base):
+    __tablename__ = "payment_refund_outcomes"
+    __table_args__ = (
+        UniqueConstraint("intent_id", "status", name="uq_payment_refund_outcome_status"),
+        CheckConstraint("status IN ('pending', 'failed', 'refunded')", name="ck_payment_refund_outcome_status"),
+        CheckConstraint("amount > 0 AND currency IN ('CHF', 'EUR')", name="ck_payment_refund_outcome_value"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_refund_executions.intent_id"), index=True)
+    status: Mapped[str] = mapped_column(String(20))
+    provider_payment_id: Mapped[str] = mapped_column(String(240))
+    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

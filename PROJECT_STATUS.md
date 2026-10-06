@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9K_CAPTURED_REFUND_RESERVATIONS
+CURRENT_CHECKPOINT = PHASE9L_DURABLE_REFUND_EXECUTION
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,11 @@ GATES:
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
-- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel execution and immutable outcomes plus atomic captured checkout application and captured-amount refund reservation budgets implemented; refund execution/outcomes, real adapters and webhook processing pending. All Phase 9 gates remain open.
+- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel execution and immutable outcomes plus atomic captured checkout application and captured-amount refund budgets, execution and immutable outcomes implemented; refund accounting/loyalty policy, real adapters, operator workflow and webhook processing pending. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Refund execution/budget/migration bundle: 6 passed / 3 opt-in skips locally and 9 passed on PostgreSQL. Final enhanced execution suite: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Terminal no-I/O replay, unknown outcome recovery, failed-write reservation retention, verified-failure budget release, scope/value/reference/status rejection, concurrent duplicate refund and nonempty downgrade verified. Owned PostgreSQL upgrade/check passed. Simulated adapters do not establish real external settlement.
 - Refund budget/parent/checkout regression: 9 passed / 3 opt-in skips locally and 12 passed on PostgreSQL. Final enhanced refund suite: 2 passed / 1 opt-in skip locally and 3 passed on PostgreSQL. Exact partial/remainder reservation, same-key replay at exhausted budget, changed-term denial, applied-capture/account/reference requirements, concurrent overdraw prevention and exclusion of gift-funded value verified. No new schema or refund dispatch at this checkpoint.
 - Captured checkout/migration PostgreSQL bundle: 6 passed. Final checkout suite after explicit Decimal-context protection: 3 passed / 1 opt-in skip locally and 4 passed on PostgreSQL. Mixed gift/external remainder, duplicate paid application/one earning, failed earning rollback, immutable method replay and nonempty application downgrade guard verified. Owned PostgreSQL upgrade/check passed. No real adapter settlement is claimed.
 - Capture/cancel execution, parent-proof and migration bundle: 14 passed / 3 opt-in skips locally and 17 passed on PostgreSQL. Final execution suite: 8 passed / 2 opt-in skips locally and 10 passed on PostgreSQL, including concurrent cancellation. Enhanced terminal-conflict/downgrade checks: 4 passed on each database. Owned PostgreSQL upgrade/check passed. Unknown transport, interrupted cancellation writes and seal rollback preserve parent protection; failed children allow another request; confirmed cancellation releases atomically. Captured checkout application is now implemented below at internal functional scope.
@@ -29,7 +30,7 @@ EVIDENCE:
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
-- Migrations through 60cd01587bdf: SQLite/PostgreSQL round-trip/model parity, PostgreSQL upgrade/check and nonempty commercial-history downgrade guards passed; tier-only, point-ledger, earning-policy, earned-ticket, reward-term and redemption guards verified.
+- Migrations through 71de12698ce0: SQLite/PostgreSQL round-trip/model parity, PostgreSQL upgrade/check and nonempty commercial-history downgrade guards passed; tier-only, point-ledger, earning-policy, earned-ticket, reward-term and redemption guards verified.
 - Phase 7 live two-process PostgreSQL suite: 2 passed with action revisions followed by reader-side REST verification. This does not establish actual browser reconnect/tablet UX.
 - Earlier package/membership/booking/resource evidence and scope are retained in git history and docs/architecture/COMMERCE.md, HYBRID_BOOKING.md, RESOURCES_AND_SKILLS.md and REALTIME_OPERATIONS.md.
 INVARIANTS:
@@ -57,12 +58,13 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE9L: seal/dispatch refund requests against their captured parent; persist confirmed/failed outcomes and release reservation only on verified failure; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9M: authenticate and correlate webhook events to account-bound stored operations; persist replay-safe delivery/application; define refund accounting and loyalty adjustments; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): reserve refunds against confirmed captured amounts.
+- Current: feat(payments): dispatch refunds with durable replay-safe outcomes.
+- d3f1b4a captured-amount refund reservations.
 - ec9f9ee atomic captured checkout application.
 - 0e9ed73 durable capture/cancel execution and provider facts.
 - c082209 capture/cancel parent proof and reservations.
