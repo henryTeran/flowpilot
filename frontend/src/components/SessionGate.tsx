@@ -29,9 +29,10 @@ export function SessionGate() {
     }
   }
 
+  function logout() { setAccessToken(null); setAuthenticated(false); }
   if (authenticated) return <>
-    <App />
-    <button className="flow-session-exit" onClick={() => { setAccessToken(null); setAuthenticated(false); }}>
+    <App onLogout={logout} />
+    <button className="flow-session-exit" onClick={logout}>
       Déconnexion
     </button>
   </>;

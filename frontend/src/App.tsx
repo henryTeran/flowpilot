@@ -36,7 +36,7 @@ import type {
   ServiceCategory,
 } from "./types";
 
-export default function App() {
+export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [selectedInstituteId, setSelectedInstituteId] = useState("");
   const operationalRefreshGate = useRef(createRefreshGate());
@@ -739,6 +739,7 @@ export default function App() {
         onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
         onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
+        onLogout={onLogout}
       />
 
       <div className="bm-content-shell">

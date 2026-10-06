@@ -24,6 +24,7 @@ interface FlowPilotSidebarProps {
   onOpenTickets: () => void;
   onOpenDashboard: () => void;
   onOpenOffers?: () => void;
+  onLogout?: () => void;
 }
 
 export function FlowPilotSidebar({
@@ -32,6 +33,7 @@ export function FlowPilotSidebar({
   onOpenTickets,
   onOpenDashboard,
   onOpenOffers,
+  onLogout,
 }: FlowPilotSidebarProps) {
   function handleClick(itemId: string) {
     if (itemId === "planning") onOpenPlanning?.();
@@ -64,7 +66,7 @@ export function FlowPilotSidebar({
         ))}
       </nav>
 
-      <button type="button" className="bm-logout-button" aria-label="Déconnexion">
+      <button type="button" className="bm-logout-button" aria-label="Déconnexion" onClick={onLogout} disabled={!onLogout}>
         <PowerIcon />
       </button>
     </aside>

@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "test": "node scripts/test.mjs",
     "test:browser": "playwright test",
+    "test:browser:backend": "playwright test --config playwright.backend.config.ts",
     "preview": "vite preview --host 0.0.0.0 --port 4173"
   },
   "dependencies": {

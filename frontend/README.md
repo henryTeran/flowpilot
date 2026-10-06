@@ -60,3 +60,13 @@ Playwright Chromium (install its browser binary first). See the official
 The current cashflow browser cases use controlled API fixtures, not a live payment
 provider or backend. Screenshots/traces are stored in ignored `test-results`;
 physical tablet acceptance and full backend-connected E2E remain separate gates.
+
+`npm run test:browser:backend` starts a real FastAPI process on 127.0.0.1:4198
+and a separately built preview on 127.0.0.1:4199. It requires backend dependencies
+in the repository `.venv`. The fixture always overrides DATABASE_URL with a new
+temporary SQLite file and generates its own signing key/test users. It never opens
+an existing application database or configures a payment adapter. Tests authenticate
+through the actual login form; no API interception or injected session token is used.
+Current coverage is manager/cashier access, scoped reads and logout, not settlement
+or the complete walk-in workflow. Windows process termination can leave the owned
+`flowpilot-browser-*` temporary database directory; automated cleanup needs hardening.
