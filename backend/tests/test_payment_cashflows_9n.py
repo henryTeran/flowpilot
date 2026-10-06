@@ -1,4 +1,5 @@
 from decimal import Decimal, localcontext
+import pytest
 from sqlalchemy.orm import Session
 import app.main as main_module
 from app.modules.payments.ledger import cashflow_snapshot
@@ -81,3 +82,62 @@ def test_cashflow_snapshot_reads_actual_postgresql_facts(postgres_flow):
         row = cashflow_snapshot(db, institute)["accounts"][0]
         assert row["net_confirmed"] == Decimal("5.35")
         assert row["applied"] == Decimal("10.35") and row["refund_reserved"] == 0
+
+
+@pytest.mark.parametrize("terminal", [ProviderStatus.REFUNDED, ProviderStatus.FAILED])
+def test_cashflow_waits_for_atomic_refund_outcome_and_replay(postgres_flow, terminal):
+    """Observe a real PostgreSQL lock wait, not just a favorable thread order."""
+    from concurrent.futures import ThreadPoolExecutor
+    from queue import Queue
+    from time import monotonic, sleep
+    from sqlalchemy import text
+
+    engine, institute, employee, care = postgres_flow
+    ticket, _, capture = prepare(engine, institute, employee, care)
+    with Session(engine) as db:
+        apply_capture(db, institute, capture, employee, "operator", "cb")
+        identifier = reserve(db, institute, ticket, "atomic-refund", "3.25").id
+        request = seal_refund(db, institute, identifier)
+        record_refund_outcome(db, institute, identifier, "provider", "account",
+                              ProviderResult("reference", ProviderStatus.PENDING, request.value))
+        before = cashflow_snapshot(db, institute)["accounts"][0]
+        assert before["refunded"] == 0 and before["refund_reserved"] == Decimal("3.25")
+        db.rollback()
+
+    reader_pid = Queue()
+
+    def read():
+        with Session(engine) as reader:
+            reader.execute(text("SET statement_timeout = '10s'"))
+            reader_pid.put(reader.scalar(text("SELECT pg_backend_pid()")))
+            return cashflow_snapshot(reader, institute)["accounts"][0]
+
+    result = ProviderResult("reference", terminal, request.value)
+    with ThreadPoolExecutor(max_workers=1) as pool, Session(engine) as writer:
+        record_refund_outcome(writer, institute, identifier, "provider", "account", result, commit=False)
+        future = pool.submit(read)
+        try:
+            pid = reader_pid.get(timeout=5)
+            deadline = monotonic() + 5
+            with engine.connect() as observer:
+                while monotonic() < deadline:
+                    waiting = observer.scalar(text("SELECT wait_event_type FROM pg_stat_activity WHERE pid = :pid"), {"pid": pid})
+                    observer.rollback()  # Refresh PostgreSQL's statistics snapshot.
+                    if waiting == "Lock":
+                        break
+                    sleep(0.01)
+            assert waiting == "Lock", "cashflow reader did not wait for the uncommitted refund"
+            assert not future.done()
+            writer.commit()
+            after = future.result(timeout=5)
+        finally:
+            writer.rollback()  # Release the reader even when a lock assertion fails.
+
+    refunded = Decimal("3.25") if terminal == ProviderStatus.REFUNDED else Decimal("0.00")
+    assert after["captured"] == after["applied"] == Decimal("10.35")
+    assert after["unapplied"] == after["refund_reserved"] == 0
+    assert after["refunded"] == refunded
+    assert after["net_confirmed"] == Decimal("10.35") - refunded
+    with Session(engine) as db:
+        record_refund_outcome(db, institute, identifier, "provider", "account", result)
+        assert cashflow_snapshot(db, institute)["accounts"][0] == after

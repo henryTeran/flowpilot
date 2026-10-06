@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AD_REPORT_REFRESH_ARBITRATION
+CURRENT_CHECKPOINT = PHASE9AE_ATOMIC_CASHFLOW_READ_VERIFICATION
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Actual PostgreSQL cashflow concurrency coverage observes pg_stat_activity Lock waits while a terminal refund outcome is uncommitted. The reader resumes only after commit, showing confirmed refund debit or failed-refund reservation release with exact net amounts. Original-result replay leaves the report unchanged. Both terminal paths and the full cashflow file pass (5 tests); the broader cashflow/webhook/refund-budget/refund-execution bundle passes all 18 tests with PostgreSQL enabled. No production adapter, schema or business rule change.
 - Manual and operational Chiffres reads now share a request sequence. Only the latest scoped/token-valid read may publish data, errors or loading completion. A superseded full operational refresh returns false, preserving financial recovery latches. Latest operational failure clears cached figures. Whole-App delayed-response regression covers stale success, failure revival and premature loading completion: frontend suite 81 passed; TypeScript/Vite build passed. No backend change or native browser/tablet claim.
 - Chiffres UI now receives the selected institute explicitly, hides cached facts during loading or scope mismatch (including empty institute selection), and resets currency selection on institute changes. Manual refresh clears the previous report before GET so a failed read cannot leave that cached report displayed. Unavailable/loading text is distinct from a proven empty report. Frontend broad suite: 80 passed plus build; final component checks after empty-scope/wording guards: 4 passed plus build. No backend or production/tablet claim.
 - Chiffres monetary DTO fields now remain Decimal and serialize as two-decimal strings; the UI formats recorded digits directly without JavaScript Number conversion. API/UI regression preserves 90071992547409.93 cents exactly. Final local report/checkout bundle: 11 passed, 1 opt-in skip. Frontend: 79 passed and production build passed. Nullable unknown/mixed totals and original-currency groups remain unchanged. No migration or bank settlement claim.

@@ -455,3 +455,13 @@ currency groups are reported separately; mixed/unknown legacy monetary totals ar
 null and unknown-unit tickets are counted without invented conversion or relabeling.
 This repairs gross service unit aggregation, not bank payouts, fees/taxes or complete
 net accounting. Those payment/production verification requirements remain open.
+
+
+Cashflow consistency is now exercised against concurrent PostgreSQL transactions.
+A writer stages a terminal refund outcome without committing; a separate report
+reader is observed waiting on a real database lock through pg_stat_activity. After
+commit, confirmed refund moves the original reservation to refunded and lowers
+net confirmed cash; confirmed failure releases the reservation without reducing
+net cash. Neither path mixes pre-commit reservation with post-commit terminal state.
+Replaying the original result preserves the same amounts. This verifies the existing
+institute-lock boundary, not bank settlement, provider signatures or full accounting.
