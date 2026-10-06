@@ -6,13 +6,20 @@ import { instituteMidnight, validOutlook, validScenario, type Outlook, type Scen
 import { stockMilli, stockDisplay, stockUnits } from "../inventory-utils";
 import type { Service } from "../types";
 import { instituteTimeZone } from "../institute-time";
+import { StockSourceOutlook } from "./StockSourceOutlook";
 const base = (id: string) => `/inventory/institutes/${encodeURIComponent(id)}`;
 type Chosen = { service_id: string; name: string; recipe: Recipe | null; input: string };
 type Frozen = { scenario: Scenario; choices: Chosen[] };
 const signature = (recipe: Recipe) => JSON.stringify(recipe);
 export function StockOutlook(props: { institute: string; timezone: string; services: Service[]; usable: boolean }) {
   if (!props.institute || !["accueil", "responsable_institut"].includes(getOperatorRole() || "")) return null;
-  return <View key={JSON.stringify([props.institute, getAccessToken(), props.timezone])} {...props} timezone={instituteTimeZone(props.timezone)} />;
+  return <Modes key={JSON.stringify([props.institute, getAccessToken(), props.timezone])} {...props} />;
+}
+function Modes(props: { institute: string; timezone: string; services: Service[]; usable: boolean }) {
+  const [source, select] = useState(false);
+  return <><div className="bm-stock-pages bm-stock-view-switch" role="group" aria-label="Vue des besoins"><button type="button" aria-pressed={!source} onClick={() => select(false)}>Stock et scénario</button><button type="button" aria-pressed={source} onClick={() => select(true)}>Prestations et usage</button></div>
+    <div hidden={source}><View {...props} timezone={instituteTimeZone(props.timezone)} usable={props.usable && !source} /></div>
+    <div hidden={!source}><StockSourceOutlook institute={props.institute} timezone={props.timezone} usable={props.usable && source} /></div></>;
 }
 function View({ institute, timezone, services, usable }: { institute: string; timezone: string; services: Service[]; usable: boolean }) {
   const token = getAccessToken(), [facts, setFacts] = useState<Outlook>(), [offset, page] = useState(0), [frozen, freeze] = useState<Frozen>();

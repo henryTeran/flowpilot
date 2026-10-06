@@ -40,7 +40,7 @@ test("reception reads physical shortages separately from orders and hides failed
   sessionStorage.clear(); setAccessToken(token("reader", "accueil")); const root = createRoot(document.getElementById("root")!), previous = globalThis.fetch;
   let invalid = false; globalThis.fetch = async () => response(invalid ? { ...facts, items: [{ ...row, threshold_shortfall: "0.000" }] } : facts);
   try {
-    await act(async () => root.render(panel())); assert.match(document.body.textContent!, /Stock physique : 2,125 ml/); assert.match(document.body.textContent!, /Commandé, non reçu : 8,000 ml/); assert.equal(document.querySelectorAll("form").length, 1);
+    await act(async () => root.render(panel())); assert.match(document.body.textContent!, /Stock physique : 2,125 ml/); assert.match(document.body.textContent!, /Commandé, non reçu : 8,000 ml/); assert.equal(document.querySelectorAll("form").length, 2);
     invalid = true; await act(async () => button("Actualiser les besoins").click()); assert.doesNotMatch(document.body.textContent!, /Stock physique :/); assert.ok(document.querySelector('[role="alert"]'));
   } finally { await act(async () => root.unmount()); globalThis.fetch = previous; }
 });

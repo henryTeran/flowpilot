@@ -1357,6 +1357,15 @@ original-version scenario review and institute civil-date conversion with
 partial coverage. Scheduled/observed demand integration remains required. No physical tablet, production settlement
 or complete Phase 10 claim.
 
+Phases 10P-10S subsequently add exact elapsed-time projection windows,
+recorded upcoming appointment/explicit waiting-queue demand, signed measured
+usage by actual completion and native review of both source views (ADR-016).
+Missing/legacy/undated sources preserve unknown complete totals; provisional
+upcoming norms and observed constant-pace projections are alternatives.
+Controlled frontend/Edge evidence is recorded in PROJECT_STATUS.md. Inventory
+requirement/production acceptance and Phase 24 gates remain to be audited;
+no physical tablet or full production closure is inferred from these checks.
+
 # 32. Phase 11 — Workforce
 
 Employee 360 :

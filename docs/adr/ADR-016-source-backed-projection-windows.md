@@ -1,8 +1,8 @@
 # ADR-016 — Source-backed projection windows
 
 Status: accepted for Phase 10P exact internal time/quantity primitives and
-Phase 10Q recorded upcoming-demand API and Phase 10R signed observed-usage API.
-Native source-backed forecast review and broader forecasting gates remain open.
+Phase 10Q recorded upcoming-demand API, Phase 10R signed observed-usage API and
+Phase 10S native source review. Broader forecasting/production gates remain open.
 
 ## Decision
 
@@ -137,3 +137,17 @@ additional sources, actual PostgreSQL atomic confirmation/read lock waiting,
 future-dated signature refusal and exact historical cycles above current stock
 capacity under low Decimal precision. No schema, native forecast review,
 statistical confidence, physical tablet or production closure is claimed.
+
+Phase 10S adds native read-only source review alongside stock/original scenarios.
+The top view selector preserves inputs but hides inactive facts and triggers a
+fresh read on return. Source queries begin only on explicit period submission.
+DTO guards preserve UTC microseconds and independently recompute observed pace,
+with exact BigInt quantity and count/coverage/shortage validation. The UI shows
+opt-in unscheduled queue inclusion, provisional norms, partial/no sample and
+signed empty measurement distinctions; the two source views are alternatives.
+Final frontend suite: 141 passed. Combined signed Edge cases: 28 passed; after
+view-selector/layout refinement, four final forecast cases pass on desktop and
+touch-enabled tablet-landscape using a foreign workstation timezone. Controlled
+historical records exist only in the owned marked disposable runner database.
+Final tablet screenshot inspected; no overflow/page exception observed. No
+physical acceptance, statistical confidence or complete Phase 10/24 claim.
