@@ -41,7 +41,19 @@ institute ticket and unconfirmed currency cannot create a request. Account alias
 are identifiers, never credentials. Any intent protects its linked ticket from demo
 reset and a nonempty downgrade refuses before DDL.
 
-Persistence is not authorization to dispatch: quote and parent-operation checks,
+Persistence is not authorization to dispatch: parent-operation checks,
 sealing business changes during I/O, execution state, authenticated provider facts,
 refund budgets and transactionally applying capture to checkout remain pending.
 No public endpoint or live provider call is added at this checkpoint.
+
+
+New authorizations now require an unpaid checkout ticket, an explicit supported
+currency, consistent declared line prices and a positive exact remaining amount
+after gift funding. The requested value must equal this quote. Identical persisted
+replay still returns its original terms before consulting later ticket changes.
+A first-dispatch validator recomputes the quote under the institute transaction
+lock and rejects drift. The caller must seal execution before releasing that lock;
+this helper performs no I/O and is not an execution record. Recovery after an
+unknown outcome must use the original sealed request rather than re-quote.
+Parent-operation proof, execution sealing, business mutation protection, provider
+facts and settlement remain pending. All Phase 9 gates remain open.

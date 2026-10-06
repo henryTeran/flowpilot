@@ -34,6 +34,10 @@ def persist_intent(db, request: PaymentRequest, kind: OperationKind, provider: s
     db.refresh(ticket)
     if ticket.currency != request.value.currency:
         raise business_error("Devise confirmee correspondante requise pour le paiement")
+    if kind is OperationKind.AUTHORIZE:
+        from app.modules.payments.quotes import authorization_amount
+        if request.value != authorization_amount(db, ticket):
+            raise business_error("Le montant demande ne correspond pas au reste a payer")
     row = PaymentIntent(id=new_id("pi"), institute_id=request.institute_id,
         idempotency_key=request.idempotency_key, created_at=utcnow(), **terms)
     db.add(row); db.commit(); db.refresh(row)
@@ -43,3 +47,28 @@ def persist_intent(db, request: PaymentRequest, kind: OperationKind, provider: s
 def original_request(row: PaymentIntent):
     return PaymentRequest(row.institute_id, row.ticket_id, PaymentAmount(row.amount, row.currency),
                           row.idempotency_key, row.actor_id)
+
+
+
+def validate_prepared_authorization(db, institute_id, intent_id):
+    """First-dispatch check only; the caller must seal execution before releasing lock.
+
+    An existing execution must recover its original request, not re-quote after an
+    unknown provider outcome. This check performs no I/O, seal or checkout closure.
+    """
+    lock_institute(db, institute_id)
+    row = db.scalar(select(PaymentIntent).where(PaymentIntent.id == intent_id,
+                                               PaymentIntent.institute_id == institute_id))
+    if row is None:
+        raise not_found("Intention de paiement introuvable")
+    if row.kind != OperationKind.AUTHORIZE.value:
+        raise business_error("Verifier l'operation parente avant cet envoi")
+    ticket = db.get(QueueTicket, row.ticket_id)
+    if ticket is None or ticket.institute_id != institute_id:
+        raise not_found("Ticket de paiement introuvable")
+    db.refresh(ticket)
+    from app.modules.payments.quotes import authorization_amount
+    request = original_request(row)
+    if request.value != authorization_amount(db, ticket):
+        raise business_error("Le montant initial ne correspond plus au reste a payer")
+    return request
