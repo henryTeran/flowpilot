@@ -119,7 +119,7 @@ test("foreign write responses cannot release a saved stock request", async () =>
   sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(storage, JSON.stringify(saved));
   const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
   let reads = 0;
-  globalThis.fetch = async (_url, options) => { if (options?.method === "POST") return response(item("foreign")); reads++; return response([]); };
+  globalThis.fetch = async (_url, options) => { if (options?.method === "POST") return response(item("foreign")); if (String(_url).includes("/items?")) reads++; return response([]); };
   try {
     await act(async () => root.render(<InventoryPanel instituteId="inst" />));
     await act(async () => button("Reprendre la demande conservée").click());

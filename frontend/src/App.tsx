@@ -15,7 +15,7 @@ import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
 import { NewTicketWorkflow, type NewTicketWorkflowResult } from "./components/NewTicketWorkflow";
 import { PlanningBoard } from "./components/PlanningBoard";
-import { resolveNextCheckoutTicket } from "./checkout-utils";
+import { resolveNextCheckoutTicket, resolveSessionCheckoutTicket } from "./checkout-utils";
 import { QueuePanel } from "./components/QueuePanel";
 import { useAssignmentOptions } from "./features/useAssignmentOptions";
 import { connectPlanning } from "./features/planningConnection";
@@ -35,6 +35,7 @@ import type {
   QueueTicket,
   Service,
   ServiceCategory,
+  ServiceSession,
 } from "./types";
 
 export default function App({ onLogout }: { onLogout?: () => void } = {}) {
@@ -454,28 +455,17 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
     const isCurrent = captureOperationalContext();
     setError(null);
     try {
-      await apiPatch(`/planning/sessions/${sessionId}/finish`);
+      const finished = await apiPatch<ServiceSession>(`/planning/sessions/${sessionId}/finish`);
       if (!isCurrent()) return;
       const refreshedTickets = await apiGet<QueueTicket[]>(`/tickets/waiting?institute_id=${encodeURIComponent(selectedInstituteId ?? "")}`);
       if (!isCurrent()) return;
       setTickets(refreshedTickets);
 
-      const nextCheckoutTicket = resolveNextCheckoutTicket(refreshedTickets, identifiedEmployeeId);
-
-      if (nextCheckoutTicket) {
-        setSelectedTicketId(nextCheckoutTicket.id);
-        setSelectedCheckoutTicketId(nextCheckoutTicket.id);
-        if (identifiedEmployeeId) {
-          setActiveDrawer("checkout");
-          return;
-        }
+      const nextCheckoutTicket = resolveSessionCheckoutTicket(refreshedTickets, finished, sessionId, selectedInstituteId ?? "");
+      if (!nextCheckoutTicket) {
+        throw new Error("Prestation terminée : son ticket est introuvable en caisse. Actualisez la file.");
       }
-
-      if (identifiedEmployeeId) {
-        setActiveDrawer("checkout");
-      } else {
-        handleOpenCheckout("");
-      }
+      handleOpenCheckout(nextCheckoutTicket.id);
 
       await refreshOperationalData();
     } catch (err) {
@@ -814,10 +804,10 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
               </div>
 
               <div className="bm-primary-actions">
-                <button type="button" className="bm-main-action" onClick={() => setTicketWorkflowOpen(true)}>
+                <button type="button" className="bm-main-action" disabled={loading || !selectedInstituteId || !planning} onClick={() => setTicketWorkflowOpen(true)}>
                   Créer nouveau ticket
                 </button>
-                <button type="button" className="bm-secondary-action" onClick={() => setActiveDrawer("appointments")}>
+                <button type="button" className="bm-secondary-action" disabled={loading || !selectedInstituteId || !planning} onClick={() => setActiveDrawer("appointments")}>
                   RDV sous appel
                 </button>
               </div>

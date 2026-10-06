@@ -27,3 +27,6 @@
 .bm-recipe-form > label input:not([type="checkbox"]) { width: 100%; box-sizing: border-box; }
 .bm-recipe-form > .bm-recipe-reset { background: #fff; color: #244550; }
 @media (max-width: 700px) { .bm-inventory { padding: 14px; } .bm-stock-form, .bm-stock-detail { padding: 14px; } .bm-stock-grid, .bm-stock-fields { grid-template-columns: 1fr; } }
+
+.bm-stock-consumptions > label { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; max-width: 560px; }
+.bm-stock-consumptions button { margin: 4px 8px 4px 0; }

@@ -293,3 +293,39 @@ Full backend regression passes 347 tests with 77 PostgreSQL opt-ins skipped loca
 and the existing Starlette/httpx warning. The additional appointment test was
 added after full-run collection and passes separately. All application changes
 were present for that full regression; no existing application DB was migrated.
+
+
+### Phase 10G: native measured consumption and recovery
+
+A bounded single SQL UNION lists completed sessions and appointments with captured
+bases. Pending/confirmed filters and stable pagination do not read each recipe.
+Scoped detail remains available after confirmation, including the original header.
+The UI exposes service, ticket, employee and local completion time; internal source
+IDs are correlation keys, not customer-facing labels. Manager authoring begins
+empty. Copying the original norm or signing no material requires an explicit action.
+Current recipes never replace the original expected quantities.
+
+A saved request survives transport loss and removal from the pending list. Clearing
+it requires matching original POST and GET facts plus fresh detail, worklist and
+stock reads. Prior scope responses cannot publish or clear another request. Open
+stock detail invalidates old quantity/history immediately and reloads after an
+actual debit. Reception can read facts; server manager authorization remains the
+write boundary. No schema change is required.
+
+Combined workflow coverage exposed finish-and-checkout selecting another completed
+ticket of the same employee. It now correlates the finish response's exact session,
+institute and representative line before opening checkout, without arbitrary fallback.
+A selected compact queue ticket stays visible beyond the six-row limit.
+Creation actions wait for institute/planning readiness, preventing initial scope
+reset from discarding an early-opened arrival or appointment form.
+
+Full backend: 350 passed / 78 opt-in skips; final caption fields subsequently pass
+3 worklist cases with real PostgreSQL enabled. Frontend: 108 passed. Final production build and all 16 signed backend Edge cases pass with owned
+cleanup. Desktop/tablet screenshots show readable original norm, actual quantities,
+deviation and refreshed stock/history. Lost-reply POST commits on the real backend
+and original replay after reload debits once; a later measurement updates an
+already-open article automatically. Physical tablet and production-provider gates
+remain open.
+Next integration audit must resolve PostgreSQL historical-basis FK behavior during
+legitimate checkout-line correction without deleting provenance or shrinking the
+billing workflow. Suppliers, orders, reorder and forecasts remain open.

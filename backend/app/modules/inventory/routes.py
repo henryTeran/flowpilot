@@ -1,6 +1,6 @@
 from typing import Literal
-from app.modules.inventory import bases, consumptions
-from app.modules.inventory.schemas import ServiceBasisRead, ConsumptionCreate, ConsumptionRead
+from app.modules.inventory import bases, consumptions, worklist
+from app.modules.inventory.schemas import ServiceBasisRead, ConsumptionCreate, ConsumptionRead, ConsumptionWorkRead, ConsumptionWorkDetail
 from app.modules.inventory.models import StockConsumption
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -121,3 +121,15 @@ def original_consumption(institute_id: str, consumption_id: str, user=Depends(op
         from app.shared.exceptions import not_found
         raise not_found("Consommation introuvable")
     return consumptions.snapshot(db, row)
+
+
+@router.get("/consumption-work", response_model=list[ConsumptionWorkRead])
+def consumption_work(institute_id: str, state: Literal["pending", "confirmed", "all"] = "pending",
+                     limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0, le=100000),
+                     user=Depends(operator), db: Session = Depends(get_db)):
+    return worklist.list_work(db, institute_id, state, limit, offset)
+
+
+@router.get("/bases/{basis_id}/work", response_model=ConsumptionWorkDetail)
+def consumption_work_detail(institute_id: str, basis_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return worklist.detail(db, institute_id, basis_id)

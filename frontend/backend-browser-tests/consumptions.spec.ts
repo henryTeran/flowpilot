@@ -1,0 +1,76 @@
+import { expect, test } from "@playwright/test";
+
+test("native consumption retains original norms, recovers lost reply and refreshes selected stock after later measurements", async ({ page, request }, info) => {
+  test.setTimeout(60000);
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, api = "http://127.0.0.1:4198/api/v1";
+  const base = `${api}/inventory/institutes/demo-institute-geneve`;
+  const service = info.project.name === "desktop" ? "svc-beaute-pieds" : "svc-semi-main";
+  const serviceName = info.project.name === "desktop" ? "Beauté des pieds" : "Semi permanent mains";
+  const itemReply = await request.post(`${base}/items`, { headers, data: { sku: `MEASURE-${info.project.name}`, name: `Measured serum ${info.project.name}`, category: "cabine", unit: "ml", reorder_threshold: "1", reason: "Consumption UI fixture", idempotency_key: `measure-item-${info.project.name}` } });
+  expect(itemReply.status()).toBe(200); const item = await itemReply.json();
+  expect((await request.post(`${base}/items/${item.id}/movements`, { headers, data: { kind: "receipt", quantity: "10.125", reason: "Explicit UI fixture delivery", idempotency_key: `measure-delivery-${info.project.name}` } })).status()).toBe(200);
+  const recipePath = `${base}/services/${service}/recipes`;
+  const recipeReply = await request.post(recipePath, { headers, data: { base_revision: 0, enabled: true, entries: [{ item_id: item.id, quantity: "4.125" }], reason: "Original norm UI fixture", idempotency_key: `measure-norm-${info.project.name}` } });
+  expect(recipeReply.status()).toBe(200);
+  async function completedBasis() {
+    const arrival = await request.post(`${api}/tickets`, { headers, data: { institute_id: "demo-institute-geneve", service_id: service } });
+    expect(arrival.status()).toBe(200); const ticket = await arrival.json();
+    const started = await request.post(`${api}/planning/sessions/start`, { headers, data: { ticket_id: ticket.id, service_id: service, employee_id: "emp-angela" } });
+    expect(started.status()).toBe(200); const session = await started.json();
+    expect((await request.patch(`${api}/planning/sessions/${session.id}/finish`, { headers })).status()).toBe(200);
+    return (await (await request.get(`${base}/executions/sessions/${session.id}/basis`, { headers })).json()).entries[0];
+  }
+  const basis = await completedBasis();
+  expect((await request.post(recipePath, { headers, data: { base_revision: 1, enabled: true, entries: [{ item_id: item.id, quantity: "8.25" }], reason: "Later norm UI fixture", idempotency_key: `measure-later-${info.project.name}` } })).status()).toBe(200);
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  const work = page.getByRole("region", { name: "Consommations par prestation" });
+  await work.locator(".bm-stock-card").filter({ hasText: serviceName }).click();
+  const form = work.getByRole("form", { name: "Confirmer la consommation" });
+  await expect(form.locator("input[inputmode='decimal']")).toHaveCount(0);
+  await form.getByRole("button", { name: "Utiliser les quantités prévues" }).click();
+  const amount = form.getByLabel(`Quantité réelle pour ${item.name} (ml)`);
+  await expect(amount).toHaveValue("4.125"); await amount.fill("2,125");
+  await form.getByLabel("Motif de la consommation").fill("Mesure reelle navigateur");
+  let lost = false, original!: { id: string; idempotency_key: string };
+  const consumptionPath = `${base}/bases/${basis.id}/consumption`;
+  await page.route(`**/bases/${basis.id}/consumption`, async route => {
+    if (route.request().method() === "POST" && !lost) {
+      lost = true; const actual = await route.fetch(); expect(actual.status()).toBe(200); original = await actual.json(); await route.abort("failed");
+    } else await route.continue();
+  });
+  await form.getByRole("button", { name: "Confirmer les quantités réelles" }).click();
+  await expect(form.getByRole("alert")).toBeVisible();
+  await expect(form.getByRole("button", { name: "Reprendre la consommation conservée" })).toBeVisible();
+  await page.reload(); await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  await work.getByRole("button", { name: `Demande conservée : ${serviceName}`, exact: true }).click();
+  const replay = page.waitForResponse(response => response.url() === consumptionPath && response.request().method() === "POST");
+  await form.getByRole("button", { name: "Reprendre la consommation conservée" }).click();
+  expect(await (await replay).json()).toMatchObject({ id: original.id, idempotency_key: original.idempotency_key });
+  await expect(work).toContainText("Consommation enregistrée.");
+  const recorded = work.getByRole("region", { name: "Consommation originale" });
+  await expect(recorded).toContainText("2,125 ml"); await expect(recorded).toContainText("Écart entre quantités prévues et réelles.");
+  expect((await (await request.get(`${base}/items/${item.id}`, { headers })).json()).on_hand).toBe("8.000");
+  expect(await (await request.get(`${base}/items/${item.id}/movements`, { headers })).json()).toHaveLength(2);
+  const secondBasis = await completedBasis();
+  await work.getByRole("button", { name: "Actualiser les consommations", exact: true }).click();
+  await work.locator(".bm-stock-card").filter({ hasText: serviceName }).click();
+  await page.locator(".bm-stock-grid > .bm-stock-card").filter({ hasText: item.name }).click();
+  const stockDetail = page.getByRole("region", { name: "Article de stock", exact: true });
+  await expect(stockDetail).toContainText("Stock enregistré : 8,000 ml");
+  await form.getByRole("button", { name: "Utiliser les quantités prévues" }).click();
+  await expect(amount).toHaveValue("8.250"); await amount.fill("2,125");
+  await form.getByLabel("Motif de la consommation").fill("Deuxieme mesure reelle");
+  await form.getByRole("button", { name: "Confirmer les quantités réelles" }).click();
+  await expect(work).toContainText("Consommation enregistrée.");
+  await expect(stockDetail).toContainText("Stock enregistré : 5,875 ml");
+  await expect(stockDetail).toContainText("Consommation : -2,125 ml");
+  expect((await (await request.get(`${base}/bases/${secondBasis.id}/consumption`, { headers })).json()).matches_norm).toBe(false);
+  expect(await (await request.get(`${base}/items/${item.id}/movements`, { headers })).json()).toHaveLength(3);
+  await page.screenshot({ path: info.outputPath("consumptions.png"), fullPage: true });
+});

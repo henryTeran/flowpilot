@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10F_SIGNED_ACTUAL_CONSUMPTION
+CURRENT_CHECKPOINT = PHASE10G_NATIVE_CONSUMPTION_UI
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -108,14 +108,15 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE10: add native completed-execution consumption worklists and measured-quantity authoring with durable original recovery and visible discrepancies; suppliers, orders, reorder and forecast gates remain open. Do not infer consumption rules from the example recipe.
+- PHASE10: audit checkout line correction against immutable start-time basis foreign keys on PostgreSQL, preserving legitimate billing corrections and historical provenance; then suppliers, orders, reorder and forecasts. All remaining Phase 10 gates stay open. Do not infer consumption rules from the example recipe.
 - Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Inventory foundation is in progress independently of Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(inventory): record signed actual consumption in the exact stock ledger.
+- Current: feat(inventory): add native measured consumption and original recovery.
+- 7a5a353 signed actual consumption in the exact stock ledger.
 - 5c716cc original recipes pinned at actual execution start.
 - c705994 scoped recipe authoring and original recovery.
 - b7fd4b5 immutable service recipe revisions.
@@ -154,3 +155,12 @@ LAST_COMMITS:
 - Earlier coherent Commerce checkpoints and evidence are retained in git log and ADR-007.
 WORKING_TREE:
 - Checkpoint reviewed and committed; inspect git status before the next unit.
+
+PHASE10G_NATIVE_CONSUMPTION_UI:
+- Bounded single-UNION completed session/appointment worklist, pending/confirmed filters and pagination; scoped detail retains original recovery after leaving the pending list. Captions show service, ticket, employee and institute-local completion time without customer identity.
+- Manager enters measured quantities explicitly or copies the original pinned norm; explicit signed no-material confirmation remains possible. Reception reads original facts but cannot submit. Actual quantities and deviation remain separate from original norms.
+- Frozen request is saved before POST. Transport loss preserves the original key; original response, original GET, fresh detail/list and refreshed stock must all verify before clearing it. Late prior-institute/basis reads and writes cannot publish or release another scope.
+- Open article balance/history invalidate immediately on consumption refresh and reload automatically. Shared article picker preserves recipe behavior. Finish + checkout now resolves the finished session's exact line and institute instead of another employee ticket; compact queue keeps a selected ticket visible beyond its six-row limit. Creation actions wait for loaded institute/planning context so initial scope reset cannot close a just-opened form.
+- Backend full regression: 350 passed / 78 PostgreSQL opt-ins skipped. Final caption additions subsequently pass all 3 worklist cases with PostgreSQL enabled. Prior worklist/consumption PostgreSQL-enabled bundle: 12 passed. No schema migration or application database mutation in this checkpoint.
+- Frontend: 108 passed, including original replay, malformed read guards, scope changes, explicit measured/no-material authoring and exact finished-ticket selection. Final production build and all 16 signed backend Edge cases pass (8 desktop, 8 touch-enabled tablet-landscape), including committed POST with lost reply, reload/original replay, later measurements, exact stock/history and concurrent completed checkout tickets. Owned fixture cleanup passes. Desktop/tablet screenshots reviewed: readable original norm, actual quantity, deviation and history; physical tablet and production providers remain open.
+- Integration audit next: captured ticket-line FK may prevent legitimate nonrepresentative checkout-line removal on PostgreSQL; verify and preserve correction/history before closing inventory integration.

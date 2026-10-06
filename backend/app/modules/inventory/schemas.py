@@ -179,3 +179,29 @@ class ConsumptionRead(BaseModel):
     @field_serializer("created_at")
     def timestamp(self, value):
         return explicit_utc_instant(value)
+
+
+class ConsumptionWorkRead(BaseModel):
+    employee_name: str
+    ticket_number: str | None
+    basis_id: str
+    institute_id: str
+    source_kind: Literal["sessions", "appointments"]
+    source_id: str
+    source_status: str
+    service_id: str
+    service_name: str
+    quantity: int
+    state: Literal["enabled", "disabled", "unconfigured"]
+    captured_at: datetime
+    completed_at: datetime | None
+    consumption_id: str | None
+
+    @field_serializer("captured_at", "completed_at")
+    def timestamps(self, value):
+        return explicit_utc_instant(value)
+
+
+class ConsumptionWorkDetail(ConsumptionWorkRead):
+    expected_entries: list[RecipeEntryRead] | None
+    consumption: ConsumptionRead | None

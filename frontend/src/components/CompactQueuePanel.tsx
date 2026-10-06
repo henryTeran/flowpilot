@@ -63,6 +63,10 @@ export function CompactQueuePanel({
   }, [activeTickets, delayedTickets, employees, filter, searchTerm, services, ticketServiceMap]);
 
   const visibleTickets = filteredTickets.slice(0, 6);
+  const selectedVisibleTicket = filteredTickets.find(ticket => ticket.id === selectedTicketId);
+  if (selectedVisibleTicket && !visibleTickets.some(ticket => ticket.id === selectedTicketId)) {
+    visibleTickets[visibleTickets.length - 1] = selectedVisibleTicket;
+  }
 
   return (
     <aside className="compact-queue-card">

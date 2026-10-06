@@ -1,3 +1,4 @@
+import { StockItemPicker as ItemPicker } from "./StockItemPicker";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiGet, apiPost, ApiError } from "../api/client";
 import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/session";
@@ -130,17 +131,4 @@ function RecipeEditor({ institute, service, serviceName, basis, ready, onRefresh
     </>}
     <button type="submit" disabled={!ready || busy || !actor}>{intent ? "Reprendre la recette conservée" : "Enregistrer la recette"}</button>
   </form>;
-}
-function ItemPicker({ institute, disabled, selected, onAdd }: { institute: string; disabled: boolean; selected: string[]; onAdd: (item: StockItem) => void }) {
-  const token = getAccessToken(), [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [reload, setReload] = useState(0), [choice, choose] = useState("");
-  const [error, setError] = useState<string>();
-  useEffect(() => { let active = true; setItems(undefined); setError(undefined); choose(""); void apiGet<StockItem[]>(`${base(institute)}/items?limit=50&offset=${offset}`).then(rows => {
-    if (!Array.isArray(rows) || rows.length > 50 || !rows.every(row => validStockItem(row, institute)) || new Set(rows.map(row => row.id)).size !== rows.length) throw new Error("Articles disponibles à vérifier");
-    if (active && token === getAccessToken()) setItems(rows);
-  }).catch(error => { if (active && token === getAccessToken()) setError(message(error)); }); return () => { active = false; }; }, [offset, reload]);
-  const item = items?.find(row => row.id === choice);
-  return <div><button type="button" disabled={disabled} onClick={() => setReload(reload + 1)}>Actualiser les articles de recette</button>{error && <p role="alert">{error}</p>}<label>Article à ajouter<select disabled={disabled || !items} value={choice} onChange={event => choose(event.target.value)}><option value="">Choisir un article</option>{items?.filter(item => !selected.includes(item.id)).map(item => <option key={item.id} value={item.id}>{item.name} · {item.sku} · {stockUnits[item.unit]}</option>)}</select></label>
-    <button type="button" disabled={disabled || !item || selected.includes(item.id)} onClick={() => { if (item) { onAdd(item); choose(""); } }}>Ajouter à la recette</button>
-    <div className="bm-stock-pages"><button type="button" disabled={disabled || !items || !offset} onClick={() => setOffset(offset - 50)}>Articles précédents pour la recette</button><button type="button" disabled={disabled || items?.length !== 50} onClick={() => setOffset(offset + 50)}>Articles suivants pour la recette</button></div>
-  </div>;
 }

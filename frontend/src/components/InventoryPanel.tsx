@@ -1,3 +1,4 @@
+import { StockConsumptions } from "./StockConsumptions";
 import { StockRecipes } from "./StockRecipes";
 import type { Service } from "../types";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -13,6 +14,7 @@ export function InventoryPanel({ instituteId, timezone = "UTC", services = [] }:
 }
 function Catalogue({ institute, timezone, services }: { institute: string; timezone: string; services: Service[] }) {
   const token = getAccessToken(), manager = getOperatorRole() === "responsable_institut";
+  const [consumptionRevision, setConsumptionRevision] = useState(0);
   const [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [selected, select] = useState<string>();
   const [loading, setLoading] = useState(true), [error, setError] = useState<string>();
   const mounted = useRef(false), sequence = useRef(0);
@@ -41,11 +43,14 @@ function Catalogue({ institute, timezone, services }: { institute: string; timez
     </button>)}</div><div className="bm-stock-pages"><button disabled={loading || offset === 0} onClick={() => setOffset(offset - 50)}>Articles précédents</button><button disabled={loading || items.length < 50} onClick={() => setOffset(offset + 50)}>Articles suivants</button></div></>}
     {manager && <StockWrite key="create" readReady={!!items && !loading} institute={institute} onRefresh={load} onCreated={select} />}
     <StockRecipes institute={institute} services={services} />
-    {selected && <ItemDetail key={JSON.stringify([selected, token])} institute={institute} id={selected} timezone={timezone} usable={!!items && !loading} onRefresh={load} />}
+    <StockConsumptions institute={institute} timezone={timezone} onStockRefresh={async () => { setConsumptionRevision(value => value + 1); return await load(); }} />
+    {selected && <ItemDetail key={JSON.stringify([selected, token])} institute={institute} id={selected} timezone={timezone} externalRevision={consumptionRevision} usable={!!items && !loading} onRefresh={load} />}
   </main>;
 }
-function ItemDetail({ institute, id, onRefresh, usable, timezone }: { institute: string; id: string; timezone: string; usable: boolean; onRefresh: () => Promise<boolean> }) {
+function ItemDetail({ institute, id, onRefresh, usable: parentUsable, timezone, externalRevision }: { institute: string; id: string; timezone: string; externalRevision: number; usable: boolean; onRefresh: () => Promise<boolean> }) {
   const token = getAccessToken(), manager = getOperatorRole() === "responsable_institut";
+  const [resolvedRevision, setResolvedRevision] = useState(-1);
+  const usable = parentUsable && resolvedRevision === externalRevision;
   const [identity, setIdentity] = useState<StockItem>();
   const [item, setItem] = useState<StockItem>(), [history, setHistory] = useState<StockMovement[]>(), [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true), [error, setError] = useState<string>();
@@ -59,11 +64,11 @@ function ItemDetail({ institute, id, onRefresh, usable, timezone }: { institute:
       const [row, rows] = await Promise.all([apiGet<StockItem>(path), apiGet<StockMovement[]>(`${path}/movements?limit=50&offset=${offset}`)]);
       if (!validStockItem(row, institute) || row.id !== id || !Array.isArray(rows) || rows.length > 50 || !rows.every(move => validStockMovement(move, row)) || new Set(rows.map(move => move.id)).size !== rows.length) throw new Error("Lecture de l'article incomplète");
       if (!current()) return false;
-      setItem(row); setIdentity(row); setHistory(rows); return true;
+      setItem(row); setIdentity(row); setHistory(rows); setResolvedRevision(externalRevision); return true;
     } catch (error) { if (current()) setError(errorText(error)); return false; }
     finally { if (current()) setLoading(false); }
   }
-  useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; sequence.current++; }; }, [offset]);
+  useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; sequence.current++; }; }, [offset, externalRevision]);
   async function refresh() { return await onRefresh() && await load(); }
   let zone = timezone;
   try { new Intl.DateTimeFormat("fr-CH", { timeZone: zone }); } catch { zone = "UTC"; }
