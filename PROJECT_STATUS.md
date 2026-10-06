@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9Q_CHECKOUT_PAYMENT_HISTORY_READ
+CURRENT_CHECKPOINT = PHASE9R_SIGNED_REFUND_DECISION_RECOVERY_READ
 STATUS = ACTIVE
+
+RECOVERY_READ:
+- Manager-only refund decision GET returns the immutable original idempotency key; absence is null and missing/foreign refund intents return scoped 404.
+- Shared payment-route dependencies enforce institute, exact signed actor and manager privileges consistently. No point mutation, provider dispatch or schema change.
+- Focused local refund/snapshot/cashflow checks: 7 passed, 3 opt-in skips. PostgreSQL refund/snapshot checks: 7 passed, including concurrent decisions and recovery identity/role boundaries.
+- Full backend regression: 305 passed, 66 opt-in PostgreSQL skips. Payment history component compatibility checks: 2 passed; no frontend source change.
 
 GATES:
 - Historical Phase 0-3 closures preserved.
@@ -31,7 +37,7 @@ EVIDENCE:
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
-- Latest full backend: 288 passed, 60 opt-in PostgreSQL cases skipped locally; final Decimal-context enhancement subsequently passed in the focused checkout suite on SQLite/PostgreSQL. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
+- Latest full backend: 305 passed, 66 opt-in PostgreSQL cases skipped locally; final Decimal-context enhancement subsequently passed in the focused checkout suite on SQLite/PostgreSQL. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
@@ -63,12 +69,13 @@ BLOCKERS:
 - Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9R: implement signed refund-decision mutation/recovery UI and real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9S: implement signed refund-decision mutation/recovery UI and real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): show scoped payment history in checkout.
+- Current: feat(payments): recover scoped signed refund loyalty decisions.
+- 9a7fea9 checkout payment history read UI.
 - 0841b38 ticket payment recovery snapshot.
 - 6215820 signed refund loyalty decisions.
 - ef428fe scoped provider cashflow read.

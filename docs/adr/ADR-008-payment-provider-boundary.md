@@ -283,3 +283,14 @@ Headless component tests and production build verify this checkpoint. CUA invent
 still has no browser/app surface, so actual visual/tablet verification is not claimed.
 Signed decision mutation/recovery UI, real provider transport and full accounting
 remain required before payment/production gate closure.
+
+
+Signed refund decision recovery now has a dedicated manager-only GET resource under
+its original institute and refund intent. Missing decisions return null; missing or
+foreign refund intents return scoped 404. Responses include the original immutable
+idempotency key, allowing a future mutation UI to distinguish its own lost-response
+recovery from another decision with similar visible terms. The read does not create
+a decision, debit points or dispatch a refund. Payment routes share institute and
+signed actor validation; cashflow and decision resources additionally require the
+institute manager role. Whitespace-modified or oversized actor identities are
+rejected consistently. No schema change or live adapter is introduced.

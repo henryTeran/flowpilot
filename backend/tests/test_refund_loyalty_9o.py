@@ -31,8 +31,23 @@ def test_signed_refund_loyalty_scope_replay_and_bounds(client, monkeypatch):
     manager = _auth_headers("responsable_institut", institute)
     for invalid in (True, 1, -11):
         assert client.post(path, headers=manager, json={**payload, "points": invalid}).status_code in {400, 422}
+    from app.core.security import create_access_token
+    for actor in (" manager", "manager ", " ", "x" * 161):
+        token = create_access_token(subject=actor, extra_claims={"role": "responsable_institut", "institute_id": institute})
+        invalid_headers = {"Authorization": f"Bearer {token}"}
+        for read_path in (path, f"/api/v1/payments/institutes/{institute}/cashflows",
+                          f"/api/v1/payments/institutes/{institute}/tickets/{ticket}/snapshot"):
+            assert client.get(read_path, headers=invalid_headers).status_code == 403
+        assert client.post(path, headers=invalid_headers, json=payload).status_code == 403
+    assert client.get(path, headers=manager).json() is None
+    assert client.get(path, headers=_auth_headers(institute_id=institute)).status_code == 403
+    assert client.get(path, headers=_auth_headers("responsable_institut", "foreign")).status_code == 403
+    assert client.get(path.replace(refund, "foreign-refund"), headers=manager).status_code == 404
     first = client.post(path, headers=manager, json=payload)
     assert first.status_code == 200
+    recovered = client.get(path, headers=manager)
+    assert recovered.status_code == 200 and recovered.json() == first.json()
+    assert recovered.json()["idempotency_key"] == payload["idempotency_key"]
     assert client.post(path, headers=manager, json=payload).json() == first.json()
     assert client.post(path, headers=manager, json={**payload, "idempotency_key": "other"}).status_code == 400
     with Session(main_module.engine) as db:
