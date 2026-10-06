@@ -64,7 +64,7 @@ function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method
     {error && <p role="alert">{error}</p>}
     {snapshot?.protected && <p>Paiement en cours ou résultat à récupérer. Le ticket reste protégé.</p>}
     {snapshot && !snapshot.operations.length && <p>Aucune opération prestataire enregistrée.</p>}
-    {snapshot && onRefresh && authorizationEligible && !snapshot.protected && !snapshot.operations.some(row => ["prepared", "unknown", "pending"].includes(row.status)) && <AuthorizationPreparation instituteId={instituteId} ticketId={ticketId} onRefresh={onRefresh} onRecorded={() => void load()} />}
+    {snapshot && onRefresh && authorizationEligible && !snapshot.protected && !snapshot.operations.some(row => ["unknown", "pending"].includes(row.status)) && <AuthorizationPreparation instituteId={instituteId} ticketId={ticketId} onRefresh={onRefresh} onRecorded={() => void load()} />}
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}

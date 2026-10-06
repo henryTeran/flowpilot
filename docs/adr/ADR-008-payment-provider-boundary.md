@@ -410,3 +410,18 @@ re-quotes an unknown result. All four operation preparations, original operation
 recovery and confirmed captured checkout now have component controls. This does not
 close payment gates: real provider authentication/transport, stale unexecuted request
 recovery auditing, accounting completeness and actual browser/tablet remain open.
+
+
+Audit found that hiding initial authorization for any prepared operation could trap a
+ticket after an unpaid price edit: preparation does not seal execution, the original
+request must retain its old amount, and its first dispatch correctly rejects the now
+obsolete quote. Prepared-only history therefore no longer hides a fresh current quote
+or an explicitly new request. Unknown/pending operations and active protection still
+do. The old request is not erased, rewritten or marked failed. New requests remain
+subject to current quote validation; the institute lock and single active execution
+protect dispatch. A regression changes the price after preparation, rejects old
+dispatch with no I/O, authorizes the current amount once, rejects old retry under the
+active execution and verifies both immutable requests remain. The component test
+confirms current quote availability with prepared history and its disappearance once
+an unknown protected operation is read. No abandoned reservation or timeout-based
+release is introduced, and payment/production gates remain open.

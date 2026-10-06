@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9X_INITIAL_AUTHORIZATION_UI
+CURRENT_CHECKPOINT = PHASE9Y_OBSOLETE_PREPARED_AUTHORIZATION_RECOVERY
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,7 +19,9 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Initial authorization: scoped/configuration-required GET reads exact current amount/currency under the institute lock without creating an intent or provider I/O. Eligible checkout history exposes quote/preparation only after a clean scoped snapshot without protected/unresolved operations. Frozen original authorization terms/key survive lost replies; later quote changes do not rewrite a saved request. Frontend: 75 passing tests plus build; final preparation suite after label correction: 7 passed plus build. Backend operator/quote/intent bundle: 21 passed, 1 opt-in skip locally; 22 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain fixture actual PostgreSQL). No schema or real adapter added.
+- Obsolete prepared authorization UI blockage fixed: prepared-only history no longer hides the current server quote/new authorization control. Unknown/pending outcomes or active protection still hide it. A new explicit key may prepare the current quote while preserving the old immutable request. HTTP regression proves old changed-price dispatch is rejected before adapter I/O, current request dispatch succeeds once, old retry cannot acquire a competing execution, and both original histories remain. Frontend regression: 76 passed plus build.
+- Final operator/quote/execution regression: 24 passed, 2 opt-in PostgreSQL skips locally; 26 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in execution cases actual PostgreSQL). Initial Windows SQLite teardown file-lock error was followed by a passing isolated rerun and clean full focused-bundle rerun; no fixture change or suppressed cleanup error.
+- Initial authorization: scoped/configuration-required GET reads exact current amount/currency under the institute lock without creating an intent or provider I/O. Eligible checkout history exposes quote/preparation only after a clean scoped snapshot without protected/unknown/pending operations. Frozen original authorization terms/key survive lost replies; later quote changes do not rewrite a saved request. Frontend: 75 passing tests plus build; final preparation suite after label correction: 7 passed plus build. Backend operator/quote/intent bundle: 21 passed, 1 opt-in skip locally; 22 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain fixture actual PostgreSQL). No schema or real adapter added.
 - Parent payment preparation UI: 5 new focused cases within 73 passing frontend tests; production build passed. Active authorized operations expose capture/cancel preparation; applied confirmed captures expose manager-only refund preparation with explicit currency/amount. Original terms/key are stored before POST and recovered across remount, then original actor/key/value are checked in a scoped snapshot before refresh. Lost reply replay and changed-response value rejection verified. Server still owns parent references, authorization proof, role checks and reserved refund budget. Initial authorization UI and real provider remain pending.
 - Captured checkout UI: 3 new focused cases within 68 passing frontend tests; production build passed. Only original actors may apply a confirmed unapplied capture with explicit cashier/method. Original closure terms are saved before POST and replayed across remount despite changed selections. Paid response and matching applied capture snapshot are required before full data refresh/intent clearing. Lost replies, unapplied facts, failed refresh and late-session isolation verified. No new capture/provider dispatch is inferred.
 - Checkout payment recovery UI: 3 new focused cases within 65 passing frontend tests; production build passed. Prepared/unknown/pending operation recovery uses the durable original ID and no request body/new intent. Response and scoped stored fact must match original kind/value/currency/actor before application refresh. Original-actor and refund-manager presentation guards, lost response retry, wrong snapshot scope and late-session isolation verified. Initial authorization/child preparation and captured checkout controls remain to implement; no live provider or browser/tablet verification claimed.
@@ -42,7 +44,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 75 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 76 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
@@ -78,12 +80,13 @@ BLOCKERS:
 - Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9Y: audit end-to-end operator payment recovery, including obsolete unexecuted requests, and implement real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9Z: complete end-to-end payment/integration and accounting audit, implement real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): prepare initial authorizations from exact server quotes.
+- Current: fix(payments): allow current quotes after obsolete unexecuted authorizations.
+- 3b7f955 initial authorization from exact server quote UI.
 - ed308ed child payment preparation UI.
 - 2860784 captured checkout application UI.
 - 6aafca1 original payment operation recovery UI.

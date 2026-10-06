@@ -96,6 +96,31 @@ def test_current_authorization_quote_is_scoped_and_creates_no_intent(flow):
     assert client.get(path, headers=_auth_headers(institute_id=institute)).status_code == 503
 
 
+def test_obsolete_unexecuted_authorization_cannot_block_current_quote_or_double_dispatch(flow):
+    client, institute, ticket, _, adapter = flow
+    old = prepare(flow).json()["id"]
+    from app.modules.tickets.models import TicketLine
+    with Session(main_module.engine) as db:
+        line = db.scalar(select(TicketLine).where(TicketLine.ticket_id == ticket))
+        line.unit_price = Decimal("11.35")
+        line.total = Decimal("11.35")
+        db.commit()
+    assert dispatch(flow, old).status_code == 400
+    assert not adapter.calls
+    path = f"/api/v1/payments/institutes/{institute}/tickets/{ticket}/authorization-quote"
+    assert client.get(path, headers=_auth_headers(institute_id=institute)).json()["amount"] == "11.35"
+    current = prepare(flow, key="current-quote", amount="11.35")
+    assert current.status_code == 200 and current.json()["id"] != old
+    assert dispatch(flow, current.json()["id"]).status_code == 200
+    assert dispatch(flow, old).status_code == 400
+    assert len(adapter.calls) == 1
+    assert adapter.calls[0][1].value.amount == Decimal("11.35")
+    with Session(main_module.engine) as db:
+        assert db.get(PaymentIntent, old).amount == Decimal("10.35")
+        assert db.get(PaymentExecution, old) is None
+        assert db.get(PaymentExecution, current.json()["id"]).released_at is None
+
+
 def test_unknown_dispatch_scope_original_identity_and_no_io_terminal_replay(flow):
     _, institute, _, _, adapter = flow
     first = prepare(flow)

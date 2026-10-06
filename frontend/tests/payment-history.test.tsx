@@ -41,3 +41,27 @@ test("late old ticket/session response cannot overwrite current payment history"
     assert.doesNotMatch(document.body.textContent!, /99,99 CHF/);
   } finally { await act(async () => root.unmount()); globalThis.fetch = original; setAccessToken(null); }
 });
+
+test("unexecuted prepared history allows a current authorization quote while unknown protection hides it", async () => {
+  const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
+  setAccessToken(`h.${Buffer.from(JSON.stringify({ sub: "operator", role: "accueil" })).toString("base64url")}.s`);
+  let protectedPayment = false, quoteReads = 0;
+  globalThis.fetch = async (url, options) => {
+    assert.equal(options?.method, "GET");
+    if (String(url).endsWith("authorization-quote")) {
+      quoteReads++;
+      return response({ ticket_id: "ticket", amount: "11.35", currency: "CHF" });
+    }
+    const snapshot = facts("ticket");
+    return response({ ...snapshot, protected: protectedPayment, operations: snapshot.operations.map(row => ({ ...row, status: protectedPayment ? "unknown" : "prepared", active_protection: protectedPayment })) });
+  };
+  try {
+    await act(async () => root.render(<PaymentHistory instituteId="inst" ticketId="ticket" authorizationEligible onRefresh={async () => true} />));
+    assert.match(document.body.textContent!, /11,35 CHF/);
+    assert.equal(quoteReads, 1);
+    protectedPayment = true;
+    await act(async () => document.querySelector<HTMLButtonElement>("button")!.click());
+    assert.doesNotMatch(document.body.textContent!, /11,35 CHF/);
+    assert.equal(quoteReads, 1);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = original; setAccessToken(null); }
+});
