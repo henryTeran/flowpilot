@@ -19,6 +19,9 @@ test("native cashier displays institute hours on a workstation in another timezo
   const started = await request.post(`${api}/planning/sessions/start`, { headers, data: { ticket_id: ticket.id, employee_id: "emp-angela", service_id: "svc-aisselles" } });
   expect(started.status()).toBe(200); const session = await started.json();
   expect((await request.patch(`${api}/planning/sessions/${session.id}/finish`, { headers })).status()).toBe(200);
+  // Fixture API completion precedes the websocket/REST UI update. Wait for the
+  // same operational snapshot before invoking the ticket's checkout action.
+  await expect(page.locator(`.session-block[data-session-id="${session.id}"]`)).toHaveAttribute("data-session-meta", /Terminée/);
   await page.getByRole("button", { name: "Je m’identifie", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: /Angela/ }).click();
   await page.getByRole("button", { name: "Flux tickets", exact: true }).click();
