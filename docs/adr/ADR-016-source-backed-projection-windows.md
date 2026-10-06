@@ -1,8 +1,8 @@
 # ADR-016 — Source-backed projection windows
 
 Status: accepted for Phase 10P exact internal time/quantity primitives and
-Phase 10Q recorded upcoming-demand API. Observed-usage aggregation and native
-source-backed forecast review remain open.
+Phase 10Q recorded upcoming-demand API and Phase 10R signed observed-usage API.
+Native source-backed forecast review and broader forecasting gates remain open.
 
 ## Decision
 
@@ -69,7 +69,48 @@ rows stream into integer totals, while returned stock rows remain paginated.
 Physical stock, outstanding orders and conditional shortages retain ADR-015's
 separate meanings. This API creates no stock, order, recipe or captured basis.
 
-## Evidence
+## Signed observed-usage API (Phase 10R)
+
+POST `/inventory/institutes/{institute}/observed-projection` is a signed
+reception/manager read. Its four explicit aware boundaries select a historical
+interval and future horizon. Historical end cannot exceed generation time;
+remaining future time uses the same clipped effective start as Phase 10P.
+
+Completed sessions and appointments are selected by actual completion in the
+half-open historical interval. Invoice removal, current service norms and late
+confirmation timestamps do not change performed usage membership. Only signed
+headers created no later than generation contribute measurements. Their linked
+consumption movements provide the actual quantities; receipts and adjustments
+do not become observed service usage.
+
+The response counts distinct completed executions, original captured bases,
+signed confirmations, pending bases and completed legacy sources without a
+basis. A multi-line walk-in remains one execution and requires every captured
+line's confirmation. All institute completed sources lacking an actual end time
+are separately counted: their period cannot be established, so their presence
+prevents complete historical coverage. Foreign institutes do not contribute.
+
+`complete_signed_sample` requires a nonempty completed sample, every captured
+basis signed, no legacy sources and no undated completed sources. Signed empty
+measurement is an explicit zero even if its original norm is unconfigured.
+Pending/legacy/undated sources yield `partial_signed_sample`; no dated completed
+sources yield `no_completed_sample`. In both cases complete projection is null.
+
+Each stock page returns actual observed quantities, the recorded subset's
+constant-elapsed-time pace projection and an optional complete-sample projection.
+Complete refers only to measurement coverage, not forecast confidence or
+accuracy. A subset's projected pace is not a guaranteed lower bound on future
+usage. Whole articles round upward. Threshold shortages and conditional arrivals
+are separate from physical stock, as in ADR-015. This view and recorded upcoming
+normative demand are alternatives and must not be added together.
+
+Source and linked movement rows stream into exact integer totals under the
+shared institute lock. Historical cumulative consumption may exceed maximum
+instantaneous stock capacity because of repeated receipt/consumption cycles.
+No historical execution is backfilled, no current norm is substituted and no
+business mutation is recorded by the read.
+
+## Validation history
 
 Fourteen new primitive cases cover remaining-day clipping, half-open membership,
 DST elapsed duration, microsecond ratios, whole-article rounding, large exact
@@ -83,5 +124,16 @@ Phase 10Q adds three planned-demand cases: HTTP source/coverage/security/read-on
 behavior, exact large recorded volumes with constant query count on PostgreSQL,
 and a verified PostgreSQL lock wait across a current norm revision commit. The
 final relevant inventory/source/projection/migration bundle passes all 60 cases
-with PostgreSQL opt-ins enabled. The planned-demand API is now implemented;
-observed-usage forecasting and native source review remain open.
+with PostgreSQL opt-ins enabled. At that checkpoint observed-usage forecasting
+and native source review remained open.
+
+Phase 10R's broader relevant inventory/source/projection/migration bundle passes
+64 cases with PostgreSQL opt-ins enabled. The final observed-only suite passes
+five cases after adding retained-invoice and multi-line coverage checks. They
+cover completion rather than late confirmation, revised-norm independence,
+scope/security/strict windows, signed empty versus missing/no sample,
+session/appointment and legacy/undated sources, six constant queries after 250
+additional sources, actual PostgreSQL atomic confirmation/read lock waiting,
+future-dated signature refusal and exact historical cycles above current stock
+capacity under low Decimal precision. No schema, native forecast review,
+statistical confidence, physical tablet or production closure is claimed.

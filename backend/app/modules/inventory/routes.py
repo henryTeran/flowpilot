@@ -19,6 +19,8 @@ from app.modules.inventory import outlook
 from app.modules.inventory.outlook_schemas import ForecastScenario, OutlookRead
 from app.modules.inventory import planned
 from app.modules.inventory.planned_schemas import PlannedRequest, PlannedRead
+from app.modules.inventory import observed
+from app.modules.inventory.observed_schemas import ObservedRequest, ObservedRead
 
 router = APIRouter(prefix="/inventory/institutes/{institute_id}", tags=["inventory"])
 
@@ -53,6 +55,12 @@ def stock_forecast(institute_id: str, payload: ForecastScenario, limit: int = Qu
 def planned_demand(institute_id: str, payload: PlannedRequest, limit: int = Query(50, ge=1, le=200),
                    offset: int = Query(0, ge=0, le=100000), user=Depends(operator), db: Session = Depends(get_db)):
     return planned.read(db, institute_id, payload, limit, offset)
+
+
+@router.post("/observed-projection", response_model=ObservedRead)
+def observed_projection(institute_id: str, payload: ObservedRequest, limit: int = Query(50, ge=1, le=200),
+                        offset: int = Query(0, ge=0, le=100000), user=Depends(operator), db: Session = Depends(get_db)):
+    return observed.read(db, institute_id, payload, limit, offset)
 
 
 @router.get("/suppliers", response_model=list[SupplierRead])
