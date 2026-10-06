@@ -11,7 +11,7 @@ const { createRoot } = await import("react-dom/client");
 const token = (sub = "manager", role = "responsable_institut") => `h.${Buffer.from(JSON.stringify({ sub, role })).toString("base64url")}.s`;
 const response = (value: unknown) => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
 const expected = [{ item_id: "stock", quantity: "4.125", unit: "ml" as const }];
-const work = { employee_name: "Angela", ticket_number: "BM-001", basis_id: "basis", institute_id: "inst", source_kind: "sessions", source_id: "session", source_status: "completed", service_id: "care", service_name: "Care", quantity: 1, state: "enabled", captured_at: "2026-10-06T10:00:00Z", completed_at: "2026-10-06T10:30:00Z", consumption_id: null };
+const work = { billing_state: "active", invoice_removed_at: null, employee_name: "Angela", ticket_number: "BM-001", basis_id: "basis", institute_id: "inst", source_kind: "sessions", source_id: "session", source_status: "completed", service_id: "care", service_name: "Care", quantity: 1, state: "enabled", captured_at: "2026-10-06T10:00:00Z", completed_at: "2026-10-06T10:30:00Z", consumption_id: null };
 const actual = { id: "actual", institute_id: "inst", basis_id: "basis", actor_id: "manager", reason: "Actual measured quantity", idempotency_key: "original", entries: [{ ...expected[0], movement_id: "move" }], expected_entries: expected, matches_norm: true, created_at: "2026-10-06T11:00:00Z" };
 const detail = { ...work, expected_entries: expected, consumption: null };
 const item = { id: "stock", institute_id: "inst", sku: "SERUM", name: "Serum", category: "cabine", unit: "ml", reorder_threshold: "1.000", on_hand: "10.125", at_or_below_threshold: false, actor_id: "manager", created_at: "2026-10-06T10:00:00Z" };
@@ -30,6 +30,33 @@ test("actual and work snapshots reject changed norm comparison, foreign scope an
   assert.equal(validConsumption({ ...actual, entries: [{ ...actual.entries[0], movement_id: "" }] }, "inst", "basis"), false);
   assert.equal(validConsumption(actual, "foreign", "basis"), false);
   assert.equal(validWorkDetail({ ...detail, consumption: actual, consumption_id: "different" }, "inst", "basis"), false);
+});
+
+test("billing context requires coherent removal metadata without changing consumption terms", () => {
+  assert.equal(validWorkDetail({ ...detail, billing_state: "removed", invoice_removed_at: "2026-10-06T12:00:00Z" }, "inst", "basis"), true);
+  assert.equal(validWorkDetail({ ...detail, billing_state: "removed" }, "inst", "basis"), false);
+  assert.equal(validWorkDetail({ ...detail, invoice_removed_at: "2026-10-06T12:00:00Z" }, "inst", "basis"), false);
+  assert.equal(validWorkDetail({ ...detail, billing_state: "guessed" }, "inst", "basis"), false);
+  assert.equal(validWorkDetail({ ...detail, billing_state: "unknown", ticket_number: null }, "inst", "basis"), true);
+});
+
+test("removed invoice remains an explicit measured consumption with no automatic zero", async () => {
+  sessionStorage.clear(); setAccessToken(token());
+  const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
+  const removed = { ...work, billing_state: "removed", invoice_removed_at: "2026-10-06T12:00:00Z" };
+  let writes = 0;
+  globalThis.fetch = async (url, options) => {
+    if (options?.method === "POST") writes++;
+    return response(String(url).includes("/consumption-work?") ? [removed] : String(url).includes("/items/") ? item : { ...detail, ...removed });
+  };
+  try {
+    await act(async () => root.render(panel())); await open();
+    assert.match(document.body.textContent!, /Retirée de la facture/);
+    assert.match(document.body.textContent!, /ne détermine pas les quantités réellement utilisées/);
+    assert.equal(document.querySelectorAll('input[inputmode="decimal"]').length, 0);
+    assert.equal(document.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked, false);
+    assert.equal(writes, 0);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = original; }
 });
 
 test("unauthorized contexts do not read; reception sees original norms without a write form and failed refresh hides them", async () => {
@@ -59,7 +86,7 @@ test("saved consumption survives a lost POST, remains selectable after confirmat
     if (path.endsWith("/consumptions/actual")) { originals++; return response(actual); }
     if (path.includes("/consumption-work?")) return response(posts ? [] : [work]);
     if (path.includes("/items/")) return response(item);
-    return response(posts ? { ...detail, consumption_id: actual.id, consumption: actual } : detail);
+    return response(posts ? { ...detail, billing_state: "removed", invoice_removed_at: "2026-10-06T12:00:00Z", consumption_id: actual.id, consumption: actual } : detail);
   };
   try {
     await act(async () => root.render(panel(async () => { stockReads++; return true; }))); await open();

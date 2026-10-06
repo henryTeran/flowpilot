@@ -68,7 +68,7 @@ def test_http_representative_removal_preserves_stock_and_excludes_invoice_and_re
         stock.move(db, institute, article.id, MovementCreate(**movement()), "manager")
         actual = consumptions.create(db, institute, basis.id, ConsumptionCreate(entries=[dict(item_id=article.id, quantity="1.125")], reason="Actually used before correction", idempotency_key="measured"), "manager")
         original = actual.model_dump(mode="json")
-        actual_id, stock_id = actual.id, article.id
+        actual_id, stock_id, basis_id = actual.id, article.id, basis.id
         configure_currency(db, institute, "CHF", "manager")
         confirm_currency(db, ticket, "CHF", "Explicit invoice currency", "test-user")
     path = f"/api/v1/tickets/{ticket}/checkout/lines/{identifier}/remove"
@@ -82,6 +82,9 @@ def test_http_representative_removal_preserves_stock_and_excludes_invoice_and_re
     assert removed["id"] == identifier and removed["invoice_removed_by_actor"] == "test-user"
     assert removed["invoice_removal_reason"] == "not_performed" and removed["invoice_removed_at"].endswith(("Z", "+00:00"))
     assert Decimal(str(corrected["total_amount"])) == due
+    work = client.get(f"/api/v1/inventory/institutes/{institute}/bases/{basis_id}/work", headers=operator).json()
+    assert work["billing_state"] == "removed" and work["invoice_removed_at"].endswith("Z")
+    assert work["consumption"] == original
     assert client.patch(path, headers=operator).json() == corrected
     other = {"Authorization": "Bearer " + create_access_token(subject="another", extra_claims={"role": "accueil", "institute_id": institute})}
     assert client.patch(path, headers=other).status_code == 400

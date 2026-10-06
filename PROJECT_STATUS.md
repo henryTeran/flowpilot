@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10I_CASHIER_INSTITUTE_CLOCK
+CURRENT_CHECKPOINT = PHASE10J_ORIGINAL_INVOICE_PROVENANCE
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -115,7 +115,8 @@ NEXT_STEP:
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(checkout): preserve absolute queue instants and institute hours.
+- Current checkpoint: feat(inventory): retain original appointment invoice provenance.
+- Previous: 4d4e7e1 fix(checkout): preserve absolute queue instants and institute hours.
 - 1afeacd retained signed invoice corrections and execution history.
 - cd68645 native measured consumption and original recovery.
 - 7a5a353 signed actual consumption in the exact stock ledger.
@@ -177,7 +178,7 @@ PHASE10H_RETAINED_INVOICE_CORRECTIONS:
 - Phase 10 remains in progress; suppliers, orders, reorder and forecasts are next. Invoice correction does not infer zero physical usage or reverse a recorded consumption. Physical tablet, real bank/provider signatures and broader accounting gates remain open.
 
 FOLLOW_UP_INTEGRATION_AUDIT:
-- Phase 10I resolves queue/event UTC metadata and institute-local cashier hours, including actual foreign-workstation browser evidence. Other operational surfaces remain to be audited under foreign workstation timezones before physical acceptance. Next surface invoice-removal context in measured-consumption review, including immutable appointment invoice provenance, so a billing exclusion is distinguishable without inferring zero usage; then suppliers/orders and reorder/forecasts.
+- Phase 10I resolves queue/event UTC metadata and institute-local cashier hours, including actual foreign-workstation browser evidence. Other operational surfaces remain to be audited under foreign workstation timezones before physical acceptance. Phase 10J surfaces invoice-removal context in measured-consumption review with original appointment invoice provenance (ADR-012), without inferring zero usage. Next suppliers/orders and reorder/forecasts.
 
 VISUAL_QA_10H:
 - Final correction block reviewed on desktop and tablet-landscape: padded readable heading, retained care, signed actor and explicit invoice-versus-stock explanation. Scoped CSS removes the unrelated active-lines minimum height. Final focused native correction cases pass 2/2 again with production build and owned cleanup after this layout refinement; the preceding full combined suite remains 18/18.
@@ -189,3 +190,10 @@ PHASE10I_CASHIER_INSTITUTE_CLOCK:
 - Final production build and all 20 signed backend Edge cases pass (10 desktop, 10 touch-enabled tablet-landscape), with owned fixture cleanup. Two new cases run native browsers in America/Los_Angeles and verify Europe/Zurich cashier arrival/audit hours, signed cash payment and explicit paid/checkout/event instants. Desktop/tablet screenshots reviewed: zone and arrival hour are readable. All API/socket transports remain real; no injected authentication or altered browser clock.
 - Latest full backend remains the prior 352 passed / 81 opt-in skips; no new full-run claim is made for this readonly serialization change. Current focused checks and combined browser build cover this checkpoint. Physical tablet and production-provider/accounting gates stay open.
 - NEXT: immutable appointment invoice-line provenance and visible billing-exclusion context in consumption work/detail. Do not infer original appointment lines from a mutable current invoice or mark physical usage zero from billing exclusion. Suppliers, orders, reorder and forecasts remain required.
+
+PHASE10J_ORIGINAL_INVOICE_PROVENANCE:
+- New appointment completion captures the original invoice line, signed actor and completion instant atomically. Composite source/ticket/line ownership constraints enforce institute provenance. Completion replay preserves the original fact; legacy completed bookings remain unknown without guessing or backfill.
+- Inventory work lists/details show active, removed, not-issued or unknown invoice context. Removed billing never supplies zero usage or an automatic debit; norms and measured-consumption recovery stay independent. New frontend validation rejects inconsistent removal metadata.
+- Production TypeScript/Vite build and 20 signed Edge backend cases pass; extended correction-to-consumption context passes another 2 desktop/tablet cases with owned cleanup. Tablet screenshot reviewed: readable removal explanation, no implicit quantity or no-material default. Frontend: 113 passed, including metadata rejection and recovery after billing context changes.
+- PostgreSQL-enabled worklist/original-provenance/existing migrations bundle: 9 passed. Dedicated provenance/new migration bundle: 4 passed, covering all three ownership constraints, no backfill, model parity and refusal before downgrade DDL. Final booking/correction bundle: 7 passed, including concurrent completion and rollback of the new fact.
+- Full backend run completed: 358 passed, 84 opt-in skips, one failure from the old test-injection signature. Its signature and rollback assertions were repaired; the final focused booking/correction bundle passes. Exact last-failure rerun (`pytest -q --lf`): 1 passed; no remaining observed failure. No clean full-run claim is made for the pre-repair run. Full product and production gates remain open.

@@ -47,7 +47,7 @@ def test_worklist_pending_confirmed_pages_roles_and_original_detail(client):
     assert "Private name" not in str(pending + later)
     assert all(row["employee_name"] for row in pending + later)
     assert next(row for row in pending + later if row["source_kind"] == "sessions")["ticket_number"] is not None
-    assert next(row for row in pending + later if row["source_kind"] == "appointments")["ticket_number"] is None
+    assert next(row for row in pending + later if row["source_kind"] == "appointments")["ticket_number"] is not None
     with Session(main_module.engine) as db:
         original = consumptions.create(db, institute, basis, ConsumptionCreate(**confirmation([
             dict(item_id=first, quantity="2.125")])), "manager")

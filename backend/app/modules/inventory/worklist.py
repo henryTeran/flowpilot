@@ -1,10 +1,10 @@
 """Bounded completed work; detail remains available for original recovery."""
-from sqlalchemy import select, literal, union_all, and_
+from sqlalchemy import select, literal, union_all, and_, case
 from app.modules.inventory.models import StockServiceBasis as Basis, StockConsumption
 from app.modules.inventory import consumptions
 from app.modules.inventory.schemas import ConsumptionWorkDetail
 from app.modules.planning.models import ServiceSession
-from app.modules.appointments.models import Appointment
+from app.modules.appointments.models import Appointment, AppointmentInvoiceLine
 from app.modules.services.models import Service
 from app.modules.employees.models import Employee
 from app.modules.tickets.models import TicketLine, QueueTicket
@@ -16,10 +16,15 @@ def query(institute, *, completed_only):
     for model, source_field, kind, end_field in (
         (ServiceSession, Basis.session_id, "sessions", ServiceSession.real_end_time),
         (Appointment, Basis.appointment_id, "appointments", Appointment.actual_end_time)):
-        statement = select(Basis.id.label("basis_id"), Basis.institute_id, literal(kind).label("source_kind"),
+        missing = "unknown" if kind == "sessions" else case(
+            (and_(Appointment.checkout_ticket_id.is_(None), Appointment.status != "completed"), literal("not_issued")), else_=literal("unknown"))
+        billing = case((QueueTicket.id.is_(None), missing),
+            (TicketLine.invoice_removed_at.is_not(None), literal("removed")), else_=literal("active"))
+        statement = select(billing.label("billing_state"), case((QueueTicket.id.is_not(None), TicketLine.invoice_removed_at), else_=None).label("invoice_removed_at"),
+            Basis.id.label("basis_id"), Basis.institute_id, literal(kind).label("source_kind"),
             model.id.label("source_id"), model.status.label("source_status"), Basis.service_id,
             Employee.first_name.label("employee_name"),
-            (QueueTicket.ticket_number if kind == "sessions" else literal(None)).label("ticket_number"),
+            QueueTicket.ticket_number,
             Service.name.label("service_name"), Basis.quantity, Basis.state, Basis.captured_at,
             end_field.label("completed_at"), StockConsumption.id.label("consumption_id")).join(
                 model, and_(source_field == model.id, Basis.institute_id == model.institute_id)).join(
@@ -30,6 +35,11 @@ def query(institute, *, completed_only):
         if kind == "sessions":
             statement = statement.outerjoin(TicketLine, TicketLine.id == Basis.ticket_line_id).outerjoin(
                 QueueTicket, and_(QueueTicket.id == TicketLine.ticket_id, QueueTicket.institute_id == Basis.institute_id))
+        else:
+            statement = statement.outerjoin(AppointmentInvoiceLine, and_(
+                AppointmentInvoiceLine.appointment_id == Appointment.id, AppointmentInvoiceLine.institute_id == Basis.institute_id)).outerjoin(
+                TicketLine, and_(TicketLine.id == AppointmentInvoiceLine.ticket_line_id, TicketLine.ticket_id == AppointmentInvoiceLine.ticket_id)).outerjoin(
+                QueueTicket, and_(QueueTicket.id == AppointmentInvoiceLine.ticket_id, QueueTicket.institute_id == Basis.institute_id))
         if completed_only:
             statement = statement.where(model.status == "completed")
         parts.append(statement)

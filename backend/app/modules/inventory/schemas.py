@@ -182,6 +182,8 @@ class ConsumptionRead(BaseModel):
 
 
 class ConsumptionWorkRead(BaseModel):
+    billing_state: Literal["active", "removed", "not_issued", "unknown"]
+    invoice_removed_at: datetime | None
     employee_name: str
     ticket_number: str | None
     basis_id: str
@@ -197,7 +199,7 @@ class ConsumptionWorkRead(BaseModel):
     completed_at: datetime | None
     consumption_id: str | None
 
-    @field_serializer("captured_at", "completed_at")
+    @field_serializer("captured_at", "completed_at", "invoice_removed_at")
     def timestamps(self, value):
         return explicit_utc_instant(value)
 

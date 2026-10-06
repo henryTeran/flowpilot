@@ -56,4 +56,14 @@ test("native unpaid correction retains original execution after lost reply and p
   expect(receipt.total_amount).toBe(ticket.total_amount - line.total);
   expect(receipt.removed_lines).toEqual(committed.removed_lines);
   expect(await (await request.patch(path, { headers })).json()).toEqual(receipt);
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  const work = page.getByRole("region", { name: "Consommations par prestation" });
+  await work.locator(".bm-stock-card").filter({ hasText: ticket.ticket_number }).filter({ hasText: "Retirée de la facture" }).click();
+  const billing = work.getByRole("region", { name: "Lien de facturation" });
+  await expect(billing).toContainText("Retirée de la facture");
+  await expect(billing).toContainText("ne détermine pas les quantités réellement utilisées");
+  const consumption = work.getByRole("form", { name: "Confirmer la consommation" });
+  await expect(consumption.locator("input[inputmode='decimal']")).toHaveCount(0);
+  await expect(consumption.locator("input[type='checkbox']")).not.toBeChecked();
+  await billing.screenshot({ path: info.outputPath("invoice-consumption-context.png") });
 });

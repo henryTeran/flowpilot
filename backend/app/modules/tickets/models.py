@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -9,6 +9,7 @@ from app.database.base import Base
 class QueueTicket(Base):
     __tablename__ = "queue_tickets"
     __table_args__ = (
+        Index("uq_queue_ticket_owner", "institute_id", "id", unique=True),
         UniqueConstraint("institute_id", "idempotency_key", name="uq_queue_ticket_institute_idempotency"),
         CheckConstraint("currency IS NULL OR currency IN ('CHF', 'EUR')", name="ck_ticket_currency"),
     )
@@ -77,6 +78,7 @@ class QueueEvent(Base):
 class TicketLine(Base):
     __tablename__ = "ticket_lines"
     __table_args__ = (
+        Index("uq_ticket_line_ticket_owner", "ticket_id", "id", unique=True),
         CheckConstraint("(invoice_removed_at IS NULL AND invoice_removed_by_actor IS NULL AND invoice_removal_reason IS NULL) OR (invoice_removed_at IS NOT NULL AND invoice_removed_by_actor IS NOT NULL AND length(trim(invoice_removed_by_actor)) > 0 AND invoice_removal_reason IS NOT NULL AND invoice_removal_reason = 'not_performed')", name="ck_ticket_line_invoice_removal"),
     )
 

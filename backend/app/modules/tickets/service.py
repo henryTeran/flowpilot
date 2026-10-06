@@ -173,7 +173,7 @@ def _validate_creation_replay(db: Session, ticket: QueueTicket, payload: TicketC
     return ticket
 
 
-def prepare_booking_checkout(db: Session, appointment: Appointment) -> QueueTicket:
+def prepare_booking_checkout(db: Session, appointment: Appointment, actor_id: str | None = None) -> QueueTicket:
     """Create a performed-service checkout within the caller's institute transaction.
 
     The caller owns the institute lock and durable appointment link. No commit,
@@ -192,10 +192,16 @@ def prepare_booking_checkout(db: Session, appointment: Appointment) -> QueueTick
     from app.modules.tickets.currency import snapshot_currency
     snapshot_currency(db, ticket)
     duration = int((_ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time)).total_seconds() / 60)
-    db.add(TicketLine(id=new_id("tl"), ticket_id=ticket.id, service_id=service.id,
+    line_id = new_id("tl")
+    db.add(TicketLine(id=line_id, ticket_id=ticket.id, service_id=service.id,
                      quantity=1, unit_price=service.price_passage, total=service.price_passage,
                      duration_minutes=max(1, duration), revenue_category="care",
                      performed_by_employee_id=appointment.employee_id))
+    db.flush()
+    from app.modules.appointments.models import AppointmentInvoiceLine
+    db.add(AppointmentInvoiceLine(appointment_id=appointment.id, institute_id=appointment.institute_id,
+        ticket_id=ticket.id, ticket_line_id=line_id, actor_id=actor_id,
+        occurred_at=appointment.actual_end_time or utcnow()))
     record_event(db, ticket, "queue.booking_finished", None, appointment.employee_id)
     return ticket
 

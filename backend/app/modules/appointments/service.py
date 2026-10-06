@@ -413,7 +413,7 @@ def complete_appointment(db: Session, appointment_id: str, actor_id: str | None 
     appointment.actual_end_time = utcnow()
     appointment.status = "completed"
     from app.modules.tickets.service import prepare_booking_checkout
-    appointment.checkout_ticket_id = prepare_booking_checkout(db, appointment).id
+    appointment.checkout_ticket_id = prepare_booking_checkout(db, appointment, actor_id).id
     employee = get_employee(db, appointment.employee_id)
     if employee:
         _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)

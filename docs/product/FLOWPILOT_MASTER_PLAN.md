@@ -1342,8 +1342,9 @@ PROJECT_STATUS.md and ADR-010. Phase 10H resolves legitimate checkout correction
 by retaining original line/basis/consumption facts and excluding signed removals
 from invoice, payment and loyalty totals (ADR-011). Phase 10I also fixes queue/event
 instant metadata and institute-local cashier hours, verified in foreign-workstation
-Edge cases. Next: immutable appointment invoice provenance and billing exclusion
-context in measured consumption, followed by institute-scoped suppliers,
+Edge cases. Phase 10J captures original appointment invoice provenance and shows
+billing exclusion independently of measured consumption (ADR-012), with no
+historical backfill or automatic zero usage. Next: institute-scoped suppliers,
 purchase orders, exact partial receipt movements, reorder and forecasts. No physical
 tablet, production settlement or complete Phase 10 claim.
 

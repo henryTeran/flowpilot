@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, JSON, UniqueConstraint, Index
+from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, String, JSON, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -42,3 +42,21 @@ class BookingEvent(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     before: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     after: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class AppointmentInvoiceLine(Base):
+    """Original invoice line created by the appointment completion transaction."""
+    __tablename__ = "appointment_invoice_lines"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "appointment_id"], ["appointments.institute_id", "appointments.id"], name="fk_appointment_invoice_source_owner"),
+        ForeignKeyConstraint(["institute_id", "ticket_id"], ["queue_tickets.institute_id", "queue_tickets.id"], name="fk_appointment_invoice_ticket_owner"),
+        ForeignKeyConstraint(["ticket_id", "ticket_line_id"], ["ticket_lines.ticket_id", "ticket_lines.id"], name="fk_appointment_invoice_line_owner"),
+        UniqueConstraint("ticket_id", name="uq_appointment_invoice_ticket"),
+        UniqueConstraint("ticket_line_id", name="uq_appointment_invoice_line"),
+    )
+    appointment_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    ticket_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    ticket_line_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

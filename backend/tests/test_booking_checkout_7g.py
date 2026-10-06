@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import app.main as main_module
-from app.modules.appointments.models import Appointment, BookingEvent
+from app.modules.appointments.models import Appointment, BookingEvent, AppointmentInvoiceLine
 from app.modules.tickets.models import QueueTicket, TicketLine
 from app.modules.realtime.models import PlanningRevision
 from app.shared.time import utcnow
@@ -27,8 +27,8 @@ def test_booking_finish_replay_enters_checkout_once_and_payment_preserves_attrib
     from app.modules.tickets import service as ticket_service
     from app.shared.exceptions import business_error
     original = ticket_service.prepare_booking_checkout
-    def fail_after_checkout_flush(db, appointment):
-        original(db, appointment)
+    def fail_after_checkout_flush(db, appointment, actor_id=None):
+        original(db, appointment, actor_id)
         db.flush()
         raise business_error("Injected checkout failure")
     with Session(main_module.engine) as db:
@@ -41,6 +41,7 @@ def test_booking_finish_replay_enters_checkout_once_and_payment_preserves_attrib
         assert db.get(Appointment, booked.json()["id"]).checkout_ticket_id is None
         assert db.get(PlanningRevision, institute).revision == revision
         assert db.scalars(select(QueueTicket)).all() == []
+        assert db.scalars(select(AppointmentInvoiceLine)).all() == []
     finished = client.patch(path + "/complete", headers=operator)
     assert finished.status_code == 200, finished.text
     replay = client.patch(path + "/complete", headers=operator)
@@ -63,6 +64,9 @@ def test_booking_finish_replay_enters_checkout_once_and_payment_preserves_attrib
         assert db.get(Appointment, booked.json()["id"]).checkout_ticket_id == ticket_id
         assert db.get(QueueTicket, ticket_id).paid_employee_id == employees[1]["id"]
         assert db.scalar(select(TicketLine)).performed_by_employee_id == employee
+        fact = db.get(AppointmentInvoiceLine, booked.json()["id"])
+        assert fact.ticket_id == ticket_id and fact.actor_id == "test-user"
+        assert fact.ticket_line_id == db.scalar(select(TicketLine)).id
 
 
 def test_competing_booking_finishes_create_one_checkout(postgres_flow):
@@ -81,3 +85,6 @@ def test_competing_booking_finishes_create_one_checkout(postgres_flow):
         assert ticket.status == "ready_for_checkout"
         assert len(db.scalars(select(QueueTicket)).all()) == 1
         assert len(db.scalars(select(TicketLine)).all()) == 1
+        facts = db.scalars(select(AppointmentInvoiceLine)).all()
+        assert len(facts) == 1 and facts[0].ticket_id == ticket.id
+        assert facts[0].ticket_line_id == db.scalar(select(TicketLine)).id

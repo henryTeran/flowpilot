@@ -1,6 +1,6 @@
 import { stockMilli, stockUnits } from "./inventory-utils";
 import { validEntries, recipeTerms, type RecipeEntry } from "./recipe-utils";
-export type Work = { employee_name: string; ticket_number: string | null; basis_id: string; institute_id: string; source_kind: "sessions" | "appointments"; source_id: string; source_status: string; service_id: string; service_name: string; quantity: number; state: "enabled" | "disabled" | "unconfigured"; captured_at: string; completed_at: string | null; consumption_id: string | null };
+export type Work = { billing_state: "active" | "removed" | "not_issued" | "unknown"; invoice_removed_at: string | null; employee_name: string; ticket_number: string | null; basis_id: string; institute_id: string; source_kind: "sessions" | "appointments"; source_id: string; source_status: string; service_id: string; service_name: string; quantity: number; state: "enabled" | "disabled" | "unconfigured"; captured_at: string; completed_at: string | null; consumption_id: string | null };
 export type Consumption = { id: string; institute_id: string; basis_id: string; actor_id: string; reason: string; idempotency_key: string; entries: Array<RecipeEntry & { movement_id: string }>; expected_entries: RecipeEntry[] | null; matches_norm: boolean | null; created_at: string };
 export type WorkDetail = Work & { expected_entries: RecipeEntry[] | null; consumption: Consumption | null };
 export type ConsumptionIntent = { basis_name: string; basis_state: Work["state"]; expected_entries: RecipeEntry[] | null; no_material: boolean; entries: Array<RecipeEntry & { name: string; sku: string }>; reason: string; idempotency_key: string };
@@ -14,7 +14,7 @@ export function validNorm(entries: unknown): entries is RecipeEntry[] | null {
 const stateNorm = (state: string, entries: RecipeEntry[] | null) => state === "unconfigured" ? entries === null : entries !== null && (state === "enabled" ? entries.length > 0 : entries.length === 0);
 export function validWork(value: unknown, institute: string): value is Work {
   const row = value as Work;
-  return !!row && text(row.employee_name, 120) && (row.ticket_number === null || text(row.ticket_number, 40)) && id(row.basis_id) && row.institute_id === institute && ["sessions", "appointments"].includes(row.source_kind) && id(row.source_id) && text(row.source_status, 40) && id(row.service_id) && text(row.service_name, 160) && Number.isSafeInteger(row.quantity) && row.quantity >= 1 && row.quantity <= 2147483647 && ["enabled", "disabled", "unconfigured"].includes(row.state) && instant(row.captured_at) && (row.completed_at === null || instant(row.completed_at)) && (row.consumption_id === null || id(row.consumption_id));
+  return !!row && ["active", "removed", "not_issued", "unknown"].includes(row.billing_state) && (row.billing_state === "removed" ? instant(row.invoice_removed_at) : row.invoice_removed_at === null) && text(row.employee_name, 120) && (row.ticket_number === null || text(row.ticket_number, 40)) && id(row.basis_id) && row.institute_id === institute && ["sessions", "appointments"].includes(row.source_kind) && id(row.source_id) && text(row.source_status, 40) && id(row.service_id) && text(row.service_name, 160) && Number.isSafeInteger(row.quantity) && row.quantity >= 1 && row.quantity <= 2147483647 && ["enabled", "disabled", "unconfigured"].includes(row.state) && instant(row.captured_at) && (row.completed_at === null || instant(row.completed_at)) && (row.consumption_id === null || id(row.consumption_id));
 }
 export function validConsumption(value: unknown, institute: string, basis: string): value is Consumption {
   const row = value as Consumption;
@@ -31,3 +31,5 @@ export function matchesConsumption(row: Consumption, intent: ConsumptionIntent, 
   return row.actor_id === actor && row.reason === intent.reason && row.idempotency_key === intent.idempotency_key && recipeTerms(row.entries) === recipeTerms(intent.entries) && normTerms(row.expected_entries) === normTerms(intent.expected_entries);
 }
 export type NamedEntry = RecipeEntry & { name: string; sku: string };
+
+export const billingCaption = (state: Work["billing_state"]) => ({ active: "Présente sur la facture", removed: "Retirée de la facture", not_issued: "Facture non émise", unknown: "Lien de facture d’origine non établi" }[state]);
