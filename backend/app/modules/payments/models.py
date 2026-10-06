@@ -39,3 +39,28 @@ class PaymentExecution(Base):
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
     sealed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PaymentOutcome(Base):
+    """Immutable adapter observations; pending does not release execution."""
+    __tablename__ = "payment_outcomes"
+    __table_args__ = (
+        UniqueConstraint("intent_id", "status", name="uq_payment_outcome_status"),
+        CheckConstraint("status IN ('pending', 'authorized', 'failed')", name="ck_payment_outcome_status"),
+        CheckConstraint("amount > 0 AND currency IN ('CHF', 'EUR')", name="ck_payment_outcome_value"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_executions.intent_id"), index=True)
+    status: Mapped[str] = mapped_column(String(20))
+    provider_payment_id: Mapped[str] = mapped_column(String(240))
+    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PaymentReference(Base):
+    __tablename__ = "payment_references"
+    provider: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    provider_payment_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_intents.id"), unique=True)

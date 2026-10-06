@@ -73,3 +73,22 @@ public dispatch endpoint or external call yet: authenticated provider outcomes,
 terminal release and checkout application must be implemented together. The
 execution ledger has a nonempty downgrade guard. This is authorization sealing,
 not capture/refund/cancel parent-operation validation or completed settlement.
+
+
+Authorization observations now persist as immutable pending/authorized/failed
+facts linked to a prior durable execution. This internal writer checks the trusted
+adapter provider/account binding, original amount/currency and operation kind.
+The first result binds the provider reference; a global provider/account/reference
+key prevents assigning the same external operation to a different intent. The
+institute lock serializes duplicate observations and terminal transitions.
+
+Matching observation replay returns its existing fact. A terminal observation
+cannot be replaced, and a new pending observation cannot regress a terminal state.
+Previously recorded pending facts remain readable by matching replay. Pending and
+authorized retain the execution seal; explicit final failed releases it in the same
+transaction as the outcome. Failed persistence leaves both facts and release absent.
+Timeouts are not observations and provide no release path. A successful authorization
+is not capture or settled revenue. No public route accepts these internal facts;
+the configured adapter driver and authentication must precede any production use.
+Nonempty outcome/reference downgrade refuses before DDL. Real adapters, dispatch
+recovery, capture/cancel/refund parent proofs and webhook lifecycle remain pending.
