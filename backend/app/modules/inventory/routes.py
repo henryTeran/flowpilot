@@ -15,6 +15,8 @@ from app.modules.inventory.schemas import SupplierCreate, SupplierRead
 from app.modules.inventory.order_schemas import OrderCreate, OrderRead, ReceiptCreate, ReceiptRead, OrderProgressRead
 from app.modules.inventory.models import StockRecipe
 from app.modules.inventory import recipes
+from app.modules.inventory import outlook
+from app.modules.inventory.outlook_schemas import ForecastScenario, OutlookRead
 
 router = APIRouter(prefix="/inventory/institutes/{institute_id}", tags=["inventory"])
 
@@ -30,6 +32,19 @@ def manager(user=Depends(operator)):
     if user["role"] != "responsable_institut":
         raise HTTPException(403, "Gestion de stock reservee a la responsable")
     return user
+
+
+@router.get("/outlook", response_model=OutlookRead)
+def stock_outlook(institute_id: str, limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0, le=100000),
+                  user=Depends(operator), db: Session = Depends(get_db)):
+    return outlook.read(db, institute_id, limit, offset)
+
+
+@router.post("/forecast", response_model=OutlookRead)
+def stock_forecast(institute_id: str, payload: ForecastScenario, limit: int = Query(50, ge=1, le=200),
+                   offset: int = Query(0, ge=0, le=100000), user=Depends(operator), db: Session = Depends(get_db)):
+    # POST carries an explicit read-only scenario, never records a business mutation.
+    return outlook.read(db, institute_id, limit, offset, payload)
 
 
 @router.get("/suppliers", response_model=list[SupplierRead])

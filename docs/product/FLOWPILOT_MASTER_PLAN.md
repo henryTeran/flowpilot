@@ -1350,7 +1350,11 @@ immutable purchase orders and atomic exact partial receipt APIs (ADR-014),
 with original recovery independent of current budgets. Phase 10M adds native
 order/partial-receipt authoring, original request recovery, explicit measured
 quantities and fresh progress/stock verification. Reorder and forecasts remain
-required. No physical tablet, production settlement or complete Phase 10 claim.
+required. Phase 10N adds exact scoped outlook and explicit service-volume scenario
+read APIs using selected original norms, with partial coverage and conditional
+incoming quantities (ADR-015). Native forecast review and scheduled/observed
+demand integration remain required. No physical tablet, production settlement
+or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce
 
