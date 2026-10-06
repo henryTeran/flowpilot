@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AI_EDGE_CASHFLOW_BROWSER_VALIDATION
+CURRENT_CHECKPOINT = PHASE9AJ_SOURCE_MAP_SECURITY_PATCH
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Targeted source-map-js transitive patch 1.2.1 -> 1.2.2 resolves npm advisory GHSA-68fv-2mgg-jv7q. Only that lockfile package changed; no unrelated dependency upgrade or application change. Fresh npm audit: zero reported vulnerabilities. Canonical frontend suite: 85 passed. Edge desktop/tablet cashflow suite: 4 passed, including rebuilt TypeScript/Vite output. This does not establish the broader production SECURITY gate.
 - Added reproducible Playwright browser tests against the built frontend with controlled HTTP fixtures. Installed Edge headless exercised manager/cashier presentation at desktop 1440x900 and touch-enabled tablet landscape 1024x768: 4 passed. Exact cents, separate groups, wrong-scope refresh clearing, no cashier cashflow request, no page exceptions and no document horizontal overflow verified. Tablet screenshot inspected; the previously unstyled cashflow panel now uses Pilotage cards and a minimum 44px refresh target. Canonical component suite: 85 passed; browser command rebuild passed. These are real browser frontend checks, not backend/payment-provider E2E, physical tablet acceptance or reconnect verification. Broader gates remain open.
 - The documented npm test command now discovers all .test.js/.test.ts/.test.tsx files recursively in src and tests, rather than silently omitting payment/reporting regression files. The runner invokes the current Node executable with tsx and a 60-second per-test timeout, forwards output, and propagates failure status. Canonical npm test passes all 85 cases. No application/backend change; previous application build remains the latest build evidence.
 - Cashflow UI now rejects inconsistent recorded ledger relationships using exact BigInt cents: captured equals applied plus unapplied; captured equals refunded plus confirmed net; refunded plus reservations cannot exceed applied captures. No replacement monetary truth is calculated or displayed. Malformed values, unsupported currency, duplicate groups and missing amounts also hide the whole snapshot; a later valid read recovers normally. Four focused cases (including eight invalid-response variants) pass within all 85 frontend tests; TypeScript/Vite build passes. Backend and production gates are unchanged.
@@ -88,13 +89,12 @@ INVARIANTS:
 - Active authorization executions freeze ticket mutations, commercial price changes and new gift funding/reversal; original intent recovery never re-quotes an unknown provider outcome. Pending/authorized outcomes retain the seal; explicit final failure releases it atomically with its immutable fact. Child cancellation releases the parent with its confirmed fact; captured funds remain protected until checkout application. Failed child requests allow a new operation while keeping history. No timeout-based release or external settlement is inferred.
 
 BLOCKERS:
-- npm audit reports source-map-js <1.2.2 high-severity advisory GHSA-68fv-2mgg-jv7q; targeted compatible dependency update and regression verification pending.
-- Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
+- Interactive CUA surfaces and physical tablet acceptance remain unavailable (last inventory apps=[] and browsers=[]). Installed Edge headless is now usable for scoped frontend browser verification; full backend-connected E2E and reconnect checks remain open.
 - Deep load, external settlement and production readiness remain unverified.
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- Patch the verified source-map-js advisory, then extend real-browser validation to backend-connected critical workflows.
+- Extend real-browser validation to backend-connected critical workflows using disposable infrastructure, without selecting a real payment provider implicitly.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
