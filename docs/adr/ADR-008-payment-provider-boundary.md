@@ -110,3 +110,16 @@ from repr. No default/live provider or public payment endpoint is introduced. Te
 adapters establish orchestration and recovery, not authentication or settlement for
 an external account. Capture/cancel/refund proofs, their dispatch and checkout
 application, real adapter integration and webhook replay remain required.
+
+
+New capture/cancel requests now resolve their parent using the stored provider/
+account/reference binding. Parent authorization, institute, ticket, confirmed
+observation, active protection, amount and currency must match. This first
+implementation supports full authorization capture/cancel; partial/multiple capture
+is not configured. Preparation reserves the parent by persisting one capture or
+cancel request under the institute lock, preventing competing opposite requests.
+Original same-key replay still returns before consulting later parent state.
+Unresolved prepared requests are not abandoned or released implicitly; their durable
+execution/result recovery must follow. Refund preparation requires captured facts
+and is rejected until that ledger exists. No capture/cancel dispatch, settlement,
+parent release or checkout application is claimed by these prerequisite checks.

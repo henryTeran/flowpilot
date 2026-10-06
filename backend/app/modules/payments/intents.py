@@ -38,6 +38,9 @@ def persist_intent(db, request: PaymentRequest, kind: OperationKind, provider: s
         from app.modules.payments.quotes import authorization_amount
         if request.value != authorization_amount(db, ticket):
             raise business_error("Le montant demande ne correspond pas au reste a payer")
+    else:
+        from app.modules.payments.parents import validate_parent_operation
+        validate_parent_operation(db, request, kind, provider, account_id, provider_payment_id)
     row = PaymentIntent(id=new_id("pi"), institute_id=request.institute_id,
         idempotency_key=request.idempotency_key, created_at=utcnow(), **terms)
     db.add(row); db.commit(); db.refresh(row)

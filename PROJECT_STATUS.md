@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9G_ACCOUNT_BOUND_AUTHORIZATION_DISPATCH
+CURRENT_CHECKPOINT = PHASE9H_CAPTURE_CANCEL_PARENT_PROOF
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,11 @@ GATES:
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
-- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery implemented; real adapters, capture/refund/cancel and webhook processing pending. All Phase 9 gates remain open.
+- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel parent reservation checks implemented; real adapters, capture/refund/cancel execution and webhook processing pending. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Capture/cancel parent proof: intent/dispatch/outcome local regression bundle 13 passed / 5 opt-in skips; PostgreSQL parent/intent/outcome bundle 10 passed. Final parent suite: 5 passed / 1 opt-in skip locally and 6 passed on PostgreSQL. Confirmed full-value proof, same-account foreign-ticket denial, pending/failed denial, same-intent replay and competing capture/cancel reservation verified. Refund remains blocked until captured facts exist; no settlement or child dispatch claimed.
 - Authorization dispatch/provider/outcome/seal/quote local bundle: 26 passed, 5 opt-in skips. PostgreSQL dispatch/outcome bundle: 11 passed. Final dispatch checks including invalid adapter responses: 6 passed / 2 opt-in skips locally and 8 passed on PostgreSQL. Original request recovery, terminal no-I/O replay, failed-write latch, account mismatch, concurrent idempotent retries and no institute lock during network callback verified with simulated adapters.
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
@@ -53,12 +54,13 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE9H: validate capture/cancel/refund parent authorization and budgets; implement their durable execution; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9I: implement durable capture/cancel execution and confirmed results; release/apply parent protection transactionally; add captured settlement ledger and refund budgets; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): dispatch authorization through trusted account binding.
+- Current: feat(payments): require confirmed parent authorization for capture and cancel.
+- 6a391ca trusted account-bound authorization dispatch.
 - e82a70f immutable authorization observations.
 - 78b0055 durable authorization execution seals.
 - 2310d22 exact authorization quote validation.
