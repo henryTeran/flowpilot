@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, String, UniqueConstraint, Index, text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, String, UniqueConstraint, Index, text, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
@@ -136,3 +136,23 @@ class WebhookReceipt(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     currency: Mapped[str] = mapped_column(String(3))
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RefundLoyaltyDecision(Base):
+    __tablename__ = "payment_refund_loyalty_decisions"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_refund_loyalty_replay"),
+        CheckConstraint("points <= 0", name="ck_refund_loyalty_points"),
+        CheckConstraint("(points = 0 AND entry_id IS NULL) OR (points < 0 AND entry_id IS NOT NULL AND customer_id IS NOT NULL)", name="ck_refund_loyalty_entry"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    refund_intent_id: Mapped[str] = mapped_column(ForeignKey("payment_refund_executions.intent_id"), unique=True)
+    ticket_id: Mapped[str] = mapped_column(ForeignKey("queue_tickets.id"), index=True)
+    customer_id: Mapped[str | None] = mapped_column(ForeignKey("customers.id"), nullable=True)
+    entry_id: Mapped[str | None] = mapped_column(ForeignKey("loyalty_entries.id"), nullable=True, unique=True)
+    points: Mapped[int] = mapped_column(BigInteger)
+    reason: Mapped[str] = mapped_column(String(240))
+    actor_id: Mapped[str] = mapped_column(String(160))
+    idempotency_key: Mapped[str] = mapped_column(String(120))
+    decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

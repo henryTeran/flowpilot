@@ -234,3 +234,20 @@ This is a provider cashflow view, not service revenue, bank payout reconciliatio
 fees, taxes or a general ledger. Read-only reporting neither reverses performed work
 nor chooses a loyalty refund policy. Actual provider verification and full accounting/
 operator integration remain open. No schema change is required for this snapshot.
+
+
+Confirmed refunds now support one explicit, signed manager loyalty decision. Zero
+records a reasoned decision to retain points without creating a zero-point ledger
+entry. A negative integer creates a point debit linked to the refund decision in the
+same transaction. The original ticket earning identifies the beneficiary; no customer
+is inferred from an anonymous/legacy ticket. Cumulative refund deductions cannot
+exceed original earned points or overdraw the current balance. Independent point
+corrections cannot expand the original earning cap. This is an explicit per-refund
+manager choice, not an invented proportional or automatic refund policy.
+
+Same scoped key replays the original terms/actor; a second decision for a refund or
+changed intent is refused. Failed decision writes roll back any staged debit. Signed
+history and point-entry links have consistent nullability checks and a nonempty
+migration downgrade guard. The manager-only API accepts strict integers and bounded
+reason/key fields. Operator UI/recovery, generalized policy automation, actual provider
+verification and comprehensive financial accounting remain open.
