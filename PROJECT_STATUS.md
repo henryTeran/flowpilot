@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AE_ATOMIC_CASHFLOW_READ_VERIFICATION
+CURRENT_CHECKPOINT = PHASE9AF_MANAGER_CASHFLOW_UI
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Pilotage now includes a manager-only read of persisted provider cashflows, separately labelled by provider/account/currency. Captured, applied, unapplied, confirmed refunded, reserved and net confirmed amounts are displayed as original decimal strings without Number conversion. The view explicitly identifies cumulative records rather than daily revenue or bank payouts. Empty institute/nonmanager presentation makes no request; API permissions remain authoritative. Refresh clears cached facts, rejects mismatched institute/invalid groups, and ignores disposed or old-token replies. Three focused component cases pass within 84 frontend tests; TypeScript/Vite build passes. Actual browser/tablet and real provider remain open.
 - Actual PostgreSQL cashflow concurrency coverage observes pg_stat_activity Lock waits while a terminal refund outcome is uncommitted. The reader resumes only after commit, showing confirmed refund debit or failed-refund reservation release with exact net amounts. Original-result replay leaves the report unchanged. Both terminal paths and the full cashflow file pass (5 tests); the broader cashflow/webhook/refund-budget/refund-execution bundle passes all 18 tests with PostgreSQL enabled. No production adapter, schema or business rule change.
 - Manual and operational Chiffres reads now share a request sequence. Only the latest scoped/token-valid read may publish data, errors or loading completion. A superseded full operational refresh returns false, preserving financial recovery latches. Latest operational failure clears cached figures. Whole-App delayed-response regression covers stale success, failure revival and premature loading completion: frontend suite 81 passed; TypeScript/Vite build passed. No backend change or native browser/tablet claim.
 - Chiffres UI now receives the selected institute explicitly, hides cached facts during loading or scope mismatch (including empty institute selection), and resets currency selection on institute changes. Manual refresh clears the previous report before GET so a failed read cannot leave that cached report displayed. Unavailable/loading text is distinct from a proven empty report. Frontend broad suite: 80 passed plus build; final component checks after empty-scope/wording guards: 4 passed plus build. No backend or production/tablet claim.
@@ -53,7 +54,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 81 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 84 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.

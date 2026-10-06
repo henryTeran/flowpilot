@@ -8,6 +8,7 @@ import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
 import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
+import { PaymentCashflows } from "./components/PaymentCashflows";
 import { CompactQueuePanel } from "./components/CompactQueuePanel";
 import { DemoTools } from "./components/DemoTools";
 import { EmployeeIdentityModal, type IdentityContext } from "./components/EmployeeIdentityModal";
@@ -890,6 +891,7 @@ export default function App() {
               loading={chiffresLoading}
               onRefresh={handleRefreshChiffres}
             />
+            <PaymentCashflows instituteId={selectedInstituteId} />
           </main>
         )}
 

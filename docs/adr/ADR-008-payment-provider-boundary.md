@@ -465,3 +465,16 @@ net confirmed cash; confirmed failure releases the reservation without reducing
 net cash. Neither path mixes pre-commit reservation with post-commit terminal state.
 Replaying the original result preserves the same amounts. This verifies the existing
 institute-lock boundary, not bank settlement, provider signatures or full accounting.
+
+
+Pilotage exposes the existing manager cashflow endpoint through a read-only panel.
+The UI keeps provider/account/currency groups separate and labels the cumulative
+recorded capture/application/refund/reservation/net amounts. It does not imply daily
+service revenue, bank payouts, fees or taxes. It formats exact recorded decimal
+strings, including values beyond JavaScript safe integer cents. A scoped institute/
+token component hides old facts during refresh, rejects malformed or foreign
+snapshots, and prevents late disposed reads from publishing. Manager presentation
+is only a convenience; the signed server role and institute remain authoritative.
+No mutation or provider dispatch is triggered. Three component regressions pass
+within the 84-test frontend suite, and TypeScript/Vite build passes. Browser/tablet
+visual verification and actual provider/accounting integration remain open.
