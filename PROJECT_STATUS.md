@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9I_CAPTURE_CANCEL_EXECUTION_OUTCOMES
+CURRENT_CHECKPOINT = PHASE9J_CONFIRMED_CAPTURE_CHECKOUT
 STATUS = ACTIVE
 
 GATES:
@@ -9,11 +9,12 @@ GATES:
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
-- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel parent proof, execution, dispatch and immutable outcomes implemented; captured checkout application, refund budgets/execution, real adapters and webhook processing pending. All Phase 9 gates remain open.
+- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel execution and immutable outcomes plus atomic captured checkout application implemented; refund budgets/execution, real adapters and webhook processing pending. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
-- Capture/cancel execution, parent-proof and migration bundle: 14 passed / 3 opt-in skips locally and 17 passed on PostgreSQL. Final execution suite: 8 passed / 2 opt-in skips locally and 10 passed on PostgreSQL, including concurrent cancellation. Enhanced terminal-conflict/downgrade checks: 4 passed on each database. Owned PostgreSQL upgrade/check passed. Unknown transport, interrupted cancellation writes and seal rollback preserve parent protection; failed children allow another request; confirmed cancellation releases atomically. Captured checkout application remains pending.
+- Captured checkout/migration PostgreSQL bundle: 6 passed. Final checkout suite after explicit Decimal-context protection: 3 passed / 1 opt-in skip locally and 4 passed on PostgreSQL. Mixed gift/external remainder, duplicate paid application/one earning, failed earning rollback, immutable method replay and nonempty application downgrade guard verified. Owned PostgreSQL upgrade/check passed. No real adapter settlement is claimed.
+- Capture/cancel execution, parent-proof and migration bundle: 14 passed / 3 opt-in skips locally and 17 passed on PostgreSQL. Final execution suite: 8 passed / 2 opt-in skips locally and 10 passed on PostgreSQL, including concurrent cancellation. Enhanced terminal-conflict/downgrade checks: 4 passed on each database. Owned PostgreSQL upgrade/check passed. Unknown transport, interrupted cancellation writes and seal rollback preserve parent protection; failed children allow another request; confirmed cancellation releases atomically. Captured checkout application is now implemented below at internal functional scope.
 - Capture/cancel parent proof: intent/dispatch/outcome local regression bundle 13 passed / 5 opt-in skips; PostgreSQL parent/intent/outcome bundle 10 passed. Final parent suite: 5 passed / 1 opt-in skip locally and 6 passed on PostgreSQL. Confirmed full-value proof, same-account foreign-ticket denial, pending/failed denial, same-intent replay and competing capture/cancel reservation verified. Refund remains blocked until captured facts exist; no settlement or child dispatch claimed.
 - Authorization dispatch/provider/outcome/seal/quote local bundle: 26 passed, 5 opt-in skips. PostgreSQL dispatch/outcome bundle: 11 passed. Final dispatch checks including invalid adapter responses: 6 passed / 2 opt-in skips locally and 8 passed on PostgreSQL. Original request recovery, terminal no-I/O replay, failed-write latch, account mismatch, concurrent idempotent retries and no institute lock during network callback verified with simulated adapters.
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
@@ -23,11 +24,11 @@ EVIDENCE:
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
-- Latest full backend: 285 passed, 58 opt-in PostgreSQL cases skipped locally; subsequently added concurrent cancellation and enhanced terminal/downgrade assertions passed in focused checks. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
+- Latest full backend: 288 passed, 60 opt-in PostgreSQL cases skipped locally; final Decimal-context enhancement subsequently passed in the focused checkout suite on SQLite/PostgreSQL. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
-- Migrations through 5fbc90476acf: SQLite/PostgreSQL round-trip/model parity, PostgreSQL upgrade/check and nonempty commercial-history downgrade guards passed; tier-only, point-ledger, earning-policy, earned-ticket, reward-term and redemption guards verified.
+- Migrations through 60cd01587bdf: SQLite/PostgreSQL round-trip/model parity, PostgreSQL upgrade/check and nonempty commercial-history downgrade guards passed; tier-only, point-ledger, earning-policy, earned-ticket, reward-term and redemption guards verified.
 - Phase 7 live two-process PostgreSQL suite: 2 passed with action revisions followed by reader-side REST verification. This does not establish actual browser reconnect/tablet UX.
 - Earlier package/membership/booking/resource evidence and scope are retained in git history and docs/architecture/COMMERCE.md, HYBRID_BOOKING.md, RESOURCES_AND_SKILLS.md and REALTIME_OPERATIONS.md.
 INVARIANTS:
@@ -55,12 +56,13 @@ BLOCKERS:
 - Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
 
 NEXT_STEP:
-- PHASE9J: apply confirmed captured settlement to checkout atomically; add refund budgets and durable refund execution; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9K: add captured-amount refund budgets and durable refund execution; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): execute capture and cancel with durable provider facts.
+- Current: feat(payments): apply confirmed capture to checkout atomically.
+- 0e9ed73 durable capture/cancel execution and provider facts.
 - c082209 capture/cancel parent proof and reservations.
 - 6a391ca trusted account-bound authorization dispatch.
 - e82a70f immutable authorization observations.

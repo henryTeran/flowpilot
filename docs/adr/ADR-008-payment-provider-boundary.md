@@ -142,5 +142,25 @@ Interrupted persistence cannot release the parent. The new migration refuses to
 downgrade nonempty execution or outcome history before dropping any table.
 
 These internal adapter simulation checks do not establish external integration or
-production settlement. Captured checkout application, refund budgets and execution,
+production settlement. Refund budgets and execution,
 webhook authentication/replay, real providers and operator UI remain required.
+
+
+Confirmed capture now applies to checkout through an explicit signed original actor,
+institute, capture intent, cashier employee and tender method. Its immutable ticket/
+capture application fact is unique. Existing matching application replay returns
+before consulting later quote/policy state; changed employee/actor/method cannot
+relabel paid history. New application requires the protected parent and exact current
+remaining amount in the captured currency. Gift-funded checkout uses the declared
+external method for the mixed remainder and preserves existing gift allocation facts.
+
+The application fact, parent release, normal paid transition, gift closure and loyalty
+award share the existing checkout transaction. Checkout runs in an explicit Decimal
+precision context so gift remainder and earning calculations do not inherit caller
+precision. Release is flushed while retaining the
+institute lock before invoking checkout; failed checkout/earning writes roll back the
+application and release. Concurrent duplicate application returns one paid ticket and
+one loyalty award. Nonempty downgrade refuses before dropping the application table.
+No public endpoint or real provider integration is claimed by this internal writer.
+Refund budgets/execution, webhook authentication/replay, actual adapters and operator
+UI remain open; all Phase 9 production gates remain open.

@@ -88,3 +88,14 @@ class ParentOperationOutcome(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     currency: Mapped[str] = mapped_column(String(3))
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class CaptureApplication(Base):
+    __tablename__ = "payment_capture_applications"
+    ticket_id: Mapped[str] = mapped_column(ForeignKey("queue_tickets.id"), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_parent_executions.intent_id"), unique=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    employee_id: Mapped[str] = mapped_column(ForeignKey("employees.id"))
+    actor_id: Mapped[str] = mapped_column(String(160))
+    method: Mapped[str] = mapped_column(String(20))
+    applied_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
