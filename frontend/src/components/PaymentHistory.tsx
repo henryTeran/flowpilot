@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
+import { PaymentRecovery } from "./PaymentRecovery";
 import { RefundLoyaltyDecision } from "./RefundLoyaltyDecision";
 import { getAccessToken } from "../api/session";
 
 type Decision = { id: string; refund_intent_id: string; points: number; reason: string; actor_id: string; entry_id: string | null };
-type Operation = { id: string; kind: string; amount: string; currency: string; status: string; applied: boolean; active_protection: boolean; loyalty_decision: Decision | null };
+type Operation = { actor_id?: string; id: string; kind: string; amount: string; currency: string; status: string; applied: boolean; active_protection: boolean; loyalty_decision: Decision | null };
 type Snapshot = { ticket_id: string; protected: boolean; operations: Operation[] };
 const kinds: Record<string, string> = { authorize: "Autorisation", capture: "Encaissement", cancel: "Annulation", refund: "Remboursement" };
 const statuses: Record<string, string> = { prepared: "Préparé", unknown: "Résultat à récupérer", pending: "En attente", authorized: "Autorisé", captured: "Encaissé", cancelled: "Annulé", refunded: "Remboursé", failed: "Échec confirmé" };
@@ -63,6 +64,7 @@ function ScopedPaymentHistory({ instituteId, ticketId, token, onRefresh }: Props
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}
+      {onRefresh && <PaymentRecovery instituteId={instituteId} ticketId={ticketId} operation={row} onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && row.kind === "refund" && row.status === "refunded" && !row.loyalty_decision && <RefundLoyaltyDecision instituteId={instituteId} ticketId={ticketId} refundId={row.id} onRefresh={onRefresh} onRecorded={() => void load()} />}
     </div>)}
   </section>;

@@ -347,3 +347,20 @@ private adapter details and headers are not forwarded. Existing execution seals 
 refund reservations remain intact. Webhook failures acknowledge no delivery and
 create no receipt; the original event may be retried. Only a validated typed provider
 outcome can record terminal failure and release the corresponding protection/budget.
+
+
+Checkout history now exposes original-operation recovery for prepared, unknown or
+pending requests. Only the original signed actor sees the action; refund recovery
+also requires the manager role. It dispatches the existing ID without a body and
+never prepares another request or guesses failure from a timeout. A successful
+response is checked against the original ID/kind/value/currency and allowed status;
+a fresh ticket snapshot must confirm the same scoped operation/actor and recorded
+status before the application's full refresh. A pending response may have advanced
+to an authenticated terminal fact while reading; terminal responses cannot regress.
+Unknown errors keep the same recovery handle. Lifetime/token guards prevent stale
+responses from refreshing or confirming another session. No provider reference is
+sent by the client and no commercial mutation lease is released by this control.
+Server transaction guards remain authoritative. Three new component cases pass in
+the 65-test frontend suite, and the production build passes. Initial operation
+preparation/captured checkout controls and actual browser/tablet verification remain
+open, as does real provider transport.
