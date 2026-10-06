@@ -49,6 +49,7 @@ export default function App() {
   const [availability, setAvailability] = useState<PlanningAvailability | undefined>();
   const [chiffres, setChiffres] = useState<ChiffresSummary | undefined>();
   const [chiffresLoading, setChiffresLoading] = useState(false);
+  const chiffresReadSequence = useRef(0);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
@@ -75,6 +76,7 @@ export default function App() {
 
   useEffect(() => {
     setEmployees([]); setTickets([]); setPlanning(undefined); setAvailability(undefined);
+    chiffresReadSequence.current++;
     setChiffres(undefined); setAppointments([]); setTicketServiceMap({});
     setSelectedTicketId(""); setSelectedCheckoutTicketId(""); setSelectedEmployeeId("");
     setIdentifiedEmployeeId(""); setActiveDrawer(null); setIdentityModalOpen(false); setTicketWorkflowOpen(false);
@@ -233,6 +235,8 @@ export default function App() {
     const request = operationalRefreshGate.current.begin(selectedInstituteId);
     if (request === null) return false;
     const token = getAccessToken();
+    const reportRequest = ++chiffresReadSequence.current;
+    setChiffresLoading(true);
     setError(null);
     try {
       const [employeesResponse, ticketsResponse, planningResponse, availabilityResponse, chiffresResponse, appointmentsResponse] = await Promise.all([
@@ -244,7 +248,7 @@ export default function App() {
         apiGet<Appointment[]>(`/appointments?institute_id=${encodeURIComponent(selectedInstituteId)}`),
       ]);
 
-      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return false;
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken() || reportRequest !== chiffresReadSequence.current) return false;
       setEmployees(employeesResponse);
       setTickets(ticketsResponse);
       setPlanning(planningResponse);
@@ -255,9 +259,12 @@ export default function App() {
         ? current : employeesResponse[0]?.id || "");
       return true;
     } catch (err) {
-      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken()) return false;
+      if (!operationalRefreshGate.current.current(request) || token !== getAccessToken() || reportRequest !== chiffresReadSequence.current) return false;
+      setChiffres(undefined);
       setError(err instanceof Error ? err.message : "Erreur pendant le rafraîchissement");
       return false;
+    } finally {
+      if (operationalRefreshGate.current.current(request) && token === getAccessToken() && reportRequest === chiffresReadSequence.current) setChiffresLoading(false);
     }
   }, [selectedInstituteId]);
 
@@ -701,7 +708,9 @@ export default function App() {
   }
 
   async function handleRefreshChiffres() {
-    const isCurrent = captureOperationalContext();
+    const sameContext = captureOperationalContext();
+    const reportRequest = ++chiffresReadSequence.current;
+    const isCurrent = () => sameContext() && reportRequest === chiffresReadSequence.current;
     if (!selectedInstituteId) return;
 
     setChiffres(undefined);

@@ -59,6 +59,15 @@ Manual refresh clears the old report before requesting another, so failure canno
 restore that old cached display. Currency choice is isolated by institute. Loading
 and unavailable reports no longer claim that no money was received. The scope/loading
 case passes within the 80-test frontend suite; final four component cases and build
-also pass after wording/empty-scope guards. Competing manual and operational refresh
-writers still require explicit arbitration in the next integration checkpoint; this
-presentation guard does not claim to solve every asynchronous write ordering.
+also pass after wording/empty-scope guards.
+
+Manual and operational report reads now allocate one shared request sequence.
+Publishing data or errors and completing loading require the latest sequence,
+current institute/context and unchanged token. Institute changes invalidate reads;
+existing context disposal also prevents unmounted writers from completing. A full
+operational refresh superseded by another report request returns false, so financial
+recovery cannot treat an unpublished response as successful reconciliation. The
+latest operational failure clears cached figures. Whole-App JSDOM coverage delays
+manual responses across newer operational success/failure and verifies that an older
+completion cannot stop newer loading. All 81 frontend tests and the TypeScript/Vite
+build pass. Native browser/tablet and external accounting gates remain open.

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AC_SCOPED_REPORT_REFRESH_UI
+CURRENT_CHECKPOINT = PHASE9AD_REPORT_REFRESH_ARBITRATION
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Manual and operational Chiffres reads now share a request sequence. Only the latest scoped/token-valid read may publish data, errors or loading completion. A superseded full operational refresh returns false, preserving financial recovery latches. Latest operational failure clears cached figures. Whole-App delayed-response regression covers stale success, failure revival and premature loading completion: frontend suite 81 passed; TypeScript/Vite build passed. No backend change or native browser/tablet claim.
 - Chiffres UI now receives the selected institute explicitly, hides cached facts during loading or scope mismatch (including empty institute selection), and resets currency selection on institute changes. Manual refresh clears the previous report before GET so a failed read cannot leave that cached report displayed. Unavailable/loading text is distinct from a proven empty report. Frontend broad suite: 80 passed plus build; final component checks after empty-scope/wording guards: 4 passed plus build. No backend or production/tablet claim.
 - Chiffres monetary DTO fields now remain Decimal and serialize as two-decimal strings; the UI formats recorded digits directly without JavaScript Number conversion. API/UI regression preserves 90071992547409.93 cents exactly. Final local report/checkout bundle: 11 passed, 1 opt-in skip. Frontend: 79 passed and production build passed. Nullable unknown/mixed totals and original-currency groups remain unchanged. No migration or bank settlement claim.
 - Final report serialization/PostgreSQL/two-process HTTP-WebSocket bundle: 6 passed. Prior full backend baseline remains 319 passed / 67 opt-in skips; no new full-suite claim for this focused serialization correction. Browser/tablet remains open.
@@ -51,7 +52,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 80 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 81 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
@@ -87,7 +88,7 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PAYMENT_ACCOUNTING_INTEGRATION: arbitrate competing manual/operational report refreshes, then continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
