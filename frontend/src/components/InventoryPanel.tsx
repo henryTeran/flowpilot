@@ -74,7 +74,7 @@ function ItemDetail({ institute, id, onRefresh, usable, timezone }: { institute:
     {manager && identity && <StockWrite institute={institute} item={identity} readReady={usable && !!item && !loading} onRefresh={refresh} />}
     {usable && item && <>
       <h4>Historique des mouvements</h4><p>Dates : {zone}</p>{history?.length === 0 && <p>Aucun mouvement sur cette page.</p>}
-      <ol>{history?.map(move => <li key={move.id}><strong>{move.kind === "receipt" ? "Entrée" : "Ajustement"} : {stockDisplay(move.quantity)} {stockUnits[move.unit]}</strong><span>{move.reason} · {move.actor_id} · {new Date(move.occurred_at).toLocaleString("fr-CH", { timeZone: zone })}</span></li>)}</ol>
+      <ol>{history?.map(move => <li key={move.id}><strong>{move.kind === "receipt" ? "Entrée" : move.kind === "consumption" ? "Consommation" : "Ajustement"} : {stockDisplay(move.quantity)} {stockUnits[move.unit]}</strong><span>{move.reason} · {move.actor_id} · {new Date(move.occurred_at).toLocaleString("fr-CH", { timeZone: zone })}</span></li>)}</ol>
       <div className="bm-stock-pages"><button disabled={loading || !offset} onClick={() => setOffset(offset - 50)}>Mouvements précédents</button><button disabled={loading || (history?.length || 0) < 50} onClick={() => setOffset(offset + 50)}>Mouvements suivants</button></div>
     </>}
   </section>;

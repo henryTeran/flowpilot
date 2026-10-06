@@ -1,6 +1,7 @@
 from typing import Literal
-from app.modules.inventory import bases
-from app.modules.inventory.schemas import ServiceBasisRead
+from app.modules.inventory import bases, consumptions
+from app.modules.inventory.schemas import ServiceBasisRead, ConsumptionCreate, ConsumptionRead
+from app.modules.inventory.models import StockConsumption
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -96,3 +97,27 @@ def recipe_history(institute_id: str, service_id: str, limit: int = Query(50, ge
 def execution_basis(institute_id: str, source_kind: Literal["sessions", "appointments"], source_id: str,
                     user=Depends(operator), db: Session = Depends(get_db)):
     return bases.read(db, institute_id, source_kind, source_id)
+
+
+@router.post("/bases/{basis_id}/consumption", response_model=ConsumptionRead)
+def confirm_consumption(institute_id: str, basis_id: str, payload: ConsumptionCreate,
+                        user=Depends(manager), db: Session = Depends(get_db)):
+    return consumptions.create(db, institute_id, basis_id, payload, user["sub"])
+
+
+@router.get("/bases/{basis_id}/consumption", response_model=ConsumptionRead | None)
+def basis_consumption(institute_id: str, basis_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    consumptions.require_basis(db, institute_id, basis_id)
+    row = db.scalar(select(StockConsumption).where(StockConsumption.institute_id == institute_id,
+        StockConsumption.basis_id == basis_id))
+    return consumptions.snapshot(db, row) if row else None
+
+
+@router.get("/consumptions/{consumption_id}", response_model=ConsumptionRead)
+def original_consumption(institute_id: str, consumption_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    row = db.scalar(select(StockConsumption).where(StockConsumption.institute_id == institute_id,
+        StockConsumption.id == consumption_id))
+    if row is None:
+        from app.shared.exceptions import not_found
+        raise not_found("Consommation introuvable")
+    return consumptions.snapshot(db, row)

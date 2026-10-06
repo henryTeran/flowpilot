@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("anonymous walk-in proceeds through assignment, extension, finish and recorded cash checkout", async ({ page, request }) => {
+test("anonymous walk-in proceeds through assignment, extension, finish and recorded cash checkout", async ({ page, request }, info) => {
   test.setTimeout(60000);
   await page.goto("/");
   await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
@@ -12,6 +12,16 @@ test("anonymous walk-in proceeds through assignment, extension, finish and recor
   // Explicit test-institute catalog denomination; no provider is configured.
   const configured = await request.put("http://127.0.0.1:4198/api/v1/gift-cards/institutes/demo-institute-geneve/settings", { headers, data: { currency: "CHF" } });
   expect(configured.status()).toBe(200);
+  const inventoryBase = "http://127.0.0.1:4198/api/v1/inventory/institutes/demo-institute-geneve";
+  const stockReply = await request.post(`${inventoryBase}/items`, { headers, data: { sku: `ACTUAL-${info.project.name}`, name: `Actual serum ${info.project.name}`, category: "cabine", unit: "ml", reorder_threshold: "1", reason: "Consumption browser fixture", idempotency_key: `actual-item-${info.project.name}` } });
+  expect(stockReply.status()).toBe(200);
+  const stock = await stockReply.json();
+  expect((await request.post(`${inventoryBase}/items/${stock.id}/movements`, { headers, data: { kind: "receipt", quantity: "10.125", reason: "Consumption fixture delivery", idempotency_key: `actual-delivery-${info.project.name}` } })).status()).toBe(200);
+  const recipePath = `${inventoryBase}/services/svc-aisselles/recipes`;
+  const prior = await (await request.get(`${inventoryBase}/services/svc-aisselles/recipe`, { headers })).json();
+  const normReply = await request.post(recipePath, { headers, data: { base_revision: prior?.revision || 0, enabled: true, entries: [{ item_id: stock.id, quantity: "4.125" }], reason: "Original browser norm", idempotency_key: `actual-norm-${info.project.name}` } });
+  expect(normReply.status()).toBe(200);
+  const norm = await normReply.json();
   await page.getByRole("button", { name: "Je m’identifie", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: /Angela/ }).click();
   await page.getByRole("button", { name: "Flux tickets", exact: true }).click();
@@ -60,6 +70,22 @@ test("anonymous walk-in proceeds through assignment, extension, finish and recor
   await session.getByRole("button", { name: "Fin + caisse", exact: true }).click();
   expect((await finished).status()).toBe(200);
   expect(await (await request.get(basisPath, { headers })).json()).toEqual(basis);
+  expect(basis.entries[0].recipe.id).toBe(norm.id);
+  // A later recipe never changes the performed session's original norm.
+  expect((await request.post(recipePath, { headers, data: { base_revision: norm.revision, enabled: true, entries: [{ item_id: stock.id, quantity: "8.25" }], reason: "Later browser norm", idempotency_key: `actual-later-norm-${info.project.name}` } })).status()).toBe(200);
+  const consumptionPath = `${inventoryBase}/bases/${basis.entries[0].id}/consumption`;
+  const actualTerms = { entries: [{ item_id: stock.id, quantity: "4.125" }], reason: "Actual measured quantity", idempotency_key: `actual-confirm-${info.project.name}` };
+  const consumed = await request.post(consumptionPath, { headers, data: actualTerms });
+  expect(consumed.status()).toBe(200);
+  const originalConsumption = await consumed.json();
+  expect(originalConsumption.matches_norm).toBe(true);
+  expect(originalConsumption.expected_entries).toEqual([{ item_id: stock.id, quantity: "4.125", unit: "ml" }]);
+  expect(await (await request.post(consumptionPath, { headers, data: actualTerms })).json()).toEqual(originalConsumption);
+  expect(await (await request.get(`${inventoryBase}/consumptions/${originalConsumption.id}`, { headers })).json()).toEqual(originalConsumption);
+  expect((await (await request.get(`${inventoryBase}/items/${stock.id}`, { headers })).json()).on_hand).toBe("6.000");
+  const stockHistory = await (await request.get(`${inventoryBase}/items/${stock.id}/movements`, { headers })).json();
+  expect(stockHistory).toHaveLength(2);
+  expect(stockHistory.find((row: any) => row.kind === "consumption")).toMatchObject({ consumption_id: originalConsumption.id, quantity: "-4.125" });
   const checkout = page.locator(".bm-checkout-clone");
   await expect(checkout).toBeVisible();
   await checkout.getByRole("button", { name: "esp.", exact: true }).click();

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import React, { act } from "react";
 import { InventoryPanel } from "../src/components/InventoryPanel";
-import { stockQuantity, validStockItem } from "../src/inventory-utils";
+import { stockQuantity, validStockItem, validStockMovement } from "../src/inventory-utils";
 import { setAccessToken } from "../src/api/session";
 const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "http://localhost:5173" });
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, sessionStorage: dom.window.sessionStorage, IS_REACT_ACT_ENVIRONMENT: true });
@@ -143,5 +143,24 @@ test("late stock writes cannot publish into a new signed institute context", asy
     assert.ok(sessionStorage.getItem(storage));
     assert.match(document.body.textContent!, /Aucun article enregistré/);
     assert.doesNotMatch(document.body.textContent!, /Article enregistré\.|Demande conservée|Serum/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = original; sessionStorage.clear(); }
+});
+
+
+test("linked consumption movements are negative and remain readable in stock history", async () => {
+  const move = { id: "consume-move", institute_id: "inst", item_id: "stock", kind: "consumption", consumption_id: "actual",
+    quantity: "-4.125", unit: "ml", reason: "Actual quantities", actor_id: "manager", idempotency_key: "ledger-key", occurred_at: "2026-10-06T10:00:00Z" };
+  assert.equal(validStockMovement(move, item() as any), true);
+  assert.equal(validStockMovement({ ...move, consumption_id: null }, item() as any), false);
+  assert.equal(validStockMovement({ ...move, quantity: "4.125" }, item() as any), false);
+  assert.equal(validStockMovement({ ...move, kind: "adjustment" }, item() as any), false);
+  sessionStorage.clear(); setAccessToken(token("cashier", "accueil"));
+  const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
+  globalThis.fetch = async url => response(String(url).includes("/movements?") ? [move] : String(url).includes("/items?") ? [item()] : item());
+  try {
+    await act(async () => root.render(<InventoryPanel instituteId="inst" />));
+    await act(async () => document.querySelector<HTMLButtonElement>(".bm-stock-grid button")!.click());
+    assert.match(document.body.textContent!, /Consommation : -4,125 ml/);
+    assert.doesNotMatch(document.body.textContent!, /Ajustement : -4,125/);
   } finally { await act(async () => root.unmount()); globalThis.fetch = original; sessionStorage.clear(); }
 });

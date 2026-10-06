@@ -52,6 +52,7 @@ class ItemRead(BaseModel):
 
 
 class MovementRead(BaseModel):
+    consumption_id: str | None = None
     id: str
     institute_id: str
     item_id: str
@@ -144,3 +145,37 @@ class ServiceBasisRead(BaseModel):
     source_id: str
     captured: bool
     entries: list[ServiceBasisEntryRead]
+
+
+class ConsumptionCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    entries: list[RecipeEntry] = Field(max_length=50)
+    reason: Reason
+    idempotency_key: ReplayKey
+
+    @model_validator(mode="after")
+    def unique_items(self):
+        if len({entry.item_id for entry in self.entries}) != len(self.entries):
+            raise ValueError("Chaque article doit apparaitre une seule fois")
+        return self
+
+
+class ConsumptionEntryRead(RecipeEntryRead):
+    movement_id: str
+
+
+class ConsumptionRead(BaseModel):
+    id: str
+    institute_id: str
+    basis_id: str
+    actor_id: str
+    reason: str
+    idempotency_key: str
+    entries: list[ConsumptionEntryRead]
+    expected_entries: list[RecipeEntryRead] | None
+    matches_norm: bool | None
+    created_at: datetime
+
+    @field_serializer("created_at")
+    def timestamp(self, value):
+        return explicit_utc_instant(value)

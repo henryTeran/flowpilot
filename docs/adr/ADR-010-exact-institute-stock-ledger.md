@@ -140,7 +140,8 @@ databases are not migrated by the validation workflow.
 
 These are approved consumption norms, not performed-session consumption facts.
 No stock is debited by recipe configuration. Native recipe authoring is implemented
-as described below; a version-pinned session-consumption workflow remains required. A later recipe change
+as described below; complete native session-consumption handling remains required.
+A later recipe change
 must never rewrite the basis or quantity of an already started/recorded service,
 and historical sessions must not be silently assigned the newest recipe. Inventory
 acceptance remains incomplete until actual correlated consumption, stock integrity
@@ -210,12 +211,11 @@ indexes are added to the operational source tables. Downgrade refuses populated
 basis or inventory history before DDL. Validation uses owned disposable schemas
 and does not migrate an existing application database.
 
-This preserves the original basis needed for actual consumption. It does not yet
-record a stock debit or assert that planned quantities were actually used. A
-signed performed-consumption workflow must use these bases, record exact original
-quantities once, check all item balances atomically and expose discrepancies and
-recovery without preventing the recording of physical service completion. The
-SERVICE_CONSUMPTION gate remains open.
+Capturing the original basis does not debit stock or assert that planned quantities
+were actually used. The separate signed confirmation below uses these bases and
+checks all requested item balances atomically. A native workflow must still expose
+measured quantities, discrepancies and recovery without preventing the recording
+of physical service completion. The SERVICE_CONSUMPTION gate remains open.
 
 Validation: the PostgreSQL-enabled basis/migration/planning bundle passes 14 tests,
 including duplicate start and named foreign-source FK refusal. Final migration
@@ -224,3 +224,72 @@ passes 342 tests with 74 PostgreSQL opt-ins skipped locally. All 14 real signed
 Edge browser cases pass with build and owned cleanup; native walk-in start captures
 the original basis and finish retains an identical read. No frontend application
 source changes were made; the previous 98-test frontend baseline remains valid.
+
+
+## Signed actual consumption
+
+A manager explicitly confirms measured quantities for one captured performed line
+only after its session or appointment is completed. The confirmation records an
+immutable signed actor, reason and original request key. Article quantities use
+explicit original stock units and integer thousandths; whole-unit articles remain
+integral. Unique article entries are capped at 50. An explicit empty set records
+that no material was consumed; it is a signed fact, never an inferred zero.
+
+The original recipe norm is retained independently of these actual quantities.
+Expected quantities multiply the immutable recipe lines by the original performed
+line quantity. The read exposes `matches_norm` as true/false and retains both
+sets. Unconfigured bases expose no expected set and a null comparison; disabled
+recipes expose an explicit empty expected set. No current recipe is substituted,
+and legacy sources without a captured basis cannot receive an inferred norm.
+
+The same institute lock serializes all stock mutations. Every requested article
+is owned, validated and checked for availability before the consumption header
+and its negative movements commit together. A shortage rejects the entire batch
+and leaves the already completed source completed. A later replenishment permits
+the still-unrecorded original request to be submitted. One captured basis permits
+one consumption header; other keys cannot create another debit. Identical key/
+actor/basis/reason/quantity-set replay returns the immutable original before
+checking current source state or current stock. Changed terms are refused.
+
+Under the inventory institute prefix, POST `/bases/{basis_id}/consumption` performs
+the manager confirmation. Signed operators can GET that path for its original
+confirmation or null, and GET `/consumptions/{consumption_id}` for immutable
+recovery. Foreign and absent bases/headers are scoped 404s within an authorized
+institute. Actual stock movements have kind `consumption`, a linked consumption
+ID and negative quantities. They participate in the existing exact balance,
+threshold and history calculations. Plain receipt/adjustment POST cannot create
+such a movement; consumption history is labeled distinctly in the native screen.
+
+Migration d73428bf91a6 adds consumption headers, basis ownership uniqueness and a
+nullable original-header link to stock movements. Composite ownership FKs cover
+both header/basis and movement/header. Check constraints restrict consumption to
+linked negative movements, other movement kinds to absent links, and one article
+movement per header. Existing signed receipts/adjustments are preserved while
+the movement kind constraint is extended. Downgrade refuses any populated
+consumption/basis/inventory before DDL; no existing application database is
+migrated by validation.
+
+Native consumption worklists, measured-quantity authoring, durable UI recovery
+and explicit handling of outstanding discrepancies remain required. No automatic
+consumption, backfill, production inventory acceptance or physical-tablet claim
+is made by the server confirmation foundation. Phase 10 gates remain open.
+
+Validation: the consumption/basis/ledger/migration bundle passes all 19 cases with
+PostgreSQL enabled, including duplicate confirmations, competing keys, concurrent
+consumption versus adjustment and named foreign-basis/header FK rejection. Final
+migration cases pass on SQLite/PostgreSQL with an existing signed receipt and
+captured basis before upgrade, preserved facts after upgrade, populated consumption
+downgrade refusal and metadata parity. An additional final appointment case passes
+for original-basis retention after disable, actual deviation and exact debit.
+All 99 frontend tests pass, including linked negative consumption validation and
+its distinct history label. All 14 signed backend Edge cases pass with build and
+owned cleanup. Their native walk-in start/finish is followed by an explicit signed
+fixture API confirmation: a newer recipe does not change the original expected
+quantity, same-request replay returns the same header and movement, stock debits
+once from 10.125 to 6.000 and history has one receipt plus one consumption. This
+is controlled integration evidence, not native consumption authoring acceptance.
+
+Full backend regression passes 347 tests with 77 PostgreSQL opt-ins skipped locally
+and the existing Starlette/httpx warning. The additional appointment test was
+added after full-run collection and passes separately. All application changes
+were present for that full regression; no existing application DB was migrated.

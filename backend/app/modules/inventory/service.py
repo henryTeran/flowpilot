@@ -39,7 +39,7 @@ def read_item(item, balance):
 
 def read_movement(row, unit):
     return MovementRead(id=row.id, institute_id=row.institute_id, item_id=row.item_id,
-        kind=row.kind, quantity=Decimal(row.quantity_milli) / 1000, unit=unit,
+        kind=row.kind, consumption_id=row.consumption_id, quantity=Decimal(row.quantity_milli) / 1000, unit=unit,
         reason=row.reason, actor_id=row.actor_id, idempotency_key=row.idempotency_key,
         occurred_at=row.occurred_at)
 

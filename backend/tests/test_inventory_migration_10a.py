@@ -14,9 +14,9 @@ from app.core.config import settings
 from app.database.base import Base
 from app.modules.dev.routes import init_demo_data
 from app.modules.institutes.models import Institute
-from app.modules.inventory import service, recipes
-from app.modules.inventory.models import StockItem, StockMovement, StockRecipe, StockRecipeLine, StockServiceBasis
-from app.modules.inventory.schemas import ItemCreate, MovementCreate, RecipeCreate
+from app.modules.inventory import service, recipes, consumptions
+from app.modules.inventory.models import StockItem, StockMovement, StockRecipe, StockRecipeLine, StockServiceBasis, StockConsumption
+from app.modules.inventory.schemas import ItemCreate, MovementCreate, RecipeCreate, ConsumptionCreate
 from app.modules.services.models import Service
 from app.shared.time import utcnow
 from test_inventory_10a import item, movement
@@ -46,12 +46,15 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
         with engine.connect() as connection:
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
         command.downgrade(config, "93f0348baef2")
-        command.upgrade(config, "head")
+        command.upgrade(config, "c62317ae80f5")
         with Session(engine) as db:
             init_demo_data(db)
             institute = db.scalar(select(Institute.id))
             row = service.create_item(db, institute, ItemCreate(**item()), "manager")
-            service.move(db, institute, row.id, MovementCreate(**movement()), "manager")
+            # Original ledger facts exist before the nullable linkage migration.
+            db.execute(text("INSERT INTO stock_movements (id,institute_id,item_id,kind,quantity_milli,reason,actor_id,idempotency_key,occurred_at) VALUES (:id,:institute,:item,'receipt',10125,:reason,'manager',:key,:time)"),
+                dict(id="legacy-delivery", institute=institute, item=row.id, reason=movement()["reason"], key=movement()["idempotency_key"], time=utcnow().isoformat()))
+            db.commit()
             recipes.create(db, institute, db.scalar(select(Service.id)), RecipeCreate(
                 base_revision=0, enabled=True, entries=[dict(item_id=row.id, quantity="1.125")],
                 reason="Migration recipe", idempotency_key="migration-recipe"), "manager")
@@ -65,6 +68,19 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             db.commit()
             ticket = create_queue_ticket(db, TicketCreate(institute_id=institute, service_id=service_id))
             start_service_session(db, ticket.id, employee.id, actor_id="migration-operator")
+        command.upgrade(config, "head")
+        with Session(engine) as db:
+            legacy = db.get(StockMovement, "legacy-delivery")
+            assert legacy.consumption_id is None and legacy.quantity_milli == 10125
+            assert legacy.actor_id == "manager" and legacy.reason == movement()["reason"]
+            assert legacy.idempotency_key == movement()["idempotency_key"]
+            basis = db.scalar(select(StockServiceBasis))
+            from app.modules.planning.service import finish_service_session
+            finish_service_session(db, basis.session_id)
+            confirmed = consumptions.create(db, institute, basis.id, ConsumptionCreate(
+                entries=[dict(item_id=row.id, quantity="1.125")], reason="Migration actual consumption",
+                idempotency_key="migration-consumption"), "manager")
+            assert confirmed.matches_norm is True
             if database == "postgresql":
                 original = db.get(Institute, institute)
                 db.add(Institute(id="other", region_id=original.region_id, name="Other", city="Other", timezone=original.timezone, status="active"))
@@ -79,11 +95,12 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             command.downgrade(config, "93f0348baef2")
         with Session(engine) as db:
             assert len(list(db.scalars(select(StockItem)))) == 1
-            assert len(list(db.scalars(select(StockMovement)))) == 1
+            assert len(list(db.scalars(select(StockMovement)))) == 2
             assert len(list(db.scalars(select(StockRecipe)))) == 1
             assert len(list(db.scalars(select(StockRecipeLine)))) == 1
             assert len(list(db.scalars(select(StockServiceBasis)))) == 1
-            assert service.balance_milli(db, institute, row.id) == 10125
+            assert len(list(db.scalars(select(StockConsumption)))) == 1
+            assert service.balance_milli(db, institute, row.id) == 9000
         with engine.connect() as connection:
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
     finally:

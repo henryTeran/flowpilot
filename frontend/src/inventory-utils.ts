@@ -1,5 +1,5 @@
 export type StockItem = { id: string; institute_id: string; sku: string; name: string; category: "retail" | "cabine" | "consumable"; unit: "ml" | "g" | "unit"; reorder_threshold: string; on_hand: string; at_or_below_threshold: boolean; actor_id: string; created_at: string };
-export type StockMovement = { id: string; institute_id: string; item_id: string; kind: "receipt" | "adjustment"; quantity: string; unit: StockItem["unit"]; reason: string; actor_id: string; idempotency_key: string; occurred_at: string };
+export type StockMovement = { id: string; institute_id: string; item_id: string; kind: "receipt" | "adjustment" | "consumption"; consumption_id?: string | null; quantity: string; unit: StockItem["unit"]; reason: string; actor_id: string; idempotency_key: string; occurred_at: string };
 export const stockCategories = { retail: "Vente", cabine: "Cabine", consumable: "Consommables" };
 export const stockUnits = { ml: "ml", g: "g", unit: "unités" };
 const maximum = 999999999999999n;
@@ -27,7 +27,7 @@ export function validStockItem(value: unknown, institute: string): value is Stoc
 }
 export function validStockMovement(value: unknown, item: StockItem): value is StockMovement {
   const row = value as StockMovement;
-  return !!row && identifier(row.id) && row.institute_id === item.institute_id && row.item_id === item.id && row.unit === item.unit && ["receipt", "adjustment"].includes(row.kind) && exact(row.quantity, true) && stockMilli(row.quantity) !== 0n &&
-    (row.kind !== "receipt" || stockMilli(row.quantity) > 0n) && (row.unit !== "unit" || stockMilli(row.quantity) % 1000n === 0n) &&
+  return !!row && identifier(row.id) && row.institute_id === item.institute_id && row.item_id === item.id && row.unit === item.unit && ["receipt", "adjustment", "consumption"].includes(row.kind) && (row.kind === "consumption" ? identifier(row.consumption_id) : row.consumption_id == null) && exact(row.quantity, true) && stockMilli(row.quantity) !== 0n &&
+    (row.kind !== "receipt" || stockMilli(row.quantity) > 0n) && (row.kind !== "consumption" || stockMilli(row.quantity) < 0n) && (row.unit !== "unit" || stockMilli(row.quantity) % 1000n === 0n) &&
     typeof row.reason === "string" && row.reason.trim().length >= 3 && row.reason.length <= 240 && typeof row.actor_id === "string" && !!row.actor_id.trim() && typeof row.idempotency_key === "string" && !!row.idempotency_key.trim() && row.idempotency_key.length <= 120 && instant(row.occurred_at);
 }

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
@@ -33,13 +33,17 @@ class StockMovement(Base):
     __table_args__ = (
         ForeignKeyConstraint(["institute_id", "item_id"], ["stock_items.institute_id", "stock_items.id"], name="fk_stock_movement_owner"),
         UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_movement_replay"),
-        CheckConstraint("kind IN ('receipt','adjustment')", name="ck_stock_movement_kind"),
+        CheckConstraint("kind IN ('receipt','adjustment','consumption')", name="ck_stock_movement_kind"),
         CheckConstraint("quantity_milli != 0 AND quantity_milli BETWEEN -999999999999999 AND 999999999999999", name="ck_stock_movement_quantity"),
         CheckConstraint("kind != 'receipt' OR quantity_milli > 0", name="ck_stock_receipt_positive"),
+        ForeignKeyConstraint(["institute_id", "consumption_id"], ["stock_consumptions.institute_id", "stock_consumptions.id"], name="fk_stock_movement_consumption_owner"),
+        UniqueConstraint("consumption_id", "item_id", name="uq_stock_consumption_item"),
+        CheckConstraint("(kind = 'consumption' AND consumption_id IS NOT NULL AND quantity_milli < 0) OR (kind != 'consumption' AND consumption_id IS NULL)", name="ck_stock_consumption_movement"),
     )
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
     item_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    consumption_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     kind: Mapped[str] = mapped_column(String(20), nullable=False)
     quantity_milli: Mapped[int] = mapped_column(BigInteger, nullable=False)
     reason: Mapped[str] = mapped_column(String(240), nullable=False)
@@ -87,6 +91,7 @@ class StockServiceBasis(Base):
     """Original recipe per performed line, captured atomically with actual start."""
     __tablename__ = "stock_service_bases"
     __table_args__ = (
+        Index("uq_stock_basis_owner", "institute_id", "id", unique=True),
         ForeignKeyConstraint(["institute_id", "recipe_id"], ["stock_recipes.institute_id", "stock_recipes.id"], name="fk_stock_basis_recipe_owner"),
         ForeignKeyConstraint(["institute_id", "session_id"], ["service_sessions.institute_id", "service_sessions.id"], name="fk_stock_basis_session_owner"),
         ForeignKeyConstraint(["institute_id", "appointment_id"], ["appointments.institute_id", "appointments.id"], name="fk_stock_basis_appointment_owner"),
@@ -107,3 +112,20 @@ class StockServiceBasis(Base):
     state: Mapped[str] = mapped_column(String(20), nullable=False)
     actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
     captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class StockConsumption(Base):
+    __tablename__ = "stock_consumptions"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "id", name="uq_stock_consumption_owner"),
+        UniqueConstraint("basis_id", name="uq_stock_consumption_basis"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_consumption_replay"),
+        ForeignKeyConstraint(["institute_id", "basis_id"], ["stock_service_bases.institute_id", "stock_service_bases.id"], name="fk_stock_consumption_basis_owner"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    basis_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
