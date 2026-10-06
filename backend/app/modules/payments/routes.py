@@ -59,3 +59,33 @@ def refund_loyalty(institute_id: str, refund_id: str, payload: RefundLoyaltyCrea
     if user.get("role") != "responsable_institut" or user.get("institute_id") != institute_id or not isinstance(actor, str) or not actor.strip() or actor != actor.strip() or len(actor) > 160:
         raise HTTPException(403, "Institut et identite de la responsable requis")
     return decide_refund_loyalty(db, institute_id, refund_id, payload.points, payload.reason, payload.idempotency_key, actor)
+
+
+class PaymentOperationRead(BaseModel):
+    id: str
+    kind: str
+    amount: Decimal
+    currency: str
+    provider: str
+    account_id: str
+    idempotency_key: str
+    actor_id: str
+    status: str
+    applied: bool
+    active_protection: bool
+    loyalty_decision: RefundLoyaltyRead | None
+
+
+class TicketPaymentSnapshot(BaseModel):
+    ticket_id: str
+    protected: bool
+    operations: list[PaymentOperationRead]
+
+
+@router.get("/tickets/{ticket_id}/snapshot", response_model=TicketPaymentSnapshot)
+def ticket_snapshot(institute_id: str, ticket_id: str, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    from app.modules.payments.snapshots import ticket_payment_snapshot
+    actor = user.get("sub")
+    if user.get("institute_id") != institute_id or not isinstance(actor, str) or not actor.strip() or actor != actor.strip() or len(actor) > 160:
+        raise HTTPException(403, "Institut et identite de l'operatrice requis")
+    return ticket_payment_snapshot(db, institute_id, ticket_id)

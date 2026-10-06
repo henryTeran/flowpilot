@@ -251,3 +251,18 @@ history and point-entry links have consistent nullability checks and a nonempty
 migration downgrade guard. The manager-only API accepts strict integers and bounded
 reason/key fields. Operator UI/recovery, generalized policy automation, actual provider
 verification and comprehensive financial accounting remain open.
+
+
+A ticket-manager scoped payment snapshot now exposes original operation identities,
+keys, actors, decimal values, current observations, active authorization protection,
+capture application and linked refund loyalty decisions. Prepared means no execution
+seal; unknown means a durable seal without an outcome and never implies failure.
+Pending is superseded by a terminal observation independently of SQL row order.
+Matching context reads all facts under the institute lock. Provider references and
+raw webhook material are excluded from the response. The API rejects foreign JWT
+institute scope and inaccessible ticket IDs, and returns monetary values as strings.
+
+This read supports recovery after a lost response without issuing another mutation.
+The operator recovery UI and configured real-provider mutation transport remain
+required; a read-only snapshot does not authorize an external operation or close a
+production payment gate. No schema change is needed.
