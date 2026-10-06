@@ -47,6 +47,8 @@ def tender_view(db, ticket):
 
 
 def require_no_active_tender(db, ticket):
+    from app.modules.payments.executions import require_no_payment_execution
+    require_no_payment_execution(db, ticket)
     if db.scalar(select(GiftCardAllocation.id).where(GiftCardAllocation.ticket_id == ticket.id,
                                                    GiftCardAllocation.reversed_at.is_(None))):
         raise business_error("Annuler les paiements cadeaux avant de modifier ou annuler le ticket")
@@ -88,6 +90,8 @@ def allocate(db, institute, card_id, payload, actor):
             raise business_error("Cette cle appartient a un autre paiement cadeau")
         return old
     ticket = scoped_ticket(db, institute, payload.ticket_id)
+    from app.modules.payments.executions import require_no_payment_execution
+    require_no_payment_execution(db, ticket)
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Paiement cadeau disponible uniquement avant cloture en caisse")
     card = db.get(GiftCard, card_id)
@@ -124,6 +128,8 @@ def reverse(db, institute, identifier, reason, actor):
             raise business_error("Cette annulation a deja un autre motif")
         return row
     ticket = scoped_ticket(db, institute, row.ticket_id)
+    from app.modules.payments.executions import require_no_payment_execution
+    require_no_payment_execution(db, ticket)
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Paiement cadeau annulable uniquement avant cloture en caisse")
     card = db.get(GiftCard, row.card_id)

@@ -21,6 +21,8 @@ def lock_ticket(db: Session, ticket_id: str) -> QueueTicket:
         raise not_found("Ticket introuvable")
     lock_institute(db, ticket.institute_id)
     db.refresh(ticket)
+    from app.modules.payments.executions import require_no_payment_execution
+    require_no_payment_execution(db, ticket)
     return ticket
 
 

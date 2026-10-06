@@ -57,3 +57,19 @@ this helper performs no I/O and is not an execution record. Recovery after an
 unknown outcome must use the original sealed request rather than re-quote.
 Parent-operation proof, execution sealing, business mutation protection, provider
 facts and settlement remain pending. All Phase 9 gates remain open.
+
+
+Authorization execution now has a durable seal separate from the immutable
+request. Under the institute lock, first execution rechecks the current quote,
+rejects a competing active execution, inserts the seal and commits before returning
+the original request for future adapter I/O. One partial unique index additionally
+limits active seals to one per ticket. Retry returns the original request without
+re-quoting; it never interprets a timeout as failure or releases the seal.
+
+Ticket mutation locks, package/member/loyalty price guards and new gift allocation
+or reversal reject active executions. Existing allocation/coverage replays remain
+read-only and preserve their original facts. There is deliberately no release API,
+public dispatch endpoint or external call yet: authenticated provider outcomes,
+terminal release and checkout application must be implemented together. The
+execution ledger has a nonempty downgrade guard. This is authorization sealing,
+not capture/refund/cancel parent-operation validation or completed settlement.
