@@ -1,11 +1,14 @@
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, StrictInt, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.payments.ledger import cashflow_snapshot
+from app.modules.payments.provider import OperationKind
+from app.modules.payments.registry import configured_binding, payment_sessions
+from typing import Literal
 
 router = APIRouter(prefix="/payments/institutes/{institute_id}", tags=["payments"])
 
@@ -21,6 +24,92 @@ def manager(user=Depends(operator)):
     if user.get("role") != "responsable_institut":
         raise HTTPException(403, "Action reservee a la responsable")
     return user
+
+
+class PaymentPrepare(BaseModel):
+    model_config = {"extra": "forbid"}
+    kind: OperationKind
+    amount: Decimal = Field(gt=0, le=Decimal("99999999.99"), decimal_places=2)
+    currency: Literal["CHF", "EUR"]
+    idempotency_key: str = Field(min_length=1, max_length=120, strict=True)
+    parent_intent_id: str | None = Field(default=None, min_length=1, max_length=80, strict=True)
+
+
+class PaymentPrepared(BaseModel):
+    model_config = {"from_attributes": True}
+    id: str
+    kind: str
+    amount: Decimal
+    currency: str
+    idempotency_key: str
+
+
+class PaymentDispatched(BaseModel):
+    id: str
+    kind: str
+    status: str
+    amount: Decimal
+    currency: str
+
+
+@router.post("/tickets/{ticket_id}/intents", response_model=PaymentPrepared)
+def prepare_payment(institute_id: str, ticket_id: str, payload: PaymentPrepare, user=Depends(operator),
+                    binding=Depends(configured_binding), db: Session = Depends(get_db)):
+    from app.modules.payments.operator_service import prepare
+    return prepare(db, institute_id, ticket_id, payload, user, binding)
+
+
+@router.post("/intents/{intent_id}/dispatch", response_model=PaymentDispatched)
+def dispatch_payment(institute_id: str, intent_id: str, user=Depends(operator),
+                     binding=Depends(configured_binding), sessions=Depends(payment_sessions)):
+    from app.modules.payments.operator_service import dispatch
+    return dispatch(sessions, institute_id, intent_id, user, binding)
+
+
+class CaptureCheckoutCreate(BaseModel):
+    model_config = {"extra": "forbid"}
+    employee_id: str = Field(min_length=1, max_length=80, strict=True)
+    method: Literal["cb", "especes", "cheque"]
+
+
+class CaptureCheckoutRead(BaseModel):
+    ticket_id: str
+    status: str
+
+
+@router.post("/intents/{intent_id}/checkout", response_model=CaptureCheckoutRead)
+def captured_checkout(institute_id: str, intent_id: str, payload: CaptureCheckoutCreate,
+                      user=Depends(operator), db: Session = Depends(get_db)):
+    from app.modules.payments.checkout import apply_capture
+    ticket = apply_capture(db, institute_id, intent_id, payload.employee_id, user["sub"], payload.method)
+    return dict(ticket_id=ticket.id, status=ticket.status)
+
+
+class WebhookAcknowledgement(BaseModel):
+    received: bool
+
+
+@router.post("/webhook", response_model=WebhookAcknowledgement)
+async def payment_webhook(institute_id: str, request: Request,
+                          binding=Depends(configured_binding), sessions=Depends(payment_sessions)):
+    from starlette.concurrency import run_in_threadpool
+    from app.modules.payments.provider import RawWebhook
+    from app.modules.payments.webhooks import receive_webhook
+    body = bytearray()
+    async for chunk in request.stream():
+        if len(body) + len(chunk) > 65_536:
+            raise HTTPException(413, "Notification de paiement trop volumineuse")
+        body.extend(chunk)
+    event = RawWebhook(bytes(body), dict(request.headers))
+    try:
+        await run_in_threadpool(receive_webhook, sessions, binding, event)
+    except HTTPException:
+        raise
+    except (ValueError, PermissionError) as failure:
+        raise HTTPException(400, "Notification de paiement non valide") from failure
+    except Exception as failure:
+        raise HTTPException(503, "Notification a retransmettre sans modifier son identite") from failure
+    return dict(received=True)
 
 
 class AccountCashflow(BaseModel):

@@ -48,7 +48,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-def create_app() -> FastAPI:
+def create_app(payment_bindings=()) -> FastAPI:
     settings.validate_runtime_security()
 
     app = FastAPI(
@@ -58,6 +58,8 @@ def create_app() -> FastAPI:
         description="MVP backend for FlowPilot Institut Manager.",
         lifespan=lifespan,
     )
+    from app.modules.payments.registry import PaymentRegistry
+    app.state.payment_registry = PaymentRegistry(payment_bindings)
 
     app.add_middleware(
         CORSMiddleware,

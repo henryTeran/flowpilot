@@ -312,3 +312,26 @@ late read, refreshing the current application or clearing its recovery state.
 Seven component cases pass in the 62-test frontend regression suite, with a production
 build. No real provider dispatch is added. Browser/tablet validation remains open;
 the current CUA inventory has no enabled browser or application surfaces.
+
+
+The operator API now prepares all four operation kinds using a server-owned immutable
+binding registry, then dispatches by the durable intent ID. Request bodies cannot
+select provider/account/actor or submit a raw parent payment reference. Child requests
+name a scoped original authorization/capture intent and resolve its confirmed
+reference on the server. Refund preparation and dispatch require the institute
+manager. Dispatch recovery additionally requires the original signed actor. Empty
+configuration returns 503 and creates no intent or provider result. Account changes
+cannot reroute an existing intent. Adapter I/O runs after SQL sessions close; transport
+or outcome persistence exceptions return a generic recovery response without leaking
+adapter details or inferring failure.
+
+Capture checkout is a separate replay-safe POST with explicit employee and method;
+confirmed capture, gift closure, point earning and paid transition retain their existing
+atomic transaction. Provider webhook POST reads unchanged bytes with a 64 KiB limit,
+then invokes the configured adapter in a worker thread. Authentication precedes SQL;
+only the existing correlated atomic receipt/fact writer may acknowledge delivery.
+Client verified flags, invalid test signatures and oversized bodies do not create
+receipts. There is no public binding registration or default payment adapter. The
+application factory accepts explicit trusted bindings; production provider credential
+loading, real authentication/transport and operator payment dispatch UI are still
+required. Test adapters prove routing and recovery behavior only, not settlement.
