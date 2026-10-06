@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Customer, Employee, PaymentMethod, QueueTicket, Service } from "../types";
 import { PackageWallet } from "./PackageWallet";
+import { PaymentHistory } from "./PaymentHistory";
 import { LoyaltyWallet } from "./LoyaltyWallet";
 import { MembershipWallet } from "./MembershipWallet";
 import { CheckoutCurrency } from "./CheckoutCurrency";
@@ -211,6 +212,7 @@ export function CheckoutPanel({
           beginMutation={beginCommercialMutation} onRefresh={onRefresh} onBusy={setLoyaltyBusy} onCoverage={(active, historical) => {
             setLoyaltyCoveredLines(active); setHistoricalLines(previous => [...new Set([...previous, ...historical])]);
           }} />}
+        {onRefresh && <PaymentHistory instituteId={ticket.institute_id} ticketId={ticket.id} />}
         <section className="bm-cash-action-row">
           <button type="button">▦ Appliquer remise</button>
           <div className="bm-cash-add-service">

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9P_TICKET_PAYMENT_RECOVERY_READ
+CURRENT_CHECKPOINT = PHASE9Q_CHECKOUT_PAYMENT_HISTORY_READ
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,11 @@ GATES:
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
-- PHASE9 = IN_PROGRESS: internal provider contracts, scoped intents/execution/outcomes, captured checkout, refund budgets and atomic webhook receipts implemented; manager-only cashflow read separates provider accounts/currencies. Signed manager refund loyalty decisions now link bounded deductions or explicit retention to confirmed refunds. Real authentication/transport, comprehensive accounting and operator mutation UI/recovery remain pending; ticket payment recovery read now exposes scoped original operations and signed decisions. All Phase 9 gates remain open.
+- PHASE9 = IN_PROGRESS: internal provider contracts, scoped intents/execution/outcomes, captured checkout, refund budgets and atomic webhook receipts implemented; manager-only cashflow read separates provider accounts/currencies. Signed manager refund loyalty decisions now link bounded deductions or explicit retention to confirmed refunds. Real authentication/transport, comprehensive accounting and operator mutation UI/recovery remain pending; ticket payment recovery read and checkout history UI now expose scoped original operations and signed decisions. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Checkout payment history component: 2 focused tests passed within the 55-test frontend suite; production build passed. Protected unknown result display, wrong-ticket read rejection/stale clearing and late old ticket/token isolation verified. Read-only refresh releases no mutation lease. Fresh CUA inventory apps=[] and browsers=[]; visual/tablet gates remain open.
 - Ticket payment recovery snapshot/refund-decision/cashflow regression: 7 passed / 3 opt-in skips locally. Final snapshot suite with PostgreSQL enabled: 3 passed, including an actual PostgreSQL transition read. Prepared/unknown/pending/terminal distinctions, live protection, capture application, linked decision recovery, exact monetary serialization, JWT/ticket scope rejection and exclusion of provider references verified. No schema change.
 - Signed refund loyalty decision/migration bundle: 4 passed / 2 opt-in skips locally and 6 passed with PostgreSQL enabled. Manager/JWT institute scope, strict bounded points, same-intent replay, one decision per refund, staged debit rollback, explicit retention, cumulative original-earning cap despite independent credits, actual PostgreSQL duplicate serialization and nonempty signed-history downgrade verified. Owned PostgreSQL upgrade/check passed. No automatic policy or negative balance inferred.
 - Provider cashflow read: initial snapshot/refund local regression 5 passed / 1 opt-in skip. Currency/account separation checks: 2 passed locally; Linux cashflow/refund budget bundle 5 passed. Final cashflow suite 3 passed with the actual PostgreSQL fact-read case enabled. Scoped manager-only API, exact decimal string serialization, caller precision isolation, applied/unapplied capture distinction, confirmed/failed/unresolved refund handling and historical currency/account separation verified. No schema change.
@@ -26,7 +27,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 53 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 55 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
@@ -62,12 +63,13 @@ BLOCKERS:
 - Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9Q: integrate ticket payment history/recovery UI, signed refund-decision recovery and real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9R: implement signed refund-decision mutation/recovery UI and real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): expose ticket-scoped payment recovery snapshot.
+- Current: feat(payments): show scoped payment history in checkout.
+- 0841b38 ticket payment recovery snapshot.
 - 6215820 signed refund loyalty decisions.
 - ef428fe scoped provider cashflow read.
 - 730c4a6 atomic correlated webhook receipts.

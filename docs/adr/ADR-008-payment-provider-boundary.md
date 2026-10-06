@@ -266,3 +266,20 @@ This read supports recovery after a lost response without issuing another mutati
 The operator recovery UI and configured real-provider mutation transport remain
 required; a read-only snapshot does not authorize an external operation or close a
 production payment gate. No schema change is needed.
+
+
+Checkout now includes the read-only ticket payment history and explicit refresh.
+It displays exact recorded currency/decimal text, prepared/unknown/pending/terminal
+labels, capture application and signed refund loyalty decisions. Unknown protection
+is described as a result to recover, never a failed payment. Failed or malformed
+refresh hides stale facts. Snapshot validation rejects wrong ticket, duplicate IDs,
+unsupported currencies/status-kind combinations, inconsistent protection/application
+and malformed loyalty links. The component is keyed by institute/ticket/token;
+sequence and lifetime checks prevent a late old session response from replacing the
+current history. It performs no POST or external dispatch and releases no commercial
+mutation lease. Business mutation protection remains server authoritative.
+
+Headless component tests and production build verify this checkpoint. CUA inventory
+still has no browser/app surface, so actual visual/tablet verification is not claimed.
+Signed decision mutation/recovery UI, real provider transport and full accounting
+remain required before payment/production gate closure.
