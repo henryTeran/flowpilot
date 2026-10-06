@@ -20,4 +20,10 @@
 .bm-stock-detail li { margin: 12px 0; overflow-wrap: anywhere; }
 .bm-stock-detail li span { display: block; margin-top: 5px; color: #596b73; }
 .bm-inventory [role="alert"] { color: #9b2525; }
+.bm-stock-recipes > label, .bm-recipe-form > label { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; max-width: 560px; }
+.bm-stock-recipes button { margin: 4px 8px 4px 0; }
+.bm-recipe-form > label.bm-recipe-toggle { flex-direction: row; align-items: center; min-height: 44px; }
+.bm-recipe-toggle input[type="checkbox"] { width: 20px; min-height: 20px; height: 20px; padding: 0; flex-shrink: 0; }
+.bm-recipe-form > label input:not([type="checkbox"]) { width: 100%; box-sizing: border-box; }
+.bm-recipe-form > .bm-recipe-reset { background: #fff; color: #244550; }
 @media (max-width: 700px) { .bm-inventory { padding: 14px; } .bm-stock-form, .bm-stock-detail { padding: 14px; } .bm-stock-grid, .bm-stock-fields { grid-template-columns: 1fr; } }

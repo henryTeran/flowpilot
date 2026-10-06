@@ -777,7 +777,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
-        {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} />}
+        {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (

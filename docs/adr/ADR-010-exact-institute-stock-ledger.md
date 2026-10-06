@@ -139,9 +139,39 @@ refused populated downgrade on both SQLite and PostgreSQL. Existing application
 databases are not migrated by the validation workflow.
 
 These are approved consumption norms, not performed-session consumption facts.
-No stock is debited by recipe configuration. Native recipe authoring and a
-version-pinned session-consumption workflow remain required. A later recipe change
+No stock is debited by recipe configuration. Native recipe authoring is implemented
+as described below; a version-pinned session-consumption workflow remains required. A later recipe change
 must never rewrite the basis or quantity of an already started/recorded service,
 and historical sessions must not be silently assigned the newest recipe. Inventory
 acceptance remains incomplete until actual correlated consumption, stock integrity
 and recovery are demonstrated end to end.
+
+
+## Native recipe management and original recovery
+
+The signed inventory screen offers explicit service selection, current recipe,
+bounded revision history and immutable original-version reads. Reception has
+read-only access; managers configure unique positive article quantities or append
+an explicitly disabled version. Exact strings and BigInt checks preserve stock
+units and reject malformed or foreign snapshots. Article selection is paginated.
+
+An editor captures its starting revision and quantities. Refreshing the current
+recipe never silently rebases that draft; an explicit reset adopts the new head.
+Original requests are frozen before POST in institute/service/signed-subject
+session storage. Saved service labels preserve recovery choices even when a
+service leaves the active catalogue. Labels and units are local recovery metadata,
+not mutation inputs. The response and original signed GET must match the original
+key, actor, base revision and quantity set before successful fresh reads release
+the request. Scope/token/lifetime guards prevent late old-session publication;
+failed reads hide current facts. Unknown replies retain the original request.
+
+Six frontend recipe cases pass within 98 tests, covering malformed facts, reception
+reads, failed refresh, lost reply/remount, late service reads, explicit rebasing and
+recovery without an active catalogue entry. The broad real signed backend Edge
+suite passes 14 cases. Final recipe desktop/tablet-landscape cases pass after
+layout and recovery changes, with build and owned temporary fixture cleanup.
+Their actual backend records v1 before the reply is aborted; reload replays the
+same ID/key, disable appends v2, original v1 remains readable and stock remains
+zero. The final tablet screenshot is visually reviewed. This controlled browser
+evidence does not establish physical tablet acceptance or actual service stock
+consumption; all Phase 10 gates remain open.

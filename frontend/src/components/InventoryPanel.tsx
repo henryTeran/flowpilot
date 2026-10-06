@@ -1,3 +1,5 @@
+import { StockRecipes } from "./StockRecipes";
+import type { Service } from "../types";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiGet, apiPost, ApiError } from "../api/client";
 import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/session";
@@ -5,11 +7,11 @@ import { stockCategories, stockUnits, stockQuantity, stockDisplay, stockMilli, v
 
 const prefix = (institute: string) => `/inventory/institutes/${encodeURIComponent(institute)}`;
 const errorText = (error: unknown) => error instanceof Error ? error.message : "Inventaire indisponible";
-export function InventoryPanel({ instituteId, timezone = "UTC" }: { instituteId: string; timezone?: string }) {
+export function InventoryPanel({ instituteId, timezone = "UTC", services = [] }: { instituteId: string; timezone?: string; services?: Service[] }) {
   if (!instituteId || !["accueil", "responsable_institut"].includes(getOperatorRole() || "")) return null;
-  return <Catalogue key={JSON.stringify([instituteId, getAccessToken()])} institute={instituteId} timezone={timezone} />;
+  return <Catalogue key={JSON.stringify([instituteId, getAccessToken()])} institute={instituteId} timezone={timezone} services={services} />;
 }
-function Catalogue({ institute, timezone }: { institute: string; timezone: string }) {
+function Catalogue({ institute, timezone, services }: { institute: string; timezone: string; services: Service[] }) {
   const token = getAccessToken(), manager = getOperatorRole() === "responsable_institut";
   const [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [selected, select] = useState<string>();
   const [loading, setLoading] = useState(true), [error, setError] = useState<string>();
@@ -38,6 +40,7 @@ function Catalogue({ institute, timezone }: { institute: string; timezone: strin
       {item.at_or_below_threshold && <em>Au seuil ou en dessous</em>}
     </button>)}</div><div className="bm-stock-pages"><button disabled={loading || offset === 0} onClick={() => setOffset(offset - 50)}>Articles précédents</button><button disabled={loading || items.length < 50} onClick={() => setOffset(offset + 50)}>Articles suivants</button></div></>}
     {manager && <StockWrite key="create" readReady={!!items && !loading} institute={institute} onRefresh={load} onCreated={select} />}
+    <StockRecipes institute={institute} services={services} />
     {selected && <ItemDetail key={JSON.stringify([selected, token])} institute={institute} id={selected} timezone={timezone} usable={!!items && !loading} onRefresh={load} />}
   </main>;
 }

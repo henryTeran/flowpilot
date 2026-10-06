@@ -1,0 +1,57 @@
+import { expect, test } from "@playwright/test";
+
+test("signed recipe UI recovers an original version after lost reply, disables without rewriting and leaves stock unchanged", async ({ page, request }, info) => {
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, base = "http://127.0.0.1:4198/api/v1/inventory/institutes/demo-institute-geneve";
+  const stock = await request.post(`${base}/items`, { headers, data: { sku: `RECIPE-${info.project.name}`, name: `Recipe serum ${info.project.name}`, unit: "ml", category: "cabine", reorder_threshold: "1", reason: "Recipe browser fixture", idempotency_key: `recipe-item-${info.project.name}` } });
+  expect(stock.status()).toBe(200);
+  const item = await stock.json();
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  const panel = page.getByRole("region", { name: "Recettes par prestation" });
+  const service = info.project.name === "desktop" ? "svc-aisselles" : "svc-soin-profond";
+  await panel.getByRole("combobox", { name: "Prestation de la recette" }).selectOption(service);
+  await expect(panel).toContainText("Aucune recette configurée");
+  const form = panel.getByRole("form", { name: "Configurer la recette" });
+  await form.getByRole("checkbox", { name: "Activer cette recette" }).check();
+  await form.getByRole("combobox", { name: "Article à ajouter" }).selectOption(item.id);
+  await form.getByRole("button", { name: "Ajouter à la recette" }).click();
+  await form.getByLabel(`Quantité pour ${item.name} (ml)`).fill("4,125");
+  await form.getByLabel("Motif de la recette").fill("Norme explicite navigateur");
+  let lost = false, original!: { id: string; idempotency_key: string };
+  await page.route(`**/inventory/institutes/demo-institute-geneve/services/${service}/recipes`, async route => {
+    if (route.request().method() === "POST" && !lost) {
+      lost = true;
+      const actual = await route.fetch(); expect(actual.status()).toBe(200); original = await actual.json();
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  await form.getByRole("button", { name: "Enregistrer la recette", exact: true }).click();
+  await expect(form.getByRole("alert")).toBeVisible();
+  await expect(form.getByRole("button", { name: "Reprendre la recette conservée" })).toBeVisible();
+  expect(original.id).toBeTruthy();
+  await page.reload();
+  await page.getByRole("button", { name: "Inventaire", exact: true }).click();
+  await panel.getByRole("combobox", { name: "Prestation de la recette" }).selectOption(service);
+  await expect(form).toContainText("Demande conservée depuis la version 0");
+  const replay = page.waitForResponse(response => response.url().endsWith(`/services/${service}/recipes`) && response.request().method() === "POST");
+  await form.getByRole("button", { name: "Reprendre la recette conservée" }).click();
+  const recovered = await replay; expect(recovered.status()).toBe(200);
+  expect(await recovered.json()).toMatchObject({ id: original.id, idempotency_key: original.idempotency_key, revision: 1 });
+  await expect(form).toContainText("Version 1 enregistrée.");
+  await expect(panel.getByRole("region", { name: "Recette version 1", exact: true })).toContainText("4,125 ml");
+  await form.getByRole("checkbox", { name: "Activer cette recette" }).uncheck();
+  await form.getByLabel("Motif de la recette").fill("Desactivation explicite navigateur");
+  await form.getByRole("button", { name: "Enregistrer la recette", exact: true }).click();
+  await expect(form).toContainText("Version 2 enregistrée.");
+  await expect(panel.getByRole("region", { name: "Recette version 2", exact: true })).toContainText("Désactivée");
+  await panel.getByRole("button", { name: "Version 1 · Active", exact: true }).click();
+  await expect(panel.getByRole("region", { name: "Version originale de la recette", exact: true })).toContainText("4,125 ml");
+  expect((await (await request.get(`${base}/services/${service}/recipes`, { headers })).json())).toHaveLength(2);
+  expect((await (await request.get(`${base}/items/${item.id}`, { headers })).json()).on_hand).toBe("0.000");
+  await page.screenshot({ path: info.outputPath("recipes.png"), fullPage: true });
+});
