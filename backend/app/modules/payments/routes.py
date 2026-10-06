@@ -44,6 +44,28 @@ class PaymentPrepared(BaseModel):
     idempotency_key: str
 
 
+class AuthorizationQuoteRead(BaseModel):
+    ticket_id: str
+    amount: Decimal
+    currency: Literal["CHF", "EUR"]
+
+
+@router.get("/tickets/{ticket_id}/authorization-quote", response_model=AuthorizationQuoteRead)
+def authorization_quote(institute_id: str, ticket_id: str, user=Depends(operator),
+                        binding=Depends(configured_binding), db: Session = Depends(get_db)):
+    from app.modules.tickets.repository import lock_institute
+    from app.modules.tickets.models import QueueTicket
+    from app.modules.payments.quotes import authorization_amount
+    from app.shared.exceptions import not_found
+    lock_institute(db, institute_id)
+    ticket = db.scalar(select(QueueTicket).where(QueueTicket.id == ticket_id, QueueTicket.institute_id == institute_id)
+                       .execution_options(populate_existing=True))
+    if ticket is None:
+        raise not_found("Ticket de paiement introuvable")
+    value = authorization_amount(db, ticket)
+    return dict(ticket_id=ticket.id, amount=value.amount, currency=value.currency)
+
+
 class PaymentDispatched(BaseModel):
     id: str
     kind: str

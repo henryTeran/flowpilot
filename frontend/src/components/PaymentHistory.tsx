@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
+import { AuthorizationPreparation } from "./AuthorizationPreparation";
 import { PaymentPreparation } from "./PaymentPreparation";
 import { CapturedCheckout } from "./CapturedCheckout";
 import { PaymentRecovery } from "./PaymentRecovery";
@@ -33,12 +34,12 @@ function valid(value: Snapshot, ticketId: string) {
   return value.protected === value.operations.some(row => row.active_protection);
 }
 
-type Props = { instituteId: string; ticketId: string; employeeId?: string; method?: string; onRefresh?: () => Promise<boolean> };
-export function PaymentHistory({ instituteId, ticketId, employeeId, method, onRefresh }: Props) {
+type Props = { instituteId: string; ticketId: string; employeeId?: string; method?: string; authorizationEligible?: boolean; onRefresh?: () => Promise<boolean> };
+export function PaymentHistory({ instituteId, ticketId, employeeId, method, authorizationEligible, onRefresh }: Props) {
   const token = getAccessToken();
-  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} employeeId={employeeId} method={method} onRefresh={onRefresh} />;
+  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} employeeId={employeeId} method={method} authorizationEligible={authorizationEligible} onRefresh={onRefresh} />;
 }
-function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method, onRefresh }: Props & { token: string | null }) {
+function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method, authorizationEligible, onRefresh }: Props & { token: string | null }) {
   const [snapshot, setSnapshot] = useState<Snapshot>();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,7 @@ function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method
     {error && <p role="alert">{error}</p>}
     {snapshot?.protected && <p>Paiement en cours ou résultat à récupérer. Le ticket reste protégé.</p>}
     {snapshot && !snapshot.operations.length && <p>Aucune opération prestataire enregistrée.</p>}
+    {snapshot && onRefresh && authorizationEligible && !snapshot.protected && !snapshot.operations.some(row => ["prepared", "unknown", "pending"].includes(row.status)) && <AuthorizationPreparation instituteId={instituteId} ticketId={ticketId} onRefresh={onRefresh} onRecorded={() => void load()} />}
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}

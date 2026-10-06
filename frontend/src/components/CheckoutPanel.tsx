@@ -212,7 +212,7 @@ export function CheckoutPanel({
           beginMutation={beginCommercialMutation} onRefresh={onRefresh} onBusy={setLoyaltyBusy} onCoverage={(active, historical) => {
             setLoyaltyCoveredLines(active); setHistoricalLines(previous => [...new Set([...previous, ...historical])]);
           }} />}
-        {onRefresh && <PaymentHistory instituteId={ticket.institute_id} ticketId={ticket.id} employeeId={cashierEmployee?.id} method={selectedPaymentMethod} onRefresh={onRefresh} />}
+        {onRefresh && <PaymentHistory instituteId={ticket.institute_id} ticketId={ticket.id} employeeId={cashierEmployee?.id} method={selectedPaymentMethod} authorizationEligible={["ready_for_checkout", "in_checkout"].includes(ticket.status)} onRefresh={onRefresh} />}
         <section className="bm-cash-action-row">
           <button type="button">▦ Appliquer remise</button>
           <div className="bm-cash-add-service">

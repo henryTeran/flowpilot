@@ -82,6 +82,20 @@ def test_unconfigured_payments_refuse_without_preparing_or_dispatching(flow):
         PaymentRegistry([binding, binding])
 
 
+def test_current_authorization_quote_is_scoped_and_creates_no_intent(flow):
+    client, institute, ticket, _, adapter = flow
+    path = f"/api/v1/payments/institutes/{institute}/tickets/{ticket}/authorization-quote"
+    response = client.get(path, headers=_auth_headers(institute_id=institute))
+    assert response.status_code == 200 and response.json() == {"ticket_id": ticket, "amount": "10.35", "currency": "CHF"}
+    assert client.get(path, headers=_auth_headers(institute_id="foreign")).status_code == 403
+    assert client.get(path.replace(ticket, "missing"), headers=_auth_headers(institute_id=institute)).status_code == 404
+    assert not adapter.calls
+    with Session(main_module.engine) as db:
+        assert list(db.scalars(select(PaymentIntent))) == []
+    app.state.payment_registry = PaymentRegistry()
+    assert client.get(path, headers=_auth_headers(institute_id=institute)).status_code == 503
+
+
 def test_unknown_dispatch_scope_original_identity_and_no_io_terminal_replay(flow):
     _, institute, _, _, adapter = flow
     first = prepare(flow)

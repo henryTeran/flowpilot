@@ -4,6 +4,7 @@ All paths below are relative to `/api/v1/payments/institutes/{institute_id}`.
 
 | Method / path | Authority | Behavior |
 | --- | --- | --- |
+| GET `/tickets/{ticket_id}/authorization-quote` | Institute operator, configured provider | Read the exact unpaid remainder without creating an intent or provider I/O. |
 | POST `/tickets/{ticket_id}/intents` | Institute operator; manager for refund | Persist an immutable operation before I/O. |
 | POST `/intents/{intent_id}/dispatch` | Institute operator and original actor; manager for refund | Dispatch or recover the original request against its configured account. |
 | POST `/intents/{intent_id}/checkout` | Institute operator and original capture actor | Atomically apply a confirmed capture to checkout. |
@@ -60,5 +61,5 @@ immutable preparation replay, unknown recovery, terminal no-I/O replay, server p
 resolution, captured checkout, manager refunds, cancellation release, raw callback
 authentication simulation, duplicate receipts and body limits. These tests use an
 explicit fake adapter. Separate PostgreSQL domain tests exercise the underlying
-transactions and concurrency. Real provider transport, operator dispatch UI and
+transactions and concurrency. Real provider transport, end-to-end recovery auditing and
 browser/tablet settlement verification are still required before payment gates close.

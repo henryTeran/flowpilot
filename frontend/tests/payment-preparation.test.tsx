@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import React, { act } from "react";
 import { PaymentPreparation } from "../src/components/PaymentPreparation";
+import { AuthorizationPreparation } from "../src/components/AuthorizationPreparation";
 import { setAccessToken } from "../src/api/session";
 const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "http://localhost:5173" });
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, sessionStorage: dom.window.sessionStorage, IS_REACT_ACT_ENVIRONMENT: true });
@@ -11,11 +12,11 @@ const response = (value: unknown) => new Response(JSON.stringify(value), { heade
 const token = (role = "responsable_institut") => `h.${Buffer.from(JSON.stringify({ sub: "actor", role })).toString("base64url")}.s`;
 const parent = { id: "parent", amount: "10.35", currency: "CHF" };
 
-for (const kind of ["capture", "cancel", "refund"] as const) test(`${kind} preparation replays the original key after a lost response`, async () => {
+for (const kind of ["authorize", "capture", "cancel", "refund"] as const) test(`${kind} preparation replays the original key after a lost response`, async () => {
   sessionStorage.clear(); setAccessToken(token());
   let root = createRoot(document.getElementById("root")!);
   const original = globalThis.fetch, key = `flowpilot.payment-preparation:${JSON.stringify(["inst", "ticket", "parent", kind, "actor"])}`;
-  const row = { kind, amount: kind === "refund" ? "5.00" : parent.amount, currency: "CHF", parent_intent_id: "parent", idempotency_key: "saved-key" };
+  const row = { kind, amount: kind === "refund" ? "5.00" : parent.amount, currency: "CHF", parent_intent_id: kind === "authorize" ? null : "parent", idempotency_key: "saved-key" };
   sessionStorage.setItem(key, JSON.stringify(row));
   let posts = 0, recorded = 0;
   globalThis.fetch = async (url, options) => {
@@ -66,4 +67,23 @@ test("refund preparation stays hidden from cashier role", async () => {
     await act(async () => root.render(<PaymentPreparation instituteId="inst" ticketId="ticket" parent={parent} kind="refund" onRefresh={async () => true} onRecorded={() => {}} />));
     assert.equal(document.querySelector("button"), null);
   } finally { await act(async () => root.unmount()); sessionStorage.clear(); }
+});
+
+test("authorization uses exact server quote and hides stale value after a wrong-ticket read", async () => {
+  sessionStorage.clear(); setAccessToken(token());
+  const root = createRoot(document.getElementById("root")!), original = globalThis.fetch;
+  let reads = 0;
+  globalThis.fetch = async (_url, options) => {
+    assert.equal(options?.method, "GET");
+    return response({ ticket_id: ++reads === 1 ? "ticket" : "foreign", amount: "10.35", currency: "CHF" });
+  };
+  try {
+    await act(async () => root.render(<AuthorizationPreparation instituteId="inst" ticketId="ticket" onRefresh={async () => true} onRecorded={() => {}} />));
+    assert.match(document.body.textContent!, /10,35 CHF/);
+    assert.equal(document.querySelectorAll("button").length, 2);
+    await act(async () => document.querySelector<HTMLButtonElement>("button")!.click());
+    assert.doesNotMatch(document.body.textContent!, /10,35 CHF/);
+    assert.match(document.body.textContent!, /incohérent/);
+    assert.equal(document.querySelectorAll("button").length, 1);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = original; sessionStorage.clear(); }
 });

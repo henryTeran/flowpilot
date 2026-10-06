@@ -395,3 +395,18 @@ component cases verify capture/cancel/refund lost-response replay, before-POST s
 changed-value response rejection and cashier refund exclusion. The 73-test frontend
 suite and production build pass. Initial authorization UI, real provider integration
 and browser/tablet validation remain open.
+
+
+The initial authorization UI now obtains its exact decimal amount and currency from a
+scoped configured-provider quote endpoint. The read holds the institute lock and uses
+the existing unpaid quote validator, including gift remainder and declared line prices;
+it creates no payment request or provider I/O. Eligible checkout history requests this
+quote only after reading a scoped unprotected snapshot without unresolved operations.
+A wrong-ticket or malformed read hides the old value. Authorization preparation reuses
+the immutable before-POST recovery mechanism with a null parent intent. Saved original
+amount/currency/key remain unchanged when a later quote differs. The server rechecks
+current quotes for new requests and first execution; original persisted replay never
+re-quotes an unknown result. All four operation preparations, original operation
+recovery and confirmed captured checkout now have component controls. This does not
+close payment gates: real provider authentication/transport, stale unexecuted request
+recovery auditing, accounting completeness and actual browser/tablet remain open.

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { apiGet, apiPost, ApiError } from "../api/client";
 import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/session";
 type Parent = { id: string; amount: string; currency: string };
-type Intent = { kind: "capture" | "cancel" | "refund"; amount: string; currency: string; parent_intent_id: string; idempotency_key: string };
+type Intent = { kind: "authorize" | "capture" | "cancel" | "refund"; amount: string; currency: string; parent_intent_id: string | null; idempotency_key: string };
 type Props = { instituteId: string; ticketId: string; parent: Parent; kind: Intent["kind"]; onRefresh: () => Promise<boolean>; onRecorded: () => void };
-const labels = { capture: "Préparer l'encaissement", cancel: "Préparer l'annulation", refund: "Préparer le remboursement" };
+const labels = { authorize: "Préparer l'autorisation", capture: "Préparer l'encaissement", cancel: "Préparer l'annulation", refund: "Préparer le remboursement" };
 function money(value: string) { return /^\d{1,8}\.\d{2}$/.test(value) && Number(value) > 0; }
 export function PaymentPreparation(props: Props) {
   return <Preparation key={JSON.stringify([props.instituteId, props.ticketId, props.parent.id, props.kind, getAccessToken()])} {...props} />;
@@ -16,9 +16,9 @@ function Preparation({ instituteId, ticketId, parent, kind, onRefresh, onRecorde
   const [intent, setIntent] = useState<Intent | undefined>(() => {
     try {
       const row = JSON.parse(sessionStorage.getItem(key) || "null");
-      if (allowed && row && row.kind === kind && row.parent_intent_id === parent.id && row.currency === parent.currency && money(row.amount) &&
-          (kind === "refund" || row.amount === parent.amount) && typeof row.idempotency_key === "string" && !!row.idempotency_key.trim() && row.idempotency_key === row.idempotency_key.trim() && row.idempotency_key.length <= 120)
-        return { kind, amount: row.amount, currency: row.currency, parent_intent_id: parent.id, idempotency_key: row.idempotency_key };
+      if (allowed && row && row.kind === kind && row.parent_intent_id === (kind === "authorize" ? null : parent.id) && (kind === "authorize" ? ["CHF", "EUR"].includes(row.currency) : row.currency === parent.currency) && money(row.amount) &&
+          (kind === "refund" || kind === "authorize" || row.amount === parent.amount) && typeof row.idempotency_key === "string" && !!row.idempotency_key.trim() && row.idempotency_key === row.idempotency_key.trim() && row.idempotency_key.length <= 120)
+        return { kind, amount: row.amount, currency: row.currency, parent_intent_id: kind === "authorize" ? null : parent.id, idempotency_key: row.idempotency_key };
     } catch { /* No untrusted recovery request. */ }
   });
   const [amount, setAmount] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
@@ -27,7 +27,7 @@ function Preparation({ instituteId, ticketId, parent, kind, onRefresh, onRecorde
   useEffect(() => { lifetime.current++; return () => { lifetime.current++; }; }, []);
   async function prepare() {
     if (!allowed || pending.current) return;
-    const row = intent || { kind, amount: kind === "refund" ? amount.replace(",", ".") : parent.amount, currency: parent.currency, parent_intent_id: parent.id, idempotency_key: crypto.randomUUID() };
+    const row = intent || { kind, amount: kind === "refund" ? amount.replace(",", ".") : parent.amount, currency: parent.currency, parent_intent_id: kind === "authorize" ? null : parent.id, idempotency_key: crypto.randomUUID() };
     if (!money(row.amount)) return;
     const generation = lifetime.current, current = () => generation === lifetime.current && token === getAccessToken();
     pending.current = true; setBusy(true); setIntent(row); setError(undefined);
