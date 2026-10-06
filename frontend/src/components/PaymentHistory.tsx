@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
+import { RefundLoyaltyDecision } from "./RefundLoyaltyDecision";
 import { getAccessToken } from "../api/session";
 
 type Decision = { id: string; refund_intent_id: string; points: number; reason: string; actor_id: string; entry_id: string | null };
@@ -29,11 +30,12 @@ function valid(value: Snapshot, ticketId: string) {
   return value.protected === value.operations.some(row => row.active_protection);
 }
 
-export function PaymentHistory({ instituteId, ticketId }: { instituteId: string; ticketId: string }) {
+type Props = { instituteId: string; ticketId: string; onRefresh?: () => Promise<boolean> };
+export function PaymentHistory({ instituteId, ticketId, onRefresh }: Props) {
   const token = getAccessToken();
-  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} />;
+  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} onRefresh={onRefresh} />;
 }
-function ScopedPaymentHistory({ instituteId, ticketId, token }: { instituteId: string; ticketId: string; token: string | null }) {
+function ScopedPaymentHistory({ instituteId, ticketId, token, onRefresh }: Props & { token: string | null }) {
   const [snapshot, setSnapshot] = useState<Snapshot>();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,7 @@ function ScopedPaymentHistory({ instituteId, ticketId, token }: { instituteId: s
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}
+      {onRefresh && row.kind === "refund" && row.status === "refunded" && !row.loyalty_decision && <RefundLoyaltyDecision instituteId={instituteId} ticketId={ticketId} refundId={row.id} onRefresh={onRefresh} onRecorded={() => void load()} />}
     </div>)}
   </section>;
 }

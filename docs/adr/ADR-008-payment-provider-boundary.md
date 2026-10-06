@@ -294,3 +294,21 @@ a decision, debit points or dispatch a refund. Payment routes share institute an
 signed actor validation; cashflow and decision resources additionally require the
 institute manager role. Whitespace-modified or oversized actor identities are
 rejected consistently. No schema change or live adapter is introduced.
+
+
+Checkout now offers a manager-only loyalty decision form for confirmed refunds with
+no recorded decision. Zero explicitly retains points; negative values request a
+bounded deduction with a reason. Server policy remains authoritative. The immutable
+intent is stored in session storage under institute/ticket/refund/signed actor before
+POST. Recovery first reads the dedicated decision resource; a matching original key,
+actor, refund, points, reason and entry shape avoids another POST after a lost reply.
+A different receipt never confirms the original intention. A missing receipt allows
+only the original saved request to be retried. Unknown failures retain frozen terms;
+a definitive POST 4xx permits correction. Successful receipt recovery also requires
+the application's full data refresh before removing the saved intent and refreshing
+payment history. Lifetime/token guards prevent an old context from posting after a
+late read, refreshing the current application or clearing its recovery state.
+
+Seven component cases pass in the 62-test frontend regression suite, with a production
+build. No real provider dispatch is added. Browser/tablet validation remains open;
+the current CUA inventory has no enabled browser or application surfaces.
