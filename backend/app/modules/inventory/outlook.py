@@ -68,6 +68,16 @@ def pending_quantities(db, institute, item_ids):
 def read(db, institute, limit, offset, scenario=None):
     stock.lock_institute(db, institute)  # Same serialization boundary as all stock/recipe/order writers.
     demands, known, complete = selected_demand(db, institute, scenario)
+    rows = item_rows(db, institute, limit, offset, known, scenario is not None and complete)
+    return OutlookRead(institute_id=institute, generated_at=utcnow(),
+        starts_at=scenario.starts_at if scenario else None, ends_at=scenario.ends_at if scenario else None,
+        source="explicit_service_volume_scenario" if scenario else "recorded_stock",
+        coverage=("complete_selected_norms" if complete else "partial_selected_norms") if scenario else "not_applicable",
+        demands=demands, limit=limit, offset=offset, items=rows)
+
+
+def item_rows(db, institute, limit, offset, known, complete):
+    """Caller holds the institute lock and establishes the demand coverage."""
     items = db.scalars(select(StockItem).where(StockItem.institute_id == institute)
         .order_by(StockItem.sku, StockItem.id).limit(limit).offset(offset)).all()
     ids = [row.id for row in items]
@@ -84,11 +94,7 @@ def read(db, institute, limit, offset, scenario=None):
             at_or_below_threshold=balance <= item.reorder_milli,
             threshold_shortfall=quantity(max(0, item.reorder_milli - balance)),
             pending_order_quantity=quantity(ordered), known_demand=quantity(demand),
-            complete_demand=quantity(demand) if scenario is not None and complete else None,
+            complete_demand=quantity(demand) if complete else None,
             known_demand_shortfall=quantity(max(0, demand + item.reorder_milli - balance)),
             conditional_shortfall_after_all_orders=quantity(max(0, demand + item.reorder_milli - balance - ordered))))
-    return OutlookRead(institute_id=institute, generated_at=utcnow(),
-        starts_at=scenario.starts_at if scenario else None, ends_at=scenario.ends_at if scenario else None,
-        source="explicit_service_volume_scenario" if scenario else "recorded_stock",
-        coverage=("complete_selected_norms" if complete else "partial_selected_norms") if scenario else "not_applicable",
-        demands=demands, limit=limit, offset=offset, items=rows)
+    return rows

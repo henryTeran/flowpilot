@@ -17,6 +17,8 @@ from app.modules.inventory.models import StockRecipe
 from app.modules.inventory import recipes
 from app.modules.inventory import outlook
 from app.modules.inventory.outlook_schemas import ForecastScenario, OutlookRead
+from app.modules.inventory import planned
+from app.modules.inventory.planned_schemas import PlannedRequest, PlannedRead
 
 router = APIRouter(prefix="/inventory/institutes/{institute_id}", tags=["inventory"])
 
@@ -45,6 +47,12 @@ def stock_forecast(institute_id: str, payload: ForecastScenario, limit: int = Qu
                    offset: int = Query(0, ge=0, le=100000), user=Depends(operator), db: Session = Depends(get_db)):
     # POST carries an explicit read-only scenario, never records a business mutation.
     return outlook.read(db, institute_id, limit, offset, payload)
+
+
+@router.post("/planned-demand", response_model=PlannedRead)
+def planned_demand(institute_id: str, payload: PlannedRequest, limit: int = Query(50, ge=1, le=200),
+                   offset: int = Query(0, ge=0, le=100000), user=Depends(operator), db: Session = Depends(get_db)):
+    return planned.read(db, institute_id, payload, limit, offset)
 
 
 @router.get("/suppliers", response_model=list[SupplierRead])
