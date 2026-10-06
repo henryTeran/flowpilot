@@ -12,7 +12,8 @@ def validate_parent_operation(db, request, kind, provider, account_id, reference
     Partial/multiple capture is not configured and must not be inferred.
     """
     if kind is OperationKind.REFUND:
-        raise business_error("Fait de capture confirme requis avant remboursement")
+        from app.modules.payments.refunds import validate_refund_budget
+        return validate_refund_budget(db, request, provider, account_id, reference)
     binding = db.get(PaymentReference, (provider, account_id, reference))
     parent = db.get(PaymentIntent, binding.intent_id) if binding else None
     if parent is None or (parent.institute_id, parent.ticket_id, parent.kind) != (

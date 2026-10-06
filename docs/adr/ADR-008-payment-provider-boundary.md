@@ -164,3 +164,19 @@ one loyalty award. Nonempty downgrade refuses before dropping the application ta
 No public endpoint or real provider integration is claimed by this internal writer.
 Refund budgets/execution, webhook authentication/replay, actual adapters and operator
 UI remain open; all Phase 9 production gates remain open.
+
+
+New refund requests now require a scoped provider/account/reference capture with a
+confirmed captured outcome and its matching checkout application. Authorization,
+invoice totals and gift allocations cannot supply external refund capacity. Within
+the institute lock, the capture amount minus all existing refund request amounts is
+the available reservation budget; partial requests use exact cents and the same
+explicit currency. Every unresolved reservation counts, including requests that
+have not yet dispatched. Timeout or abandonment cannot silently restore capacity.
+Original identical replay is resolved before budget validation and does not reserve
+money twice; changed replay terms still fail. Decimal arithmetic uses local precision.
+
+This checkpoint prepares immutable refund requests only. There is no refund dispatch
+or outgoing settlement fact yet, and no implicit release of failed reservations.
+Verified refund failure release, execution recovery, accounting/loyalty consequences,
+real adapters and webhook processing remain required. Paid service history is unchanged.
