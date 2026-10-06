@@ -3,12 +3,19 @@ import os
 from pathlib import Path
 import secrets
 import sys
-from tempfile import TemporaryDirectory
+from tempfile import gettempdir
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend"))
 
-with TemporaryDirectory(prefix="flowpilot-browser-") as directory:
-    database = Path(directory).resolve() / "browser.sqlite"
+def main():
+    directory = Path(os.environ["FLOWPILOT_BROWSER_DIRECTORY"]).resolve()
+    if (directory.parent != Path(gettempdir()).resolve()
+            or not directory.name.startswith("flowpilot-browser-")
+            or not (directory / ".flowpilot-browser-owner").is_file()):
+        raise RuntimeError("Owned browser fixture directory required")
+    database = directory / "browser.sqlite"
+    if database.exists():
+        raise RuntimeError("Refusing to open an existing browser fixture database")
     os.environ.update(
         DATABASE_URL="sqlite:///" + database.as_posix(), APP_ENV="test",
         SECRET_KEY=secrets.token_urlsafe(48), APP_DEBUG="false",
@@ -35,3 +42,7 @@ with TemporaryDirectory(prefix="flowpilot-browser-") as directory:
         uvicorn.run(app, host="127.0.0.1", port=4198, log_level="warning")
     finally:
         engine.dispose()
+
+
+if __name__ == "__main__":
+    main()

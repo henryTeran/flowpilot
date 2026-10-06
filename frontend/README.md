@@ -68,5 +68,8 @@ temporary SQLite file and generates its own signing key/test users. It never ope
 an existing application database or configures a payment adapter. Tests authenticate
 through the actual login form; no API interception or injected session token is used.
 Current coverage is manager/cashier access, scoped reads and logout, not settlement
-or the complete walk-in workflow. Windows process termination can leave the owned
-`flowpilot-browser-*` temporary database directory; automated cleanup needs hardening.
+or the complete walk-in workflow. The owning Node launcher removes its exact `flowpilot-browser-*` temporary
+directory after Playwright finishes, including rejected launches. The backend
+requires the launcher ownership marker and refuses an existing database. Cleanup
+errors fail the command; abrupt termination of the owning launcher itself is not
+a verified cleanup path.

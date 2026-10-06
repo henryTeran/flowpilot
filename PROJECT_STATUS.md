@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AK_SIGNED_BACKEND_BROWSER_ACCESS
+CURRENT_CHECKPOINT = PHASE9AL_OWNED_BROWSER_FIXTURE_CLEANUP
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Backend browser tests now run through an owning Node launcher: it creates one unique OS-temp directory, passes it explicitly to Python and removes that exact directory after Playwright exits. Resolved-parent/name checks precede recursive cleanup; the backend requires the ownership marker and refuses any pre-existing database. Rejected-project launch preserved exit status 1 and removed its directory; normal real-backend Edge run passed 4 tests plus build and removed its directory. No new temp artifacts or live 4198/4199 listeners remained. Two legacy owned directories remain because the attempted PowerShell deletion was blocked by execution policy; no alternate deletion path was attempted. No application change; previous 85-test component evidence remains the baseline.
 - New backend-connected Edge suite logs in through the real form and FastAPI password/JWT flow against an exclusively created temporary SQLite database. Manager cashflow reads/refresh, foreign-institute 403, cashier cashflow 403 and unconfigured-provider 503 pass at desktop/tablet landscape (4 tests). No API route mocks or injected tokens are used. Sidebar logout is now connected to SessionGate and clears the token/unmounts operational data; this is exercised by the real browser. Canonical frontend suite: 85 passed; backend-browser command rebuilt TypeScript/Vite output. Test servers stopped with no listeners remaining on 4198/4199. This is signed access/read integration, not capture/refund settlement, full queue E2E, PostgreSQL migration evidence or physical-tablet acceptance.
 - Targeted source-map-js transitive patch 1.2.1 -> 1.2.2 resolves npm advisory GHSA-68fv-2mgg-jv7q. Only that lockfile package changed; no unrelated dependency upgrade or application change. Fresh npm audit: zero reported vulnerabilities. Canonical frontend suite: 85 passed. Edge desktop/tablet cashflow suite: 4 passed, including rebuilt TypeScript/Vite output. This does not establish the broader production SECURITY gate.
 - Added reproducible Playwright browser tests against the built frontend with controlled HTTP fixtures. Installed Edge headless exercised manager/cashier presentation at desktop 1440x900 and touch-enabled tablet landscape 1024x768: 4 passed. Exact cents, separate groups, wrong-scope refresh clearing, no cashier cashflow request, no page exceptions and no document horizontal overflow verified. Tablet screenshot inspected; the previously unstyled cashflow panel now uses Pilotage cards and a minimum 44px refresh target. Canonical component suite: 85 passed; browser command rebuild passed. These are real browser frontend checks, not backend/payment-provider E2E, physical tablet acceptance or reconnect verification. Broader gates remain open.
@@ -95,7 +96,7 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- Extend the backend-connected browser suite from signed access/read/logout to the critical walk-in workflow. Harden Windows temporary-database cleanup: terminated test-server processes can leave owned flowpilot-browser-* directories in the OS temp directory; no existing database is opened.
+- Extend the backend-connected browser suite from signed access/read/logout to the critical walk-in workflow. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
