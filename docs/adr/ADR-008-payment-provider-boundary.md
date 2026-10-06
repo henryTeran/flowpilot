@@ -379,3 +379,19 @@ application of an existing captured fact, not another provider charge. Three new
 component tests pass in the 68-test frontend suite with a production build. Initial
 operation preparation, real provider integration and browser/tablet checks remain
 open; no payment or production gate is closed by these component checks.
+
+
+Checkout now prepares capture/cancel from a confirmed active authorization, and a
+manager can prepare a refund from an applied captured operation with an explicitly
+entered amount/currency. These controls name only the original scoped parent intent;
+provider/account/reference/actor selection remains server-owned. They store frozen
+terms and a generated original key before POST. Unknown replies retain the same
+request across remount. Definitive preparation 4xx permits correction. Responses
+and a freshly scoped snapshot must agree on original intent/key/kind/value/currency/
+actor before application refresh and removal of saved recovery state. Preparation
+does not dispatch or claim settlement: the existing recovery action sends the durable
+operation later, and the server rechecks parent proof and refund budget. Five new
+component cases verify capture/cancel/refund lost-response replay, before-POST storage,
+changed-value response rejection and cashier refund exclusion. The 73-test frontend
+suite and production build pass. Initial authorization UI, real provider integration
+and browser/tablet validation remain open.

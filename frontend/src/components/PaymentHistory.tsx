@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
+import { PaymentPreparation } from "./PaymentPreparation";
 import { CapturedCheckout } from "./CapturedCheckout";
 import { PaymentRecovery } from "./PaymentRecovery";
 import { RefundLoyaltyDecision } from "./RefundLoyaltyDecision";
@@ -65,6 +66,8 @@ function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}
+      {onRefresh && row.kind === "authorize" && row.status === "authorized" && row.active_protection && (["capture", "cancel"] as const).map(kind => <PaymentPreparation key={kind} instituteId={instituteId} ticketId={ticketId} parent={row} kind={kind} onRefresh={onRefresh} onRecorded={() => void load()} />)}
+      {onRefresh && row.kind === "capture" && row.status === "captured" && row.applied && <PaymentPreparation instituteId={instituteId} ticketId={ticketId} parent={row} kind="refund" onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && <CapturedCheckout instituteId={instituteId} ticketId={ticketId} operation={row} employeeId={employeeId} method={method} onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && <PaymentRecovery instituteId={instituteId} ticketId={ticketId} operation={row} onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && row.kind === "refund" && row.status === "refunded" && !row.loyalty_decision && <RefundLoyaltyDecision instituteId={instituteId} ticketId={ticketId} refundId={row.id} onRefresh={onRefresh} onRecorded={() => void load()} />}
