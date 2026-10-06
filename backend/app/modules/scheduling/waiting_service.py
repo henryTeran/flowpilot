@@ -56,7 +56,7 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
     ticket_needs = {}
     for ticket_id, minutes, quantity, service_id in db.execute(select(
         TicketLine.ticket_id, TicketLine.duration_minutes, TicketLine.quantity, TicketLine.service_id,
-    ).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
+    ).where(TicketLine.invoice_removed_at.is_(None)).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
         QueueTicket.institute_id == institute_id, QueueTicket.status.in_(["waiting", "assigned"]),
     )):
         durations[ticket_id] = durations.get(ticket_id, 0) + minutes * quantity

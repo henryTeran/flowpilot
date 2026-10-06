@@ -180,6 +180,7 @@ export function PlanningBoard({
                         title={detailText}
                         aria-label={detailText}
                         data-session-title={serviceName}
+                        data-session-id={session.id}
                         data-session-meta={`${session.duration_minutes} min · ${sessionMeta.label} · ${sessionMeta.timeLabel}`}
                       >
                         <div className="session-content">

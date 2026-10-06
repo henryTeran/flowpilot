@@ -58,16 +58,28 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             recipes.create(db, institute, db.scalar(select(Service.id)), RecipeCreate(
                 base_revision=0, enabled=True, entries=[dict(item_id=row.id, quantity="1.125")],
                 reason="Migration recipe", idempotency_key="migration-recipe"), "manager")
-            from app.modules.tickets.schemas import TicketCreate
-            from app.modules.tickets.service import create_queue_ticket
-            from app.modules.planning.service import start_service_session
+            # Seed the actual prior schema, not today's ORM columns or queries.
+            from datetime import timedelta
+            from app.modules.tickets.models import QueueTicket
+            from app.modules.planning.models import ServiceSession
             from app.modules.employees.models import Employee
-            service_id = db.scalar(select(Service.id))
+            declared = db.scalar(select(Service))
             employee = db.scalar(select(Employee).where(Employee.institute_id == institute))
-            employee.status = "available"
+            now = utcnow()
+            db.add(QueueTicket(id="legacy-ticket", institute_id=institute, ticket_number="LEGACY-1",
+                status="in_progress", arrival_time=now, assigned_employee_id=employee.id))
+            db.flush()
+            db.execute(text("INSERT INTO ticket_lines (id,ticket_id,service_id,quantity,unit_price,total,duration_minutes,revenue_category,performed_by_employee_id) VALUES ('legacy-line','legacy-ticket',:service,1,15,15,:duration,'care',:employee)"),
+                dict(service=declared.id, duration=declared.duration_min, employee=employee.id))
+            db.add(ServiceSession(id="legacy-session", institute_id=institute, ticket_line_id="legacy-line",
+                employee_id=employee.id, service_id=declared.id, start_time=now,
+                planned_end_time=now + timedelta(minutes=declared.duration_min),
+                duration_minutes=declared.duration_min, status="in_progress"))
+            db.flush()
+            db.add(StockServiceBasis(id="legacy-basis", institute_id=institute, session_id="legacy-session",
+                ticket_line_id="legacy-line", service_id=declared.id, quantity=1,
+                recipe_id=db.scalar(select(StockRecipe.id)), state="enabled", actor_id="migration-operator", captured_at=now))
             db.commit()
-            ticket = create_queue_ticket(db, TicketCreate(institute_id=institute, service_id=service_id))
-            start_service_session(db, ticket.id, employee.id, actor_id="migration-operator")
         command.upgrade(config, "head")
         with Session(engine) as db:
             legacy = db.get(StockMovement, "legacy-delivery")

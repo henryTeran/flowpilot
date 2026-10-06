@@ -48,6 +48,9 @@ export interface Service {
 
 export interface TicketLine {
   commercial_history?: boolean;
+  invoice_removed_at?: string | null;
+  invoice_removed_by_actor?: string | null;
+  invoice_removal_reason?: "not_performed" | null;
   id: string;
   ticket_id: string;
   service_id: string;
@@ -84,6 +87,7 @@ export interface QueueTicket {
   total_amount?: number | null;
   currency?: "CHF" | "EUR" | null;
   lines?: TicketLine[];
+  removed_lines?: TicketLine[];
 }
 
 export interface ServiceSession {

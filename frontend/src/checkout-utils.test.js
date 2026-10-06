@@ -30,6 +30,7 @@ test("finish and checkout selects the exact session ticket despite older complet
     { id: "new", institute_id: "ours", status: "ready_for_checkout", lines: [{ id: "line-new" }] },
   ];
   assert.equal(resolveSessionCheckoutTicket(tickets, finished, "session", "ours")?.id, "new");
+  assert.equal(resolveSessionCheckoutTicket([{ ...tickets[2], lines: [], removed_lines: tickets[2].lines }], finished, "session", "ours")?.id, "new");
   assert.equal(resolveSessionCheckoutTicket(tickets.slice(0, 2), finished, "session", "ours"), undefined);
   assert.equal(resolveSessionCheckoutTicket(tickets, { ...finished, id: "stale" }, "session", "ours"), undefined);
   assert.equal(resolveSessionCheckoutTicket(tickets, { ...finished, status: "in_progress" }, "session", "ours"), undefined);

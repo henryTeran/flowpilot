@@ -64,6 +64,15 @@ class TicketLineRead(BaseModel):
     duration_minutes: int
     revenue_category: str
     performed_by_employee_id: str | None = None
+    invoice_removed_at: datetime | None = None
+    invoice_removed_by_actor: str | None = None
+    invoice_removal_reason: Literal["not_performed"] | None = None
+
+    @field_serializer("invoice_removed_at")
+    def removal_timestamp(self, value):
+        from app.shared.time import explicit_utc_instant
+        return explicit_utc_instant(value)
+
     # Champ calculé côté route : pending / in_progress / completed.
     status: str = "pending"
 
@@ -94,6 +103,7 @@ class QueueTicketRead(BaseModel):
     total_amount: float | None = None
     currency: str | None = None
     lines: list[TicketLineRead] = Field(default_factory=list)
+    removed_lines: list[TicketLineRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 

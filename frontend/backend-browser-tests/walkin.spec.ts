@@ -61,7 +61,7 @@ test("anonymous walk-in proceeds through assignment, extension, finish and recor
   expect(basis.entries).toHaveLength(ticket.lines.length);
   expect(basis.entries[0]).toMatchObject({ ticket_line_id: ticket.lines[0].id, service_id: ticket.lines[0].service_id, quantity: 1, actor_id: "browser-manager" });
   await page.locator(".drawer-close-button").click();
-  const session = page.locator(".session-block").filter({ hasText: "Aisselles" });
+  const session = page.locator(`.session-block[data-session-id="${execution.id}"]`);
   await expect(session).toBeVisible();
   const extended = page.waitForResponse(response => response.url().endsWith("/extend"));
   await session.getByRole("button", { name: "+5", exact: true }).click();

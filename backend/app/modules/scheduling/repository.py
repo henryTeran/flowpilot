@@ -158,7 +158,7 @@ def get_ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
     """Get all service lines for a ticket."""
     return list(
         db.scalars(
-            select(TicketLine)
+            select(TicketLine).where(TicketLine.invoice_removed_at.is_(None))
             .where(TicketLine.ticket_id == ticket_id)
             .order_by(TicketLine.id)
         ).all()

@@ -45,7 +45,7 @@ def update_employee_skills(db: Session, institute_id: str, employee_id: str, pay
     codes = sorted(payload.skills)
     if sorted(set(employee.skills)) == codes and skill_facts(db, institute_id).get(employee_id, set()) == set(codes):
         return employee.skills
-    committed_services = set(db.scalars(select(TicketLine.service_id).join(
+    committed_services = set(db.scalars(select(TicketLine.service_id).where(TicketLine.invoice_removed_at.is_(None)).join(
         QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
         QueueTicket.institute_id == institute_id, QueueTicket.assigned_employee_id == employee_id,
         QueueTicket.status.in_(["assigned", "in_progress"]))).all())
@@ -134,7 +134,7 @@ def update_requirements(db: Session, institute_id: str, service_id: str, payload
         return current
     reserved_ticket = db.scalar(select(QueueTicket.id).join(TicketLine, TicketLine.ticket_id == QueueTicket.id).where(
         QueueTicket.institute_id == institute_id, QueueTicket.status.in_(["assigned", "in_progress"]),
-        TicketLine.service_id == service_id))
+        TicketLine.service_id == service_id, TicketLine.invoice_removed_at.is_(None)))
     booked = db.scalar(select(Appointment.id).where(Appointment.institute_id == institute_id,
         Appointment.service_id == service_id, Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES)))
     active = db.scalar(select(ServiceSession.id).where(ServiceSession.institute_id == institute_id,

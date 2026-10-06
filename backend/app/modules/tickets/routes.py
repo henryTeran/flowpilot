@@ -105,6 +105,25 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         projection = projections.get(ticket.id)
         estimated_start = projection.estimated_start_time if projection else None
 
+    read_lines = [
+        TicketLineRead(
+            id=line.id,
+            ticket_id=line.ticket_id,
+            service_id=line.service_id,
+            quantity=line.quantity,
+            unit_price=_to_float(line.unit_price),
+            total=_to_float(line.total),
+            duration_minutes=line.duration_minutes,
+            revenue_category=line.revenue_category,
+            performed_by_employee_id=line.performed_by_employee_id,
+            status=_line_status(db, ticket, line),
+            commercial_history=line.id in commercial_history,
+            invoice_removed_at=line.invoice_removed_at,
+            invoice_removed_by_actor=line.invoice_removed_by_actor,
+            invoice_removal_reason=line.invoice_removal_reason,
+        )
+        for line in lines
+    ]
     return QueueTicketRead(
         id=ticket.id,
         institute_id=ticket.institute_id,
@@ -119,7 +138,7 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         cancelled_at=ticket.cancelled_at,
         queue_position=(positions if positions is not None else queue_positions(db, ticket.institute_id)).get(ticket.id),
         assignment_state=assignment_state(ticket.status, ticket.assigned_employee_id),
-        standard_duration_minutes=sum(line.duration_minutes * line.quantity for line in lines),
+        standard_duration_minutes=sum(line.duration_minutes * line.quantity for line in lines if line.invoice_removed_at is None),
         created_by_id=ticket.created_by_id,
         checkout_employee_id=ticket.checkout_employee_id,
         checkout_started_at=ticket.checkout_started_at,
@@ -128,22 +147,8 @@ def _read_ticket(db: Session, ticket: QueueTicket, positions: dict[str, int] | N
         payment_method=ticket.payment_method,
         total_amount=_to_float(ticket.total_amount),
         currency=ticket.currency,
-        lines=[
-            TicketLineRead(
-                id=line.id,
-                ticket_id=line.ticket_id,
-                service_id=line.service_id,
-                quantity=line.quantity,
-                unit_price=_to_float(line.unit_price),
-                total=_to_float(line.total),
-                duration_minutes=line.duration_minutes,
-                revenue_category=line.revenue_category,
-                performed_by_employee_id=line.performed_by_employee_id,
-                status=_line_status(db, ticket, line),
-                commercial_history=line.id in commercial_history,
-            )
-            for line in lines
-        ],
+        lines=[line for line in read_lines if line.invoice_removed_at is None],
+        removed_lines=[line for line in read_lines if line.invoice_removed_at is not None],
     )
 
 
@@ -325,7 +330,13 @@ def patch_remove_checkout_line(
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     _require_ticket_access(ticket_id, current_user, db)
-    ticket = remove_checkout_ticket_line(db, ticket_id, line_id)
+    scoped = get_ticket(db, ticket_id)
+    actor = current_user.get("sub")
+    if scoped and current_user.get("institute_id") != scoped.institute_id:
+        raise HTTPException(403, "Institut non autorise")
+    if not isinstance(actor, str) or not actor.strip() or len(actor) > 160:
+        raise HTTPException(403, "Identite de l'operatrice requise")
+    ticket = remove_checkout_ticket_line(db, ticket_id, line_id, actor)
     return _read_ticket(db, ticket)
 
 

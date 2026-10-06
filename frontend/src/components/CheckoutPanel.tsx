@@ -281,6 +281,15 @@ export function CheckoutPanel({
           )}
         </section>
 
+        {!!ticket.removed_lines?.length && <section className="bm-cash-lines-card bm-cash-removed-lines" aria-label="Prestations retirées de la facture">
+          <h3>Prestations retirées de la facture</h3>
+          <p>Ces lignes sont conservées dans l'historique et exclues du montant à payer. Le retrait ne modifie pas les consommations enregistrées.</p>
+          {ticket.removed_lines.map(line => <article key={line.id}>
+            <strong>{services.find(service => service.id === line.service_id)?.name || "Prestation"}</strong>
+            <p>{line.quantity} prestation(s) · Retirée comme non réalisée · {line.invoice_removed_by_actor || "Opérateur non renseigné"}</p>
+          </article>)}
+        </section>}
+
         <footer className="bm-cash-footer-note">
           Controle avant paiement: verifier les prestations, la duree et les montants du ticket.
         </footer>

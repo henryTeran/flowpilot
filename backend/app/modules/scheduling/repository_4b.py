@@ -102,7 +102,7 @@ def get_ticket_with_lines(db: Session, ticket_id: str) -> tuple[QueueTicket, lis
         return None
     lines = list(
         db.scalars(
-            select(TicketLine).where(TicketLine.ticket_id == ticket_id)
+            select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(TicketLine.ticket_id == ticket_id)
         ).all()
     )
     return ticket, lines

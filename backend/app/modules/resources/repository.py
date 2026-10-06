@@ -47,7 +47,7 @@ def ensure_resource_capacity_known(db: Session, institute_id: str, service_ids: 
 
 
 def ticket_services(db: Session, institute_id: str, ticket_id: str) -> list[str]:
-    return list(db.scalars(select(TicketLine.service_id).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
+    return list(db.scalars(select(TicketLine.service_id).where(TicketLine.invoice_removed_at.is_(None)).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
         QueueTicket.institute_id == institute_id, QueueTicket.id == ticket_id,
     )).all())
 

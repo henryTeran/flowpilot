@@ -754,7 +754,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
               ))}
             </select>
 
-            <button type="button" className="bm-identity-button" onClick={() => openIdentity("general")}>
+            <button type="button" className="bm-identity-button" disabled={loading || !selectedInstituteId || !planning || !employees.length} onClick={() => openIdentity("general")}>
               {identifiedEmployee ? `Identifiée : ${identifiedEmployee.first_name}` : "Je m’identifie"}
             </button>
 

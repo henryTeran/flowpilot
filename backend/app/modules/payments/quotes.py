@@ -12,7 +12,7 @@ def authorization_amount(db, ticket):
         raise business_error("Autorisation possible uniquement avant paiement en caisse")
     if ticket.currency not in {"CHF", "EUR"}:
         raise business_error("Devise confirmee requise pour autoriser le paiement")
-    lines = list(db.scalars(select(TicketLine).where(TicketLine.ticket_id == ticket.id)
+    lines = list(db.scalars(select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(TicketLine.ticket_id == ticket.id)
                            .execution_options(populate_existing=True)))
     if not lines:
         raise business_error("Prestations chiffrees requises pour le paiement")

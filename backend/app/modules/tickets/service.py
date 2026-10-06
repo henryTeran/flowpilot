@@ -106,7 +106,7 @@ def _payload_service_ids(payload: TicketCreate) -> list[str]:
 def _ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
     return list(
         db.scalars(
-            select(TicketLine)
+            select(TicketLine).where(TicketLine.invoice_removed_at.is_(None))
             .where(TicketLine.ticket_id == ticket_id)
             .order_by(TicketLine.id)
         ).all()
@@ -427,20 +427,24 @@ def add_checkout_ticket_line(db: Session, ticket_id: str, service_id: str) -> Qu
     return ticket
 
 
-def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> QueueTicket:
+def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str, actor_id: str | None = None) -> QueueTicket:
     """Retire une prestation non réalisée avant le paiement."""
     ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
 
-    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
-        raise business_error("Les prestations se modifient uniquement à l'encaissement")
-
     line = db.get(TicketLine, line_id)
-    from app.modules.gift_cards.tenders import require_no_active_tender
-    require_no_active_tender(db, ticket)
     if not line or line.ticket_id != ticket.id:
         raise not_found("Ligne de prestation introuvable")
+    db.refresh(line)
+    if line.invoice_removed_at is not None:
+        if not actor_id or line.invoice_removed_by_actor != actor_id:
+            raise business_error("Retrait original signe par un autre operateur")
+        return ticket
+    if ticket.status not in {"ready_for_checkout", "in_checkout"}:
+        raise business_error("Les prestations se modifient uniquement a l'encaissement")
+    from app.modules.gift_cards.tenders import require_no_active_tender
+    require_no_active_tender(db, ticket)
 
     from app.modules.commerce.models import PackageRedemption
     if db.scalar(select(PackageRedemption.id).where(PackageRedemption.ticket_line_id == line.id)):
@@ -455,7 +459,12 @@ def remove_checkout_ticket_line(db: Session, ticket_id: str, line_id: str) -> Qu
     if len(lines) <= 1:
         raise business_error("Impossible de supprimer la dernière prestation du ticket")
 
-    db.delete(line)
+    if not actor_id or not actor_id.strip() or len(actor_id) > 160:
+        raise business_error("Operateur signe requis pour retirer une prestation")
+    line.invoice_removed_at = utcnow()
+    line.invoice_removed_by_actor = actor_id
+    line.invoice_removal_reason = "not_performed"
+    db.add(line)
     db.flush()
     ticket.total_amount = _ticket_total(db, ticket.id)
     db.add(ticket)

@@ -76,6 +76,9 @@ class QueueEvent(Base):
 
 class TicketLine(Base):
     __tablename__ = "ticket_lines"
+    __table_args__ = (
+        CheckConstraint("(invoice_removed_at IS NULL AND invoice_removed_by_actor IS NULL AND invoice_removal_reason IS NULL) OR (invoice_removed_at IS NOT NULL AND invoice_removed_by_actor IS NOT NULL AND length(trim(invoice_removed_by_actor)) > 0 AND invoice_removal_reason IS NOT NULL AND invoice_removal_reason = 'not_performed')", name="ck_ticket_line_invoice_removal"),
+    )
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     ticket_id: Mapped[str] = mapped_column(ForeignKey("queue_tickets.id"), nullable=False, index=True)
@@ -88,3 +91,8 @@ class TicketLine(Base):
 
     # Collaboratrice qui a réellement réalisé la ligne de prestation.
     performed_by_employee_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+
+    # Original execution/billing terms remain intact after an unpaid correction.
+    invoice_removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    invoice_removed_by_actor: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    invoice_removal_reason: Mapped[str | None] = mapped_column(String(32), nullable=True)

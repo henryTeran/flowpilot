@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10G_NATIVE_CONSUMPTION_UI
+CURRENT_CHECKPOINT = PHASE10H_RETAINED_INVOICE_CORRECTIONS
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -108,14 +108,15 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE10: audit checkout line correction against immutable start-time basis foreign keys on PostgreSQL, preserving legitimate billing corrections and historical provenance; then suppliers, orders, reorder and forecasts. All remaining Phase 10 gates stay open. Do not infer consumption rules from the example recipe.
+- PHASE10: implement institute-scoped suppliers and purchase orders with explicit article/unit terms, exact partial receipts linked to stock movements and original replay, then bounded reorder/forecast reads from signed stock facts and pinned service norms. Remaining supplier/order/reorder/forecast and physical acceptance gates stay open. Do not infer consumption rules from the example recipe.
 - Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Inventory foundation is in progress independently of Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(inventory): add native measured consumption and original recovery.
+- Current: fix(checkout): retain signed invoice corrections and execution history.
+- cd68645 native measured consumption and original recovery.
 - 7a5a353 signed actual consumption in the exact stock ledger.
 - 5c716cc original recipes pinned at actual execution start.
 - c705994 scoped recipe authoring and original recovery.
@@ -163,4 +164,19 @@ PHASE10G_NATIVE_CONSUMPTION_UI:
 - Open article balance/history invalidate immediately on consumption refresh and reload automatically. Shared article picker preserves recipe behavior. Finish + checkout now resolves the finished session's exact line and institute instead of another employee ticket; compact queue keeps a selected ticket visible beyond its six-row limit. Creation actions wait for loaded institute/planning context so initial scope reset cannot close a just-opened form.
 - Backend full regression: 350 passed / 78 PostgreSQL opt-ins skipped. Final caption additions subsequently pass all 3 worklist cases with PostgreSQL enabled. Prior worklist/consumption PostgreSQL-enabled bundle: 12 passed. No schema migration or application database mutation in this checkpoint.
 - Frontend: 108 passed, including original replay, malformed read guards, scope changes, explicit measured/no-material authoring and exact finished-ticket selection. Final production build and all 16 signed backend Edge cases pass (8 desktop, 8 touch-enabled tablet-landscape), including committed POST with lost reply, reload/original replay, later measurements, exact stock/history and concurrent completed checkout tickets. Owned fixture cleanup passes. Desktop/tablet screenshots reviewed: readable original norm, actual quantity, deviation and history; physical tablet and production providers remain open.
-- Integration audit next: captured ticket-line FK may prevent legitimate nonrepresentative checkout-line removal on PostgreSQL; verify and preserve correction/history before closing inventory integration.
+- Subsequent Phase 10H/ADR-011 resolves the captured ticket-line FK correction defect while preserving original execution/stock history.
+
+PHASE10H_RETAINED_INVOICE_CORRECTIONS:
+- Actual PostgreSQL reproduced physical-delete FK failure on a nonrepresentative started line. ADR-011 replaces deletion with a retained original row and a signed UTC invoice-removal fact; both representative and nonrepresentative corrections remain possible. Existing stock bases/consumption facts and original terms remain intact.
+- Active invoice, provider quote, gift remainder, loyalty earning, commercial totals, planning/resource queries exclude removed rows. New commercial applications reject those rows; prior commercial-history protection and uncertain payment/tender protection remain. Last active invoice line cannot be removed.
+- Same original actor can replay the removal after payment without altering paid amounts or metadata. Institute lock plus a fresh line read prevents stale preloaded ORM state from replacing another actor's signature. API requires exact signed subject and institute scope, and separates active lines from read-only removed_lines.
+- Native checkout displays retained corrections separately. Fin + caisse also correlates through a retained removed representative line. Header identification waits for loaded institute/planning/employees after reload, preserving its modal.
+- Migration e84539c0a2b7 adds nullable paired audit fields after d73428bf91a6. No existing application database was migrated. Owned SQLite/PostgreSQL prior-schema upgrade, empty downgrade, original terms, incomplete audit rejection, populated refusal and metadata parity pass. Old inventory migration fixture now seeds its real prior schema explicitly, preserving its historical walk-in/basis coverage.
+- PostgreSQL-enabled correction/invoice migration/inventory migration bundle: 7 passed. Final correction bundle: 5 passed, including actual PG representative-source retention, competing actors and stale prior reads plus HTTP stock/quote/report and paid loyalty exclusion. Full backend regression: 352 passed / 81 PostgreSQL opt-ins skipped, with Starlette/httpx and SQLite datetime-adapter warnings. The final fresh-line guard and two additional cases (loyalty exclusion and stale prior read) were subsequently verified in the final 5-case correction bundle. Frontend: 108 passed. Production build plus all 18 signed Edge cases pass (9 desktop, 9 touch-enabled tablet-landscape), with exact session identity selectors separating active work from completed historical copies. New native correction commits before transport abort, recovers by original replay/reload, preserves both start-time bases and pays only the active invoice. Owned fixture cleanup passes.
+- Phase 10 remains in progress; suppliers, orders, reorder and forecasts are next. Invoice correction does not infer zero physical usage or reverse a recorded consumption. Physical tablet, real bank/provider signatures and broader accounting gates remain open.
+
+FOLLOW_UP_INTEGRATION_AUDIT:
+- Cashier screenshot and QueueTicketRead show legacy queue timestamp metadata needs an explicit UTC/institute-local display audit before physical acceptance; stock/session timestamp normalization is already verified. Also surface invoice-removal context in measured-consumption review, including appointment invoice provenance, so a billing exclusion is distinguishable without inferring zero usage. Audit these next, then suppliers/orders and reorder/forecasts. Do not treat the signed correction block's UTC fact as proof of all legacy queue clock displays.
+
+VISUAL_QA_10H:
+- Final correction block reviewed on desktop and tablet-landscape: padded readable heading, retained care, signed actor and explicit invoice-versus-stock explanation. Scoped CSS removes the unrelated active-lines minimum height. Final focused native correction cases pass 2/2 again with production build and owned cleanup after this layout refinement; the preceding full combined suite remains 18/18.

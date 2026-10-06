@@ -1338,9 +1338,11 @@ Phase 10G checkpoint: native completed-execution consumption worklist and explic
 measured/no-material authoring are implemented with original request recovery,
 visible original norm/deviation and automatic stock refresh. Scoped pending and
 confirmed pagination uses one bounded SQL UNION. Evidence and remaining gates:
-PROJECT_STATUS.md and ADR-010. Next audit: legitimate checkout-line corrections
-against pinned-basis foreign keys on PostgreSQL; then supplier/order/reorder/forecast
-work. No physical tablet, production settlement or complete Phase 10 claim.
+PROJECT_STATUS.md and ADR-010. Phase 10H resolves legitimate checkout corrections
+by retaining original line/basis/consumption facts and excluding signed removals
+from invoice, payment and loyalty totals (ADR-011). Next: institute-scoped suppliers,
+purchase orders, exact partial receipt movements, reorder and forecasts. No physical
+tablet, production settlement or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce
 

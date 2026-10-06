@@ -104,6 +104,8 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
         raise not_found("Ligne de caisse introuvable")
     db.refresh(ticket)
     db.refresh(line)
+    if line.invoice_removed_at is not None:
+        raise business_error("Prestation retiree de la facture")
     from app.modules.gift_cards.tenders import require_no_active_tender
     require_no_active_tender(db, ticket)
     from app.modules.loyalty.redemption import require_no_reward
@@ -131,7 +133,7 @@ def consume_package(db: Session, institute, identifier, payload: PackageConsume,
     db.add(redemption)
     db.flush()
     ticket.total_amount = sum((item.total or Decimal("0") for item in db.scalars(
-        select(TicketLine).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
+        select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
     record_event(db, ticket, "commerce.package_redeemed", ticket.status, line.performed_by_employee_id)
     db.commit()
     db.refresh(redemption)
@@ -173,7 +175,7 @@ def reverse_package_consumption(db: Session, institute, identifier, reason, acto
     redemption.reversal_reason = reason
     db.flush()
     ticket.total_amount = sum((item.total or Decimal("0") for item in db.scalars(
-        select(TicketLine).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
+        select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
     record_event(db, ticket, "commerce.package_reversed", ticket.status, line.performed_by_employee_id)
     db.commit()
     db.refresh(redemption)

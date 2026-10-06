@@ -19,6 +19,8 @@ def checkout_line(db, institute, line_id):
         raise not_found("Ligne de caisse introuvable")
     db.refresh(ticket)
     db.refresh(line)
+    if line.invoice_removed_at is not None:
+        raise business_error("Prestation retiree de la facture")
     if ticket.status not in {"ready_for_checkout", "in_checkout"}:
         raise business_error("Avantage modifiable uniquement avant le paiement en caisse")
     from app.modules.gift_cards.tenders import require_no_active_tender
@@ -29,7 +31,7 @@ def checkout_line(db, institute, line_id):
 def update_total(db, ticket):
     db.flush()
     ticket.total_amount = sum((row.total or Decimal("0") for row in db.scalars(
-        select(TicketLine).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
+        select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(TicketLine.ticket_id == ticket.id))), Decimal("0"))
 
 
 def apply_benefit(db, institute, identifier, payload, actor):

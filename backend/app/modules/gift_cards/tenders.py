@@ -27,7 +27,7 @@ def allocations(db, ticket_id):
 
 def tender_view(db, ticket):
     rows = allocations(db, ticket.id)
-    total = sum((Decimal(str(line.total or 0)) for line in db.scalars(select(TicketLine).where(
+    total = sum((Decimal(str(line.total or 0)) for line in db.scalars(select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(
         TicketLine.ticket_id == ticket.id).execution_options(populate_existing=True))), Decimal("0"))
     active = [row for row in rows if row.reversed_at is None]
     if any(row.currency != ticket.currency for row in active):

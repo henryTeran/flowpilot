@@ -122,7 +122,7 @@ def _has_current_employee_appointment(
 def _ticket_lines(db: Session, ticket_id: str) -> list[TicketLine]:
     return list(
         db.scalars(
-            select(TicketLine)
+            select(TicketLine).where(TicketLine.invoice_removed_at.is_(None))
             .where(TicketLine.ticket_id == ticket_id)
             .order_by(TicketLine.id)
         ).all()
@@ -140,7 +140,7 @@ def _ticket_total_duration(db: Session, ticket_id: str) -> int:
 
 def _representative_ticket_line(db: Session, ticket_id: str) -> TicketLine | None:
     return db.scalars(
-        select(TicketLine)
+        select(TicketLine).where(TicketLine.invoice_removed_at.is_(None))
         .where(TicketLine.ticket_id == ticket_id)
         .order_by(TicketLine.id)
     ).first()

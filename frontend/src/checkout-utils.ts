@@ -28,5 +28,5 @@ export function resolveSessionCheckoutTicket(
   if (finished.id !== sessionId || finished.institute_id !== instituteId || finished.status !== "completed" || !finished.ticket_line_id) return undefined;
   return tickets.find(ticket => ticket.institute_id === instituteId
     && ["ready_for_checkout", "in_checkout"].includes(ticket.status)
-    && ticket.lines?.some(line => line.id === finished.ticket_line_id));
+    && [...(ticket.lines || []), ...(ticket.removed_lines || [])].some(line => line.id === finished.ticket_line_id));
 }

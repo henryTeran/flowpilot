@@ -55,7 +55,7 @@ def award_checkout(db, ticket, actor, operator_institute):
     if db.get(LoyaltyEarning, ticket.id) is not None:
         return
     db.flush()
-    basis = sum((Decimal(str(line.total or 0)) for line in db.scalars(select(TicketLine).where(
+    basis = sum((Decimal(str(line.total or 0)) for line in db.scalars(select(TicketLine).where(TicketLine.invoice_removed_at.is_(None)).where(
         TicketLine.ticket_id == ticket.id))), Decimal("0"))
     if not basis.is_finite() or basis < 0:
         raise business_error("Montant du ticket invalide pour la fidelite")

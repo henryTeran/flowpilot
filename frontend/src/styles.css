@@ -6687,3 +6687,10 @@ body {
 .commerce-panel input, .commerce-panel select, .commerce-panel button { min-height: 44px; padding: 8px 12px; }
 .commerce-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .commerce-plans article { padding: 16px; border: 1px solid #e7d9e1; border-radius: 12px; }
+.bm-checkout-clone .bm-cash-removed-lines {
+  min-height: 0;
+  padding: 20px;
+}
+.bm-checkout-clone .bm-cash-removed-lines h3 { margin: 0 0 12px; }
+.bm-checkout-clone .bm-cash-removed-lines p { margin: 8px 0; line-height: 1.5; }
+.bm-checkout-clone .bm-cash-removed-lines article { margin-top: 16px; }

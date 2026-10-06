@@ -329,3 +329,12 @@ remain open.
 Next integration audit must resolve PostgreSQL historical-basis FK behavior during
 legitimate checkout-line correction without deleting provenance or shrinking the
 billing workflow. Suppliers, orders, reorder and forecasts remain open.
+
+
+### Phase 10H integration correction
+
+The PostgreSQL checkout-line deletion defect is resolved in ADR-011. Invoice
+removal retains the original row and all pinned execution/consumption references;
+active billing totals exclude the signed removed row. It never infers no physical
+usage or reverses stock. Future measured/no-material confirmation still requires
+an explicit manager decision against the original basis.

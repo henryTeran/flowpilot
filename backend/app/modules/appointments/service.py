@@ -152,7 +152,7 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
     duration = service.duration_max or service.duration_min
     end_time = start_time + timedelta(minutes=duration)
 
-    reserved_lines = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).join(
+    reserved_lines = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).where(TicketLine.invoice_removed_at.is_(None)).join(
         QueueTicket, QueueTicket.id == TicketLine.ticket_id,
     ).where(QueueTicket.institute_id == payload.institute_id,
             QueueTicket.assigned_employee_id == payload.employee_id,
@@ -258,7 +258,7 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
                     else _ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time))
         end = start + duration
         now = utcnow()
-        reserved = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).join(
+        reserved = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).where(TicketLine.invoice_removed_at.is_(None)).join(
             QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
                 QueueTicket.institute_id == appointment.institute_id, QueueTicket.assigned_employee_id == employee_id,
                 QueueTicket.status == "assigned")).all()
