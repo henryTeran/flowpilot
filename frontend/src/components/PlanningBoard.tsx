@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { timelineBlock, type TimelineRange } from "../planning-timeline";
 import type { Appointment, Employee, PlanningAvailability, PlanningDay, Service, ServiceSession } from "../types";
 
 interface PlanningBoardProps {
@@ -39,8 +40,8 @@ export function PlanningBoard({
     sessions: [] as ServiceSession[],
   }));
 
-  const timelineRange = getTimelineRange();
-  const totalMinutes = (timelineRange.endHour - timelineRange.startHour) * 60;
+  const timelineDay = new Date();
+  const timelineRange = getTimelineRange(timelineDay);
   const nowPosition = getNowPositionPercent(timelineRange);
   const hourMarks = Array.from(
     { length: timelineRange.endHour - timelineRange.startHour + 1 },
@@ -158,7 +159,7 @@ export function PlanningBoard({
 
                   {row.sessions.map((session) => {
                     const service = services.find((item) => item.id === session.service_id);
-                    const block = getSessionBlock(session, timelineRange, totalMinutes);
+                    const block = timelineBlock(session.start_time, session.real_end_time || session.planned_end_time, timelineRange, timelineDay, 1.25);
                     if (!block) return null;
 
                     const sessionMeta = getSessionMeta(session);
@@ -242,7 +243,7 @@ export function PlanningBoard({
 
                   {rowAppointments.map((appointment) => {
                     const service = services.find((item) => item.id === appointment.service_id);
-                    const block = getAppointmentBlock(appointment, timelineRange, totalMinutes);
+                    const block = timelineBlock(appointment.start_time, appointment.end_time, timelineRange, timelineDay, 1.6);
                     if (!block) return null;
 
                     const serviceName = service?.name || "Rendez-vous";
@@ -306,13 +307,7 @@ function countActiveSessions(rows: Array<{ sessions: ServiceSession[] }>) {
   return rows.reduce((sum, row) => sum + row.sessions.filter((session) => ACTIVE_STATUSES.has(session.status)).length, 0);
 }
 
-interface TimelineRange {
-  startHour: number;
-  endHour: number;
-}
-
-function getTimelineRange(): TimelineRange {
-  const now = new Date();
+function getTimelineRange(now: Date): TimelineRange {
 
   if (!isOutsideBusinessHours(now)) {
     return { startHour: BUSINESS_START_HOUR, endHour: BUSINESS_END_HOUR };
@@ -330,54 +325,6 @@ function getTimelineRange(): TimelineRange {
 function isOutsideBusinessHours(date: Date) {
   const hour = date.getHours();
   return hour < BUSINESS_START_HOUR || hour >= BUSINESS_END_HOUR;
-}
-
-function getSessionBlock(session: ServiceSession, range: TimelineRange, totalMinutes: number) {
-  const start = new Date(session.start_time);
-  const end = new Date(session.real_end_time || session.planned_end_time);
-  const startMinutes = start.getHours() * 60 + start.getMinutes();
-  const endMinutes = end.getHours() * 60 + end.getMinutes();
-  const rangeStart = range.startHour * 60;
-  const rangeEnd = range.endHour * 60;
-
-  if (endMinutes <= rangeStart || startMinutes >= rangeEnd) {
-    return null;
-  }
-
-  const visibleStart = Math.max(startMinutes, rangeStart);
-  const visibleEnd = Math.min(endMinutes, rangeEnd);
-  const left = ((visibleStart - rangeStart) / totalMinutes) * 100;
-  const proportionalWidth = ((visibleEnd - visibleStart) / totalMinutes) * 100;
-  const width = Math.min(Math.max(proportionalWidth, 1.25), 100 - left);
-
-  return {
-    left: clamp(left, 0, 100),
-    width: clamp(width, 1.25, 100),
-  };
-}
-
-function getAppointmentBlock(appointment: Appointment, range: TimelineRange, totalMinutes: number) {
-  const start = new Date(appointment.start_time);
-  const end = new Date(appointment.end_time);
-  const startMinutes = start.getHours() * 60 + start.getMinutes();
-  const endMinutes = end.getHours() * 60 + end.getMinutes();
-  const rangeStart = range.startHour * 60;
-  const rangeEnd = range.endHour * 60;
-
-  if (endMinutes <= rangeStart || startMinutes >= rangeEnd) {
-    return null;
-  }
-
-  const visibleStart = Math.max(startMinutes, rangeStart);
-  const visibleEnd = Math.min(endMinutes, rangeEnd);
-  const left = ((visibleStart - rangeStart) / totalMinutes) * 100;
-  const proportionalWidth = ((visibleEnd - visibleStart) / totalMinutes) * 100;
-  const width = Math.min(Math.max(proportionalWidth, 1.6), 100 - left);
-
-  return {
-    left: clamp(left, 0, 100),
-    width: clamp(width, 1.6, 100),
-  };
 }
 
 function formatClock(value: string) {
