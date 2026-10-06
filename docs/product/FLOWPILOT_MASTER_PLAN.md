@@ -1347,9 +1347,10 @@ billing exclusion independently of measured consumption (ADR-012), with no
 historical backfill or automatic zero usage. Phase 10K adds the signed institute
 supplier directory and original creation recovery (ADR-013). Phase 10L adds
 immutable purchase orders and atomic exact partial receipt APIs (ADR-014),
-with original recovery independent of current budgets. Native order/receipt
-authoring and review, reorder and forecasts remain required. No physical
-tablet, production settlement or complete Phase 10 claim.
+with original recovery independent of current budgets. Phase 10M adds native
+order/partial-receipt authoring, original request recovery, explicit measured
+quantities and fresh progress/stock verification. Reorder and forecasts remain
+required. No physical tablet, production settlement or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce
 

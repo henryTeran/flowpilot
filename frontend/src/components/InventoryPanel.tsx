@@ -1,5 +1,6 @@
 import { StockConsumptions } from "./StockConsumptions";
 import { StockSuppliers } from "./StockSuppliers";
+import { StockOrders } from "./StockOrders";
 import { StockRecipes } from "./StockRecipes";
 import type { Service } from "../types";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -17,6 +18,7 @@ function Catalogue({ institute, timezone, services }: { institute: string; timez
   const token = getAccessToken(), manager = getOperatorRole() === "responsable_institut";
   const [consumptionRevision, setConsumptionRevision] = useState(0);
   const [showSuppliers, suppliers] = useState(false);
+  const [showOrders, orders] = useState(false);
   const [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [selected, select] = useState<string>();
   const [loading, setLoading] = useState(true), [error, setError] = useState<string>();
   const mounted = useRef(false), sequence = useRef(0);
@@ -34,8 +36,9 @@ function Catalogue({ institute, timezone, services }: { institute: string; timez
   }
   useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; sequence.current++; }; }, [offset]);
   return <main className="bm-inventory" aria-label="Inventaire">
-    <header><h2>Inventaire</h2><button type="button" aria-expanded={showSuppliers} onClick={() => suppliers(!showSuppliers)}>Fournisseurs</button><button type="button" onClick={() => void load()} disabled={loading}>Actualiser le stock</button></header>
+    <header><h2>Inventaire</h2><button type="button" aria-expanded={showSuppliers} onClick={() => suppliers(!showSuppliers)}>Fournisseurs</button><button type="button" aria-expanded={showOrders} onClick={() => orders(!showOrders)}>Commandes</button><button type="button" onClick={() => void load()} disabled={loading}>Actualiser le stock</button></header>
     {showSuppliers && <StockSuppliers institute={institute} />}
+    {showOrders && <StockOrders institute={institute} timezone={timezone} onStockInvalidate={() => { setItems(undefined); setConsumptionRevision(value => value + 1); }} onStockRefresh={async () => { setConsumptionRevision(value => value + 1); return await load(); }} />}
     <p>Quantités enregistrées par article et unité. Les entrées et ajustements conservent leur historique.</p>
     {loading && <p role="status">Lecture du stock…</p>}{error && <p role="alert">{error}</p>}
     {items?.length === 0 && <p>{offset ? "Aucun article sur cette page." : "Aucun article enregistré."}</p>}

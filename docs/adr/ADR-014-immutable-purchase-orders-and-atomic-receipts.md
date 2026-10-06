@@ -1,7 +1,7 @@
 # ADR-014 — Immutable purchase orders and atomic partial receipts
 
-Status: accepted for the Phase 10L backend procurement foundation. Native order
-and receipt authoring, reorder/forecast reads and complete inventory acceptance
+Status: accepted for the Phase 10L procurement foundation and Phase 10M native
+order/receipt authoring. Reorder/forecast reads and complete inventory acceptance
 remain required.
 
 Orders belong to an institute and reference its registered supplier. A manager
@@ -51,3 +51,20 @@ protected histories refuse downgrade before DDL. Owned SQLite/PostgreSQL fixture
 verify unchanged original ledger terms, model parity and guarded history.
 No production migration, physical receipt acceptance or full Phase 10 closure
 is claimed.
+
+The native procurement editor selects explicit registered identities and starts
+receipt quantities empty. It persists immutable requests and human labels by
+institute/signed subject/order before POST. Response loss or refresh failure
+preserves the original request; saved deliveries outside the current order page
+remain selectable. An unreadable saved request cannot be silently overwritten.
+Only a definite original POST rejection permits explicit correction. Current
+session checks apply to writes, late reads and recovery deletion.
+
+The original response and scoped immutable GET must agree before fresh reads
+release recovery. Fresh order progress must include that receipt's quantities,
+even when the original receipt is outside the bounded history page. Cached stock
+is hidden when a receipt starts; refreshed catalogue and selected item history
+are required to expose current balances. Completion disables new deliveries but
+never disables replay of a preserved original. Signed receipt history displays
+its original actor/reason/quantities/instant in the selected institute timezone.
+This UI is not physical delivery acceptance or supplier dispatch evidence.

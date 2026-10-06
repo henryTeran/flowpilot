@@ -4,7 +4,7 @@ import { getAccessToken } from "../api/session";
 import { validStockItem, stockUnits, type StockItem } from "../inventory-utils";
 const base = (institute: string) => `/inventory/institutes/${encodeURIComponent(institute)}`;
 const message = (error: unknown) => error instanceof Error ? error.message : "Articles indisponibles";
-export function StockItemPicker({ institute, disabled, selected, onAdd, action = "recette" }: { institute: string; disabled: boolean; selected: string[]; onAdd: (item: StockItem) => void; action?: "recette" | "consommation" }) {
+export function StockItemPicker({ institute, disabled, selected, onAdd, action = "recette" }: { institute: string; disabled: boolean; selected: string[]; onAdd: (item: StockItem) => void; action?: "recette" | "consommation" | "commande" }) {
   const token = getAccessToken(), [items, setItems] = useState<StockItem[]>(), [offset, setOffset] = useState(0), [reload, setReload] = useState(0), [choice, choose] = useState("");
   const [error, setError] = useState<string>();
   useEffect(() => { let active = true; setItems(undefined); setError(undefined); choose(""); void apiGet<StockItem[]>(`${base(institute)}/items?limit=50&offset=${offset}`).then(rows => {

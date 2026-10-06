@@ -30,3 +30,9 @@
 
 .bm-stock-consumptions > label { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; max-width: 560px; }
 .bm-stock-consumptions button { margin: 4px 8px 4px 0; }
+.bm-stock-orders .bm-stock-form fieldset { display: grid; gap: 18px; border: 0; padding: 0; min-width: 0; }
+.bm-stock-orders .bm-stock-form label { display: grid; gap: 8px; min-width: 0; }
+.bm-stock-orders input, .bm-stock-orders select { width: 100%; box-sizing: border-box; }
+.bm-stock-orders table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 18px 0; }
+.bm-stock-orders th, .bm-stock-orders td { padding: 10px; text-align: left; border-bottom: 1px solid #d7e1e3; overflow-wrap: anywhere; }
+.bm-stock-orders article { border-top: 1px solid #d7e1e3; padding-top: 12px; }
