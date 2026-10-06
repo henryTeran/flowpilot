@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from app.shared.time import explicit_utc_instant
 
 
 class AppointmentCreate(BaseModel):
@@ -49,3 +50,8 @@ class AppointmentRead(BaseModel):
     notes: str | None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("start_time", "end_time", "booked_start_time", "booked_end_time", "actual_start_time", "actual_end_time")
+    @classmethod
+    def explicit_instant(cls, value: datetime | None) -> datetime | None:
+        return explicit_utc_instant(value)

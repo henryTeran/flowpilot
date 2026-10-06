@@ -28,12 +28,18 @@ def main():
     from app.core.security import hash_password
     from app.modules.auth.models import User
     from app.modules.dev.routes import init_demo_data, DEMO_INSTITUTE_ID
+    from app.modules.resources.models import Resource, ResourceRequirement
     from sqlalchemy.orm import Session
     import uvicorn
 
     Base.metadata.create_all(engine)
     with Session(engine) as db:
         init_demo_data(db)
+        # Explicit fixture capacity: two qualified staff share one treatment room.
+        db.add(Resource(id="browser-room", institute_id=DEMO_INSTITUTE_ID,
+                        name="Browser shared room", kind="room", capabilities=[], status="active"))
+        db.add(ResourceRequirement(id="browser-room-need", institute_id=DEMO_INSTITUTE_ID,
+                                   service_id="svc-soin-profond", kind="room", capability="", quantity=1))
         for role, name in (("responsable_institut", "manager"), ("accueil", "cashier")):
             db.add(User(id="browser-" + name, email=name + "@browser.example.com",
                         password_hash=hash_password("Browser-test-only-2026"),

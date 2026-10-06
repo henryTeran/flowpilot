@@ -100,3 +100,39 @@ PostgreSQL cases skipped. Booking checkout/move PostgreSQL bundle: four passed,
 including competing finishes and failure after checkout flush. Frontend: 23 tests
 and production build pass, including App finish-to-checkout identification. These
 are protocol/component tests; actual browser/tablet validation remains open.
+
+
+Real Edge + isolated backend coverage now creates and confirms a room-backed
+appointment, then tries the same interval with another qualified employee. The
+shared resource conflict is rejected without another appointment being created.
+Cancellation releases the first reservation, permitting retry of the original
+pending second form/key. Both test appointments are cancelled at completion.
+Desktop/tablet-landscape cases pass within ten backend-connected browser tests.
+The fixture explicitly configures one room requirement for Soin profond and does
+not alter production resources. This is booking-to-booking resource contention,
+not full walk-in/appointment coexistence or physical-tablet acceptance.
+
+Appointment response timestamps restore explicit UTC metadata when SQLite has
+dropped it from stored domain UTC instants. Current, booked and actual intervals
+retain their original instant; aware offsets and absent optional fields remain
+unchanged. Browser coverage verifies the displayed hour matches the local form
+hour in Europe/Zurich. Eleven focused backend serialization/confirmation/move
+tests and ten actual PostgreSQL move/serialization checks pass. No stored
+interval or scheduling rule is rewritten.
+
+Aware appointment inputs are also canonicalized to UTC before persistence. A
+real HTTP/SQLite regression reproduced a +02:00 input being stored without its
+offset and later misidentified; the corrected input preserves the exact instant.
+This follows the existing domain UTC convention for naive stored dates and does
+not reconstruct offsets already lost in historical SQLite records. Final focused
+booking/session/input-offset/checkout bundle: 20 passed. PostgreSQL-enabled
+move/serialization bundle: 11 passed, comprising two actual PostgreSQL move cases
+and nine schema/SQLite timestamp cases.
+
+Final full backend regression after the input/output timestamp corrections and
+bounded Windows sharing-lock cleanup: 329 passed, 69 opt-in PostgreSQL skips.
+The separate PostgreSQL-enabled bundle remains the evidence for real database
+move cases; the skipped local cases are not counted as PostgreSQL validation.
+The first full attempt had 328 assertions passing and one WinError 32 fixture
+cleanup error; only that sharing violation is retried briefly, with persistent
+cleanup failure still raised.

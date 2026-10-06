@@ -83,3 +83,8 @@ changes and recovering an arrival missed while one context is offline. Native
 socket tracking enables deterministic close; the transport and REST remain real.
 Browsers use Europe/Zurich explicitly. This verifies controlled headless reconnect
 recovery, not a physical-tablet or production multi-server outage.
+
+Booking browser coverage explicitly configures a shared treatment-room fixture,
+checks conflict rejection across two qualified employees, then cancellation and
+same-form retry after release. It also checks the displayed local appointment
+hour. No production resource configuration is opened or modified.

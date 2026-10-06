@@ -1,4 +1,5 @@
 import os
+import time
 from collections.abc import Generator
 from tempfile import mkstemp
 
@@ -11,6 +12,19 @@ import app.main as main_module
 from app.database.base import Base
 from app.database.session import get_db
 from app.main import app
+
+
+def _remove_fixture_database(path: str) -> None:
+    # Windows can briefly retain a sharing lock after the engine is disposed.
+    # Retry only that specific condition, and still fail persistent cleanup.
+    for attempt in range(10):
+        try:
+            os.remove(path)
+            return
+        except PermissionError as error:
+            if getattr(error, "winerror", None) != 32 or attempt == 9:
+                raise
+            time.sleep(0.1)
 
 
 @pytest.fixture
@@ -45,4 +59,4 @@ def client() -> Generator[TestClient, None, None]:
         main_module.engine = original_engine
         engine.dispose()
         if os.path.exists(db_path):
-            os.remove(db_path)
+            _remove_fixture_database(db_path)

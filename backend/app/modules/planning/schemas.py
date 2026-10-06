@@ -1,6 +1,7 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from app.shared.time import explicit_utc_instant
 
 
 class StartSession(BaseModel):
@@ -33,7 +34,7 @@ class ServiceSessionRead(BaseModel):
     def explicit_instant(cls, value: datetime | None) -> datetime | None:
         # Domain timestamps are UTC. SQLite drops timezone metadata on read;
         # never let clients interpret those stored instants in their local zone.
-        return value.replace(tzinfo=timezone.utc) if value is not None and value.tzinfo is None else value
+        return explicit_utc_instant(value)
 
 
 class PlanningEmployeeRow(BaseModel):
