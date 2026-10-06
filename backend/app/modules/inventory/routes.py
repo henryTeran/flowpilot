@@ -7,11 +7,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.inventory import service, suppliers
+from app.modules.inventory import service, suppliers, orders
 from app.modules.inventory.models import StockMovement
 from app.modules.inventory.schemas import ItemCreate, ItemRead, MovementCreate, MovementRead
 from app.modules.inventory.schemas import RecipeCreate, RecipeRead
 from app.modules.inventory.schemas import SupplierCreate, SupplierRead
+from app.modules.inventory.order_schemas import OrderCreate, OrderRead, ReceiptCreate, ReceiptRead, OrderProgressRead
 from app.modules.inventory.models import StockRecipe
 from app.modules.inventory import recipes
 
@@ -45,6 +46,43 @@ def supplier_create(institute_id: str, payload: SupplierCreate, user=Depends(man
 @router.get("/suppliers/{supplier_id}", response_model=SupplierRead)
 def supplier_original(institute_id: str, supplier_id: str, user=Depends(operator), db: Session = Depends(get_db)):
     return suppliers.snapshot(suppliers.require_supplier(db, institute_id, supplier_id))
+
+
+@router.get("/orders", response_model=list[OrderRead])
+def order_list(institute_id: str, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0, le=100000),
+               user=Depends(operator), db: Session = Depends(get_db)):
+    return orders.list_orders(db, institute_id, limit, offset)
+
+
+@router.post("/orders", response_model=OrderRead)
+def order_create(institute_id: str, payload: OrderCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return orders.create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/orders/{order_id}", response_model=OrderRead)
+def order_original(institute_id: str, order_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return orders.snapshot(db, orders.require_order(db, institute_id, order_id))
+
+
+@router.get("/orders/{order_id}/progress", response_model=OrderProgressRead)
+def order_progress(institute_id: str, order_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return orders.progress(db, institute_id, order_id)
+
+
+@router.post("/orders/{order_id}/receipts", response_model=ReceiptRead)
+def purchase_receive(institute_id: str, order_id: str, payload: ReceiptCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return orders.receive(db, institute_id, order_id, payload, user["sub"])
+
+
+@router.get("/purchase-receipts/{receipt_id}", response_model=ReceiptRead)
+def purchase_receipt_original(institute_id: str, receipt_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    return orders.receipt_snapshot(db, orders.require_receipt(db, institute_id, receipt_id))
+
+
+@router.get("/orders/{order_id}/receipts", response_model=list[ReceiptRead])
+def purchase_receipt_history(institute_id: str, order_id: str, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0, le=100000),
+                             user=Depends(operator), db: Session = Depends(get_db)):
+    return orders.list_receipts(db, institute_id, order_id, limit, offset)
 
 
 @router.get("/items", response_model=list[ItemRead])

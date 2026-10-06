@@ -1345,8 +1345,10 @@ instant metadata and institute-local cashier hours, verified in foreign-workstat
 Edge cases. Phase 10J captures original appointment invoice provenance and shows
 billing exclusion independently of measured consumption (ADR-012), with no
 historical backfill or automatic zero usage. Phase 10K adds the signed institute
-supplier directory and original creation recovery (ADR-013). Next: purchase
-orders, exact partial receipt movements, reorder and forecasts. No physical
+supplier directory and original creation recovery (ADR-013). Phase 10L adds
+immutable purchase orders and atomic exact partial receipt APIs (ADR-014),
+with original recovery independent of current budgets. Native order/receipt
+authoring and review, reorder and forecasts remain required. No physical
 tablet, production settlement or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce

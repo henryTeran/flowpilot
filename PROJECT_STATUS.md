@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10K_SIGNED_SUPPLIER_DIRECTORY
+CURRENT_CHECKPOINT = PHASE10L_PURCHASE_ORDER_RECEIPT_API
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -108,14 +108,15 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE10: continue institute-scoped purchase orders backed by the signed supplier directory, with explicit article/unit terms, exact partial receipts linked to stock movements and original replay, then bounded reorder/forecast reads from signed stock facts and pinned service norms. Remaining supplier/order/reorder/forecast and physical acceptance gates stay open. Do not infer consumption rules from the example recipe.
+- PHASE10: build native purchase-order and partial-receipt authoring/review using the signed supplier directory and Phase 10L API, with original request recovery and fresh progress/stock verification, then bounded reorder/forecast reads from signed stock facts and pinned service norms. Remaining supplier/order/reorder/forecast and physical acceptance gates stay open. Do not infer consumption rules from the example recipe.
 - Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Inventory foundation is in progress independently of Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current checkpoint: feat(inventory): add signed institute supplier directory.
+- Current checkpoint: feat(inventory): add immutable purchase orders and atomic receipts.
+- f5d0a82 signed institute supplier directory.
 - 14854d6 date-aware planning blocks across midnight.
 - Previous: 18681f4 original appointment invoice provenance.
 - Previous: 4d4e7e1 fix(checkout): preserve absolute queue instants and institute hours.
@@ -208,3 +209,11 @@ PHASE10K_SIGNED_SUPPLIER_DIRECTORY:
 - The first combined run had 21 passed and one test failure: it assumed checkout closed after payment although another unpaid ticket automatically opened. Preserved this existing workflow. The corrected test binds checkout to its actual ticket ID, proves the paid ticket was replaced/closed, then uses native Retour before navigating to consumption. No forced pointer click, altered payment behavior or fixture deletion is used.
 - NEXT: immutable institute-scoped purchase orders referencing supplier and explicit stock articles/units, exact partial receipts linked atomically to stock movements and original replay, then reorder/forecast reads. Full Phase 10, physical tablet and production-provider/accounting gates remain open.
 - A subsequent combined run exposed a real midnight boundary defect: current sessions ending the following day were discarded because the chart compared only clock hours. Their invisible active state then blocked subsequent fixtures. Planning session/appointment blocks now use civil-day offsets, clip at day boundaries, distinguish previous/future days and bound minimum visual widths at the right edge. Three new frontend regressions pass. Browser clocks and institute/provider rules were not altered; broader institute-timezone planning audit remains open.
+
+PHASE10L_PURCHASE_ORDER_RECEIPT_API:
+- Immutable institute-owned order headers/lines pin supplier and article identities, explicit units and exact positive quantities. Same-actor original replay preserves creation terms independently of later deliveries. Creation never changes stock or sends an external supplier message.
+- Signed partial receipts atomically record receipt, positive stock movements and unique entry-to-movement links. All lines validate against order quantities/units and current stock capacity before writing; shared institute locking prevents concurrent over-receipt or over-capacity. Original receipt replay precedes current budgets. Composite foreign keys preserve source/unit/movement ownership.
+- Scoped readonly progress separates received and remaining from current on-hand stock; pending/partial/received states derive from recorded receipts. Bounded order and receipt histories use constant query counts. An institute/order/item receipt-line index supports progress aggregation. API writes are manager-only; reception reads and foreign/missing source reads are scoped.
+- Focused initial order/migration/inventory/supplier bundle: 14 passed with PostgreSQL enabled. Relevant full inventory regression: 41 passed with PostgreSQL enabled, including concurrent order creation/receipts, actual write-failure rollback, capacity/replay boundaries, history guards and migration parity. Final migration/order/ledger checks after the progress index and exact original-ledger assertions: 9 passed with PostgreSQL enabled. ADR-014 documents the foundation.
+- UX: native order creation, receipt measurement, original-request persistence/recovery, original/progress review and stock refresh are not implemented yet. No new frontend or browser/tablet acceptance claim. The latest native frontend evidence remains Phase 10K.
+- NEXT: native order/receipt workflow, then reorder/forecasts from signed facts and pinned service norms. Full Phase 10 and production/physical/provider/accounting gates remain open.

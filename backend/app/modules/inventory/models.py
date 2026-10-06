@@ -48,6 +48,7 @@ class StockItem(Base):
 class StockMovement(Base):
     __tablename__ = "stock_movements"
     __table_args__ = (
+        UniqueConstraint("institute_id", "item_id", "id", name="uq_stock_movement_item_owner"),
         ForeignKeyConstraint(["institute_id", "item_id"], ["stock_items.institute_id", "stock_items.id"], name="fk_stock_movement_owner"),
         UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_movement_replay"),
         CheckConstraint("kind IN ('receipt','adjustment','consumption')", name="ck_stock_movement_kind"),
@@ -67,6 +68,80 @@ class StockMovement(Base):
     actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
     idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class StockPurchaseOrder(Base):
+    __tablename__ = "stock_purchase_orders"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "id", name="uq_stock_order_owner"),
+        UniqueConstraint("institute_id", "reference", name="uq_stock_order_reference"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_order_replay"),
+        ForeignKeyConstraint(["institute_id", "supplier_id"], ["stock_suppliers.institute_id", "stock_suppliers.id"], name="fk_stock_order_supplier_owner"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    supplier_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    supplier_reference: Mapped[str] = mapped_column(String(80), nullable=False)
+    supplier_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    reference: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class StockPurchaseOrderLine(Base):
+    __tablename__ = "stock_purchase_order_lines"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "order_id", "item_id", "unit", name="uq_stock_order_line_owner"),
+        ForeignKeyConstraint(["institute_id", "order_id"], ["stock_purchase_orders.institute_id", "stock_purchase_orders.id"], name="fk_stock_order_line_owner"),
+        ForeignKeyConstraint(["institute_id", "item_id"], ["stock_items.institute_id", "stock_items.id"], name="fk_stock_order_line_item"),
+        CheckConstraint("quantity_milli BETWEEN 1 AND 999999999999999", name="ck_stock_order_line_quantity"),
+        CheckConstraint("unit IN ('ml','g','unit') AND (unit != 'unit' OR quantity_milli % 1000 = 0)", name="ck_stock_order_line_unit"),
+    )
+    order_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    item_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    item_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    item_sku: Mapped[str] = mapped_column(String(80), nullable=False)
+    unit: Mapped[str] = mapped_column(String(10), nullable=False)
+    quantity_milli: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
+class StockPurchaseReceipt(Base):
+    __tablename__ = "stock_purchase_receipts"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "order_id", "id", name="uq_stock_purchase_receipt_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_purchase_receipt_replay"),
+        ForeignKeyConstraint(["institute_id", "order_id"], ["stock_purchase_orders.institute_id", "stock_purchase_orders.id"], name="fk_stock_purchase_receipt_order"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    order_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class StockPurchaseReceiptLine(Base):
+    __tablename__ = "stock_purchase_receipt_lines"
+    __table_args__ = (
+        Index("ix_stock_purchase_receipt_line_order", "institute_id", "order_id", "item_id"),
+        ForeignKeyConstraint(["institute_id", "order_id", "receipt_id"], ["stock_purchase_receipts.institute_id", "stock_purchase_receipts.order_id", "stock_purchase_receipts.id"], name="fk_stock_purchase_receipt_line_owner"),
+        ForeignKeyConstraint(["institute_id", "order_id", "item_id", "unit"], ["stock_purchase_order_lines.institute_id", "stock_purchase_order_lines.order_id", "stock_purchase_order_lines.item_id", "stock_purchase_order_lines.unit"], name="fk_stock_purchase_receipt_order_line"),
+        ForeignKeyConstraint(["institute_id", "item_id", "movement_id"], ["stock_movements.institute_id", "stock_movements.item_id", "stock_movements.id"], name="fk_stock_purchase_receipt_movement"),
+        UniqueConstraint("movement_id", name="uq_stock_purchase_receipt_movement"),
+        CheckConstraint("quantity_milli BETWEEN 1 AND 999999999999999", name="ck_stock_purchase_receipt_quantity"),
+        CheckConstraint("unit IN ('ml','g','unit') AND (unit != 'unit' OR quantity_milli % 1000 = 0)", name="ck_stock_purchase_receipt_unit"),
+    )
+    receipt_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    item_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    order_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    unit: Mapped[str] = mapped_column(String(10), nullable=False)
+    quantity_milli: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    movement_id: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class StockRecipe(Base):
