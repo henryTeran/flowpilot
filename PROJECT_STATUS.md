@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9M_ATOMIC_WEBHOOK_RECEIPTS
+CURRENT_CHECKPOINT = PHASE9N_SCOPED_PROVIDER_CASHFLOW_READ
 STATUS = ACTIVE
 
 GATES:
@@ -9,10 +9,11 @@ GATES:
 - PHASE6 = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; actual browser RECONNECT and TABLET_UX remain open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
-- PHASE9 = IN_PROGRESS: typed provider boundary/correlation, durable scoped requests, current quote checks and authorization execution seals and immutable authorization observations and trusted account-bound dispatch/recovery and capture/cancel execution and immutable outcomes plus atomic captured checkout application and captured-amount refund execution/outcomes and account-bound atomic webhook receipt processing implemented; refund accounting/loyalty policy, real authenticated adapters, public transport and operator workflow pending. All Phase 9 gates remain open.
+- PHASE9 = IN_PROGRESS: internal provider contracts, scoped intents/execution/outcomes, captured checkout, refund budgets and atomic webhook receipts implemented; manager-only cashflow read separates provider accounts/currencies. Real authentication/transport, refund accounting/loyalty policy and operator mutation workflows remain pending. All Phase 9 gates remain open.
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Provider cashflow read: initial snapshot/refund local regression 5 passed / 1 opt-in skip. Currency/account separation checks: 2 passed locally; Linux cashflow/refund budget bundle 5 passed. Final cashflow suite 3 passed with the actual PostgreSQL fact-read case enabled. Scoped manager-only API, exact decimal string serialization, caller precision isolation, applied/unapplied capture distinction, confirmed/failed/unresolved refund handling and historical currency/account separation verified. No schema change.
 - Webhook/provider/refund/migration bundle: 15 passed / 3 opt-in skips locally; PostgreSQL webhook/migration bundle: 7 passed. Final webhook/direct-outcome/captured-checkout regression: 19 passed / 5 opt-in skips locally; enhanced webhook PostgreSQL suite: 5 passed. Invalid test signature, missing/wrong correlation, all four operation routes, atomic receipt failure rollback, changed-event denial, concurrent delivery and nonempty receipt downgrade verified. Owned PostgreSQL upgrade/check passed. Test signature adapter is a simulation, not real provider authentication.
 - Refund execution/budget/migration bundle: 6 passed / 3 opt-in skips locally and 9 passed on PostgreSQL. Final enhanced execution suite: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Terminal no-I/O replay, unknown outcome recovery, failed-write reservation retention, verified-failure budget release, scope/value/reference/status rejection, concurrent duplicate refund and nonempty downgrade verified. Owned PostgreSQL upgrade/check passed. Simulated adapters do not establish real external settlement.
 - Refund budget/parent/checkout regression: 9 passed / 3 opt-in skips locally and 12 passed on PostgreSQL. Final enhanced refund suite: 2 passed / 1 opt-in skip locally and 3 passed on PostgreSQL. Exact partial/remainder reservation, same-key replay at exhausted budget, changed-term denial, applied-capture/account/reference requirements, concurrent overdraw prevention and exclusion of gift-funded value verified. No new schema or refund dispatch at this checkpoint.
@@ -56,15 +57,16 @@ INVARIANTS:
 BLOCKERS:
 - Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
 - Deep load, external settlement and production readiness remain unverified.
-- Currency-separated financial aggregation remains pending; legacy report totals do not establish comparable units. Internal confirmation of a mixed remainder does not prove external card settlement.
+- Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and refund loyalty consequences remain pending. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9N: define immutable refund accounting and explicit loyalty adjustments; integrate real authenticated adapter/transport and operator workflows before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9O: implement explicit refund loyalty-adjustment policy and accounting consequences; integrate real authenticated adapter/transport and operator workflows before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): apply correlated webhook facts and receipts atomically.
+- Current: feat(payments): expose scoped provider cashflows by account and currency.
+- 730c4a6 atomic correlated webhook receipts.
 - 4b813d9 durable refund dispatch and outcomes.
 - d3f1b4a captured-amount refund reservations.
 - ec9f9ee atomic captured checkout application.

@@ -220,3 +220,17 @@ Simulation verifies orchestration and replay across all four operation kinds, no
 actual provider signature validation. Real authenticated adapters, public transport
 configuration, operator workflow and refund accounting/loyalty consequences remain
 open. All Phase 9 gates remain open pending that broader integration verification.
+
+
+A manager-only institute cashflow snapshot now reads confirmed provider facts under
+the institute lock. It reports separate provider/account/currency groups with captured,
+applied, unapplied, confirmed refunded, unresolved refund reservations and confirmed
+net amounts. Exact Decimal arithmetic preserves cents independently of caller context;
+API monetary values are decimal strings. Authorizations, cancellation, failed refunds,
+gift credit and ordinary internal cashier confirmations are not incoming/outgoing
+settlement facts. No cross-unit or cross-account grand total is invented.
+
+This is a provider cashflow view, not service revenue, bank payout reconciliation,
+fees, taxes or a general ledger. Read-only reporting neither reverses performed work
+nor chooses a loyalty refund policy. Actual provider verification and full accounting/
+operator integration remain open. No schema change is required for this snapshot.
