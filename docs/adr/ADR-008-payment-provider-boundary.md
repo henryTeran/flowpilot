@@ -425,3 +425,26 @@ active execution and verifies both immutable requests remain. The component test
 confirms current quote availability with prepared history and its disappearance once
 an unknown protected operation is read. No abandoned reservation or timeout-based
 release is introduced, and payment/production gates remain open.
+
+
+The permanent operator HTTP scenario now traverses the complete declared financial
+chain: explicit earning policy, authorization, capture, confirmed-but-unapplied
+cashflow, checkout application/replay, prepared refund reservation, confirmed refund
+and terminal replay, signed manager loyalty correction/replay/read recovery, ticket
+snapshot and customer balance. The scenario proves 10.35 CHF captured/applied, 5.00
+CHF refunded, 5.35 CHF confirmed net, exactly one capture application and +10/-5 point
+entries. A reserved refund does not reduce confirmed net until confirmed, and a point
+correction does not alter monetary cashflow. Actor/manager and original reference
+requirements remain enforced. The cross-module bundle passes 19 local cases (3
+opt-in skips) and 22 with PostgreSQL enabled; HTTP fixtures remain SQLite while the
+opted-in domain cases use actual PostgreSQL. This is simulated provider integration,
+not browser/tablet verification or bank settlement.
+
+Accounting audit found a remaining production gap in legacy Chiffres:
+`get_chiffres_by_employee` sums paid line totals as floats without separating the
+original ticket currency. Its totals cannot establish comparable monetary units
+when an institute has historical CHF/EUR/unknown tickets. The provider cashflow view
+already separates account/currency, but does not repair that service revenue report.
+The next independent payment checkpoint must make official service totals unit-safe;
+no FX conversion or implicit currency relabeling may be invented. Payment gates and
+production readiness remain open.

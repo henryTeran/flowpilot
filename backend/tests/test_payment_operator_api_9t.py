@@ -155,6 +155,11 @@ def test_unknown_dispatch_scope_original_identity_and_no_io_terminal_replay(flow
 
 def test_capture_application_and_manager_refund_use_server_parent_reference(flow):
     client, institute, ticket, employee, adapter = flow
+    manager = _auth_headers("responsable_institut", institute)
+    policy = client.post(f"/api/v1/loyalty/institutes/{institute}/earning-policies", headers=manager,
+                        json={"currency": "CHF", "points_per_unit": "1", "enabled": True, "reason": "Declared earning policy", "idempotency_key": "earning"})
+    assert policy.status_code == 200
+    cashflows = f"/api/v1/payments/institutes/{institute}/cashflows"
     authorization = prepare(flow).json()["id"]
     assert dispatch(flow, authorization).status_code == 200
     assert prepare(flow, "capture", "wrong-parent", "foreign").status_code == 404
@@ -162,6 +167,8 @@ def test_capture_application_and_manager_refund_use_server_parent_reference(flow
     assert capture.status_code == 200
     capture_id = capture.json()["id"]
     assert dispatch(flow, capture_id).json()["status"] == "captured"
+    captured = client.get(cashflows, headers=manager).json()["accounts"]
+    assert captured == [{"provider": "provider", "account_id": "account", "currency": "CHF", "captured": "10.35", "applied": "0.00", "unapplied": "10.35", "refunded": "0.00", "refund_reserved": "0.00", "net_confirmed": "10.35"}]
     assert prepare(flow, "refund", "refund", capture_id, role="accueil").status_code == 403
     assert prepare(flow, "refund", "refund", capture_id, role="responsable_institut").status_code == 400
     checkout_path = f"/api/v1/payments/institutes/{institute}/intents/{capture_id}/checkout"
@@ -173,12 +180,42 @@ def test_capture_application_and_manager_refund_use_server_parent_reference(flow
     refund = prepare(flow, "refund", "refund", capture_id, amount="5.00", role="responsable_institut")
     assert refund.status_code == 200
     refund_id = refund.json()["id"]
+    reserved = client.get(cashflows, headers=manager).json()["accounts"][0]
+    assert reserved["applied"] == "10.35" and reserved["unapplied"] == "0.00"
+    assert reserved["refund_reserved"] == "5.00" and reserved["refunded"] == "0.00" and reserved["net_confirmed"] == "10.35"
     assert dispatch(flow, refund_id).status_code == 403
     result = dispatch(flow, refund_id, role="responsable_institut")
     assert result.status_code == 200 and result.json()["status"] == "refunded"
     assert dispatch(flow, refund_id, role="responsable_institut").json() == result.json()
     assert [kind for kind, _ in adapter.calls] == ["authorize", "capture", "refund"]
     assert adapter.calls[-1][1].value.amount == Decimal("5.00")
+    confirmed = client.get(cashflows, headers=manager).json()["accounts"][0]
+    assert confirmed["refund_reserved"] == "0.00" and confirmed["refunded"] == "5.00" and confirmed["net_confirmed"] == "5.35"
+    decision_path = f"/api/v1/payments/institutes/{institute}/refunds/{refund_id}/loyalty-decision"
+    correction = {"points": -5, "reason": "Explicit refund loyalty correction", "idempotency_key": "refund-decision"}
+    assert client.post(decision_path, headers=_auth_headers(institute_id=institute), json=correction).status_code == 403
+    decision = client.post(decision_path, headers=manager, json=correction)
+    assert decision.status_code == 200 and decision.json()["actor_id"] == "test-user"
+    assert client.post(decision_path, headers=manager, json=correction).json() == decision.json()
+    assert client.get(decision_path, headers=manager).json() == decision.json()
+    snapshot = client.get(f"/api/v1/payments/institutes/{institute}/tickets/{ticket}/snapshot", headers=manager).json()
+    assert not snapshot["protected"]
+    operations = {row["id"]: row for row in snapshot["operations"]}
+    assert operations[capture_id]["applied"]
+    assert operations[refund_id]["status"] == "refunded" and operations[refund_id]["loyalty_decision"] == decision.json()
+    from app.modules.loyalty.models import LoyaltyEarning, LoyaltyEntry
+    from app.modules.payments.models import CaptureApplication, RefundLoyaltyDecision
+    with Session(main_module.engine) as db:
+        earning = db.get(LoyaltyEarning, ticket)
+        assert earning.points == 10
+        assert len(list(db.scalars(select(CaptureApplication)))) == 1
+        assert len(list(db.scalars(select(RefundLoyaltyDecision)))) == 1
+        entries = list(db.scalars(select(LoyaltyEntry).where(LoyaltyEntry.customer_id == earning.customer_id)))
+        assert sorted(row.points for row in entries) == [-5, 10]
+        customer_id = earning.customer_id
+    balance = client.get(f"/api/v1/loyalty/institutes/{institute}/customers/{customer_id}", headers=manager).json()
+    assert balance["points"] == 5
+    assert client.get(cashflows, headers=manager).json()["accounts"][0] == confirmed
 
 
 def test_cancel_releases_protection_and_request_cannot_inject_provider(flow):

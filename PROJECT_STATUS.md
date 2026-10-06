@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9Y_OBSOLETE_PREPARED_AUTHORIZATION_RECOVERY
+CURRENT_CHECKPOINT = PHASE9Z_PAYMENT_HTTP_INTEGRATION_AUDIT
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Full operator HTTP scenario now verifies declared earning policy, authorization, capture, unapplied/applied cashflow, atomic checkout replay, reserved/confirmed partial refund, signed manager loyalty decision replay/recovery, linked ticket snapshot and final customer balance. 10.35 CHF captured, 5.00 CHF refunded, 5.35 CHF confirmed net; one capture application and exactly +10/-5 point entries. Cross-module bundle: 19 passed, 3 opt-in skips locally; 22 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain cases actual PostgreSQL). Explicit simulated adapter only; no browser or bank settlement claim.
 - Obsolete prepared authorization UI blockage fixed: prepared-only history no longer hides the current server quote/new authorization control. Unknown/pending outcomes or active protection still hide it. A new explicit key may prepare the current quote while preserving the old immutable request. HTTP regression proves old changed-price dispatch is rejected before adapter I/O, current request dispatch succeeds once, old retry cannot acquire a competing execution, and both original histories remain. Frontend regression: 76 passed plus build.
 - Final operator/quote/execution regression: 24 passed, 2 opt-in PostgreSQL skips locally; 26 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in execution cases actual PostgreSQL). Initial Windows SQLite teardown file-lock error was followed by a passing isolated rerun and clean full focused-bundle rerun; no fixture change or suppressed cleanup error.
 - Initial authorization: scoped/configuration-required GET reads exact current amount/currency under the institute lock without creating an intent or provider I/O. Eligible checkout history exposes quote/preparation only after a clean scoped snapshot without protected/unknown/pending operations. Frozen original authorization terms/key survive lost replies; later quote changes do not rewrite a saved request. Frontend: 75 passing tests plus build; final preparation suite after label correction: 7 passed plus build. Backend operator/quote/intent bundle: 21 passed, 1 opt-in skip locally; 22 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain fixture actual PostgreSQL). No schema or real adapter added.
@@ -80,12 +81,13 @@ BLOCKERS:
 - Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9Z: complete end-to-end payment/integration and accounting audit, implement real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PAYMENT_CURRENCY_REPORTS: repair legacy Chiffres unit aggregation (paid line totals currently summed as float without ticket currency), then continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(payments): allow current quotes after obsolete unexecuted authorizations.
+- Current: test(payments): verify HTTP cashflow and refund loyalty integration.
+- 28866e3 obsolete prepared authorization recovery guard.
 - 3b7f955 initial authorization from exact server quote UI.
 - ed308ed child payment preparation UI.
 - 2860784 captured checkout application UI.
