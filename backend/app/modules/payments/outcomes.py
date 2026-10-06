@@ -10,7 +10,7 @@ from app.shared.ids import new_id
 from app.shared.time import utcnow
 
 
-def record_authorization_outcome(db, institute_id, intent_id, provider, account_id, result):
+def record_authorization_outcome(db, institute_id, intent_id, provider, account_id, result, *, commit=True):
     """Called only after the configured adapter authenticates its response.
 
     No public route exposes this method. Caller account must be its trusted binding,
@@ -48,7 +48,7 @@ def record_authorization_outcome(db, institute_id, intent_id, provider, account_
     if result.status is ProviderStatus.FAILED:
         execution.released_at = row.observed_at
     try:
-        db.commit()
+        db.commit() if commit else db.flush()
     except IntegrityError:
         db.rollback()
         raise business_error("Reference prestataire deja enregistree; verifier le resultat")
@@ -57,7 +57,7 @@ def record_authorization_outcome(db, institute_id, intent_id, provider, account_
 
 
 
-def record_parent_outcome(db, institute_id, intent_id, provider, account_id, result):
+def record_parent_outcome(db, institute_id, intent_id, provider, account_id, result, *, commit=True):
     """Trusted adapter result only. Capture stays protected until checkout applies it."""
     from app.modules.payments.models import ParentOperationExecution, ParentOperationOutcome
     lock_institute(db, institute_id)
@@ -83,6 +83,6 @@ def record_parent_outcome(db, institute_id, intent_id, provider, account_id, res
     db.add(row)
     if result.status is ProviderStatus.CANCELLED:
         db.get(PaymentExecution, execution.parent_intent_id).released_at = row.observed_at
-    db.commit()
+    db.commit() if commit else db.flush()
     db.refresh(row)
     return row

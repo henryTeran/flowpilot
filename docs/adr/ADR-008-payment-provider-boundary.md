@@ -198,3 +198,25 @@ loyalty adjustment policy and operator workflow require explicit implementation.
 SQLite/PostgreSQL nonempty history guards refuse downgrade before DDL. Test adapters
 prove recovery/concurrency only; real integration and authenticated webhook handling
 remain open, and no public payment endpoint is introduced.
+
+
+The internal webhook receiver passes raw bytes/headers to the server-selected
+account adapter before opening SQL. VerifiedWebhook now supports an explicit original
+operation key; missing correlation is refused rather than guessing from reference,
+amount or status. The institute/provider/account/key must resolve a stored request.
+Capture, cancellation and refund must also match their stored provider reference.
+Only configured adapters may authenticate and construct these internal events.
+
+Each provider/account/event ID has one immutable semantic receipt (intent, status,
+reference and decimal value). Matching redelivery returns the original result;
+changed semantic content is refused. Outcome writers expose an internal flush-only
+mode so the business fact, any release and receipt commit in one transaction. Receipt
+failure rolls back the outcome/release; concurrent duplicates serialize under the
+institute lock with global account/event uniqueness as an additional guard. Raw bodies
+and secret-bearing headers are neither saved in the receipt nor displayed by repr.
+Nonempty delivery history prevents downgrade before DDL.
+
+Simulation verifies orchestration and replay across all four operation kinds, not
+actual provider signature validation. Real authenticated adapters, public transport
+configuration, operator workflow and refund accounting/loyalty consequences remain
+open. All Phase 9 gates remain open pending that broader integration verification.

@@ -68,7 +68,7 @@ def seal_refund(db, institute_id, intent_id):
     return request
 
 
-def record_refund_outcome(db, institute_id, intent_id, provider, account_id, result):
+def record_refund_outcome(db, institute_id, intent_id, provider, account_id, result, *, commit=True):
     from app.modules.payments.models import RefundExecution, RefundOutcome
     from app.modules.payments.intents import original_request
     from app.modules.payments.provider import OperationKind, validate_result
@@ -96,6 +96,6 @@ def record_refund_outcome(db, institute_id, intent_id, provider, account_id, res
           provider_payment_id=result.provider_payment_id, amount=result.value.amount,
           currency=result.value.currency, observed_at=utcnow())
     db.add(row)
-    db.commit()
+    db.commit() if commit else db.flush()
     db.refresh(row)
     return row

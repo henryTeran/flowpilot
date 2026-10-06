@@ -87,9 +87,12 @@ class VerifiedWebhook:
     """
     event_id: str
     result: ProviderResult
+    operation_key: str | None = None
 
     def __post_init__(self):
         identifier(self.event_id, 240)
+        if self.operation_key is not None:
+            identifier(self.operation_key, 120)
         if not isinstance(self.result, ProviderResult):
             raise ValueError("Typed provider result required")
 

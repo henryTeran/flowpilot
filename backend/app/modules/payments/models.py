@@ -122,3 +122,17 @@ class RefundOutcome(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     currency: Mapped[str] = mapped_column(String(3))
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class WebhookReceipt(Base):
+    __tablename__ = "payment_webhook_receipts"
+    provider: Mapped[str] = mapped_column(String(80), primary_key=True)
+    account_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    event_id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), index=True)
+    intent_id: Mapped[str] = mapped_column(ForeignKey("payment_intents.id"), index=True)
+    status: Mapped[str] = mapped_column(String(20))
+    provider_payment_id: Mapped[str] = mapped_column(String(240))
+    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    currency: Mapped[str] = mapped_column(String(3))
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
