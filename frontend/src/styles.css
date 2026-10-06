@@ -4677,6 +4677,34 @@ body {
 }
 
 /* Pivot 5 - Module Chiffres */
+.bm-payment-cashflows {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #f7f8fb;
+  color: #102147;
+  font-family: Arial, sans-serif;
+}
+.bm-payment-cashflows h3 { margin: 0 0 12px; font-size: 22px; }
+.bm-payment-cashflows > p { line-height: 1.5; color: #51617c; }
+.bm-payment-cashflows > button {
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: #315f9f;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bm-payment-cashflows > button:disabled { opacity: .6; cursor: wait; }
+.bm-payment-cashflows > button:focus-visible { outline: 3px solid #102147; outline-offset: 3px; }
+.bm-cashflow-account { margin-top: 18px; padding: 20px; background: white; border-radius: 18px; overflow-wrap: anywhere; }
+.bm-cashflow-account h4 { margin: 0 0 16px; font-size: 17px; }
+.bm-cashflow-account dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+.bm-cashflow-account dt { color: #51617c; font-size: 14px; }
+.bm-cashflow-account dd { margin: 6px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
 .bm-chiffres-screen {
   min-height: 100%;
   background: #f7f8fb;

@@ -48,3 +48,15 @@ restent des vérifications opérateur.
 in `src` and `tests`, including payment recovery and reporting regressions.
 It runs them through Node with `tsx`, a 60-second per-test timeout and a nonzero
 exit status on failure. No shell wildcard expansion is required on Windows.
+
+Browser regression: `npm run test:browser` builds the frontend, owns a strict-port
+loopback preview at 127.0.0.1:4197, and runs desktop/tablet-landscape projects.
+Windows uses installed Microsoft Edge by default; another supported browser
+channel can be selected with `FLOWPILOT_BROWSER_CHANNEL`. Other platforms use
+Playwright Chromium (install its browser binary first). See the official
+[Playwright browser documentation](https://playwright.dev/docs/browsers) and
+[web-server configuration](https://playwright.dev/docs/test-webserver).
+
+The current cashflow browser cases use controlled API fixtures, not a live payment
+provider or backend. Screenshots/traces are stored in ignored `test-results`;
+physical tablet acceptance and full backend-connected E2E remain separate gates.

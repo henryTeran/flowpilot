@@ -52,14 +52,14 @@ function ScopedCashflows({ instituteId, token }: { instituteId: string; token: s
     } finally { if (current()) setLoading(false); }
   }
   useEffect(() => { mounted.current = true; void load(); return () => { mounted.current = false; sequence.current++; }; }, []);
-  return <section className="bm-payment-history" aria-label="Flux des paiements prestataire">
+  return <section className="bm-payment-history bm-payment-cashflows" aria-label="Flux des paiements prestataire">
     <h3>Flux des paiements prestataire</h3>
     <p>Cumul des opérations enregistrées, par compte et devise. Ces montants ne représentent pas les versements bancaires, frais ou taxes.</p>
     <button type="button" disabled={loading} onClick={() => void load()}>Actualiser les flux</button>
     {loading && <p>Lecture des flux…</p>}
     {error && <p role="alert">{error}</p>}
     {snapshot && !snapshot.accounts.length && <p>Aucun flux prestataire enregistré.</p>}
-    {snapshot?.accounts.map(row => <div key={JSON.stringify([row.provider, row.account_id, row.currency])}>
+    {snapshot?.accounts.map(row => <div className="bm-cashflow-account" key={JSON.stringify([row.provider, row.account_id, row.currency])}>
       <h4>{row.provider} · {row.account_id} · {row.currency}</h4>
       <dl>{amounts.map(key => <div key={key}><dt>{labels[key]}</dt><dd>{display(row[key])} {row.currency}</dd></div>)}</dl>
     </div>)}
