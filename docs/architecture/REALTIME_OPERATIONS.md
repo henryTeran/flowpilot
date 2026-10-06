@@ -95,7 +95,29 @@ released capacity, linked booking checkout and recorded revenue.
 
 LIVE_BOARD and LIVE_RECALCULATION pass at this authenticated HTTP/WebSocket scope.
 Recorded payment means the existing operational payment record; external provider
-settlement is still Phase 9. RECONNECT has protocol recovery plus deterministic
-client lifecycle evidence; actual browser transport recovery and TABLET_UX remain
+settlement is still Phase 9. RECONNECT has protocol recovery, deterministic client lifecycle evidence and
+controlled real-browser offline/native-close recovery. Physical TABLET_UX remains
 open. Phase 7 is therefore not fully closed. Independent Phase 8 work can proceed
 without claiming tablet or production readiness.
+
+
+The backend-connected Edge suite additionally uses two independently authenticated
+pages. Real planning.changed frames precede the observer displaying a new arrival.
+An offline observer has its native socket closed, misses another committed arrival,
+then opens a new real connection and resynchronizes the missing ticket over REST.
+The native constructor is instrumented to retain socket references, without mocking
+handshakes, messages, API responses or session tokens. Desktop and touch-enabled
+tablet-landscape cases pass within eight browser tests. These are controlled
+transport interruptions on disposable single-process SQLite, not a physical tablet
+or live multi-server production outage.
+
+Browsers explicitly use Europe/Zurich. Session response dates now identify the
+UTC instant when SQLite has dropped timezone metadata from domain UTC timestamps;
+aware values and absent real end remain unchanged. This prevents local browser
+interpretation from hiding an active session outside the visible timeline.
+Seventeen focused backend serialization/workflow tests and the combined browser
+suite pass. Stored timestamps, durations and business decisions are not rewritten.
+
+Actual PostgreSQL two-process protocol and timestamp serialization bundle: six
+passed after the response correction. This supplements the browser fixture;
+PostgreSQL-aware instants retain their original instant.

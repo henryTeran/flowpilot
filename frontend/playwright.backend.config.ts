@@ -5,7 +5,7 @@ const python = process.platform === "win32" ? "..\\.venv\\Scripts\\python.exe" :
 export default defineConfig({
   ...common,
   testDir: "./backend-browser-tests",
-  use: { ...common.use, baseURL: "http://127.0.0.1:4199" },
+  use: { ...common.use, baseURL: "http://127.0.0.1:4199", timezoneId: "Europe/Zurich" },
   webServer: [
     { command: `${python} browser-tests/backend_server.py`, url: "http://127.0.0.1:4198/ready", reuseExistingServer: false, timeout: 60000 },
     { command: "npm run build && npm run preview -- --host 127.0.0.1 --port 4199 --strictPort",

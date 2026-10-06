@@ -77,3 +77,9 @@ directory after Playwright finishes, including rejected launches. The backend
 requires the launcher ownership marker and refuses an existing database. Cleanup
 errors fail the command; abrupt termination of the owning launcher itself is not
 a verified cleanup path.
+
+The backend browser suite also verifies two signed pages receiving real WebSocket
+changes and recovering an arrival missed while one context is offline. Native
+socket tracking enables deterministic close; the transport and REST remain real.
+Browsers use Europe/Zurich explicitly. This verifies controlled headless reconnect
+recovery, not a physical-tablet or production multi-server outage.
