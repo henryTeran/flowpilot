@@ -704,6 +704,7 @@ export default function App() {
     const isCurrent = captureOperationalContext();
     if (!selectedInstituteId) return;
 
+    setChiffres(undefined);
     setChiffresLoading(true);
     setError(null);
     try {
@@ -875,6 +876,7 @@ export default function App() {
         {mainView === "chiffres" && (
           <main className="bm-workspace bm-workspace-full">
             <ChiffresPanel
+              instituteId={selectedInstituteId}
               chiffres={chiffres}
               loading={chiffresLoading}
               onRefresh={handleRefreshChiffres}

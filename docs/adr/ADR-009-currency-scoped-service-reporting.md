@@ -50,3 +50,15 @@ JavaScript's safe integer range. Both API serialization and display must preserv
 original paid invoice facts are not rewritten. Prior full-suite evidence remains a
 baseline; final focused report/checkout and live two-process protocol checks cover
 this serialization change.
+
+
+Report presentation now receives the selected institute from App and synchronously
+hides data from a different or empty expected institute, including the interval before
+context-reset effects run. Loading masks cached employee names and monetary values.
+Manual refresh clears the old report before requesting another, so failure cannot
+restore that old cached display. Currency choice is isolated by institute. Loading
+and unavailable reports no longer claim that no money was received. The scope/loading
+case passes within the 80-test frontend suite; final four component cases and build
+also pass after wording/empty-scope guards. Competing manual and operational refresh
+writers still require explicit arbitration in the next integration checkpoint; this
+presentation guard does not claim to solve every asynchronous write ordering.

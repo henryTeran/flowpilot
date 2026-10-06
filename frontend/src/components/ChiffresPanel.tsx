@@ -2,12 +2,19 @@ import { useState } from "react";
 import type { ChiffresSummary } from "../types";
 
 interface ChiffresPanelProps {
+  instituteId?: string;
   chiffres?: ChiffresSummary;
   loading?: boolean;
   onRefresh: () => void | Promise<void>;
 }
 
-export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelProps) {
+export function ChiffresPanel(props: ChiffresPanelProps) {
+  const instituteId = props.instituteId ?? props.chiffres?.institute_id ?? "";
+  const chiffres = !props.loading && props.chiffres?.institute_id === instituteId ? props.chiffres : undefined;
+  return <ScopedChiffresPanel key={instituteId} {...props} chiffres={chiffres} />;
+}
+
+function ScopedChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelProps) {
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const groups = chiffres?.currency_groups || [];
   const group = groups.find(value => value.currency === selectedCurrency) || groups[0];
@@ -48,7 +55,7 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
 
         {rows.length === 0 && (
           <div className="bm-chiffres-empty">
-            Aucun chiffre encaissé aujourd’hui. Les montants apparaîtront après paiement d’un ticket.
+            {loading ? "Lecture des chiffres…" : !chiffres ? "Chiffres non disponibles. Actualisez le rapport." : "Aucun chiffre encaissé aujourd’hui. Les montants apparaîtront après paiement d’un ticket."}
           </div>
         )}
 

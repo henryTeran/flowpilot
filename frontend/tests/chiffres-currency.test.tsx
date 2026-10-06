@@ -42,3 +42,23 @@ test("large monetary text preserves the recorded cents without a Number conversi
     assert.doesNotMatch(document.body.textContent!, /409,94|409,92/);
   } finally { await act(async () => root.unmount()); }
 });
+
+test("loading and wrong-institute data hide prior financial facts; institute changes reset currency", async () => {
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await act(async () => root.render(<ChiffresPanel instituteId="inst" chiffres={report} onRefresh={() => {}} />));
+    const select = document.querySelector<HTMLSelectElement>("select")!;
+    await act(async () => { select.value = "EUR"; select.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+    assert.match(document.body.textContent!, /20,10/);
+    await act(async () => root.render(<ChiffresPanel instituteId="inst" chiffres={report} loading onRefresh={() => {}} />));
+    assert.doesNotMatch(document.body.textContent!, /20,10|10,45|Emma/);
+    await act(async () => root.render(<ChiffresPanel instituteId="" chiffres={report} onRefresh={() => {}} />));
+    assert.doesNotMatch(document.body.textContent!, /20,10|10,45|Emma/);
+    assert.match(document.body.textContent!, /Chiffres non disponibles/);
+    await act(async () => root.render(<ChiffresPanel instituteId="other" chiffres={report} onRefresh={() => {}} />));
+    assert.doesNotMatch(document.body.textContent!, /20,10|10,45|Emma/);
+    await act(async () => root.render(<ChiffresPanel instituteId="other" chiffres={{ ...report, institute_id: "other" }} onRefresh={() => {}} />));
+    assert.equal(document.querySelector<HTMLSelectElement>("select")!.value, "CHF");
+    assert.match(document.body.textContent!, /10,45/);
+  } finally { await act(async () => root.unmount()); }
+});
