@@ -121,3 +121,26 @@ class RecipeRead(BaseModel):
     @field_serializer("created_at")
     def timestamp(self, value):
         return explicit_utc_instant(value)
+
+
+class ServiceBasisEntryRead(BaseModel):
+    id: str
+    ticket_line_id: str | None
+    service_id: str
+    quantity: int
+    state: Literal["enabled", "disabled", "unconfigured"]
+    actor_id: str | None
+    captured_at: datetime
+    recipe: RecipeRead | None
+
+    @field_serializer("captured_at")
+    def timestamp(self, value):
+        return explicit_utc_instant(value)
+
+
+class ServiceBasisRead(BaseModel):
+    institute_id: str
+    source_kind: Literal["sessions", "appointments"]
+    source_id: str
+    captured: bool
+    entries: list[ServiceBasisEntryRead]

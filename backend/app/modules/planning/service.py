@@ -277,7 +277,7 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
     )
 
 
-def start_service_session(db: Session, ticket_id: str, employee_id: str, service_id: str | None = None) -> ServiceSession:
+def start_service_session(db: Session, ticket_id: str, employee_id: str, service_id: str | None = None, actor_id: str | None = None) -> ServiceSession:
     """Démarre une séance complète pour un ticket multi-prestations.
 
     Correction métier : la collaboratrice ne démarre pas les prestations une par
@@ -400,6 +400,11 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
     db.add(ticket)
     db.add(employee)
     db.add(session)
+    db.flush()
+    from app.modules.inventory.bases import capture
+    for line in lines:
+        capture(db, ticket.institute_id, line.service_id, line.quantity, now, actor_id,
+                session_id=session.id, ticket_line_id=line.id)
     db.commit()
     db.refresh(session)
     return session

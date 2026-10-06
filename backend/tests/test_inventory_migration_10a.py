@@ -15,7 +15,7 @@ from app.database.base import Base
 from app.modules.dev.routes import init_demo_data
 from app.modules.institutes.models import Institute
 from app.modules.inventory import service, recipes
-from app.modules.inventory.models import StockItem, StockMovement, StockRecipe, StockRecipeLine
+from app.modules.inventory.models import StockItem, StockMovement, StockRecipe, StockRecipeLine, StockServiceBasis
 from app.modules.inventory.schemas import ItemCreate, MovementCreate, RecipeCreate
 from app.modules.services.models import Service
 from app.shared.time import utcnow
@@ -55,6 +55,16 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             recipes.create(db, institute, db.scalar(select(Service.id)), RecipeCreate(
                 base_revision=0, enabled=True, entries=[dict(item_id=row.id, quantity="1.125")],
                 reason="Migration recipe", idempotency_key="migration-recipe"), "manager")
+            from app.modules.tickets.schemas import TicketCreate
+            from app.modules.tickets.service import create_queue_ticket
+            from app.modules.planning.service import start_service_session
+            from app.modules.employees.models import Employee
+            service_id = db.scalar(select(Service.id))
+            employee = db.scalar(select(Employee).where(Employee.institute_id == institute))
+            employee.status = "available"
+            db.commit()
+            ticket = create_queue_ticket(db, TicketCreate(institute_id=institute, service_id=service_id))
+            start_service_session(db, ticket.id, employee.id, actor_id="migration-operator")
             if database == "postgresql":
                 original = db.get(Institute, institute)
                 db.add(Institute(id="other", region_id=original.region_id, name="Other", city="Other", timezone=original.timezone, status="active"))
@@ -72,6 +82,7 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             assert len(list(db.scalars(select(StockMovement)))) == 1
             assert len(list(db.scalars(select(StockRecipe)))) == 1
             assert len(list(db.scalars(select(StockRecipeLine)))) == 1
+            assert len(list(db.scalars(select(StockServiceBasis)))) == 1
             assert service.balance_milli(db, institute, row.id) == 10125
         with engine.connect() as connection:
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

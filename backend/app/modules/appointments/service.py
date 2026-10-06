@@ -386,6 +386,9 @@ def start_appointment(db: Session, appointment_id: str, actor_id: str | None = N
     db.add(appointment)
     db.add(employee)
     record_booking_event(db, appointment, "started", before, actor_id)
+    from app.modules.inventory.bases import capture
+    capture(db, appointment.institute_id, appointment.service_id, 1, now, actor_id,
+            appointment_id=appointment.id)
     db.commit()
     db.refresh(appointment)
     return appointment

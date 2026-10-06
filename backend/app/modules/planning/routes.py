@@ -71,7 +71,7 @@ def post_start_session(
     db: Session = Depends(get_db),
 ) -> ServiceSessionRead:
     _require_ticket_scope(payload.ticket_id, current_user, db)
-    return start_service_session(db, payload.ticket_id, payload.employee_id, payload.service_id)
+    return start_service_session(db, payload.ticket_id, payload.employee_id, payload.service_id, actor_id=current_user.get("sub"))
 
 
 @router.patch("/sessions/{session_id}/finish", response_model=ServiceSessionRead)

@@ -1,3 +1,6 @@
+from typing import Literal
+from app.modules.inventory import bases
+from app.modules.inventory.schemas import ServiceBasisRead
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -87,3 +90,9 @@ def recipe_history(institute_id: str, service_id: str, limit: int = Query(50, ge
     rows = db.scalars(select(StockRecipe).where(StockRecipe.institute_id == institute_id,
         StockRecipe.service_id == service_id).order_by(StockRecipe.revision.desc()).limit(limit).offset(offset)).all()
     return [recipes.snapshot(db, row) for row in rows]
+
+
+@router.get("/executions/{source_kind}/{source_id}/basis", response_model=ServiceBasisRead)
+def execution_basis(institute_id: str, source_kind: Literal["sessions", "appointments"], source_id: str,
+                    user=Depends(operator), db: Session = Depends(get_db)):
+    return bases.read(db, institute_id, source_kind, source_id)

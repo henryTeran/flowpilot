@@ -40,7 +40,16 @@ test("anonymous walk-in proceeds through assignment, extension, finish and recor
   expect((await assignment.json()).assigned_employee_id).toBe("emp-angela");
   const started = page.waitForResponse(response => response.url().endsWith("/planning/sessions/start"));
   await actions.getByRole("button", { name: "Démarrer séance", exact: true }).click();
-  expect((await started).status()).toBe(200);
+  const startReply = await started;
+  expect(startReply.status()).toBe(200);
+  const execution = await startReply.json();
+  const basisPath = `http://127.0.0.1:4198/api/v1/inventory/institutes/demo-institute-geneve/executions/sessions/${execution.id}/basis`;
+  const basisReply = await request.get(basisPath, { headers });
+  expect(basisReply.status()).toBe(200);
+  const basis = await basisReply.json();
+  expect(basis.captured).toBe(true);
+  expect(basis.entries).toHaveLength(ticket.lines.length);
+  expect(basis.entries[0]).toMatchObject({ ticket_line_id: ticket.lines[0].id, service_id: ticket.lines[0].service_id, quantity: 1, actor_id: "browser-manager" });
   await page.locator(".drawer-close-button").click();
   const session = page.locator(".session-block").filter({ hasText: "Aisselles" });
   await expect(session).toBeVisible();
@@ -50,6 +59,7 @@ test("anonymous walk-in proceeds through assignment, extension, finish and recor
   const finished = page.waitForResponse(response => response.url().endsWith("/finish"));
   await session.getByRole("button", { name: "Fin + caisse", exact: true }).click();
   expect((await finished).status()).toBe(200);
+  expect(await (await request.get(basisPath, { headers })).json()).toEqual(basis);
   const checkout = page.locator(".bm-checkout-clone");
   await expect(checkout).toBeVisible();
   await checkout.getByRole("button", { name: "esp.", exact: true }).click();

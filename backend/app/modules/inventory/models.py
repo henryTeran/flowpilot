@@ -81,3 +81,29 @@ class StockRecipeLine(Base):
     institute_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     quantity_milli: Mapped[int] = mapped_column(BigInteger, nullable=False)
     unit: Mapped[str] = mapped_column(String(10), nullable=False)
+
+
+class StockServiceBasis(Base):
+    """Original recipe per performed line, captured atomically with actual start."""
+    __tablename__ = "stock_service_bases"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "recipe_id"], ["stock_recipes.institute_id", "stock_recipes.id"], name="fk_stock_basis_recipe_owner"),
+        ForeignKeyConstraint(["institute_id", "session_id"], ["service_sessions.institute_id", "service_sessions.id"], name="fk_stock_basis_session_owner"),
+        ForeignKeyConstraint(["institute_id", "appointment_id"], ["appointments.institute_id", "appointments.id"], name="fk_stock_basis_appointment_owner"),
+        UniqueConstraint("session_id", "ticket_line_id", name="uq_stock_basis_session_line"),
+        UniqueConstraint("appointment_id", name="uq_stock_basis_appointment"),
+        CheckConstraint("(session_id IS NOT NULL AND ticket_line_id IS NOT NULL AND appointment_id IS NULL) OR (session_id IS NULL AND ticket_line_id IS NULL AND appointment_id IS NOT NULL)", name="ck_stock_basis_source"),
+        CheckConstraint("quantity > 0", name="ck_stock_basis_quantity"),
+        CheckConstraint("(state = 'unconfigured' AND recipe_id IS NULL) OR (state IN ('enabled','disabled') AND recipe_id IS NOT NULL)", name="ck_stock_basis_configuration"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)
+    session_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    ticket_line_id: Mapped[str | None] = mapped_column(ForeignKey("ticket_lines.id"), nullable=True)
+    appointment_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    service_id: Mapped[str] = mapped_column(ForeignKey("services.id"), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    recipe_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    state: Mapped[str] = mapped_column(String(20), nullable=False)
+    actor_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

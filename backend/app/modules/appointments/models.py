@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, JSON, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, String, JSON, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -9,7 +9,8 @@ from app.database.base import Base
 class Appointment(Base):
     __tablename__ = "appointments"
     __table_args__ = (UniqueConstraint("institute_id", "idempotency_key", name="uq_appointment_institute_idempotency"),
-                      UniqueConstraint("checkout_ticket_id", name="uq_appointment_checkout_ticket"))
+                      UniqueConstraint("checkout_ticket_id", name="uq_appointment_checkout_ticket"),
+                      Index("uq_appointment_owner", "institute_id", "id", unique=True))
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(120), nullable=True)

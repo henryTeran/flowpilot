@@ -175,3 +175,52 @@ same ID/key, disable appends v2, original v1 remains readable and stock remains
 zero. The final tablet screenshot is visually reviewed. This controlled browser
 evidence does not establish physical tablet acceptance or actual service stock
 consumption; all Phase 10 gates remain open.
+
+
+## Original execution basis
+
+Actual walk-in session start now freezes one basis per ticket line, including the
+original line ID, service, line quantity, recipe ID or explicit unconfigured state,
+starting signed actor and actual start instant. A single representative service
+never replaces the other performed lines. Appointment start captures its own
+service basis with quantity one. Enabled and explicitly disabled versions remain
+distinct from missing configuration. Immutable recipe references retain the exact
+original item quantities/units even after a newer version or disabling revision.
+
+The existing institute lock serializes execution start against recipe writes.
+Basis rows and the operational start commit together. Same-session start replay
+returns the existing session and never captures again. Failed basis persistence
+rolls back the session, ticket, employee and performed-line attribution together.
+Completion does not backfill older sessions or appointments that never captured a
+basis. Later checkout line edits cannot change the captured performed quantity.
+There is no historical reconstruction from current recipes.
+
+GET `/executions/{source_kind}/{source_id}/basis`, beneath the institute inventory
+prefix, returns the source's original bases and recipe snapshots. Source kind is
+restricted to sessions/appointments. The same signed inventory read rules apply,
+and absent/foreign execution IDs return 404 inside an authorized institute. An
+empty legacy result explicitly has `captured=false`; it never claims a configured
+zero quantity. Original timestamps expose their UTC instant. Internal Python
+callers may omit actor identity, which is recorded as null rather than invented.
+
+Migration c62317ae80f5 adds immutable basis rows, source-shape/configuration/positive
+quantity checks and unique source-line identities. Composite recipe/session/
+appointment institute ownership is enforced by foreign keys; unique ownership
+indexes are added to the operational source tables. Downgrade refuses populated
+basis or inventory history before DDL. Validation uses owned disposable schemas
+and does not migrate an existing application database.
+
+This preserves the original basis needed for actual consumption. It does not yet
+record a stock debit or assert that planned quantities were actually used. A
+signed performed-consumption workflow must use these bases, record exact original
+quantities once, check all item balances atomically and expose discrepancies and
+recovery without preventing the recording of physical service completion. The
+SERVICE_CONSUMPTION gate remains open.
+
+Validation: the PostgreSQL-enabled basis/migration/planning bundle passes 14 tests,
+including duplicate start and named foreign-source FK refusal. Final migration
+checks with populated bases pass on SQLite and PostgreSQL. Full backend regression
+passes 342 tests with 74 PostgreSQL opt-ins skipped locally. All 14 real signed
+Edge browser cases pass with build and owned cleanup; native walk-in start captures
+the original basis and finish retains an identical read. No frontend application
+source changes were made; the previous 98-test frontend baseline remains valid.

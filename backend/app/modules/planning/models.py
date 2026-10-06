@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -8,6 +8,7 @@ from app.database.base import Base
 
 class ServiceSession(Base):
     __tablename__ = "service_sessions"
+    __table_args__ = (Index("uq_service_session_owner", "institute_id", "id", unique=True),)
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     ticket_line_id: Mapped[str | None] = mapped_column(ForeignKey("ticket_lines.id"), nullable=True)
