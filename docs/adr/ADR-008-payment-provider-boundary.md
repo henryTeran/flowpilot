@@ -92,3 +92,21 @@ is not capture or settled revenue. No public route accepts these internal facts;
 the configured adapter driver and authentication must precede any production use.
 Nonempty outcome/reference downgrade refuses before DDL. Real adapters, dispatch
 recovery, capture/cancel/refund parent proofs and webhook lifecycle remain pending.
+
+
+The internal authorization dispatcher now selects an explicit institute/provider/
+account binding and owns short-lived SQL sessions. It validates the stored binding,
+seals execution durably, returns any existing terminal fact without network I/O,
+and closes its session before calling the adapter. Recording the authenticated
+adapter result uses a new transaction and the existing outcome validator. Unknown
+transport or persistence failures keep the seal and original request recoverable.
+Pending retries use the original provider key and amount without a fresh quote.
+Concurrent retries require provider-side idempotence; the domain serializes outcome
+writes but deliberately holds no institute lock across external I/O. PostgreSQL
+checks demonstrate the institute row is lockable during the adapter callback.
+
+ProviderBinding is server configuration, not a request schema, and hides its adapter
+from repr. No default/live provider or public payment endpoint is introduced. Test
+adapters establish orchestration and recovery, not authentication or settlement for
+an external account. Capture/cancel/refund proofs, their dispatch and checkout
+application, real adapter integration and webhook replay remain required.
