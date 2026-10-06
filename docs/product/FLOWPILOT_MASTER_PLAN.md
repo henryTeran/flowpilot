@@ -1340,7 +1340,10 @@ visible original norm/deviation and automatic stock refresh. Scoped pending and
 confirmed pagination uses one bounded SQL UNION. Evidence and remaining gates:
 PROJECT_STATUS.md and ADR-010. Phase 10H resolves legitimate checkout corrections
 by retaining original line/basis/consumption facts and excluding signed removals
-from invoice, payment and loyalty totals (ADR-011). Next: institute-scoped suppliers,
+from invoice, payment and loyalty totals (ADR-011). Phase 10I also fixes queue/event
+instant metadata and institute-local cashier hours, verified in foreign-workstation
+Edge cases. Next: immutable appointment invoice provenance and billing exclusion
+context in measured consumption, followed by institute-scoped suppliers,
 purchase orders, exact partial receipt movements, reorder and forecasts. No physical
 tablet, production settlement or complete Phase 10 claim.
 

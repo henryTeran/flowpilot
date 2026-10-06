@@ -77,3 +77,21 @@ completed copies of the same care in the live board. The final correction block 
 readable original actor/care and invoice-versus-stock explanation. Two focused
 cases pass again after the scoped layout refinement, with build and owned cleanup. Legacy queue UTC/institute-local clock display
 remains a separate follow-up audit before physical acceptance.
+
+
+### Phase 10I: cashier instant/display audit
+
+Queue ticket milestones and queue events now serialize explicit instants, restoring
+UTC metadata removed by SQLite while preserving aware instants and nulls. Cashier
+hours use the selected institute zone instead of the workstation default. The zone
+is visible; an invalid zone falls back visibly to UTC, and ambiguous input without
+an offset is unavailable. No stored timestamps or billing terms are rewritten.
+
+Twenty-four PostgreSQL-enabled timestamp/workflow/correction checks and 111 frontend
+tests pass. The final build and all 20 backend-connected Edge cases pass with owned
+cleanup. Native desktop/tablet browsers in America/Los_Angeles still display
+Europe/Zurich cashier hours and retain explicit paid/checkout/event instants. Both
+screenshots are reviewed. Other operational surfaces under foreign workstation
+zones remain to be audited before physical acceptance. Original appointment invoice
+line provenance and visible billing exclusion in consumption review are next;
+current mutable invoice lines cannot prove historical source identity.

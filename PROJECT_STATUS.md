@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10H_RETAINED_INVOICE_CORRECTIONS
+CURRENT_CHECKPOINT = PHASE10I_CASHIER_INSTITUTE_CLOCK
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -115,7 +115,8 @@ NEXT_STEP:
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: fix(checkout): retain signed invoice corrections and execution history.
+- Current: fix(checkout): preserve absolute queue instants and institute hours.
+- 1afeacd retained signed invoice corrections and execution history.
 - cd68645 native measured consumption and original recovery.
 - 7a5a353 signed actual consumption in the exact stock ledger.
 - 5c716cc original recipes pinned at actual execution start.
@@ -176,7 +177,15 @@ PHASE10H_RETAINED_INVOICE_CORRECTIONS:
 - Phase 10 remains in progress; suppliers, orders, reorder and forecasts are next. Invoice correction does not infer zero physical usage or reverse a recorded consumption. Physical tablet, real bank/provider signatures and broader accounting gates remain open.
 
 FOLLOW_UP_INTEGRATION_AUDIT:
-- Cashier screenshot and QueueTicketRead show legacy queue timestamp metadata needs an explicit UTC/institute-local display audit before physical acceptance; stock/session timestamp normalization is already verified. Also surface invoice-removal context in measured-consumption review, including appointment invoice provenance, so a billing exclusion is distinguishable without inferring zero usage. Audit these next, then suppliers/orders and reorder/forecasts. Do not treat the signed correction block's UTC fact as proof of all legacy queue clock displays.
+- Phase 10I resolves queue/event UTC metadata and institute-local cashier hours, including actual foreign-workstation browser evidence. Other operational surfaces remain to be audited under foreign workstation timezones before physical acceptance. Next surface invoice-removal context in measured-consumption review, including immutable appointment invoice provenance, so a billing exclusion is distinguishable without inferring zero usage; then suppliers/orders and reorder/forecasts.
 
 VISUAL_QA_10H:
 - Final correction block reviewed on desktop and tablet-landscape: padded readable heading, retained care, signed actor and explicit invoice-versus-stock explanation. Scoped CSS removes the unrelated active-lines minimum height. Final focused native correction cases pass 2/2 again with production build and owned cleanup after this layout refinement; the preceding full combined suite remains 18/18.
+
+PHASE10I_CASHIER_INSTITUTE_CLOCK:
+- QueueTicketRead now restores explicit UTC metadata for stored naive UTC arrival, estimate, assignment, cancellation, checkout-start and payment instants. QueueEventRead does the same for event occurrence. Aware instants and absent milestones are preserved. No stored data, schema, billing calculation or authorization change.
+- Cashier receives the selected institute timezone and formats arrival/audit hours explicitly with that zone. Invalid/missing zones visibly fall back to UTC; ambiguous or malformed instant strings display unavailable rather than being interpreted in the workstation zone. The drawer labels its zone.
+- PostgreSQL-enabled timestamp/workflow/correction bundle: 24 passed. Includes SQLite HTTP creation/cancellation events, actual PostgreSQL queue/event reads, naive/UTC/non-UTC serialization and unchanged absent milestones. Frontend: 111 passed, including UTC/Los Angeles/Sydney workstation settings, the autumn DST transition, invalid-zone fallback and ambiguous-instant rejection.
+- Final production build and all 20 signed backend Edge cases pass (10 desktop, 10 touch-enabled tablet-landscape), with owned fixture cleanup. Two new cases run native browsers in America/Los_Angeles and verify Europe/Zurich cashier arrival/audit hours, signed cash payment and explicit paid/checkout/event instants. Desktop/tablet screenshots reviewed: zone and arrival hour are readable. All API/socket transports remain real; no injected authentication or altered browser clock.
+- Latest full backend remains the prior 352 passed / 81 opt-in skips; no new full-run claim is made for this readonly serialization change. Current focused checks and combined browser build cover this checkpoint. Physical tablet and production-provider/accounting gates stay open.
+- NEXT: immutable appointment invoice-line provenance and visible billing-exclusion context in consumption work/detail. Do not infer original appointment lines from a mutable current invoice or mark physical usage zero from billing exclusion. Suppliers, orders, reorder and forecasts remain required.

@@ -105,6 +105,11 @@ class QueueTicketRead(BaseModel):
     lines: list[TicketLineRead] = Field(default_factory=list)
     removed_lines: list[TicketLineRead] = Field(default_factory=list)
 
+    @field_serializer("arrival_time", "estimated_start_time", "assigned_at", "cancelled_at", "checkout_started_at", "paid_at")
+    def timestamps(self, value):
+        from app.shared.time import explicit_utc_instant
+        return explicit_utc_instant(value)
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -117,6 +122,11 @@ class QueueEventRead(BaseModel):
     status: str
     employee_id: str | None
     occurred_at: datetime
+
+    @field_serializer("occurred_at")
+    def timestamp(self, value):
+        from app.shared.time import explicit_utc_instant
+        return explicit_utc_instant(value)
 
     model_config = ConfigDict(from_attributes=True)
 

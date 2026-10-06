@@ -9,8 +9,10 @@ import { GiftCardWallet, cents, type GiftTender } from "./GiftCardWallet";
 import { CustomerPicker } from "./CustomerPicker";
 import { apiPatch } from "../api/client";
 import { getAccessToken } from "../api/session";
+import { formatInstituteTime, instituteTimeZone } from "../institute-time";
 
 interface CheckoutPanelProps {
+  timezone?: string;
   onRefresh?: () => Promise<boolean>;
   ticket?: QueueTicket;
   services: Service[];
@@ -33,6 +35,7 @@ const PAYMENT_METHODS: Array<{ value: PaymentMethod; label: string }> = [
 ];
 
 export function CheckoutPanel({
+  timezone,
   ticket,
   services,
   employees,
@@ -47,6 +50,7 @@ export function CheckoutPanel({
   onReidentify,
   onRefresh,
 }: CheckoutPanelProps) {
+  const zone = instituteTimeZone(timezone);
   const accessToken = getAccessToken();
   const [serviceToAdd, setServiceToAdd] = useState("");
   const [printCustomerTicket, setPrintCustomerTicket] = useState(false);
@@ -161,6 +165,8 @@ export function CheckoutPanel({
           </div>
         </header>
 
+        <p className="bm-cash-footer-note">Heures : {zone}</p>
+
         <section className="bm-customer-cash-card">
           <div className="bm-customer-avatar">
             <span>CL</span>
@@ -172,7 +178,7 @@ export function CheckoutPanel({
             <div className="bm-customer-meta-grid">
               <span><strong>Téléphone</strong>{customer && customer.id === ticket.customer_id ? customer.phone || "—" : "—"}</span>
               <span><strong>Segment</strong>{ticket.customer_id ? "Identifiée" : "Passage"}</span>
-              <span><strong>Arrivee</strong>{formatShortTime(ticket.arrival_time)}</span>
+              <span><strong>Arrivee</strong>{formatInstituteTime(ticket.arrival_time, zone)}</span>
               <span><strong>Origine</strong>File institut</span>
               <span><strong>Dossier</strong>{ticket.ticket_number}</span>
             </div>
@@ -299,7 +305,7 @@ export function CheckoutPanel({
         <section className="bm-cash-audit-block">
           <span>Créé par</span>
           <strong>{creator?.first_name || "—"}</strong>
-          <em>{formatShortTime(ticket.arrival_time)}</em>
+          <em>{formatInstituteTime(ticket.arrival_time, zone)}</em>
         </section>
 
         <section className="bm-cash-audit-block">
@@ -374,13 +380,6 @@ function formatTicketStatus(status: string) {
   };
 
   return labels[status] || status;
-}
-
-function formatShortTime(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" });
 }
 
 function formatNumber(value: number) {

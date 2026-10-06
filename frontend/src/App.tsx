@@ -962,6 +962,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
           onClose={() => setActiveDrawer(null)}
         >
           <CheckoutPanel
+            timezone={selectedInstitute?.timezone}
             ticket={selectedCheckoutTicket}
             services={services}
             employees={employees}
