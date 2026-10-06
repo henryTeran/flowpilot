@@ -488,3 +488,14 @@ rejects the entire snapshot; duplicate groups, missing/nondecimal monetary value
 and unsupported currencies are rejected too. A subsequent valid read recovers.
 Four focused tests, including eight invalid-response variants, pass within the
 85-test frontend suite; TypeScript/Vite build passes. Production gates remain open.
+
+
+Browser payment recovery uses a separate explicitly enabled simulator and owned
+temporary database. The simulator records the first authorization and loses its
+reply, then returns the original result on replay. Actual signed browser sessions
+verify unknown protection, reload, original operation/key recovery, capture and
+checkout application in desktop and touch-enabled tablet-landscape Edge. A
+read-only same-cashier checkout-start replay is permitted under the institute lock
+to reach recovery after reload; every mutation retains the execution guard.
+Normal browser fixtures and the production registry remain unconfigured.
+This is not a real bank, signed callback or physical-tablet acceptance proof.

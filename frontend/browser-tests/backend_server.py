@@ -1,5 +1,6 @@
 """Owned loopback browser-test backend; never uses an existing database."""
 import os
+import argparse
 from pathlib import Path
 import secrets
 import sys
@@ -8,6 +9,9 @@ from tempfile import gettempdir
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend"))
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--simulate-payments", action="store_true")
+    options = parser.parse_args()
     directory = Path(os.environ["FLOWPILOT_BROWSER_DIRECTORY"]).resolve()
     if (directory.parent != Path(gettempdir()).resolve()
             or not directory.name.startswith("flowpilot-browser-")
@@ -20,9 +24,10 @@ def main():
         DATABASE_URL="sqlite:///" + database.as_posix(), APP_ENV="test",
         SECRET_KEY=secrets.token_urlsafe(48), APP_DEBUG="false",
         AUTO_CREATE_SCHEMA_ON_STARTUP="false", CORS_ORIGINS="http://127.0.0.1:4199",
-        RATE_LIMIT_AUTH_MAX_REQUESTS="20",
+        RATE_LIMIT_AUTH_MAX_REQUESTS="20", PYTHONDONTWRITEBYTECODE="1",
     )
-    from app.main import app
+    sys.dont_write_bytecode = True
+    from app.main import app, create_app
     from app.database.base import Base
     from app.database.session import engine
     from app.core.security import hash_password
@@ -45,6 +50,11 @@ def main():
                         password_hash=hash_password("Browser-test-only-2026"),
                         role=role, institute_id=DEMO_INSTITUTE_ID, status="active"))
         db.commit()
+    if options.simulate_payments:
+        from payment_simulator import PaymentSimulator
+        from app.modules.payments.dispatch import ProviderBinding
+        app = create_app(payment_bindings=[ProviderBinding(DEMO_INSTITUTE_ID,
+            "browser-simulator", "browser-test-account", PaymentSimulator())])
     try:
         uvicorn.run(app, host="127.0.0.1", port=4198, log_level="warning")
     finally:

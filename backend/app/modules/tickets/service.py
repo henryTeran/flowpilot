@@ -470,9 +470,12 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
     Règle produit : la personne qui a créé le ticket n'est pas forcément celle
     qui encaisse. L'encaissement doit donc enregistrer une nouvelle identité.
     """
-    ticket = lock_ticket(db, ticket_id)
+    ticket = get_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
+
+    lock_institute(db, ticket.institute_id)
+    db.refresh(ticket)
 
     employee = get_employee(db, employee_id)
     if not employee:
@@ -488,6 +491,10 @@ def start_checkout(db: Session, ticket_id: str, employee_id: str) -> QueueTicket
 
     if ticket.status == "in_checkout" and ticket.checkout_employee_id == employee.id:
         return ticket
+    # Reopening the same cashier is a read-only replay, including during recovery.
+    # Every actual checkout mutation still requires an unprotected ticket.
+    from app.modules.payments.executions import require_no_payment_execution
+    require_no_payment_execution(db, ticket)
     transition_ticket(db, ticket, "in_checkout", "queue.checkout_started", employee.id)
     ticket.checkout_employee_id = employee.id
     ticket.checkout_started_at = ticket.checkout_started_at or utcnow()

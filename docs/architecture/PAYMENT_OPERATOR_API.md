@@ -63,3 +63,20 @@ authentication simulation, duplicate receipts and body limits. These tests use a
 explicit fake adapter. Separate PostgreSQL domain tests exercise the underlying
 transactions and concurrency. Real provider transport, end-to-end recovery auditing and
 browser/tablet settlement verification are still required before payment gates close.
+
+
+## Checkout recovery after reload
+
+A signed, institute-scoped checkout-start replay by the already recorded cashier
+may reopen an existing `in_checkout` ticket while a payment execution protects it.
+The institute lock is acquired and the ticket refreshed first. This replay changes
+no checkout metadata, event, amount or execution seal. A different cashier is
+refused; starting a new checkout and every actual mutation still require an
+unprotected ticket. This lets the operator reach the original durable recovery
+action after reloading the browser without releasing an uncertain authorization.
+
+`npm run test:browser:payments` uses a separate owned temporary database and an
+explicit browser-only simulator flag. It loses the first authorization reply
+after recording the simulated result, then returns that same result for the same
+request. The normal browser suite and production registry remain unconfigured.
+The simulator does not verify webhook signatures or prove bank settlement.

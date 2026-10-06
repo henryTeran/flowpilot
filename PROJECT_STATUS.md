@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AO_BOOKING_BROWSER_RESOURCE_CONFLICTS
+CURRENT_CHECKPOINT = PHASE9AP_BROWSER_PAYMENT_RECOVERY
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -9,6 +9,8 @@ RECOVERY_READ:
 - Full backend regression: 305 passed, 66 opt-in PostgreSQL skips. Payment history component compatibility checks: 2 passed; no frontend source change.
 
 GATES:
+- Backend-connected Edge payment simulator: desktop and touch-enabled tablet-landscape both pass real signed login, UI authorization preparation, lost first dispatch reply (503), durable unknown/protection, reload, same original operation/key recovery, full capture, cashier application and exact incremental account cashflow. A real-time-superseded preparation refresh may retain the saved request; the scenario follows the explicit original-request replay without creating duplicate operations. Separate simulator launcher uses an owned temporary database and cleanup; the normal unconfigured-provider backend suite remains 10/10 passing. No bank or webhook-signature verification is implied.
+- Recovery bug fixed: same-cashier checkout-start replay acquires the institute lock and refreshes the ticket, then returns the existing checkout without changing timestamps, amounts, events or payment protection. Different cashiers and all actual checkout mutations remain refused during uncertain execution. Final full backend regression: 331 passed, 69 opt-in PostgreSQL skips; existing Starlette/httpx deprecation warning only. Focused checkout/workflow checks: 15 passed. Execution/recovery bundle: 7 passed with PostgreSQL opt-ins enabled (actual PostgreSQL execution case plus SQLite HTTP fixtures). Frontend: 85 passed; simulator browser configuration builds the production frontend.
 - Historical Phase 0-3 closures preserved.
 - Phase 4 functional scope PASS; browser/tablet remains open.
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
@@ -94,12 +96,12 @@ INVARIANTS:
 - Active authorization executions freeze ticket mutations, commercial price changes and new gift funding/reversal; original intent recovery never re-quotes an unknown provider outcome. Pending/authorized outcomes retain the seal; explicit final failure releases it atomically with its immutable fact. Child cancellation releases the parent with its confirmed fact; captured funds remain protected until checkout application. Failed child requests allow a new operation while keeping history. No timeout-based release or external settlement is inferred.
 
 BLOCKERS:
-- Interactive CUA surfaces and physical tablet acceptance remain unavailable (last inventory apps=[] and browsers=[]). Installed Edge headless is now usable for scoped frontend browser verification; full backend-connected E2E and reconnect checks remain open.
+- Interactive CUA surfaces and physical tablet acceptance remain unavailable (last inventory apps=[] and browsers=[]). Installed Edge headless verifies signed backend walk-in/cash checkout, appointment resource conflicts, reconnect and explicitly simulated payment recovery; physical tablet and production-provider gates remain open.
 - Deep load, external settlement and production readiness remain unverified.
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- Extend backend-connected browser validation to provider outcome recovery using an explicitly isolated test adapter; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
+- Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Continue independent inventory foundation after documenting Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.

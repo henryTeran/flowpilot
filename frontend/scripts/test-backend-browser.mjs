@@ -6,13 +6,15 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+const simulatePayments = process.argv[2] === "--payment-simulator";
+const config = simulatePayments ? "playwright.payments.config.ts" : "playwright.backend.config.ts";
 const temporaryRoot = realpathSync(tmpdir());
 const directory = realpathSync(mkdtempSync(join(temporaryRoot, "flowpilot-browser-")));
 writeFileSync(join(directory, ".flowpilot-browser-owner"), "isolated browser fixture\n");
 let status = 1;
 try {
   const cli = createRequire(import.meta.url).resolve("@playwright/test/cli");
-  const result = spawnSync(process.execPath, [cli, "test", "--config", "playwright.backend.config.ts", ...process.argv.slice(2)], {
+  const result = spawnSync(process.execPath, [cli, "test", "--config", config, ...process.argv.slice(simulatePayments ? 3 : 2)], {
     cwd: root, stdio: "inherit", env: { ...process.env, FLOWPILOT_BROWSER_DIRECTORY: directory },
   });
   if (result.error) throw result.error;

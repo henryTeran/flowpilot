@@ -57,4 +57,5 @@ build/
 coverage/
 frontend/test-results/
 frontend/playwright-report/
+frontend/browser-tests/__pycache__/
 .cache/
