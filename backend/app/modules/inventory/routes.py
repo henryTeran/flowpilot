@@ -6,6 +6,9 @@ from app.database.session import get_db
 from app.modules.inventory import service
 from app.modules.inventory.models import StockMovement
 from app.modules.inventory.schemas import ItemCreate, ItemRead, MovementCreate, MovementRead
+from app.modules.inventory.schemas import RecipeCreate, RecipeRead
+from app.modules.inventory.models import StockRecipe
+from app.modules.inventory import recipes
 
 router = APIRouter(prefix="/inventory/institutes/{institute_id}", tags=["inventory"])
 
@@ -53,3 +56,34 @@ def history(institute_id: str, item_id: str, limit: int = Query(50, ge=1, le=200
 @router.post("/items/{item_id}/movements", response_model=MovementRead)
 def move(institute_id: str, item_id: str, payload: MovementCreate, user=Depends(manager), db: Session = Depends(get_db)):
     return service.move(db, institute_id, item_id, payload, user["sub"])
+
+
+@router.get("/services/{service_id}/recipe", response_model=RecipeRead | None)
+def recipe(institute_id: str, service_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    service.lock_institute(db, institute_id)
+    recipes.require_service(db, service_id)
+    row = recipes.current(db, institute_id, service_id)
+    return recipes.snapshot(db, row) if row else None
+
+
+@router.post("/services/{service_id}/recipes", response_model=RecipeRead)
+def create_recipe(institute_id: str, service_id: str, payload: RecipeCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return recipes.create(db, institute_id, service_id, payload, user["sub"])
+
+
+@router.get("/recipes/{recipe_id}", response_model=RecipeRead)
+def original_recipe(institute_id: str, recipe_id: str, user=Depends(operator), db: Session = Depends(get_db)):
+    row = db.scalar(select(StockRecipe).where(StockRecipe.institute_id == institute_id, StockRecipe.id == recipe_id))
+    if row is None:
+        from app.shared.exceptions import not_found
+        raise not_found("Recette introuvable")
+    return recipes.snapshot(db, row)
+
+
+@router.get("/services/{service_id}/recipes", response_model=list[RecipeRead])
+def recipe_history(institute_id: str, service_id: str, limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0, le=100000),
+                   user=Depends(operator), db: Session = Depends(get_db)):
+    recipes.require_service(db, service_id)
+    rows = db.scalars(select(StockRecipe).where(StockRecipe.institute_id == institute_id,
+        StockRecipe.service_id == service_id).order_by(StockRecipe.revision.desc()).limit(limit).offset(offset)).all()
+    return [recipes.snapshot(db, row) for row in rows]

@@ -14,9 +14,10 @@ from app.core.config import settings
 from app.database.base import Base
 from app.modules.dev.routes import init_demo_data
 from app.modules.institutes.models import Institute
-from app.modules.inventory import service
-from app.modules.inventory.models import StockItem, StockMovement
-from app.modules.inventory.schemas import ItemCreate, MovementCreate
+from app.modules.inventory import service, recipes
+from app.modules.inventory.models import StockItem, StockMovement, StockRecipe, StockRecipeLine
+from app.modules.inventory.schemas import ItemCreate, MovementCreate, RecipeCreate
+from app.modules.services.models import Service
 from app.shared.time import utcnow
 from test_inventory_10a import item, movement
 
@@ -51,6 +52,9 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
             institute = db.scalar(select(Institute.id))
             row = service.create_item(db, institute, ItemCreate(**item()), "manager")
             service.move(db, institute, row.id, MovementCreate(**movement()), "manager")
+            recipes.create(db, institute, db.scalar(select(Service.id)), RecipeCreate(
+                base_revision=0, enabled=True, entries=[dict(item_id=row.id, quantity="1.125")],
+                reason="Migration recipe", idempotency_key="migration-recipe"), "manager")
             if database == "postgresql":
                 original = db.get(Institute, institute)
                 db.add(Institute(id="other", region_id=original.region_id, name="Other", city="Other", timezone=original.timezone, status="active"))
@@ -66,7 +70,11 @@ def test_inventory_migration_empty_roundtrip_and_populated_refusal(tmp_path, mon
         with Session(engine) as db:
             assert len(list(db.scalars(select(StockItem)))) == 1
             assert len(list(db.scalars(select(StockMovement)))) == 1
+            assert len(list(db.scalars(select(StockRecipe)))) == 1
+            assert len(list(db.scalars(select(StockRecipeLine)))) == 1
             assert service.balance_milli(db, institute, row.id) == 10125
+        with engine.connect() as connection:
+            assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
     finally:
         engine.dispose()
         if admin:

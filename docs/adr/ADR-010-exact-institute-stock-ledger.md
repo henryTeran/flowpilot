@@ -63,8 +63,8 @@ actor or initial balance in the request body. Unknown fields are refused.
 
 ## Remaining work
 
-This foundation is not full inventory acceptance. Versioned service
-recipes and consumption facts, supplier/order workflows, explicit receiving links,
+This foundation is not full inventory acceptance. Native recipe authoring and version-pinned
+consumption facts, supplier/order workflows, explicit receiving links,
 reorder decisions and demand forecasts remain to be implemented and verified.
 Threshold indication alone is not an automatic purchase order or forecast. No
 example HydraFacial recipe is installed as a business default. Consumption and
@@ -103,3 +103,45 @@ tablet-landscape pass; the native screenshot has been visually reviewed. This is
 disposable SQLite browser evidence, not physical-tablet, PostgreSQL UI load or full
 inventory acceptance. Service consumption, supplier/order and reorder/forecast
 workflows are still required before closing Phase 10 gates.
+
+
+## Immutable service recipes
+
+Recipe headers and lines snapshot exact per-service article quantities in their
+original units. Manager writes require an explicit enabled flag, reason, original
+key and the latest base revision. Enabled recipes contain 1?50 unique positive
+article quantities; a disabled revision contains an empty list. Every article
+belongs to the signed institute and whole-unit quantities remain integral. Units
+come from the article, never from the request. No conversions or example recipes
+are installed as business defaults.
+
+Versions are append-only. Concurrent writes serialize on the institute and only
+one new key can advance a given base revision. Identical replay returns the saved
+original snapshot before current-version or service-status validation; changed
+service, base, actor or terms is refused. Entry order does not change the identity
+of the per-service quantity set. Header and lines commit atomically, with composite
+foreign keys for both recipe and article ownership.
+
+Under the existing inventory institute prefix, GET `/services/{service_id}/recipe`
+returns the current immutable version or null for absent configuration; POST
+`/services/{service_id}/recipes` appends a signed version. GET `/recipes/{recipe_id}`
+recovers an original version. GET `/services/{service_id}/recipes` returns bounded,
+paginated revision history. A disabled version is distinct from absent configuration.
+Inactive services cannot receive a newly enabled version, while immutable original
+recovery remains available.
+
+Migration b512069d7ef4 creates the recipe tables. Populated catalogue or recipe
+history refuses downgrade before any DDL. This deliberately includes existing
+catalogue-only deployments: SQLite does not reliably roll back dropped empty
+recipe tables if a lower migration then refuses to drop signed catalogue history.
+Empty downgrade/re-upgrade remains supported; metadata parity is tested after a
+refused populated downgrade on both SQLite and PostgreSQL. Existing application
+databases are not migrated by the validation workflow.
+
+These are approved consumption norms, not performed-session consumption facts.
+No stock is debited by recipe configuration. Native recipe authoring and a
+version-pinned session-consumption workflow remain required. A later recipe change
+must never rewrite the basis or quantity of an already started/recorded service,
+and historical sessions must not be silently assigned the newest recipe. Inventory
+acceptance remains incomplete until actual correlated consumption, stock integrity
+and recovery are demonstrated end to end.
