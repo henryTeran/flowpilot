@@ -36,3 +36,9 @@
 .bm-stock-orders table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 18px 0; }
 .bm-stock-orders th, .bm-stock-orders td { padding: 10px; text-align: left; border-bottom: 1px solid #d7e1e3; overflow-wrap: anywhere; }
 .bm-stock-orders article { border-top: 1px solid #d7e1e3; padding-top: 12px; }
+.bm-stock-outlook fieldset { display: grid; gap: 18px; min-width: 0; padding: 0; border: 0; }
+.bm-stock-outlook label { display: grid; gap: 8px; min-width: 0; }
+.bm-stock-outlook input, .bm-stock-outlook select { width: 100%; box-sizing: border-box; }
+.bm-stock-outlook p { overflow-wrap: anywhere; }
+.bm-stock-outlook .bm-stock-card { padding: 16px; border: 1px solid #d7e1e3; border-radius: 12px; }
+.bm-stock-outlook .bm-stock-card p, .bm-stock-outlook .bm-stock-card h3 { margin: 0; }

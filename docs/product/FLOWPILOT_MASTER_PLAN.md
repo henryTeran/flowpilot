@@ -1352,8 +1352,9 @@ order/partial-receipt authoring, original request recovery, explicit measured
 quantities and fresh progress/stock verification. Reorder and forecasts remain
 required. Phase 10N adds exact scoped outlook and explicit service-volume scenario
 read APIs using selected original norms, with partial coverage and conditional
-incoming quantities (ADR-015). Native forecast review and scheduled/observed
-demand integration remain required. No physical tablet, production settlement
+incoming quantities (ADR-015). Phase 10O adds native bounded outlook, explicit
+original-version scenario review and institute civil-date conversion with
+partial coverage. Scheduled/observed demand integration remains required. No physical tablet, production settlement
 or complete Phase 10 claim.
 
 # 32. Phase 11 — Workforce

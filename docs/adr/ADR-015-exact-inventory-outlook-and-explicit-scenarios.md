@@ -1,7 +1,7 @@
 # ADR-015 — Exact inventory outlook and explicit service-volume scenarios
 
-Status: accepted for the Phase 10N read API foundation. Native authoring/review,
-scheduled-demand integration, observed-usage projections and complete inventory
+Status: accepted for the Phase 10N read API and Phase 10O native scenario review.
+Scheduled-demand integration, observed-usage projections and complete inventory
 forecast/reorder acceptance remain open. This does not close Phase 24 forecasting.
 
 Stock thresholds are recorded minima, not target purchase quantities or supplier
@@ -54,3 +54,18 @@ No schema or existing application database migration is required. Forecast UI
 must label scenario volumes, original norm versions, partial coverage and the
 conditional order figure clearly. Scheduled-demand and observed-usage sources
 will require their own explicit time/coverage contracts before broader closure.
+
+The native view opens bounded catalogue pages on demand and separates physical
+shortage from conditional incoming quantities. Scenario date inputs belong to
+the institute's named timezone; civil-date resolution roundtrips reject skipped
+or ambiguous midnight instead of guessing the workstation's offset. Explicit
+volumes and paginated original norm selection require no stock mutation lease.
+Norm-read failures can be refreshed without changing the service selection.
+
+Original norm GETs are checked before forecast reads; response versions, states
+and quantities must match those saved selections. Exact known quantities are
+also compared against selected original recipe lines, not merely against the
+response's own arithmetic. Input changes and stock invalidation hide old facts.
+Late previous-scope/token/date-context replies cannot publish current results.
+These ephemeral read scenarios do not create durable business requests or
+prove automatic demand prediction/physical inventory acceptance.
