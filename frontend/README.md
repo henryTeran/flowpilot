@@ -43,3 +43,8 @@ npm run build
 Les tests de composants utilisent un DOM simulé. Le chronométrage terrain
 (objectif de moins de 15 secondes) et la validation visuelle sur tablette
 restent des vérifications opérateur.
+
+`npm test` discovers all `.test.js`, `.test.ts` and `.test.tsx` files recursively
+in `src` and `tests`, including payment recovery and reporting regressions.
+It runs them through Node with `tsx`, a 60-second per-test timeout and a nonzero
+exit status on failure. No shell wildcard expansion is required on Windows.

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "tsc && vite build",
-    "test": "node --import tsx --test src/queue-utils.test.js src/checkout-utils.test.js tests/flow-workflow.test.tsx tests/planning-connection.test.ts",
+    "test": "node scripts/test.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 4173"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9AG_CASHFLOW_CONSISTENCY_VALIDATION
+CURRENT_CHECKPOINT = PHASE9AH_COMPLETE_FRONTEND_TEST_COMMAND
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- The documented npm test command now discovers all .test.js/.test.ts/.test.tsx files recursively in src and tests, rather than silently omitting payment/reporting regression files. The runner invokes the current Node executable with tsx and a 60-second per-test timeout, forwards output, and propagates failure status. Canonical npm test passes all 85 cases. No application/backend change; previous application build remains the latest build evidence.
 - Cashflow UI now rejects inconsistent recorded ledger relationships using exact BigInt cents: captured equals applied plus unapplied; captured equals refunded plus confirmed net; refunded plus reservations cannot exceed applied captures. No replacement monetary truth is calculated or displayed. Malformed values, unsupported currency, duplicate groups and missing amounts also hide the whole snapshot; a later valid read recovers normally. Four focused cases (including eight invalid-response variants) pass within all 85 frontend tests; TypeScript/Vite build passes. Backend and production gates are unchanged.
 - Pilotage now includes a manager-only read of persisted provider cashflows, separately labelled by provider/account/currency. Captured, applied, unapplied, confirmed refunded, reserved and net confirmed amounts are displayed as original decimal strings without Number conversion. The view explicitly identifies cumulative records rather than daily revenue or bank payouts. Empty institute/nonmanager presentation makes no request; API permissions remain authoritative. Refresh clears cached facts, rejects mismatched institute/invalid groups, and ignores disposed or old-token replies. Three focused component cases pass within 84 frontend tests; TypeScript/Vite build passes. Actual browser/tablet and real provider remain open.
 - Actual PostgreSQL cashflow concurrency coverage observes pg_stat_activity Lock waits while a terminal refund outcome is uncommitted. The reader resumes only after commit, showing confirmed refund debit or failed-refund reservation release with exact net amounts. Original-result replay leaves the report unchanged. Both terminal paths and the full cashflow file pass (5 tests); the broader cashflow/webhook/refund-budget/refund-execution bundle passes all 18 tests with PostgreSQL enabled. No production adapter, schema or business rule change.
