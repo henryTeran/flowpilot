@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
+import { CapturedCheckout } from "./CapturedCheckout";
 import { PaymentRecovery } from "./PaymentRecovery";
 import { RefundLoyaltyDecision } from "./RefundLoyaltyDecision";
 import { getAccessToken } from "../api/session";
@@ -31,12 +32,12 @@ function valid(value: Snapshot, ticketId: string) {
   return value.protected === value.operations.some(row => row.active_protection);
 }
 
-type Props = { instituteId: string; ticketId: string; onRefresh?: () => Promise<boolean> };
-export function PaymentHistory({ instituteId, ticketId, onRefresh }: Props) {
+type Props = { instituteId: string; ticketId: string; employeeId?: string; method?: string; onRefresh?: () => Promise<boolean> };
+export function PaymentHistory({ instituteId, ticketId, employeeId, method, onRefresh }: Props) {
   const token = getAccessToken();
-  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} onRefresh={onRefresh} />;
+  return <ScopedPaymentHistory key={JSON.stringify([instituteId, ticketId, token])} instituteId={instituteId} ticketId={ticketId} token={token} employeeId={employeeId} method={method} onRefresh={onRefresh} />;
 }
-function ScopedPaymentHistory({ instituteId, ticketId, token, onRefresh }: Props & { token: string | null }) {
+function ScopedPaymentHistory({ instituteId, ticketId, token, employeeId, method, onRefresh }: Props & { token: string | null }) {
   const [snapshot, setSnapshot] = useState<Snapshot>();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(true);
@@ -64,6 +65,7 @@ function ScopedPaymentHistory({ instituteId, ticketId, token, onRefresh }: Props
     {snapshot?.operations.map(row => <div key={row.id}>
       <p>{kinds[row.kind]} · {row.amount.replace(".", ",")} {row.currency} · {statuses[row.status]}{row.applied ? " · Appliqué en caisse" : ""}</p>
       {row.loyalty_decision && <p>Fidélité : {row.loyalty_decision.points === 0 ? "points conservés" : `${row.loyalty_decision.points} points`} · {row.loyalty_decision.reason}</p>}
+      {onRefresh && <CapturedCheckout instituteId={instituteId} ticketId={ticketId} operation={row} employeeId={employeeId} method={method} onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && <PaymentRecovery instituteId={instituteId} ticketId={ticketId} operation={row} onRefresh={onRefresh} onRecorded={() => void load()} />}
       {onRefresh && row.kind === "refund" && row.status === "refunded" && !row.loyalty_decision && <RefundLoyaltyDecision instituteId={instituteId} ticketId={ticketId} refundId={row.id} onRefresh={onRefresh} onRecorded={() => void load()} />}
     </div>)}

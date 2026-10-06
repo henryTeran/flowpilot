@@ -364,3 +364,18 @@ Server transaction guards remain authoritative. Three new component cases pass i
 the 65-test frontend suite, and the production build passes. Initial operation
 preparation/captured checkout controls and actual browser/tablet verification remain
 open, as does real provider transport.
+
+
+Confirmed unapplied captures can now be applied from checkout history by the original
+signed operator, using an explicit cashier employee and supported payment method.
+The control stores those immutable application terms under institute/ticket/capture/
+actor before POST. An unknown response never changes them; remount recovery retains
+the original employee/method even if the current selections differ. It checks the
+paid response and a freshly scoped snapshot containing the exact actor/value/currency
+and applied capture before full application refresh and clearing its saved terms.
+Failure or an old-session response cannot clear recovery or confirm the current UI.
+The backend still owns the atomic capture/closure/gift/earning transaction. This is
+application of an existing captured fact, not another provider charge. Three new
+component tests pass in the 68-test frontend suite with a production build. Initial
+operation preparation, real provider integration and browser/tablet checks remain
+open; no payment or production gate is closed by these component checks.

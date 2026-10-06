@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9U_OPERATOR_PAYMENT_RECOVERY_UI
+CURRENT_CHECKPOINT = PHASE9V_CAPTURED_CHECKOUT_UI
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,7 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Captured checkout UI: 3 new focused cases within 68 passing frontend tests; production build passed. Only original actors may apply a confirmed unapplied capture with explicit cashier/method. Original closure terms are saved before POST and replayed across remount despite changed selections. Paid response and matching applied capture snapshot are required before full data refresh/intent clearing. Lost replies, unapplied facts, failed refresh and late-session isolation verified. No new capture/provider dispatch is inferred.
 - Checkout payment recovery UI: 3 new focused cases within 65 passing frontend tests; production build passed. Prepared/unknown/pending operation recovery uses the durable original ID and no request body/new intent. Response and scoped stored fact must match original kind/value/currency/actor before application refresh. Original-actor and refund-manager presentation guards, lost response retry, wrong snapshot scope and late-session isolation verified. Initial authorization/child preparation and captured checkout controls remain to implement; no live provider or browser/tablet verification claimed.
 - Adapter HTTP exceptions are now normalized inside the provider-call boundary, separately from FlowPilot preflight/domain HTTP errors. They retain unknown execution/refund reservations and return generic recovery responses, never a false definitive rejection. Webhook adapter HTTP exceptions cannot acknowledge or write a receipt. Five new cases verify all four operations and callback recovery, including exclusion of private provider details/headers.
 - Final HTTP-error/dispatch/refund/webhook regression: 24 passed, 4 opt-in PostgreSQL skips locally; 28 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain cases actual PostgreSQL). Prior full backend baseline: 310 passed, 66 opt-in skips; no new full-suite claim for this focused correction.
@@ -39,7 +40,7 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 65 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 68 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
@@ -75,12 +76,13 @@ BLOCKERS:
 - Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE9V: implement initial authorization, capture/cancel/refund preparation and captured checkout UI, plus real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PHASE9W: implement initial authorization and capture/cancel/refund preparation UI, plus real authenticated adapter/transport; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: feat(payments): recover original payment operations from checkout.
+- Current: feat(payments): apply confirmed captures from checkout.
+- 6aafca1 original payment operation recovery UI.
 - 9cbeae0 adapter HTTP uncertainty and recovery guards.
 - 18e6f13 scoped operator payment orchestration API.
 - 46012b2 signed refund loyalty mutation/recovery UI.
