@@ -20,6 +20,7 @@ def main():
         DATABASE_URL="sqlite:///" + database.as_posix(), APP_ENV="test",
         SECRET_KEY=secrets.token_urlsafe(48), APP_DEBUG="false",
         AUTO_CREATE_SCHEMA_ON_STARTUP="false", CORS_ORIGINS="http://127.0.0.1:4199",
+        RATE_LIMIT_AUTH_MAX_REQUESTS="20",
     )
     from app.main import app
     from app.database.base import Base
