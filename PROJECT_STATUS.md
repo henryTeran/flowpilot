@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 9
-CURRENT_CHECKPOINT = PHASE9Z_PAYMENT_HTTP_INTEGRATION_AUDIT
+CURRENT_CHECKPOINT = PHASE9AA_CURRENCY_SCOPED_CHIFFRES
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -19,6 +19,9 @@ GATES:
 - PRODUCTION_READY = NOT_VERIFIED.
 
 EVIDENCE:
+- Chiffres now groups original paid-ticket currency, uses Decimal accumulation under precision 28, shares one source ticket set/period, and returns null legacy monetary totals for mixed/unknown units. Unknown historical tickets are counted without monetary aggregation. UI selects labelled CHF/EUR groups and hides unlabelled totals. Focused report/checkout tests: 10 passed, 1 opt-in skip locally; report suite: 3 passed with actual PostgreSQL enabled. Frontend: 78 passed and build passed. ADR-009 records contract/nullability and scope.
+- Full backend regression after report contract change: 319 passed, 67 opt-in skips. Final report component checks after initial-loading wording guard: 2 passed and build passed. No migration or production/tablet claim.
+- Final two-process PostgreSQL HTTP/WebSocket protocol: 2 passed after explicit institute/invoice currency setup. Currency confirmation is a REST commercial mutation, not a planning-event notification; the fixture preserves actual planning event assertions. Actual browser/tablet verification remains open.
 - Full operator HTTP scenario now verifies declared earning policy, authorization, capture, unapplied/applied cashflow, atomic checkout replay, reserved/confirmed partial refund, signed manager loyalty decision replay/recovery, linked ticket snapshot and final customer balance. 10.35 CHF captured, 5.00 CHF refunded, 5.35 CHF confirmed net; one capture application and exactly +10/-5 point entries. Cross-module bundle: 19 passed, 3 opt-in skips locally; 22 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in domain cases actual PostgreSQL). Explicit simulated adapter only; no browser or bank settlement claim.
 - Obsolete prepared authorization UI blockage fixed: prepared-only history no longer hides the current server quote/new authorization control. Unknown/pending outcomes or active protection still hide it. A new explicit key may prepare the current quote while preserving the old immutable request. HTTP regression proves old changed-price dispatch is rejected before adapter I/O, current request dispatch succeeds once, old retry cannot acquire a competing execution, and both original histories remain. Frontend regression: 76 passed plus build.
 - Final operator/quote/execution regression: 24 passed, 2 opt-in PostgreSQL skips locally; 26 passed with PostgreSQL enabled (HTTP fixtures SQLite, opted-in execution cases actual PostgreSQL). Initial Windows SQLite teardown file-lock error was followed by a passing isolated rerun and clean full focused-bundle rerun; no fixture change or suppressed cleanup error.
@@ -45,11 +48,11 @@ EVIDENCE:
 - Authorization outcomes/provider/seal/quote/migration local bundle: 22 passed, 4 opt-in skips. PostgreSQL outcomes/migration bundle: 6 passed. Final outcomes suite including the added prior-execution check: 4 passed / 1 opt-in skip locally and 5 passed on PostgreSQL. Owned PostgreSQL upgrade/check passed. Scope/reference/value mismatches, duplicate terminal observations, terminal conflicts and failed-write rollback covered.
 - Authorization execution seals: final focused local checks 3 passed / 2 opt-in cases skipped; final PostgreSQL seal/intent bundle 7 passed. Competing authorizations and price mutation/seal races verified. Migration bundle 6 passed, including SQLite/PostgreSQL round-trip/model parity and nonempty execution guards; owned PostgreSQL upgrade/check passed.
 - Authorization quote/provider/intent checks: 16 passed, 1 opt-in case skipped locally; PostgreSQL quote/intent bundle: 11 passed. Gift remainder, quote drift, ineligible tickets and missing/inconsistent prices rejected; original persisted replay preserved.
-- Frontend: 76 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
+- Frontend: 78 tests and production build passed in JSDOM. Gift replay across remount, full/mixed intent, reversal, scoped recovery and late old-writer isolation verified; actual browser/tablet remains open.
 - Gift manager/currency UI: explicit units, reason, same-intent recovery, token/context guards and uncertain-refresh payment latches verified. Bearer codes are not persisted or placed in URLs.
 - Payment intent/migration PostgreSQL bundle: 4 passed; final intent checks: 2 passed, including duplicate creation and nonempty history guards on SQLite/PostgreSQL. Owned PostgreSQL upgrade/check passed.
 - Payment provider boundary/correlation: 6 focused tests passed; amount, currency, status and stored-reference mismatches rejected; no live adapter, settlement or webhook lifecycle is claimed.
-- Latest full backend: 310 passed, 66 opt-in PostgreSQL cases skipped locally; final Decimal-context enhancement subsequently passed in the focused checkout suite on SQLite/PostgreSQL. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
+- Latest full backend: 319 passed, 67 opt-in PostgreSQL cases skipped locally; final Decimal-context enhancement subsequently passed in the focused checkout suite on SQLite/PostgreSQL. Final commercial-history PostgreSQL bundle: 4 passed (including the added opt-in union case). Redemption/migration PostgreSQL bundle: 14 passed, including duplicate spending/reversal and correction/spending races. Final enhanced checkout/history checks: 1 passed on SQLite and 1 on PostgreSQL. Earlier reward/migration and earning/migration bundles: 4 and 13 passed.
 - Ticket commercial-history metadata: reversed package/member/loyalty line protection survives beneficiary changes and remount; 3 HTTP cases and 1 PostgreSQL union case passed. Single scoped SQL union adds no stored data or customer identity disclosure.
 - Loyalty checkout recovery audit: foreign apply/reversal intents produce no POST; malformed reads retain payment latch; failed external reads hide stale eligibility; late old writer cannot refresh or release the newer ticket lease.
 - Latest snapshot/redemption local check: 11 passed / 3 opt-in cases skipped. Snapshot PostgreSQL check: 2 passed, including concurrent correction consistency.
@@ -78,15 +81,16 @@ INVARIANTS:
 BLOCKERS:
 - Browser/tablet unavailable: last CUA inventory apps=[] and browsers=[]. Independent development continues.
 - Deep load, external settlement and production readiness remain unverified.
-- Provider cashflow read now separates accounts/currencies; legacy service report totals still do not establish comparable units. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
+- Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PAYMENT_CURRENCY_REPORTS: repair legacy Chiffres unit aggregation (paid line totals currently summed as float without ticket currency), then continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
+- PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current: test(payments): verify HTTP cashflow and refund loyalty integration.
+- Current: fix(reporting): separate original invoice currencies in Chiffres.
+- e733262 HTTP cashflow and refund loyalty integration audit.
 - 28866e3 obsolete prepared authorization recovery guard.
 - 3b7f955 initial authorization from exact server quote UI.
 - ed308ed child payment preparation UI.

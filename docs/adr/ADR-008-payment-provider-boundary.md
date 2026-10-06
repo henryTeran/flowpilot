@@ -448,3 +448,10 @@ already separates account/currency, but does not repair that service revenue rep
 The next independent payment checkpoint must make official service totals unit-safe;
 no FX conversion or implicit currency relabeling may be invented. Payment gates and
 production readiness remain open.
+
+
+The identified mixed-unit Chiffres gap is now repaired under ADR-009. Original invoice
+currency groups are reported separately; mixed/unknown legacy monetary totals are
+null and unknown-unit tickets are counted without invented conversion or relabeling.
+This repairs gross service unit aggregation, not bank payouts, fees/taxes or complete
+net accounting. Those payment/production verification requirements remain open.

@@ -207,18 +207,21 @@ export type PaymentMethod = "cb" | "especes" | "cheque" | "carte_cadeau" | "mixt
 export interface EmployeeChiffres {
   employee_id: string;
   employee_name: string;
-  soins: number;
-  ventes: number;
-  contrats: number;
-  pourboires: number;
-  moyenne: number;
-  total: number;
+  soins: number | null;
+  ventes: number | null;
+  contrats: number | null;
+  pourboires: number | null;
+  moyenne: number | null;
+  total: number | null;
   tickets: number;
   prestations: number;
 }
 
 export interface ChiffresSummary {
   institute_id: string;
+  currency?: "CHF" | "EUR" | null;
+  currency_groups?: Array<{ currency: "CHF" | "EUR"; rows: EmployeeChiffres[]; totals: EmployeeChiffres }>;
+  unknown_currency_tickets?: number;
   generated_at: string;
   period_start: string;
   period_end: string;

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ChiffresSummary } from "../types";
 
 interface ChiffresPanelProps {
@@ -7,8 +8,13 @@ interface ChiffresPanelProps {
 }
 
 export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelProps) {
-  const rows = chiffres?.rows || [];
-  const totals = chiffres?.totals;
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+  const groups = chiffres?.currency_groups || [];
+  const group = groups.find(value => value.currency === selectedCurrency) || groups[0];
+  const currency = group?.currency || chiffres?.currency;
+  const rows = group?.rows || chiffres?.rows || [];
+  const totals = group?.totals || chiffres?.totals;
+  const display = (value: number | null | undefined) => formatAmount(currency ? value : null);
 
   return (
     <section className="bm-chiffres-screen">
@@ -22,6 +28,12 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
           {loading ? "Chargement..." : "Rafraîchir"}
         </button>
       </header>
+
+      {groups.length > 0 && <label>Devise du rapport<select value={group?.currency} onChange={event => setSelectedCurrency(event.target.value)}>
+        {groups.map(value => <option key={value.currency} value={value.currency}>{value.currency}</option>)}
+      </select></label>}
+      {chiffres && !currency && <p>Devise non connue : les montants ne sont pas additionnés.</p>}
+      {!!chiffres?.unknown_currency_tickets && <p>{chiffres.unknown_currency_tickets} ticket(s) sans devise connue, exclus des totaux monétaires.</p>}
 
       <div className="bm-chiffres-table" role="table" aria-label="Chiffres par collaboratrice">
         <div className="bm-chiffres-row bm-chiffres-row-head" role="row">
@@ -43,24 +55,24 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
         {rows.map((row) => (
           <div className="bm-chiffres-row" role="row" key={row.employee_id}>
             <strong>{row.employee_name}</strong>
-            <span>{formatAmount(row.soins)}</span>
-            <span>{formatAmount(row.ventes)}</span>
-            <span>{formatAmount(row.contrats)}</span>
-            <span>{formatAmount(row.pourboires)}</span>
-            <span>{formatAmount(row.moyenne)}</span>
-            <span className="bm-chiffres-total">{formatAmount(row.total)}</span>
+            <span>{display(row.soins)}</span>
+            <span>{display(row.ventes)}</span>
+            <span>{display(row.contrats)}</span>
+            <span>{display(row.pourboires)}</span>
+            <span>{display(row.moyenne)}</span>
+            <span className="bm-chiffres-total">{display(row.total)}</span>
           </div>
         ))}
 
         {totals && (
           <div className="bm-chiffres-row bm-chiffres-row-total" role="row">
             <strong>Total journée</strong>
-            <span>{formatAmount(totals.soins)}</span>
-            <span>{formatAmount(totals.ventes)}</span>
-            <span>{formatAmount(totals.contrats)}</span>
-            <span>{formatAmount(totals.pourboires)}</span>
-            <span>{formatAmount(totals.moyenne)}</span>
-            <span className="bm-chiffres-total">{formatAmount(totals.total)}</span>
+            <span>{display(totals.soins)}</span>
+            <span>{display(totals.ventes)}</span>
+            <span>{display(totals.contrats)}</span>
+            <span>{display(totals.pourboires)}</span>
+            <span>{display(totals.moyenne)}</span>
+            <span className="bm-chiffres-total">{display(totals.total)}</span>
           </div>
         )}
       </div>
@@ -74,7 +86,8 @@ export function ChiffresPanel({ chiffres, loading, onRefresh }: ChiffresPanelPro
 }
 
 function formatAmount(value: number | null | undefined) {
-  const amount = Number(value || 0);
+  if (value === null || value === undefined) return "\u2014";
+  const amount = value;
   return new Intl.NumberFormat("fr-CH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

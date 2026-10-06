@@ -137,6 +137,7 @@ def test_live_actions_recalculate_employee_resource_and_checkout_state(postgres_
         with httpx.Client(base_url=writer, headers=headers, timeout=5) as commands, \
                 httpx.Client(base_url=reader, headers=headers, timeout=5) as board:
             manager_headers = {"Authorization": f"Bearer {_ws_token('responsable_institut', institute)}"}
+            assert commands.put(f"/api/v1/gift-cards/institutes/{institute}/settings", headers=manager_headers, json={"currency": "CHF"}).status_code == 200
             prefix = f"/api/v1/resources/institutes/{institute}"
             assert commands.post(prefix, headers=manager_headers, json={"name": "Live room", "kind": "room"}).status_code == 200
             assert commands.patch(prefix + f"/services/{service}/requirements", headers=manager_headers,
@@ -192,9 +193,11 @@ def test_live_actions_recalculate_employee_resource_and_checkout_state(postgres_
                 assert reservation(first["id"])[0] == "released"
                 assert next(ticket for ticket in tickets() if ticket["id"] == first["id"])["status"] == "ready_for_checkout"
                 change("PATCH", f"/tickets/{first['id']}/checkout/start", {"employee_id": employee})
+                assert commands.patch(f"/api/v1/tickets/{first['id']}/currency", json={"currency": "CHF", "reason": "Explicit live invoice currency"}).status_code == 200
                 change("PATCH", f"/tickets/{first['id']}/checkout/pay", {"employee_id": employee, "payment_method": "cb"})
                 assert first["id"] not in {ticket["id"] for ticket in tickets()}
-                assert read(f"/tickets/chiffres?institute_id={institute}")["totals"]["total"] > 0
+                report = read(f"/tickets/chiffres?institute_id={institute}")
+                assert report["currency"] == "CHF" and report["totals"]["total"] > 0
 
                 booking_payload = {"institute_id": institute, "employee_id": employee, "service_id": service,
                                    "customer_name": "Live booking", "start_time": (utcnow() + timedelta(minutes=1)).isoformat()}

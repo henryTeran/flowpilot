@@ -119,18 +119,27 @@ class EmployeeChiffresRead(BaseModel):
 
     employee_id: str
     employee_name: str
-    soins: float = 0.0
-    ventes: float = 0.0
-    contrats: float = 0.0
-    pourboires: float = 0.0
-    moyenne: float = 0.0
-    total: float = 0.0
+    soins: float | None = 0.0
+    ventes: float | None = 0.0
+    contrats: float | None = 0.0
+    pourboires: float | None = 0.0
+    moyenne: float | None = 0.0
+    total: float | None = 0.0
     tickets: int = 0
     prestations: int = 0
 
 
+class CurrencyChiffresRead(BaseModel):
+    currency: Literal["CHF", "EUR"]
+    rows: list[EmployeeChiffresRead]
+    totals: EmployeeChiffresRead
+
+
 class ChiffresSummaryRead(BaseModel):
     institute_id: str
+    currency: Literal["CHF", "EUR"] | None = None
+    currency_groups: list[CurrencyChiffresRead] = Field(default_factory=list)
+    unknown_currency_tickets: int = 0
     generated_at: datetime
     period_start: datetime
     period_end: datetime

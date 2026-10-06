@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, localcontext
 from hashlib import sha256
 import json
 
@@ -578,6 +579,12 @@ def complete_payment(db: Session, ticket_id: str, employee_id: str, payment_meth
 
 
 def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
+    with localcontext() as context:
+        context.prec = 28
+        return _chiffres_by_employee(db, institute_id)
+
+
+def _chiffres_by_employee(db: Session, institute_id: str, currency_filter=None, grouped=False, report_now=None, source_tickets=None) -> dict:
     """Calcule le module Chiffres par collaboratrice.
 
     Règle métier validée avec le client : les chiffres ne sont pas
@@ -585,9 +592,9 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
     réalisé la prestation. Si une ligne n'a pas d'exécutante, on utilise la
     collaboratrice qui a validé l'encaissement comme filet de sécurité.
     """
-    from app.modules.tickets.schemas import EmployeeChiffresRead, ChiffresSummaryRead
+    from app.modules.tickets.schemas import EmployeeChiffresRead, ChiffresSummaryRead, CurrencyChiffresRead
 
-    now = utcnow()
+    now = report_now or utcnow()
     period_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     period_end = period_start + timedelta(days=1)
 
@@ -598,17 +605,17 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
         employee.id: {
             "employee_id": employee.id,
             "employee_name": employee.first_name,
-            "soins": 0.0,
-            "ventes": 0.0,
-            "contrats": 0.0,
-            "pourboires": 0.0,
+            "soins": Decimal("0.00"),
+            "ventes": Decimal("0.00"),
+            "contrats": Decimal("0.00"),
+            "pourboires": Decimal("0.00"),
             "tickets": set(),
             "prestations": 0,
         }
         for employee in employees
     }
 
-    paid_tickets = list(
+    paid_tickets = source_tickets if source_tickets is not None else list(
         db.scalars(
             select(QueueTicket).where(
                 QueueTicket.institute_id == institute_id,
@@ -618,6 +625,9 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
             )
         ).all()
     )
+
+    if grouped:
+        paid_tickets = [ticket for ticket in paid_tickets if ticket.currency == currency_filter]
 
     for ticket in paid_tickets:
         lines = _ticket_lines(db, ticket.id)
@@ -630,15 +640,15 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
                 rows_by_employee[employee_id] = {
                     "employee_id": employee_id,
                     "employee_name": employee_names.get(employee_id, "Collaboratrice"),
-                    "soins": 0.0,
-                    "ventes": 0.0,
-                    "contrats": 0.0,
-                    "pourboires": 0.0,
+                    "soins": Decimal("0.00"),
+                    "ventes": Decimal("0.00"),
+                    "contrats": Decimal("0.00"),
+                    "pourboires": Decimal("0.00"),
                     "tickets": set(),
                     "prestations": 0,
                 }
 
-            amount = float(line.total or 0)
+            amount = Decimal(str(line.total or 0))
             category = (line.revenue_category or "care").lower()
             target = rows_by_employee[employee_id]
 
@@ -659,7 +669,7 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
             target["tickets"].add(ticket.id)
 
     rows: list[EmployeeChiffresRead] = []
-    total_soins = total_ventes = total_contrats = total_pourboires = 0.0
+    total_soins = total_ventes = total_contrats = total_pourboires = Decimal("0.00")
     total_tickets: set[str] = set()
     total_prestations = 0
 
@@ -695,7 +705,7 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
     grand_total = total_soins + total_ventes + total_contrats + total_pourboires
     grand_ticket_count = len(total_tickets)
 
-    return ChiffresSummaryRead(
+    summary = ChiffresSummaryRead(
         institute_id=institute_id,
         generated_at=now,
         period_start=period_start,
@@ -714,3 +724,19 @@ def get_chiffres_by_employee(db: Session, institute_id: str) -> dict:
             prestations=total_prestations,
         ),
     )
+
+    if grouped:
+        summary.currency = currency_filter
+        return summary
+    currencies = sorted({ticket.currency for ticket in paid_tickets if ticket.currency in {"CHF", "EUR"}})
+    summary.unknown_currency_tickets = sum(ticket.currency not in {"CHF", "EUR"} for ticket in paid_tickets)
+    for currency in currencies:
+        group = _chiffres_by_employee(db, institute_id, currency, True, now, paid_tickets)
+        summary.currency_groups.append(CurrencyChiffresRead(currency=currency, rows=group.rows, totals=group.totals))
+    if len(currencies) == 1 and not summary.unknown_currency_tickets:
+        summary.currency = currencies[0]
+    elif paid_tickets:
+        for row in [*summary.rows, summary.totals]:
+            for field in ("soins", "ventes", "contrats", "pourboires", "moyenne", "total"):
+                setattr(row, field, None)
+    return summary
