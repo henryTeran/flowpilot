@@ -19,11 +19,12 @@ function CampaignDirectory({ institute }: { institute: string }) {
   const [audienceVersion, refreshAudiences] = useState(0);
   const token = getAccessToken(), sequence = useRef(0);
   const [page, setPage] = useState<Catalog>(), [selected, select] = useState<CampaignOriginal>();
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false), [error, setError] = useState<string>();
   const base = `/marketing/institutes/${encodeURIComponent(institute)}/campaigns`;
   async function load(offset = 0) {
     const request = ++sequence.current, current = () => request === sequence.current && token === getAccessToken();
-    setLoading(true); setPage(undefined); select(undefined); setError(undefined);
+    setOffset(offset); setLoading(true); setPage(undefined); select(undefined); setError(undefined);
     try {
       const result = await apiGet<Catalog>(`${base}?offset=${offset}&limit=20`);
       if (!await validCampaignCatalog(result, institute, offset, 20)) throw new Error("Invalid catalog");
@@ -39,7 +40,7 @@ function CampaignDirectory({ institute }: { institute: string }) {
     <MarketingTemplatePanel institute={institute} />
     <MarketingCampaignCreator institute={institute} onChanged={() => void load()} />
     <p>Consultez le contenu retenu, son audience et l’historique de revue et d’approbation.</p>
-    <button onClick={() => void load(page?.offset || 0)} disabled={loading}>Actualiser les campagnes</button>
+    <button onClick={() => void load(offset)} disabled={loading}>Actualiser les campagnes</button>
     {loading && <p role="status">Chargement des campagnes…</p>}{error && <p role="alert">{error}</p>}
     {page && <><p>{page.total === 0 ? "Aucune campagne enregistrée." : `${page.offset + 1}–${page.offset + page.items.length} sur ${page.total} campagnes`}</p>
       <ul>{page.items.map(o => <li key={o.revision.campaign_id} style={{ maxWidth: "100%" }}><button style={{ maxWidth: "100%", overflowWrap: "anywhere" }} aria-pressed={selected?.revision.campaign_id === o.revision.campaign_id}
@@ -53,11 +54,12 @@ function CampaignDirectory({ institute }: { institute: string }) {
 function CampaignHistory({ institute, selected }: { institute: string; selected: CampaignOriginal }) {
   const token = getAccessToken(), sequence = useRef(0), root = selected.revision.campaign_id;
   const [original, setOriginal] = useState<CampaignOriginal>(), [page, setPage] = useState<CampaignAuditPage>();
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false), [error, setError] = useState<string>();
   const base = `/marketing/institutes/${encodeURIComponent(institute)}/campaigns`;
   async function load(offset = 0) {
     const request = ++sequence.current, current = () => request === sequence.current && token === getAccessToken();
-    setLoading(true); setOriginal(undefined); setPage(undefined); setError(undefined);
+    setOffset(offset); setLoading(true); setOriginal(undefined); setPage(undefined); setError(undefined);
     try {
       const head = await apiGet<CampaignOriginal>(`${base}/${encodeURIComponent(root)}/current`);
       if (!await validCampaignOriginal(head, institute) || head.revision.campaign_id !== root) throw new Error("Invalid head");
@@ -73,7 +75,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
   }
   useEffect(() => { void load(); return () => { sequence.current++; }; }, []);
   return <section aria-label="Historique de campagne">
-    <h3>Contenu et historique</h3><button disabled={loading} onClick={() => void load(page?.offset || 0)}>Actualiser l’historique</button>
+    <h3>Contenu et historique</h3><button disabled={loading} onClick={() => void load(offset)}>Actualiser l’historique</button>
     {loading && <p role="status">Chargement de l’historique…</p>}{error && <p role="alert">{error}</p>}
     {original && <><p>{stages[original.revision.state]} · {original.revision.content.channel} · origine {original.revision.content.origin === "ai" ? "IA déclarée" : "humaine"}</p>
       {original.revision.content.subject && <h4>{original.revision.content.subject}</h4>}

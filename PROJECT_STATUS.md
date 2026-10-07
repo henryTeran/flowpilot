@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13T_NATIVE_CAMPAIGN_EDIT_APPROVAL_RESET
+CURRENT_CHECKPOINT = PHASE13U_NATIVE_CAMPAIGN_PAGINATION_RETRY
 STATUS = ACTIVE
+
+PHASE13U_NATIVE_CAMPAIGN_PAGINATION_RETRY:
+- Preserved requested catalog/audit offset separately from accepted page data. A refused fresh read still clears stale facts, while explicit refresh retries the same page rather than silently returning to page zero. Audit guard rejects predecessor cycles among originals present in the bounded page; no complete-chain claim outside that page.
+- Six focused campaign/history tests pass in 2.78s. Full frontend: 309 passed in 60.91s, zero failures/skips, terminal exit 0. Signed browser launcher rebuilt final TypeScript/Vite source. Actual Edge desktop/touch-tablet scenarios: 2 passed in 53.5s, fixture directory cleaned. Each campaign has 24 immutable audit revisions (20/4 pages); owned catalog has 24 then 25 roots (20/4 then 20/5 pages). Forged final-page totals refuse all stale facts/actions; clean refresh retains offset 20; previous/next navigation restores exact page sizes. Initial expanded run exposed real retry-offset defect, fixed before final passing run. Two audit screenshots inspected; existing signed edit/source/action controls retained.
+- CHECKPOINT_STATUS = PARTIAL. All Phase 13 gates remain OPEN. NEXT: remaining all-channel/source replacement acceptance, explicit contacts/permissions/provider delivery and conversion evidence. Full canonical goal ACTIVE; physical/production gates OPEN. No new full backend/provider/physical/production acceptance claimed.
 
 PHASE13T_NATIVE_CAMPAIGN_EDIT_APPROVAL_RESET:
 - Reused source-bound native creator as selected-campaign editor with independent root/actor edit-request storage and exact expected predecessor. Preparation requires visible verified selection then rereads owned current/independent original ID, retained audience ID/key/channel/clock/eligible count and optional template exact original/content/nonfuture clock. Existing literal/template content prefilled exactly; explicit text-mode release removes template binding; channel/source selection remains verified and bounded. Failed preparation leaves no form. Correction uses edit action and backend DRAFT reset, no in-place original mutation or SEND.

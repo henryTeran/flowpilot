@@ -417,6 +417,24 @@ no overflow; four edit/reset screenshots inspected. Existing bcrypt/NO_COLOR onl
 All-channel/source replacement/deeper pagination and contact/delivery/conversion
 acceptance pending; marketing gates OPEN, physical/production gates OPEN.
 
+## 13U: native campaign pagination and refusal retry
+
+Requested catalog/audit offsets now survive a refused fresh read independently of
+accepted page data. Stale facts/actions remain hidden; explicit refresh retries the
+same requested page. The audit guard also rejects predecessor cycles among originals
+present on its bounded page, without claiming complete-chain validation outside it.
+
+Six focused campaign/history tests pass in 2.78s. Full frontend: 309 passed in
+60.91s, zero failures/skips, terminal exit 0. Signed launcher rebuilt final TypeScript/
+Vite source. Actual Edge desktop/touch-tablet scenarios: 2 passed in 53.5s; fixture
+cleaned. Each selected campaign has 24 immutable revisions (20/4 pages); owned
+catalogs contain 24 then 25 roots (20/4 then 20/5 pages). Forged final-page totals
+hide stale facts/actions; clean retry preserves offset 20; backward/forward reads
+restore exact counts. Initial expanded run exposed a real retry-offset defect,
+corrected before the passing run. Both audit screenshots inspected. Marketing gates
+remain OPEN; all-channel/source replacement, contacts/delivery/conversion acceptance
+still pending. Physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

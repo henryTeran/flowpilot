@@ -113,6 +113,13 @@ export async function validCampaignAuditPage(v: unknown, institute: string, camp
   }
   // Equal-clock ID order is display order; only explicit predecessor IDs convey causality.
   for (const o of p.originals) {
+    const visited = new Set<string>();
+    let cursor: CampaignOriginal | undefined = o;
+    while (cursor) {
+      if (visited.has(cursor.revision.id)) return false;
+      visited.add(cursor.revision.id);
+      cursor = cursor.revision.previous_id === null ? undefined : originals.get(cursor.revision.previous_id);
+    }
     const previous = o.revision.previous_id === null ? undefined : originals.get(o.revision.previous_id);
     if (!previous) continue; // A bounded page need not contain its predecessor.
     if (instant(previous.revision.created_at)! > instant(o.revision.created_at)!) return false;

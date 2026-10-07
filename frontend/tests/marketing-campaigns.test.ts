@@ -37,6 +37,13 @@ test("audit pages pin exact bounds/scope/order and check present explicit predec
   const cycle = { ...review, revision: { ...review.revision, id: "b-review", previous_id: review.revision.id },
     request: { ...review.request, expected_revision_id: review.revision.id } };
   assert.equal(await validCampaignAuditPage({ ...p, originals: [review, cycle] }, "i", "campaign-a", 0, 20), false);
+  const firstEdit: CampaignOriginal = { request: { ...draft.request, action: "edit", campaign_id: "campaign-a", expected_revision_id: "b-edit" },
+    revision: { ...draft.revision, id: "a-edit", previous_id: "b-edit" } };
+  const secondEdit: CampaignOriginal = { request: { ...draft.request, action: "edit", campaign_id: "campaign-a", expected_revision_id: "a-edit" },
+    revision: { ...draft.revision, id: "b-edit", previous_id: "a-edit" } };
+  assert.equal(await validCampaignOriginal(firstEdit, "i"), true);
+  assert.equal(await validCampaignOriginal(secondEdit, "i"), true);
+  assert.equal(await validCampaignAuditPage({ ...p, originals: [firstEdit, secondEdit] }, "i", "campaign-a", 0, 20), false);
 });
 test("native original enforces action/stage/source and exact review/approval digest", async () => {
   const a = original(); assert.equal(await validCampaignOriginal(a, "i"), true);

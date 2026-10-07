@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 test("signed native campaign sources draft recovery review approval and immutable audit", async ({ page, request }, info) => {
+  test.setTimeout(120000);
   await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
   await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
   await expect(page.locator(".flow-session-exit")).toBeVisible();
@@ -84,4 +85,42 @@ test("signed native campaign sources draft recovery review approval and immutabl
   const oldApproval = await request.get(`${base}/campaigns/${head.revision.id}`, { headers }); expect(await oldApproval.json()).toEqual(head);
   expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.marketing-campaign-edit-request:")))).toBe(false);
   await history.screenshot({ path: info.outputPath("native-campaign-edit-reset.png") });
+  let latest = edited;
+  for (let index = 0; index < 20; index++) {
+    const response = await request.post(base + "/campaigns", { headers, data: { action: "edit", campaign_id: latest.revision.campaign_id,
+      expected_revision_id: latest.revision.id, content: { channel: "email", origin: "human", subject, body: `Expanded edit ${index}`, audience_id: capture.id,
+        template_original_id: null }, reason: `Explicit expanded revision ${index}`, idempotency_key: `expanded-edit-${prefix}-${index}` } });
+    expect(response.status(), await response.text()).toBe(200); latest = await response.json();
+  }
+  await history.getByRole("button", { name: "Actualiser l’historique", exact: true }).click(); await expect(history.locator("article")).toHaveCount(20);
+  await history.getByRole("button", { name: "Révisions suivantes", exact: true }).click(); await expect(history.locator("article")).toHaveCount(4);
+  await expect(history).toContainText("21–24 sur 24 révisions");
+  await page.route("**/campaigns/*/audit?**", async route => {
+    const response = await route.fetch(); const data = await response.json(); data.total++;
+    await route.fulfill({ response, json: data });
+  });
+  await history.getByRole("button", { name: "Actualiser l’historique", exact: true }).click();
+  await expect(history).toContainText("Historique à vérifier"); await expect(history.locator("article")).toHaveCount(0);
+  await expect(editor.getByRole("button", { name: "Préparer une correction de campagne", exact: true })).toBeDisabled();
+  await page.unroute("**/campaigns/*/audit?**");
+  await history.getByRole("button", { name: "Actualiser l’historique", exact: true }).click(); await expect(history.locator("article")).toHaveCount(4);
+  await history.getByRole("button", { name: "Révisions précédentes", exact: true }).click(); await expect(history.locator("article")).toHaveCount(20);
+  await history.getByRole("button", { name: "Révisions suivantes", exact: true }).click(); await expect(history.locator("article")).toHaveCount(4);
+  await history.screenshot({ path: info.outputPath("native-campaign-audit-page.png") });
+  const catalogBefore = await request.get(base + "/campaigns?limit=1", { headers }); const existing = await catalogBefore.json();
+  const catalogTotal = Math.max(existing.total, 24);
+  for (let index = existing.total; index < catalogTotal; index++) {
+    const response = await request.post(base + "/campaigns", { headers, data: { action: "create", campaign_id: null, expected_revision_id: null,
+      content: { channel: "email", origin: "human", subject: `Catalog ${prefix} ${index}`, body: "Explicit catalog draft", audience_id: capture.id,
+        template_original_id: null }, reason: "Explicit catalog fixture", idempotency_key: `catalog-campaign-${prefix}-${index}` } }); expect(response.status()).toBe(200);
+  }
+  const marketing = page.getByRole("region", { name: "Marketing", exact: true });
+  await marketing.getByRole("button", { name: "Actualiser les campagnes", exact: true }).click(); await expect(marketing).toContainText(`1–20 sur ${catalogTotal} campagnes`);
+  await marketing.getByRole("button", { name: "Campagnes suivantes", exact: true }).click(); await expect(marketing).toContainText(`21–${catalogTotal} sur ${catalogTotal} campagnes`);
+  await page.route("**/campaigns?**", async route => { const response = await route.fetch(); const data = await response.json(); data.total++; await route.fulfill({ response, json: data }); });
+  await marketing.getByRole("button", { name: "Actualiser les campagnes", exact: true }).click(); await expect(marketing).toContainText("Catalogue à vérifier");
+  await expect(marketing.getByRole("button", { name: "Campagnes suivantes", exact: true })).toHaveCount(0);
+  await page.unroute("**/campaigns?**"); await marketing.getByRole("button", { name: "Actualiser les campagnes", exact: true }).click();
+  await expect(marketing).toContainText(`21–${catalogTotal} sur ${catalogTotal} campagnes`);
+  await marketing.getByRole("button", { name: "Campagnes précédentes", exact: true }).click(); await expect(marketing).toContainText(`1–20 sur ${catalogTotal} campagnes`);
 });
