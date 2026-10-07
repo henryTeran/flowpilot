@@ -1080,6 +1080,10 @@ passlib crypt/Alembic deprecations observed. No new full CRM/backend/browser/nat
 or physical/production receipt claimed. Native rule/event workflows and gate
 acceptance remain required; all canonical gates stay open.
 
+## Phase 12AJ: native automation rule editor
+
+Manager-only six-rule declaration/correction now preserves literal rule order and exact microseconds through fractional-second inputs. All activation choices are explicit. Protected original-key recovery verifies signed actor/full terms and independent original/current reads before clearing pending intent. Focus tests cover response loss/remount, failed-current retention, original-clock mismatch and precision boundaries. Full frontend: 270 passed; final focused editor groups: 3 passed. Signed desktop/tablet browser verification for this editor is still pending. No worker/service was activated and no outbound message was sent. All four canonical CRM gates and physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

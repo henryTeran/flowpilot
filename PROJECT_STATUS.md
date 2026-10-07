@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AI_EXACT_AUTOMATION_NATIVE_CONTRACTS
+CURRENT_CHECKPOINT = PHASE12AJ_NATIVE_AUTOMATION_RULE_EDITOR
 STATUS = ACTIVE
+
+PHASE12AJ_NATIVE_AUTOMATION_RULE_EDITOR:
+- Added manager-only native six-rule automation declaration/correction in the customer directory. Every activation is explicitly selected; five elapsed durations are supplied in exact fractional seconds, birthday follows the separately declared local calendar. No guessed activation/timing defaults. Corrections preserve literal original order, activation and integer microseconds, including values beyond JavaScript-safe precision.
+- Protected institute/actor-scoped pending intent survives lost POST/remount. Original-key receipt and independent original/current rereads are required before clearing intent or invoking refresh. Actor/terms/predecessor/clock mismatch, malformed saved intent and unavailable current read retain protection. Definite rejected POST may be explicitly corrected. No automatic worker activation or outbound messaging.
+- Recovery/editor focus: 3 passed, including lost-response single POST, failed-current retention, remount, exact correction copy, inconsistent microsecond original refusal and duration boundary/rounding refusal. Full frontend before final helper group addition: 270 passed in 48.76s, zero failures/skips. TypeScript/Vite build passes (127 modules). Native desktop/tablet browser evidence for this editor remains pending; no new backend/physical/production acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: signed native desktop/tablet automation editor recovery evidence, then guarded event workflow and Phase 12 acceptance. Full canonical goal remains active.
 
 PHASE12AI_EXACT_AUTOMATION_NATIVE_CONTRACTS:
 - Added canonical string JSON duration serialization for automation rules, preserving integer microseconds internally and legacy persisted/client integer read support. Canonical string input rejects whitespace/sign/leading zero/fraction/exponent/overflow; JSON response never rounds values above JavaScript-safe precision. Validation/serialization JSON schemas describe accepted integer/string input and exact string output. No database schema/data migration; existing numeric originals/capture/revision JSON remain readable and recoverable under the same terms.

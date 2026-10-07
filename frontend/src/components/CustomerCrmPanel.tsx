@@ -8,6 +8,7 @@ import { CrmPolicyPanel } from "./CrmPolicyPanel";
 import { CrmReturnPanel } from "./CrmReturnPanel";
 import { CrmLifecyclePanel } from "./CrmLifecyclePanel";
 import { CrmLifetimePanel } from "./CrmLifetimePanel";
+import { CrmAutomationPolicyPanel } from "./CrmAutomationPolicyPanel";
 import { CrmBirthdayPolicyPanel } from "./CrmBirthdayPolicyPanel";
 
 const labels: Record<string, string> = { NEW: "Nouvelle cliente", ACTIVE: "Active", LOYAL: "Fidèle", VIP: "VIP",
@@ -47,6 +48,7 @@ function Directory({ institute }: { institute: string }) {
   }
   return <section className="customer-crm" aria-label="Clientes et CRM"><h2>Clientes</h2>
     <details><summary>Configurer la politique CRM</summary><CrmPolicyPanel institute={institute} onChanged={() => refreshProfile(v => v+1)} /></details>
+    <details><summary>Configurer les règles automatisation</summary><CrmAutomationPolicyPanel institute={institute} onChanged={() => refreshProfile(v => v+1)} /></details>
     <details><summary>Configurer le calendrier anniversaire</summary><CrmBirthdayPolicyPanel institute={institute} onChanged={() => refreshProfile(v => v+1)} /></details>
     <form onSubmit={e => { e.preventDefault(); if (query.trim().length >= 2 && !loading) void search(); }}>
       <label>Nom ou téléphone<input value={query} maxLength={160} onChange={e => { sequence.current++; setQuery(e.target.value); setRows([]); select(undefined); setError(undefined); setLoading(false); }} /></label>
