@@ -15,7 +15,7 @@ from app.shared.time import explicit_utc_instant
 
 
 class Request(Fact):
-    action: Literal["reconcile", "cancel"]
+    action: Literal["reconcile", "cancel", "process", "process_due"]
     event_key: Identifier | None
     expected_revision_id: Identifier | None
     reason: Reason
@@ -23,10 +23,10 @@ class Request(Fact):
 
     @model_validator(mode="after")
     def explicit_target(self):
-        if self.action == "reconcile" and (self.event_key is not None or self.expected_revision_id is not None):
-            raise ValueError("Reconciliation has no cancellation target")
-        if self.action == "cancel" and (self.event_key is None or self.expected_revision_id is None):
-            raise ValueError("Cancellation requires the exact selected revision")
+        if self.action in {"reconcile","process_due"} and (self.event_key is not None or self.expected_revision_id is not None):
+            raise ValueError("Batch actions have no explicit event target")
+        if self.action in {"cancel","process"} and (self.event_key is None or self.expected_revision_id is None):
+            raise ValueError("An explicit action requires the exact selected revision")
         return self
 
 
@@ -126,6 +126,19 @@ def execute(db,institute,customer,payload,actor):
         if target[1].decision.state == "processed": raise business_error("A processed internal event cannot be cancelled")
         decisions = tuple(EventDecision(event_key=d.event_key,candidate=d.candidate,state="cancelled",
             reason="explicit_cancellation",evaluated_at=capture.captured_at) if d.event_key==payload.event_key else d for d in decisions)
+    if payload.action in {"process","process_due"}:
+        from app.modules.crm.event_worker import processing_keys
+        if payload.action == "process":
+            target = current.get(payload.event_key)
+            if target is None or target[1].id != payload.expected_revision_id:
+                raise business_error("The event revision changed; reread before processing")
+            keys = {payload.event_key}
+            if not any(d.event_key==payload.event_key and d.state=="due" for d in decisions):
+                raise business_error("Only an event due in the fresh authoritative capture can be processed")
+        else:
+            keys = processing_keys(decisions)
+        decisions = tuple(EventDecision(event_key=d.event_key,candidate=d.candidate,state="processed",
+            reason="already_processed",evaluated_at=capture.captured_at) if d.event_key in keys else d for d in decisions)
     row = EventCaptureOriginal(id=new_id("crm_event_capture"),institute_id=institute,customer_id=customer,
         idempotency_key=payload.idempotency_key,actor_id=actor,reason=payload.reason,captured_at=capture.captured_at,
         source={"request":payload.model_dump(mode="json"),"capture":capture.model_dump(mode="json"),"selected_revision_ids":[]})

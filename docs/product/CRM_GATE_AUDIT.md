@@ -977,6 +977,30 @@ deprecation warning observed. No new schema/migration, worker/native/browser or
 physical/production acceptance claimed. Worker internal processing receipts and
 native rule/event recovery workflows remain required; canonical gates stay open.
 
+## Phase 12AF: bounded internal processing with once-only receipts
+
+Process/process_due actions reuse the signed scoped atomic capture/revision flow.
+Targeted processing pins exact selected event/revision and requires due status
+in a fresh authoritative capture. Batch selection processes at most 20 due
+decisions in deterministic UTC due/event-key order, an operational work bound.
+Processed internal events are terminal on subsequent captures and cannot be
+cancelled; same-key recovery returns the original receipt. Future, disabled,
+exhausted, expired or uncertain decisions are not processed. Fresh invalid-care
+diagnostics block cached due heads; previous processed facts remain recorded.
+No transport, outbound message, delivery certificate or unattended scheduler
+is installed by this unit.
+
+Initial worker/ledger 7 passed in 20.48s. Full eighteen-file CRM: 151 passed in
+114.52s, zero failures/skips, actual PostgreSQL enabled. Final worker after
+stronger targeted success/replay assertions: 3 passed in 10.45s. Covers batches
+20 then 40 processed, single-event increment/replay, historical original,
+future-processing and processed-cancellation refusal, fresh diagnostic blocking,
+signed HTTP action and actual PostgreSQL two simultaneous workers processing
+20 disjoint occurrences each. Existing passlib crypt deprecation warning observed.
+No schema/migration, unattended dispatch/scheduling, new frontend/browser or
+physical/production receipt claimed. Worker lifecycle/dispatch and native rule/
+event recovery workflows remain required; canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
