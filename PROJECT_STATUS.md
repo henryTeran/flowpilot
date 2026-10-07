@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11Q_RECORDED_OCCUPATION_API
+CURRENT_CHECKPOINT = PHASE11R_NATIVE_OCCUPATION_RATIO_GUARDS
 STATUS = ACTIVE
+
+PHASE11R_NATIVE_OCCUPATION_RATIO_GUARDS:
+- Native occupation preparation adds exact BigInt numerator/denominator, outside-time conservation and diagnostic-count validation. Basis points are verified against the recorded covered/work ratio and formatted without floating-point conversion. Unknown hours or uncertain execution require a null ratio; complete_activity must remain false. These guards are a prerequisite, not a complete response validator or delivered profile view.
+- Focused ratio checks: 2 passed, covering exact hybrid-source totals, forged ratios/durations/coverage, unknown denominator/ends and invalid diagnostic counts. Production build passes. No backend/schema or rendered-product change and no new full regression/browser acceptance are claimed.
+- CHECKPOINT_STATUS = PARTIAL: source/page/scope response validation and native occupation display remain open. Next: use these guards with validated nested hours and original execution sources in Employee 360, then verify native desktop/tablet behavior.
 
 PHASE11Q_RECORDED_OCCUPATION_API:
 - Manager employee/day API combines actual completed walk-in session and appointment intervals, unions their overlaps and intersects the completed declared-work union under the institute transaction lock. Exact microsecond strings expose known busy time, covered busy time and time outside recorded work. Nested hours reading retains original/cancellation provenance and unknown complete attendance; bounded source page includes stable kind/ID/service/status and actual instants without customer names/phones.
