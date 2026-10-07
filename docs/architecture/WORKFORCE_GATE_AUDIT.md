@@ -23,7 +23,7 @@ authorized Workforce scope progresses.
 | Objectifs | Original signed manager targets, pinned civil/UTC periods, explicit gross-currency or actual-completed-session measure, exact targets, separate cancellations, bounded batched progress API, native manager lifecycle/lost-reply recovery and readonly employee profile | Physical/production acceptance |
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Manager day API and native selected-day profile retain actual source unions, declared denominator, exact covered/outside time, exclusions and floored recorded-time ratio; controlled API/component/Edge desktop/tablet verified | Physical/production acceptance; complete activity/attendance stays unknown |
-| Rebooking | Signed original attribution/cancellation API, bounded declaration-day read and guarded profile retain source provenance and global counts; controlled signed workflows/Edge desktop/tablet verify readonly provenance and changed-target diagnostics | Native authoring/cancellation/lost-reply recovery and physical/production acceptance; no inferred identity, absent-declaration failure or predicted return |
+| Rebooking | Signed original attribution/cancellation API, bounded declaration-day read and guarded profile retain source provenance and global counts; controlled signed workflows/Edge desktop/tablet verify readonly provenance, changed-target diagnostics and native original declaration/cancellation/lost-reply recovery | Physical/production acceptance; no inferred identity, absent-declaration failure or predicted return |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
@@ -32,7 +32,7 @@ authorized Workforce scope progresses.
 Gates remain:
 
 - `EMPLOYEE_360`: OPEN — availability/skills/calendar profile foundations delivered;
-  declared certifications, attributed gross revenue, original objectives/hours and recorded occupation added; rebooking, commissions and final acceptance pending.
+  declared certifications, attributed gross revenue, original objectives/hours and recorded occupation and native recorded rebooking added; commissions and final acceptance pending.
 - `SKILLS`: PARTIAL — recorded matrix and existing matching/configuration are
   verified with native original skill authoring/recovery; remaining workforce and physical/production acceptance is pending.
 - `ABSENCES`: PARTIAL — scheduled original facts and capacity integration are
@@ -44,9 +44,9 @@ qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
 Bounded scoped actual-completion source and same-client target choice APIs now
-support the pending native form; invalid/unknown/attributed choices stay explicit.
-Next independent unit: native recorded rebooking authoring/cancellation and lost-reply recovery, then
-commissions with source-grounded authorities.
+support the native manager form; invalid/unknown/attributed choices stay explicit.
+Protected original declaration/cancellation recovery is verified in controlled Edge.
+Next independent unit: commissions with explicitly configured source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and commission authorities.
 Existing payment settlement and physical

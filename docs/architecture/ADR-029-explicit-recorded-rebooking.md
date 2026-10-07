@@ -2,7 +2,7 @@
 
 Status: original declaration/cancellation API and migration implemented;
 bounded employee declaration-day read and profile component implemented;
-readonly profile verified on controlled Edge; native lifecycle and acceptance remain open.
+readonly profile and native original lifecycle verified on controlled Edge; physical/production acceptance remains open.
 
 Bounded manager source/target choice APIs support native authoring without raw
 ID entry. Source choices use actual completion day (explicitly distinct from the
@@ -152,9 +152,9 @@ production build pass. Backend-connected signed workflows and Edge desktop/table
 verify explicit customer-linked execution/booking/declaration provenance, corrupt
 fresh-read refusal/retry, original preservation after target cancellation,
 employee switch to empty unknown attribution, direct navigation, 44px controls
-and horizontal fit. Final tablet provenance screenshot is inspected. Native
-authoring/cancellation/lost-reply recovery and physical/production acceptance
-remain required; no actual future attendance is claimed.
+and horizontal fit. Final tablet provenance screenshot is inspected. Native authoring/cancellation/lost-reply recovery now has controlled signed Edge
+evidence below. Physical/production acceptance remains required; no actual future
+attendance is claimed.
 
 Controlled SQLite and real PostgreSQL source tests verify both execution kinds,
 exact microsecond chronology, explicit identity, original creation provenance,
@@ -165,3 +165,27 @@ clock, separate cancellation and PostgreSQL competing attribution/same-key
 writers. Migration tests verify metadata parity, empty roundtrip, named ownership
 and source constraints, and intact retained history. Production and physical
 acceptance remain open.
+
+Native manager declarations now use the bounded source/target selector inside
+Workforce. Actor/institute-scoped session storage saves the complete request
+with employee identity before a possible write. Recovery first reads the signed
+original key and only posts if it is explicitly absent; it then verifies the
+full original again. Cancellation is a distinct intent that pins the complete
+reviewed original and checks both the signed cancellation and unchanged original
+captures. A valid fresh employee journal is required before deleting the saved
+request. Transport loss, conflicting originals, malformed stored requests and
+failed/corrupt fresh reads preserve the protected request. Only a definitive
+400/422 response to the attempted POST exposes explicit correction. Actor/employee
+isolation and a synchronous pending guard prevent late or duplicate writes.
+
+The UI freezes choices during protected recovery, shows originals and separate
+cancellations, keeps actual source day distinct from declaration day, and
+provides direct form navigation. The nested selector spans the form width on
+tablet rather than being compressed into a generic field column. Controlled
+component tests verify no repost on existing originals, retained requests after
+failed fresh journals, old-actor absence refusal and exact cancellation capture
+comparison. Signed Edge tests intentionally commit then lose each POST response,
+reload and resume: precisely one declaration POST and one cancellation POST,
+unchanged source/booking captures, removed request only after verified recovery,
+44px controls and no horizontal overflow. These checks use owned disposable
+fixtures and do not certify physical devices or production performance.
