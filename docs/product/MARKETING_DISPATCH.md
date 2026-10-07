@@ -354,3 +354,33 @@ are attributed, no source records are updated and no provider I/O occurs. Durabl
 owned attribution originals/replay/correction/audit, independent paid-ticket source
 capture, signed API/native tracking and authenticated provider evidence/operator
 resolution remain required; Phase13 and production/physical gates remain OPEN.
+
+## Authoritative attribution preview (13AX)
+
+Manager-only POST `conversions/validate` accepts only selected intent ID/full
+fingerprint, SEND original ID, accepted outcome ID, recorded billing ticket ID,
+explicit start/end, reason and operation key. Actor is taken from the signed
+manager session; supplied actors/full ticket/result/submission objects are refused.
+The server locks the owned institute, takes one aware capture clock and independently
+loads retained intent/authorization/outcome originals and the exact owned recipient's
+recorded paid ticket. No client-supplied amount, destination or provider success is
+used. A missing/wrong-recipient ticket, nonpaid/undated/future paid fact or wrong
+source fingerprint/authorization/outcome/window refuses the preview.
+
+Exact recorded ticket amounts reuse CRM's canonical minor-unit conversion and
+missing/invalid diagnostics; currency is CHF/EUR or explicitly unknown. This source
+is the application billing ledger's paid status and paid_at, not independent bank
+or provider settlement proof. The complete Attribution contract is reevaluated
+against the fetched originals and shared captured_at; no current permission or
+account catalog can rewrite those historical originals.
+
+Response contains the full selected source terms and an explicit `retained: false`.
+The operation key is a proposed future link key, not a persisted replay receipt.
+Reusing it for another preview does not freeze or create an original. No ticket,
+intent, campaign or outcome is updated, no attribution retained, no provider called.
+Participating billing corrections use the same institute lock: a correction waits
+for preview capture, and a later preview observes the changed ticket. An old preview
+must never be presented as current or used as a write authority without fresh capture.
+Full declared contact facts in the retained intent remain signed-manager-only.
+Durable link originals/corrections/audit, signed write/readonly catalog and native
+tracking remain next; no conversion completion or production acceptance implied.
