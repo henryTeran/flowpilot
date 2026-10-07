@@ -22,7 +22,7 @@ authorized Workforce scope progresses.
 | Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Final acceptance; never infer credentials from skill codes or automatically grant a skill. New credential matching rules require explicit configuration and are optional future scope |
 | Objectifs | Original signed manager targets, pinned civil/UTC periods, explicit gross-currency or actual-completed-session measure, exact targets, separate cancellations, bounded batched progress API, native manager lifecycle/lost-reply recovery and readonly employee profile | Physical/production acceptance |
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
-| Occupation | Native employee calendar exposes explicit actual session/appointment starts and recorded ends or missing end; planned duration is separate | Source-grounded occupancy measure; a ratio needs a known workforce hours denominator |
+| Occupation | Manager day API unions actual completed session/appointment intervals, intersects declared working-time union, and exposes unknown/invalid/future sources plus outside-work duration; ratio is scoped to recorded time | Native profile and physical/production acceptance; complete activity/attendance stays unknown |
 | Rebooking | Original execution/customer links and future appointment facts exist; no employee rebooking measure is delivered | Explicit definition and scoped recorded-event read; no inferred customer identity or predicted result |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
@@ -43,7 +43,7 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: recorded occupation/rebooking and
+Next independent unit: native recorded occupation reading, then rebooking and
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and explicit objective,
@@ -58,4 +58,5 @@ ADR-024 explains original skill changes, expected-set protection and native reco
 ADR-025 explains performer-attributed internally closed revenue and missing monetary facts.
 ADR-026 explains original explicit objectives, pinned periods, exact targets and batched progress.
 ADR-027 explains original effective-work interval declarations and remaining coverage limits.
+ADR-028 explains recorded occupation, exact source intersections and incomplete coverage.
 PROJECT_STATUS.md records final verification counts and current checkpoint.

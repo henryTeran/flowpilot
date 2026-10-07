@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11P_EXACT_OCCUPATION_INTERVAL_FOUNDATION
+CURRENT_CHECKPOINT = PHASE11Q_RECORDED_OCCUPATION_API
 STATUS = ACTIVE
+
+PHASE11Q_RECORDED_OCCUPATION_API:
+- Manager employee/day API combines actual completed walk-in session and appointment intervals, unions their overlaps and intersects the completed declared-work union under the institute transaction lock. Exact microsecond strings expose known busy time, covered busy time and time outside recorded work. Nested hours reading retains original/cancellation provenance and unknown complete attendance; bounded source page includes stable kind/ID/service/status and actual instants without customer names/phones.
+- Missing starts/ends, invalid intervals, future ends and unfinalized records are explicit excluded diagnostics. Earlier open starts remain potentially relevant without borrowing planned ends. Completely unlocated execution cannot be assigned to a day from a planned slot. Optional basis points are rounded down from covered time / recorded declared time and remain unknown for absent/future denominator or uncertain candidate execution. complete_activity=false; no full attendance/activity or operational state is inferred.
+- Initial SQLite/PostgreSQL occupation functional proof: 2 passed in 3.86s. Final occupation/hours/exact-arithmetic bundle after extra source diagnostics: 9 passed in 10.45s. Final occupation suite after all-page/constant-query checks: 3 passed in 5.94s. Tests cover hybrid overlap without double counting, 1us precision, outside-work time, partial page versus whole totals, missing starts/ends, invalid/future/unfinalized sources, planned exclusion, empty unknown denominator, role/institute/limit protection and 21-source totals with <=14 SELECTs on either page.
+- No schema/application migration, frontend integration or new full backend regression is claimed. ADR-028 and Workforce audit document the recorded-time ratio and unknown coverage. CHECKPOINT_STATUS = PARTIAL: native read/profile and physical/production acceptance remain open. Next: native occupation validation/display, then recorded rebooking and configured commissions.
 
 PHASE11P_EXACT_OCCUPATION_INTERVAL_FOUNDATION:
 - Shared exact streaming interval union/intersection arithmetic now serves the existing selected-day work-hours union and the forthcoming occupation read. Half-open touching intervals merge without double counting; breaks remain separate, nested overlaps merge, and unordered/nonpositive inputs are refused. Intersection consumes two disjoint sorted streams without materializing them and retains microseconds.

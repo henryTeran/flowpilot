@@ -15,6 +15,7 @@ from app.modules.workforce.revenue import EmployeeRevenue
 from app.modules.workforce.objective_schemas import ObjectiveCreate, ObjectiveCancel, ObjectiveRead, CancellationRead as ObjectiveCancellationRead, ObjectivePage
 from app.modules.workforce.work_interval_schemas import WorkIntervalCreate, WorkIntervalRead, WorkIntervalCancellationRead, WorkIntervalPage
 from app.modules.workforce.work_hours import EmployeeWorkHours
+from app.modules.workforce.occupation import EmployeeOccupation
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -56,6 +57,13 @@ def create_work_interval(institute_id: str, payload: WorkIntervalCreate, user: d
 def employee_work_hours(institute_id: str, employee_id: str, day: date, limit: int = Query(20, ge=1, le=50),
                         offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.work_hours import read
+    return read(db, institute_id, employee_id, day, limit, offset)
+
+
+@router.get("/employees/{employee_id}/occupation", response_model=EmployeeOccupation)
+def employee_occupation(institute_id: str, employee_id: str, day: date, limit: int = Query(20, ge=1, le=50),
+                        offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.occupation import read
     return read(db, institute_id, employee_id, day, limit, offset)
 
 
