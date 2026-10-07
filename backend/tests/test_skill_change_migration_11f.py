@@ -36,5 +36,5 @@ def test_skill_change_migration_original_history_guard(tmp_path, monkeypatch, da
             command.downgrade(config, "4eba19f6082d")
         assert records() == original
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "c83e5fa21704"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "d94f6ab32815"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

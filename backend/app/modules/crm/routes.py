@@ -6,6 +6,7 @@ from app.modules.crm import policies
 from app.modules.crm import profile
 from app.modules.crm import return_sources
 from app.modules.crm import lifetime_originals as lifetime
+from app.modules.crm import lifecycle_originals as lifecycle, calendar_policies as calendar
 
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
 
@@ -14,6 +15,52 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.post("/birthday-calendar-policies", response_model=calendar.PolicyRead)
+def calendar_create(institute_id: str, payload: calendar.PolicyCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return calendar.create(db,institute_id,payload,user.get("sub"))
+
+
+@router.get("/birthday-calendar-policies/current", response_model=calendar.PolicyRead | None)
+def calendar_current(institute_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return calendar.current(db,institute_id)
+
+
+@router.get("/birthday-calendar-policies/original/{key}", response_model=calendar.PolicyRead | None)
+def calendar_original(institute_id: str, key: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return calendar.original(db,institute_id,key)
+
+
+@router.get("/birthday-calendar-policies/{identifier}", response_model=calendar.PolicyRead)
+def calendar_detail(institute_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return calendar.require(db,institute_id,identifier)
+
+
+@router.post("/customers/{customer_id}/lifecycle-declarations", response_model=lifecycle.Original)
+def lifecycle_create(institute_id: str, customer_id: str, payload: lifecycle.Declaration, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.create(db,institute_id,customer_id,payload,user.get("sub"))
+
+
+@router.get("/customers/{customer_id}/lifecycle-declarations/current", response_model=lifecycle.Original | None)
+def lifecycle_current(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.current(db,institute_id,customer_id)
+
+
+@router.get("/customers/{customer_id}/lifecycle-declarations/original/{key}", response_model=lifecycle.Original | None)
+def lifecycle_original(institute_id: str, customer_id: str, key: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.original(db,institute_id,customer_id,key)
+
+
+@router.get("/customers/{customer_id}/lifecycle-declarations/{identifier}", response_model=lifecycle.Original)
+def lifecycle_detail(institute_id: str, customer_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
+    lifecycle.owned(db,institute_id,customer_id)
+    return lifecycle.require(db,institute_id,customer_id,identifier)
+
+
+@router.get("/customers/{customer_id}/lifecycle", response_model=lifecycle.LifecycleRead)
+def lifecycle_read(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.read(db,institute_id,customer_id)
 
 
 @router.post("/customers/{customer_id}/lifetime-assumptions", response_model=lifetime.Original)

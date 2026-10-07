@@ -661,6 +661,49 @@ browser, physical-device or production receipt is claimed. Durable native
 declaration/recovery and all six source-grounded repeatable lifecycle events
 remain required; canonical CRM gates stay open.
 
+## Phase 12T: durable lifecycle/calendar originals and authoritative birthday read
+
+Own registered customers now have immutable lifecycle declaration originals and
+explicit current pointers; institutes have separate birthday-calendar policy
+originals/current pointers. Each original pins all declared birthday/permission
+evidence or timezone/leap rule, predecessor, reason, signed actor and server date.
+Same-key exact actor/terms replay returns old originals before mutable head/clock
+checks. Cross-owner data, changed actor/terms, stale predecessor and backward
+creation clocks fail. Corrections append and preserve past originals; no edit/
+delete route or implicit calendar policy is added. Composite scoped head and
+predecessor foreign keys prevent cross-client/institute substitutions.
+
+Signed own-institute manager APIs expose declaration/calendar creation, current,
+original-key and original-ID receipts. The customer lifecycle read holds the
+institute lock across registered identity/creation, both current original families
+and one server capture (six SQL statements when both exist). Result retains
+registered source, original declaration/calendar and birthday observation
+provenance. Missing declaration/calendar and future declaration/calendar/
+registration remain explicit unavailable reasons; corrected unknown birthday
+remains unknown. External delivery authority and sent flags stay false; this
+source read is not a persisted trigger, scheduler or external message claim.
+
+Migration `d94f6ab32815` follows `c83e5fa21704`. Four original/head tables support
+empty roundtrip and online historical downgrade protection. New SQLite/PostgreSQL
+fixtures prove metadata equality, cross-customer lifecycle and cross-institute
+calendar pointer/predecessor refusal, retained originals and intact schema after
+blocked downgrade. Eleven historical migration files change only their expected
+latest head; existing downgrade targets/history checks are preserved. No actual
+application database migration was performed.
+
+Controlled initial lifecycle original/calendar/pure focus: 21 passed in 9.84s.
+Final eleven CRM source/calculation/original files, excluding migration files:
+112 passed in 98.76s, zero failures/skips, actual PostgreSQL enabled. Scope,
+receipt replay, corrections, clock precedence, known/unknown declaration, six-
+query snapshot, signed roles/HTTP/actor spoofing and both-family competing
+corrections are covered. A real PostgreSQL calendar writer waits during birthday
+capture; independent old/new calendar provenance verified. New plus eleven
+affected historical migration files: 25 passed in 148.70s, zero failures/skips.
+Existing passlib crypt warning only. No full-backend, new frontend/browser,
+physical-device or production receipt is claimed. Native guard/declaration/
+recovery and all six durable lifecycle event triggers remain required; canonical
+CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
