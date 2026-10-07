@@ -811,6 +811,24 @@ migration, external delivery or physical/production acceptance claimed.
 All six durable lifecycle event triggers and canonical gate acceptance remain
 required; CRM gates stay open.
 
+## Phase 12Y: explicit six-trigger automation rules
+
+Immutable institute policy contract requires exactly six distinct canonical rules,
+each with strict enabled boolean and bounded exact integer microsecond offset.
+No activation/timing defaults are supplied. Birthday has zero elapsed offset and
+uses the declared civil day; rebooking/inactivity require positive intervals.
+Disabled rules still retain explicit terms. Permission/delivery authority is not
+inferred. Source audit distinguishes completed care, paid tickets, package balance/
+expiry and membership terms/renewal originals for subsequent candidate capture.
+
+Controlled automation-policy plus lifecycle/calendar tests: 31 passed in 0.32s,
+zero failures/skips. Includes large exact microseconds, immutability, missing/
+duplicate/coerced rules, invalid offset boundaries and unrequested delivery field.
+Existing Starlette/httpx testclient deprecation warning observed. No durable event,
+source capture, schema/API, worker, native policy editor or external delivery
+claimed. Six-trigger candidates, durable rules/events, repeatability/cancellation
+and worker/native acceptance remain required; canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

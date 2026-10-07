@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12X_NATIVE_LIFECYCLE_BROWSER_EVIDENCE
+CURRENT_CHECKPOINT = PHASE12Y_EXPLICIT_AUTOMATION_RULES
 STATUS = ACTIVE
+
+PHASE12Y_EXPLICIT_AUTOMATION_RULES:
+- Audited canonical six triggers and existing package/membership sources. Added immutable explicit institute automation policy contract with exactly six unique birthday/post-service/rebooking/inactivity/package-expiry/subscription-renewal rules. Each requires strict enabled boolean and bounded exact integer microsecond offset; no activation/timing defaults. Birthday uses civil-day timing and requires zero offset; rebooking/inactivity require positive explicit intervals. Disabled rules still retain declared timing. No permission or delivery authority inferred.
+- Controlled automation-policy plus existing lifecycle/calendar regression: 31 passed in 0.32s, zero failures/skips. Tests cover exact microseconds above JSON-safe precision, immutability, missing/duplicate rules, missing/coerced enabled, boolean/fractional/negative/overflow offsets, inconsistent birthday/zero inactivity/rebooking, foreign-format scope and unrequested delivery field. Existing Starlette/httpx testclient deprecation warning observed. No durable event/source capture, database/schema/API/native policy editor, worker/delivery or new frontend/full-backend/browser/production receipt claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: source-grounded six-trigger candidates, durable rule originals and event ledger with repeatability/cancellation, then worker/native acceptance and complete Phase 12. Full canonical goal remains active.
 
 PHASE12X_NATIVE_LIFECYCLE_BROWSER_EVIDENCE:
 - Added signed native own-customer lifecycle workflow on Edge desktop and touch tablet with browser timezone America/Los_Angeles and explicitly configured Europe/Zurich fixture calendar. Evidenced February-29 declaration records granted follow-up email, refused marketing email and unknown SMS purposes independently. Committed lost POST reply is recovered after reload/reselection with one POST and cleared protected intent. Correction to unknown birthday clears birthday evidence while retaining exact purpose-specific permissions and preserving independent original-ID history.
