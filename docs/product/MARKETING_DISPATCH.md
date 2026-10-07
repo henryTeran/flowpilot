@@ -474,3 +474,26 @@ conversions or complete campaign history. Conversion rate and ROAS remain null;
 causal lift and delivery are unproven. Candidate discovery trusts stored campaign
 scope metadata; hashes detect incoherent retained receipts, not authenticated
 provider evidence or arbitrary administrator rewriting of the database.
+
+### Phase13BB native conversion contracts
+
+`marketing-conversion-utils.ts` validates selected sources, protected requests,
+unretained previews, complete attribution receipts, bounded current/audit pages
+and reports. Existing full campaign/dispatch validators prove owned content,
+digests and source bindings. Attribution fingerprint matches the backend's full
+UTC-normalized microsecond/ASCII sorted JSON; literal message/reason text remains
+unchanged. The opt-in exporter retains an actual link and retraction through
+authoritative services in isolated SQLite with seeded billing/fake provider facts.
+Its checked-in vector includes full original hash, current page, audit and
+populated/empty reports; it is not live delivery or settlement evidence.
+
+Native report checks exact requested window, count decomposition and currency/mode
+diagnostics using BigInt for gross strings, including amounts above Number precision.
+No rate/ROAS/causal/delivery/complete-history claim is accepted. Current pages have
+ticket-ID order and unique ticket/event/operation keys; audits validate all present
+predecessor relationships, including preserved retraction snapshots and cycles.
+An ancestor outside the bounded page remains unproven in the native page alone.
+Future UI must reread original keys/IDs and selected sources independently, guard
+actor/context changes, preserve protected terms across lost acknowledgements and
+avoid comparing separate report/page captures as if they were atomic. These are
+contracts only; conversion selection/writer/history/report screens are not wired.
