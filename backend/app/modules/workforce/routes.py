@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from datetime import date
+from typing import Literal
 from sqlalchemy.orm import Session
 
 from app.core.permissions import require_ticket_manager
@@ -18,6 +19,7 @@ from app.modules.workforce.work_hours import EmployeeWorkHours
 from app.modules.workforce.occupation import EmployeeOccupation
 from app.modules.workforce import rebooking
 from app.modules.workforce.rebooking_day import RebookingDay
+from app.modules.workforce.rebooking_options import SourceOptions, TargetOptions
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -46,6 +48,21 @@ def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manag
 @router.post("/rebookings", response_model=rebooking.RebookingRead)
 def create_rebooking(institute_id: str, payload: rebooking.RebookingCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     return rebooking.create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/rebooking-sources", response_model=SourceOptions)
+def rebooking_source_options(institute_id: str, employee_id: str, day: date, limit: int = Query(20, ge=1, le=50),
+                            offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.rebooking_options import read_sources
+    return read_sources(db, institute_id, employee_id, day, limit, offset)
+
+
+@router.get("/rebooking-targets/{kind}/{identifier}", response_model=TargetOptions)
+def rebooking_target_options(institute_id: str, kind: Literal["session", "appointment"], identifier: str,
+                            limit: int = Query(20, ge=1, le=50), offset: int = Query(0, ge=0, le=2147483647),
+                            user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.rebooking_options import read_targets
+    return read_targets(db, institute_id, kind, identifier, limit, offset)
 
 
 @router.get("/rebookings/original/{key}", response_model=rebooking.RebookingRead | None)

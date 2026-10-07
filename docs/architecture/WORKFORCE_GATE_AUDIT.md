@@ -43,6 +43,8 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
+Bounded scoped actual-completion source and same-client target choice APIs now
+support the pending native form; invalid/unknown/attributed choices stay explicit.
 Next independent unit: native recorded rebooking authoring/cancellation and lost-reply recovery, then
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.

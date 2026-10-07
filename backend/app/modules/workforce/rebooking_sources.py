@@ -71,14 +71,18 @@ def _instant(value):
 
 def booking(db, institute, identifier, source: ExecutionCapture, now):
     target = db.scalar(select(Appointment).where(Appointment.institute_id == institute, Appointment.id == identifier))
+    # Never guess a creation date from the planned slot. Ambiguous legacy events
+    # cannot support an original declaration, even if their visible slot matches.
+    events = list(db.scalars(select(BookingEvent).where(BookingEvent.institute_id == institute,
+        BookingEvent.appointment_id == identifier, BookingEvent.event_type == "created").limit(2)))
+    return capture_booking(target, events, source, now)
+
+
+def capture_booking(target, events, source: ExecutionCapture, now):
     if target is None or target.status not in {"scheduled", "confirmed", "arrived", "in_progress", "completed"} or target.customer_id != source.customer_id:
         raise business_error("Reservation active et lien client identique requis")
     if source.kind == "appointment" and target.id == source.id:
         raise business_error("Une prestation ne peut pas etre son propre rebooking")
-    # Never guess a creation date from the planned slot. Ambiguous legacy events
-    # cannot support an original declaration, even if their visible slot matches.
-    events = list(db.scalars(select(BookingEvent).where(BookingEvent.institute_id == institute,
-        BookingEvent.appointment_id == target.id, BookingEvent.event_type == "created").limit(2)))
     if len(events) != 1:
         raise business_error("Provenance de creation de la reservation inconnue ou ambigue")
     event = events[0]

@@ -4,6 +4,28 @@ Status: original declaration/cancellation API and migration implemented;
 bounded employee declaration-day read and profile component implemented;
 readonly profile verified on controlled Edge; native lifecycle and acceptance remain open.
 
+Bounded manager source/target choice APIs support native authoring without raw
+ID entry. Source choices use actual completion day (explicitly distinct from the
+declaration-day journal) and include completed sessions/appointments with known
+ending instants in shared half-open institute bounds. Missing-start/incoherent,
+future-ending, unknown-client and already-attributed choices retain explicit
+disabled reasons. Completely unlocated completion never borrows a planned end;
+`complete_sources=false` retains unknown coverage. Owned line/ticket and client
+relations are joined/correlated in the bounded read; eligible rows return their
+typed actual capture. Separate cancellation releases active source eligibility.
+
+Target choices revalidate the selected execution under the institute lock and
+page current active appointments for that exact owned client. They never infer a
+client from a name or phone. Joined creation-event counts reject missing or
+duplicate original provenance; active existing target attribution disables reuse.
+Past/legacy choices are visible with disabled reasons instead of fabricated
+creation dates. Eligible target capture uses the same pure booking validation
+as signed writes, preserving original and current booked slots and exact event
+chronology. Events are grouped only for that client's scoped current candidates,
+and rows do not trigger per-option source queries. Selection remains a snapshot:
+the signed original write revalidates authoritative facts and active uniqueness
+before creating any declaration. No source/target choice creates attribution.
+
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
 window or permits guessing customer identity. Employee rebooking will therefore
