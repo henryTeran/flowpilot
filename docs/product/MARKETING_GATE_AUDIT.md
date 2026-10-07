@@ -997,6 +997,33 @@ backend/live provider/physical/production acceptance inferred; native evidence i
 evidence/operator uncertainty resolution, conversion and gate audit remain. All
 Phase 13 gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AR - native dispatch contracts and backend fingerprint vectors
+
+Native strict validators now cover Account selection, requests, retained approved
+Submission/Intent and submission Result/Outcome plus bounded pages. Exact scopes,
+channel/sender/mode/application, full actor/key/request/source terms, member/grant/
+destination and capture clocks checked. SHA-256 uses Python-compatible UTC microsecond
+normalization, ASCII Unicode escaping, sorted object keys and original array order;
+nonselected channel facts stay bound. Account sort compares Unicode code points.
+Receipt matching pins expected actor/request/account; shape validation is not source
+authentication or current sending authority. Independent original reads remain needed.
+
+Outcome guards preserve exact intent/account/key/fingerprint, acceptance reference,
+strict false delivery flag and observed/retained clocks. Present bounded audit
+predecessors refuse cycles, terminal successors, decreasing clocks and changed known
+references. Outside-page predecessors are not claimed verified. No worker/UI actions.
+
+Explicit isolated SQLite exporter 1 passed in 6.70s. Checked-in JSON contains three
+actual retained backend service chains with Unicode body and fixture-only test
+accounts; internal simulated unknown/accepted observations, never provider I/O.
+Initial focused8 passed in 0.52s; full frontend331 passed in 51.25s. Final empty scope/
+channel guard and nonselected contact/reversed-array test: focused9 passed in 0.52s,
+final TypeScript/Vite build142 modules. Full run precedes final narrow extension.
+All terminal exit0; exporter crypt warning only. No new browser/full-backend/schema/
+live provider/physical/production acceptance. Native preparation/recovery and retained
+result readers, invocation, authenticated evidence/operator uncertainty resolution,
+conversion and canonical acceptance remain. All Phase 13 gates OPEN; full goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

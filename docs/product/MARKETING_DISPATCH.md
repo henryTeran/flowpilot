@@ -154,3 +154,29 @@ key/ID and outcome current/key/ID/audit reads support subsequent independent nat
 verification. These intent originals include declared recipient contact facts and
 remain manager-only, with no provider connection credentials. Neither catalog
 performs submission, reconciliation, outcome mutation or live account acceptance.
+
+## Native dispatch contracts
+
+`marketing-dispatch-utils.ts` validates exact Account metadata and bounded account/
+intent/outcome pages, retained approved Submission sources, requests, intent receipts
+and submission results. The intent fingerprint matches backend Python SHA-256:
+UTC-normalized aware timestamps with microseconds, sorted object keys, ASCII JSON
+Unicode escapes and original array order. Nonselected channel contact facts remain
+part of the fingerprint. Valid shapes/fingerprints do not authenticate an API response
+or establish current dispatch authority; consumers must independently reread originals.
+
+Receipt matching separately pins the signed actor, full request and selected Account
+metadata, including provider/mode/sender/application. Unknown/accepted/rejected
+observations bind the exact intent/account/key/fingerprint; acceptance needs a provider
+reference and delivery_confirmed remains strictly false. Outcome retention/observation
+clocks are checked. Bounded audit validates present predecessor cycles, terminal
+successors, monotonic clocks and stable known references; it makes no claim about
+predecessors outside the page.
+
+The checked-in three-channel JSON vectors come from the explicit isolated SQLite
+exporter `backend/tests/export_marketing_dispatch_13ar.py`: actual retained service
+intent/approval/contact/catalog/outcome originals, test-mode fixture accounts and
+simulated internal observations, never provider I/O. Native tests use these backend
+fingerprints, offset-equivalent clocks, Unicode and deliberate corruption. The native
+preparation/recovery/outcome reader components remain to be connected; these helpers
+do not read storage, prepare intents, invoke workers or display live acceptance.

@@ -1,0 +1,1382 @@
+[
+  {
+    "institute_id": "demo-institute-geneve",
+    "account_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-email",
+          "channel": "email",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": null
+        }
+      ]
+    },
+    "approval": {
+      "request": {
+        "action": "approve",
+        "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+        "expected_revision_id": "marketing_campaign_revision_2a9bb337d9424786b113b27966ccfa8f",
+        "content": null,
+        "reason": "Explicit campaign action",
+        "idempotency_key": "vector-approve-email"
+      },
+      "revision": {
+        "id": "marketing_campaign_revision_c56e1c48d5eb4387a01585a29ca9d35a",
+        "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+        "institute_id": "demo-institute-geneve",
+        "previous_id": "marketing_campaign_revision_2a9bb337d9424786b113b27966ccfa8f",
+        "state": "APPROVE",
+        "content": {
+          "institute_id": "demo-institute-geneve",
+          "channel": "email",
+          "origin": "ai",
+          "subject": "Subject",
+          "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+          "template_original_id": null,
+          "audience": {
+            "id": "marketing_audience_788657e433694cd6aca9aca65392d079",
+            "institute_id": "demo-institute-geneve",
+            "captured_at": "2026-10-07T12:00:00.000004Z",
+            "customer_ids": [
+              "aud_000"
+            ]
+          }
+        },
+        "actor_id": "manager",
+        "reason": "Explicit campaign action",
+        "created_at": "2026-10-07T12:00:00.000004Z",
+        "reviewed_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+        "approved_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+        "external_message_sent": false,
+        "delivery_authorized": false
+      }
+    },
+    "contact": {
+      "declaration": {
+        "institute_id": "demo-institute-geneve",
+        "customer_id": "aud_000",
+        "purpose": "marketing",
+        "communications": [
+          {
+            "channel": "email",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "email",
+              "email": "customer@example.com",
+              "phone": null,
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "sms",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "sms",
+              "email": null,
+              "phone": "+41791234567",
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "push",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "push",
+              "email": null,
+              "phone": null,
+              "push_application": "institute-app",
+              "push_token": "explicit-device-token",
+              "evidence": "Explicit destination declaration"
+            }
+          }
+        ]
+      },
+      "previous_id": null,
+      "reason": "Explicit marketing contact declaration",
+      "idempotency_key": "contact",
+      "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+      "actor_id": "manager",
+      "created_at": "2026-10-07T12:00:00.000003Z"
+    },
+    "intent": {
+      "id": "marketing_dispatch_8bbcfc9ee2e249aeb7752e6011f4829f",
+      "request": {
+        "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+        "expected_revision_id": "marketing_campaign_revision_c56e1c48d5eb4387a01585a29ca9d35a",
+        "customer_id": "aud_000",
+        "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+        "account_id": "vector-account-email",
+        "reason": "Explicit approved recipient preparation",
+        "idempotency_key": "vector-intent-email"
+      },
+      "submission": {
+        "account": {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-email",
+          "channel": "email",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": null
+        },
+        "eligibility": {
+          "customer": {
+            "institute_id": "demo-institute-geneve",
+            "customer_id": "aud_000",
+            "created_at": "2026-10-07T12:00:00Z"
+          },
+          "campaign": {
+            "id": "marketing_campaign_revision_c56e1c48d5eb4387a01585a29ca9d35a",
+            "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+            "institute_id": "demo-institute-geneve",
+            "previous_id": "marketing_campaign_revision_2a9bb337d9424786b113b27966ccfa8f",
+            "state": "APPROVE",
+            "content": {
+              "institute_id": "demo-institute-geneve",
+              "channel": "email",
+              "origin": "ai",
+              "subject": "Subject",
+              "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+              "template_original_id": null,
+              "audience": {
+                "id": "marketing_audience_788657e433694cd6aca9aca65392d079",
+                "institute_id": "demo-institute-geneve",
+                "captured_at": "2026-10-07T12:00:00.000004Z",
+                "customer_ids": [
+                  "aud_000"
+                ]
+              }
+            },
+            "actor_id": "manager",
+            "reason": "Explicit campaign action",
+            "created_at": "2026-10-07T12:00:00.000004Z",
+            "reviewed_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+            "approved_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+            "external_message_sent": false,
+            "delivery_authorized": false
+          },
+          "original": {
+            "declaration": {
+              "institute_id": "demo-institute-geneve",
+              "customer_id": "aud_000",
+              "purpose": "marketing",
+              "communications": [
+                {
+                  "channel": "email",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "email",
+                    "email": "customer@example.com",
+                    "phone": null,
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "sms",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "sms",
+                    "email": null,
+                    "phone": "+41791234567",
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "push",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "push",
+                    "email": null,
+                    "phone": null,
+                    "push_application": "institute-app",
+                    "push_token": "explicit-device-token",
+                    "evidence": "Explicit destination declaration"
+                  }
+                }
+              ]
+            },
+            "previous_id": null,
+            "reason": "Explicit marketing contact declaration",
+            "idempotency_key": "contact",
+            "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "actor_id": "manager",
+            "created_at": "2026-10-07T12:00:00.000003Z"
+          },
+          "captured_at": "2026-10-07T12:00:00.000004Z",
+          "reason": "declared_eligible",
+          "eligible_by_current_declaration": true,
+          "delivery_authorized": false,
+          "external_message_sent": false
+        },
+        "actor_id": "manager",
+        "idempotency_key": "vector-intent-email"
+      },
+      "created_at": "2026-10-07T12:00:00.000004Z",
+      "request_fingerprint": "96d663a190228134117f6673afdce25785576608f5d25b937f1a212869e63438"
+    },
+    "intent_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_dispatch_8bbcfc9ee2e249aeb7752e6011f4829f",
+          "request": {
+            "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+            "expected_revision_id": "marketing_campaign_revision_c56e1c48d5eb4387a01585a29ca9d35a",
+            "customer_id": "aud_000",
+            "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "account_id": "vector-account-email",
+            "reason": "Explicit approved recipient preparation",
+            "idempotency_key": "vector-intent-email"
+          },
+          "submission": {
+            "account": {
+              "institute_id": "demo-institute-geneve",
+              "provider": "fixture-only",
+              "account_id": "vector-account-email",
+              "channel": "email",
+              "sender_id": "fixture-sender",
+              "mode": "test",
+              "push_application": null
+            },
+            "eligibility": {
+              "customer": {
+                "institute_id": "demo-institute-geneve",
+                "customer_id": "aud_000",
+                "created_at": "2026-10-07T12:00:00Z"
+              },
+              "campaign": {
+                "id": "marketing_campaign_revision_c56e1c48d5eb4387a01585a29ca9d35a",
+                "campaign_id": "marketing_campaign_d9b29af264bb43e5b893231275901851",
+                "institute_id": "demo-institute-geneve",
+                "previous_id": "marketing_campaign_revision_2a9bb337d9424786b113b27966ccfa8f",
+                "state": "APPROVE",
+                "content": {
+                  "institute_id": "demo-institute-geneve",
+                  "channel": "email",
+                  "origin": "ai",
+                  "subject": "Subject",
+                  "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+                  "template_original_id": null,
+                  "audience": {
+                    "id": "marketing_audience_788657e433694cd6aca9aca65392d079",
+                    "institute_id": "demo-institute-geneve",
+                    "captured_at": "2026-10-07T12:00:00.000004Z",
+                    "customer_ids": [
+                      "aud_000"
+                    ]
+                  }
+                },
+                "actor_id": "manager",
+                "reason": "Explicit campaign action",
+                "created_at": "2026-10-07T12:00:00.000004Z",
+                "reviewed_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+                "approved_digest": "c88c16a1ed3a8fadbd9537e794a4310ef896b91050ced05abcb69912d125ad9a",
+                "external_message_sent": false,
+                "delivery_authorized": false
+              },
+              "original": {
+                "declaration": {
+                  "institute_id": "demo-institute-geneve",
+                  "customer_id": "aud_000",
+                  "purpose": "marketing",
+                  "communications": [
+                    {
+                      "channel": "email",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "email",
+                        "email": "customer@example.com",
+                        "phone": null,
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "sms",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "sms",
+                        "email": null,
+                        "phone": "+41791234567",
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "push",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "push",
+                        "email": null,
+                        "phone": null,
+                        "push_application": "institute-app",
+                        "push_token": "explicit-device-token",
+                        "evidence": "Explicit destination declaration"
+                      }
+                    }
+                  ]
+                },
+                "previous_id": null,
+                "reason": "Explicit marketing contact declaration",
+                "idempotency_key": "contact",
+                "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+                "actor_id": "manager",
+                "created_at": "2026-10-07T12:00:00.000003Z"
+              },
+              "captured_at": "2026-10-07T12:00:00.000004Z",
+              "reason": "declared_eligible",
+              "eligible_by_current_declaration": true,
+              "delivery_authorized": false,
+              "external_message_sent": false
+            },
+            "actor_id": "manager",
+            "idempotency_key": "vector-intent-email"
+          },
+          "created_at": "2026-10-07T12:00:00.000004Z",
+          "request_fingerprint": "96d663a190228134117f6673afdce25785576608f5d25b937f1a212869e63438"
+        }
+      ]
+    },
+    "outcome": {
+      "id": "marketing_outcome_1305221e4bbf43b7a0e67e32e585577b",
+      "actor_id": "fixture-worker",
+      "request": {
+        "intent_id": "marketing_dispatch_8bbcfc9ee2e249aeb7752e6011f4829f",
+        "expected_previous_id": "marketing_outcome_ae0c0c027d404bf99885a407fdfeaf94",
+        "result": {
+          "account": {
+            "institute_id": "demo-institute-geneve",
+            "provider": "fixture-only",
+            "account_id": "vector-account-email",
+            "channel": "email",
+            "sender_id": "fixture-sender",
+            "mode": "test",
+            "push_application": null
+          },
+          "idempotency_key": "vector-intent-email",
+          "request_fingerprint": "96d663a190228134117f6673afdce25785576608f5d25b937f1a212869e63438",
+          "status": "accepted",
+          "provider_message_id": "fixture-reference",
+          "observed_at": "2026-10-07T12:00:00.000005Z",
+          "delivery_confirmed": false
+        },
+        "reason": "Explicit simulated vector observation",
+        "idempotency_key": "vector-outcome-email-1"
+      },
+      "created_at": "2026-10-07T12:00:00.000005Z"
+    },
+    "outcome_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 2,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_outcome_1305221e4bbf43b7a0e67e32e585577b",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_8bbcfc9ee2e249aeb7752e6011f4829f",
+            "expected_previous_id": "marketing_outcome_ae0c0c027d404bf99885a407fdfeaf94",
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-email",
+                "channel": "email",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": null
+              },
+              "idempotency_key": "vector-intent-email",
+              "request_fingerprint": "96d663a190228134117f6673afdce25785576608f5d25b937f1a212869e63438",
+              "status": "accepted",
+              "provider_message_id": "fixture-reference",
+              "observed_at": "2026-10-07T12:00:00.000005Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-email-1"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        },
+        {
+          "id": "marketing_outcome_ae0c0c027d404bf99885a407fdfeaf94",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_8bbcfc9ee2e249aeb7752e6011f4829f",
+            "expected_previous_id": null,
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-email",
+                "channel": "email",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": null
+              },
+              "idempotency_key": "vector-intent-email",
+              "request_fingerprint": "96d663a190228134117f6673afdce25785576608f5d25b937f1a212869e63438",
+              "status": "unknown",
+              "provider_message_id": null,
+              "observed_at": "2026-10-07T12:00:00.000004Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-email-0"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        }
+      ]
+    }
+  },
+  {
+    "institute_id": "demo-institute-geneve",
+    "account_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-sms",
+          "channel": "sms",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": null
+        }
+      ]
+    },
+    "approval": {
+      "request": {
+        "action": "approve",
+        "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+        "expected_revision_id": "marketing_campaign_revision_7ad9cb709f5a44bd828d057a72295526",
+        "content": null,
+        "reason": "Explicit campaign action",
+        "idempotency_key": "vector-approve-sms"
+      },
+      "revision": {
+        "id": "marketing_campaign_revision_6954106687f94818b416ccb935ab51be",
+        "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+        "institute_id": "demo-institute-geneve",
+        "previous_id": "marketing_campaign_revision_7ad9cb709f5a44bd828d057a72295526",
+        "state": "APPROVE",
+        "content": {
+          "institute_id": "demo-institute-geneve",
+          "channel": "sms",
+          "origin": "ai",
+          "subject": null,
+          "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+          "template_original_id": null,
+          "audience": {
+            "id": "marketing_audience_f0e7554e4ab74e5289aac32600db36b8",
+            "institute_id": "demo-institute-geneve",
+            "captured_at": "2026-10-07T12:00:00.000004Z",
+            "customer_ids": [
+              "aud_000"
+            ]
+          }
+        },
+        "actor_id": "manager",
+        "reason": "Explicit campaign action",
+        "created_at": "2026-10-07T12:00:00.000004Z",
+        "reviewed_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+        "approved_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+        "external_message_sent": false,
+        "delivery_authorized": false
+      }
+    },
+    "contact": {
+      "declaration": {
+        "institute_id": "demo-institute-geneve",
+        "customer_id": "aud_000",
+        "purpose": "marketing",
+        "communications": [
+          {
+            "channel": "email",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "email",
+              "email": "customer@example.com",
+              "phone": null,
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "sms",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "sms",
+              "email": null,
+              "phone": "+41791234567",
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "push",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "push",
+              "email": null,
+              "phone": null,
+              "push_application": "institute-app",
+              "push_token": "explicit-device-token",
+              "evidence": "Explicit destination declaration"
+            }
+          }
+        ]
+      },
+      "previous_id": null,
+      "reason": "Explicit marketing contact declaration",
+      "idempotency_key": "contact",
+      "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+      "actor_id": "manager",
+      "created_at": "2026-10-07T12:00:00.000003Z"
+    },
+    "intent": {
+      "id": "marketing_dispatch_91cc85d7970f46bd884eb9bc8cc9aa25",
+      "request": {
+        "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+        "expected_revision_id": "marketing_campaign_revision_6954106687f94818b416ccb935ab51be",
+        "customer_id": "aud_000",
+        "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+        "account_id": "vector-account-sms",
+        "reason": "Explicit approved recipient preparation",
+        "idempotency_key": "vector-intent-sms"
+      },
+      "submission": {
+        "account": {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-sms",
+          "channel": "sms",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": null
+        },
+        "eligibility": {
+          "customer": {
+            "institute_id": "demo-institute-geneve",
+            "customer_id": "aud_000",
+            "created_at": "2026-10-07T12:00:00Z"
+          },
+          "campaign": {
+            "id": "marketing_campaign_revision_6954106687f94818b416ccb935ab51be",
+            "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+            "institute_id": "demo-institute-geneve",
+            "previous_id": "marketing_campaign_revision_7ad9cb709f5a44bd828d057a72295526",
+            "state": "APPROVE",
+            "content": {
+              "institute_id": "demo-institute-geneve",
+              "channel": "sms",
+              "origin": "ai",
+              "subject": null,
+              "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+              "template_original_id": null,
+              "audience": {
+                "id": "marketing_audience_f0e7554e4ab74e5289aac32600db36b8",
+                "institute_id": "demo-institute-geneve",
+                "captured_at": "2026-10-07T12:00:00.000004Z",
+                "customer_ids": [
+                  "aud_000"
+                ]
+              }
+            },
+            "actor_id": "manager",
+            "reason": "Explicit campaign action",
+            "created_at": "2026-10-07T12:00:00.000004Z",
+            "reviewed_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+            "approved_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+            "external_message_sent": false,
+            "delivery_authorized": false
+          },
+          "original": {
+            "declaration": {
+              "institute_id": "demo-institute-geneve",
+              "customer_id": "aud_000",
+              "purpose": "marketing",
+              "communications": [
+                {
+                  "channel": "email",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "email",
+                    "email": "customer@example.com",
+                    "phone": null,
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "sms",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "sms",
+                    "email": null,
+                    "phone": "+41791234567",
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "push",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "push",
+                    "email": null,
+                    "phone": null,
+                    "push_application": "institute-app",
+                    "push_token": "explicit-device-token",
+                    "evidence": "Explicit destination declaration"
+                  }
+                }
+              ]
+            },
+            "previous_id": null,
+            "reason": "Explicit marketing contact declaration",
+            "idempotency_key": "contact",
+            "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "actor_id": "manager",
+            "created_at": "2026-10-07T12:00:00.000003Z"
+          },
+          "captured_at": "2026-10-07T12:00:00.000004Z",
+          "reason": "declared_eligible",
+          "eligible_by_current_declaration": true,
+          "delivery_authorized": false,
+          "external_message_sent": false
+        },
+        "actor_id": "manager",
+        "idempotency_key": "vector-intent-sms"
+      },
+      "created_at": "2026-10-07T12:00:00.000004Z",
+      "request_fingerprint": "e0378b7cef27e8038e9dd5a611e31c795375fd61d8e30aac8e7eada21bdf3d08"
+    },
+    "intent_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_dispatch_91cc85d7970f46bd884eb9bc8cc9aa25",
+          "request": {
+            "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+            "expected_revision_id": "marketing_campaign_revision_6954106687f94818b416ccb935ab51be",
+            "customer_id": "aud_000",
+            "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "account_id": "vector-account-sms",
+            "reason": "Explicit approved recipient preparation",
+            "idempotency_key": "vector-intent-sms"
+          },
+          "submission": {
+            "account": {
+              "institute_id": "demo-institute-geneve",
+              "provider": "fixture-only",
+              "account_id": "vector-account-sms",
+              "channel": "sms",
+              "sender_id": "fixture-sender",
+              "mode": "test",
+              "push_application": null
+            },
+            "eligibility": {
+              "customer": {
+                "institute_id": "demo-institute-geneve",
+                "customer_id": "aud_000",
+                "created_at": "2026-10-07T12:00:00Z"
+              },
+              "campaign": {
+                "id": "marketing_campaign_revision_6954106687f94818b416ccb935ab51be",
+                "campaign_id": "marketing_campaign_2a4df1106b6b4427874f9c0762b5ca73",
+                "institute_id": "demo-institute-geneve",
+                "previous_id": "marketing_campaign_revision_7ad9cb709f5a44bd828d057a72295526",
+                "state": "APPROVE",
+                "content": {
+                  "institute_id": "demo-institute-geneve",
+                  "channel": "sms",
+                  "origin": "ai",
+                  "subject": null,
+                  "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+                  "template_original_id": null,
+                  "audience": {
+                    "id": "marketing_audience_f0e7554e4ab74e5289aac32600db36b8",
+                    "institute_id": "demo-institute-geneve",
+                    "captured_at": "2026-10-07T12:00:00.000004Z",
+                    "customer_ids": [
+                      "aud_000"
+                    ]
+                  }
+                },
+                "actor_id": "manager",
+                "reason": "Explicit campaign action",
+                "created_at": "2026-10-07T12:00:00.000004Z",
+                "reviewed_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+                "approved_digest": "c67b9d5d1d7a57a75225a709be7c3909b4c2bbd92a37353d3f6dcde760cd2e43",
+                "external_message_sent": false,
+                "delivery_authorized": false
+              },
+              "original": {
+                "declaration": {
+                  "institute_id": "demo-institute-geneve",
+                  "customer_id": "aud_000",
+                  "purpose": "marketing",
+                  "communications": [
+                    {
+                      "channel": "email",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "email",
+                        "email": "customer@example.com",
+                        "phone": null,
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "sms",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "sms",
+                        "email": null,
+                        "phone": "+41791234567",
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "push",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "push",
+                        "email": null,
+                        "phone": null,
+                        "push_application": "institute-app",
+                        "push_token": "explicit-device-token",
+                        "evidence": "Explicit destination declaration"
+                      }
+                    }
+                  ]
+                },
+                "previous_id": null,
+                "reason": "Explicit marketing contact declaration",
+                "idempotency_key": "contact",
+                "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+                "actor_id": "manager",
+                "created_at": "2026-10-07T12:00:00.000003Z"
+              },
+              "captured_at": "2026-10-07T12:00:00.000004Z",
+              "reason": "declared_eligible",
+              "eligible_by_current_declaration": true,
+              "delivery_authorized": false,
+              "external_message_sent": false
+            },
+            "actor_id": "manager",
+            "idempotency_key": "vector-intent-sms"
+          },
+          "created_at": "2026-10-07T12:00:00.000004Z",
+          "request_fingerprint": "e0378b7cef27e8038e9dd5a611e31c795375fd61d8e30aac8e7eada21bdf3d08"
+        }
+      ]
+    },
+    "outcome": {
+      "id": "marketing_outcome_8493920030bb4fbf96328f54b6d0fa08",
+      "actor_id": "fixture-worker",
+      "request": {
+        "intent_id": "marketing_dispatch_91cc85d7970f46bd884eb9bc8cc9aa25",
+        "expected_previous_id": "marketing_outcome_7057f8ddd6c34fa898b467f9cbcdb845",
+        "result": {
+          "account": {
+            "institute_id": "demo-institute-geneve",
+            "provider": "fixture-only",
+            "account_id": "vector-account-sms",
+            "channel": "sms",
+            "sender_id": "fixture-sender",
+            "mode": "test",
+            "push_application": null
+          },
+          "idempotency_key": "vector-intent-sms",
+          "request_fingerprint": "e0378b7cef27e8038e9dd5a611e31c795375fd61d8e30aac8e7eada21bdf3d08",
+          "status": "accepted",
+          "provider_message_id": "fixture-reference",
+          "observed_at": "2026-10-07T12:00:00.000005Z",
+          "delivery_confirmed": false
+        },
+        "reason": "Explicit simulated vector observation",
+        "idempotency_key": "vector-outcome-sms-1"
+      },
+      "created_at": "2026-10-07T12:00:00.000005Z"
+    },
+    "outcome_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 2,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_outcome_7057f8ddd6c34fa898b467f9cbcdb845",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_91cc85d7970f46bd884eb9bc8cc9aa25",
+            "expected_previous_id": null,
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-sms",
+                "channel": "sms",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": null
+              },
+              "idempotency_key": "vector-intent-sms",
+              "request_fingerprint": "e0378b7cef27e8038e9dd5a611e31c795375fd61d8e30aac8e7eada21bdf3d08",
+              "status": "unknown",
+              "provider_message_id": null,
+              "observed_at": "2026-10-07T12:00:00.000004Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-sms-0"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        },
+        {
+          "id": "marketing_outcome_8493920030bb4fbf96328f54b6d0fa08",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_91cc85d7970f46bd884eb9bc8cc9aa25",
+            "expected_previous_id": "marketing_outcome_7057f8ddd6c34fa898b467f9cbcdb845",
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-sms",
+                "channel": "sms",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": null
+              },
+              "idempotency_key": "vector-intent-sms",
+              "request_fingerprint": "e0378b7cef27e8038e9dd5a611e31c795375fd61d8e30aac8e7eada21bdf3d08",
+              "status": "accepted",
+              "provider_message_id": "fixture-reference",
+              "observed_at": "2026-10-07T12:00:00.000005Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-sms-1"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        }
+      ]
+    }
+  },
+  {
+    "institute_id": "demo-institute-geneve",
+    "account_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-push",
+          "channel": "push",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": "institute-app"
+        }
+      ]
+    },
+    "approval": {
+      "request": {
+        "action": "approve",
+        "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+        "expected_revision_id": "marketing_campaign_revision_2e84822abfe34bb58a51f91c86513d41",
+        "content": null,
+        "reason": "Explicit campaign action",
+        "idempotency_key": "vector-approve-push"
+      },
+      "revision": {
+        "id": "marketing_campaign_revision_cc70a5a9bc1d467b8ad89a50870c3d72",
+        "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+        "institute_id": "demo-institute-geneve",
+        "previous_id": "marketing_campaign_revision_2e84822abfe34bb58a51f91c86513d41",
+        "state": "APPROVE",
+        "content": {
+          "institute_id": "demo-institute-geneve",
+          "channel": "push",
+          "origin": "ai",
+          "subject": null,
+          "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+          "template_original_id": null,
+          "audience": {
+            "id": "marketing_audience_704a8eb1c18d483fa88acda805b55a3a",
+            "institute_id": "demo-institute-geneve",
+            "captured_at": "2026-10-07T12:00:00.000004Z",
+            "customer_ids": [
+              "aud_000"
+            ]
+          }
+        },
+        "actor_id": "manager",
+        "reason": "Explicit campaign action",
+        "created_at": "2026-10-07T12:00:00.000004Z",
+        "reviewed_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+        "approved_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+        "external_message_sent": false,
+        "delivery_authorized": false
+      }
+    },
+    "contact": {
+      "declaration": {
+        "institute_id": "demo-institute-geneve",
+        "customer_id": "aud_000",
+        "purpose": "marketing",
+        "communications": [
+          {
+            "channel": "email",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "email",
+              "email": "customer@example.com",
+              "phone": null,
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "sms",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "sms",
+              "email": null,
+              "phone": "+41791234567",
+              "push_application": null,
+              "push_token": null,
+              "evidence": "Explicit destination declaration"
+            }
+          },
+          {
+            "channel": "push",
+            "permission": "granted",
+            "permission_evidence": "Explicit channel permission",
+            "destination": {
+              "channel": "push",
+              "email": null,
+              "phone": null,
+              "push_application": "institute-app",
+              "push_token": "explicit-device-token",
+              "evidence": "Explicit destination declaration"
+            }
+          }
+        ]
+      },
+      "previous_id": null,
+      "reason": "Explicit marketing contact declaration",
+      "idempotency_key": "contact",
+      "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+      "actor_id": "manager",
+      "created_at": "2026-10-07T12:00:00.000003Z"
+    },
+    "intent": {
+      "id": "marketing_dispatch_d6aba14ac2fa460e9135efcd5ca651d9",
+      "request": {
+        "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+        "expected_revision_id": "marketing_campaign_revision_cc70a5a9bc1d467b8ad89a50870c3d72",
+        "customer_id": "aud_000",
+        "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+        "account_id": "vector-account-push",
+        "reason": "Explicit approved recipient preparation",
+        "idempotency_key": "vector-intent-push"
+      },
+      "submission": {
+        "account": {
+          "institute_id": "demo-institute-geneve",
+          "provider": "fixture-only",
+          "account_id": "vector-account-push",
+          "channel": "push",
+          "sender_id": "fixture-sender",
+          "mode": "test",
+          "push_application": "institute-app"
+        },
+        "eligibility": {
+          "customer": {
+            "institute_id": "demo-institute-geneve",
+            "customer_id": "aud_000",
+            "created_at": "2026-10-07T12:00:00Z"
+          },
+          "campaign": {
+            "id": "marketing_campaign_revision_cc70a5a9bc1d467b8ad89a50870c3d72",
+            "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+            "institute_id": "demo-institute-geneve",
+            "previous_id": "marketing_campaign_revision_2e84822abfe34bb58a51f91c86513d41",
+            "state": "APPROVE",
+            "content": {
+              "institute_id": "demo-institute-geneve",
+              "channel": "push",
+              "origin": "ai",
+              "subject": null,
+              "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+              "template_original_id": null,
+              "audience": {
+                "id": "marketing_audience_704a8eb1c18d483fa88acda805b55a3a",
+                "institute_id": "demo-institute-geneve",
+                "captured_at": "2026-10-07T12:00:00.000004Z",
+                "customer_ids": [
+                  "aud_000"
+                ]
+              }
+            },
+            "actor_id": "manager",
+            "reason": "Explicit campaign action",
+            "created_at": "2026-10-07T12:00:00.000004Z",
+            "reviewed_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+            "approved_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+            "external_message_sent": false,
+            "delivery_authorized": false
+          },
+          "original": {
+            "declaration": {
+              "institute_id": "demo-institute-geneve",
+              "customer_id": "aud_000",
+              "purpose": "marketing",
+              "communications": [
+                {
+                  "channel": "email",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "email",
+                    "email": "customer@example.com",
+                    "phone": null,
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "sms",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "sms",
+                    "email": null,
+                    "phone": "+41791234567",
+                    "push_application": null,
+                    "push_token": null,
+                    "evidence": "Explicit destination declaration"
+                  }
+                },
+                {
+                  "channel": "push",
+                  "permission": "granted",
+                  "permission_evidence": "Explicit channel permission",
+                  "destination": {
+                    "channel": "push",
+                    "email": null,
+                    "phone": null,
+                    "push_application": "institute-app",
+                    "push_token": "explicit-device-token",
+                    "evidence": "Explicit destination declaration"
+                  }
+                }
+              ]
+            },
+            "previous_id": null,
+            "reason": "Explicit marketing contact declaration",
+            "idempotency_key": "contact",
+            "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "actor_id": "manager",
+            "created_at": "2026-10-07T12:00:00.000003Z"
+          },
+          "captured_at": "2026-10-07T12:00:00.000004Z",
+          "reason": "declared_eligible",
+          "eligible_by_current_declaration": true,
+          "delivery_authorized": false,
+          "external_message_sent": false
+        },
+        "actor_id": "manager",
+        "idempotency_key": "vector-intent-push"
+      },
+      "created_at": "2026-10-07T12:00:00.000004Z",
+      "request_fingerprint": "a4f8bc508fb75e3380d8d44e21f092333396a8d216c6058f6dbd2ac243f3a48f"
+    },
+    "intent_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 1,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_dispatch_d6aba14ac2fa460e9135efcd5ca651d9",
+          "request": {
+            "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+            "expected_revision_id": "marketing_campaign_revision_cc70a5a9bc1d467b8ad89a50870c3d72",
+            "customer_id": "aud_000",
+            "expected_contact_id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+            "account_id": "vector-account-push",
+            "reason": "Explicit approved recipient preparation",
+            "idempotency_key": "vector-intent-push"
+          },
+          "submission": {
+            "account": {
+              "institute_id": "demo-institute-geneve",
+              "provider": "fixture-only",
+              "account_id": "vector-account-push",
+              "channel": "push",
+              "sender_id": "fixture-sender",
+              "mode": "test",
+              "push_application": "institute-app"
+            },
+            "eligibility": {
+              "customer": {
+                "institute_id": "demo-institute-geneve",
+                "customer_id": "aud_000",
+                "created_at": "2026-10-07T12:00:00Z"
+              },
+              "campaign": {
+                "id": "marketing_campaign_revision_cc70a5a9bc1d467b8ad89a50870c3d72",
+                "campaign_id": "marketing_campaign_77fa762ee60441c496b9276b291b4aff",
+                "institute_id": "demo-institute-geneve",
+                "previous_id": "marketing_campaign_revision_2e84822abfe34bb58a51f91c86513d41",
+                "state": "APPROVE",
+                "content": {
+                  "institute_id": "demo-institute-geneve",
+                  "channel": "push",
+                  "origin": "ai",
+                  "subject": null,
+                  "body": "Literal \u00e9 \ud83d\ude42 \u007f {customer_name}",
+                  "template_original_id": null,
+                  "audience": {
+                    "id": "marketing_audience_704a8eb1c18d483fa88acda805b55a3a",
+                    "institute_id": "demo-institute-geneve",
+                    "captured_at": "2026-10-07T12:00:00.000004Z",
+                    "customer_ids": [
+                      "aud_000"
+                    ]
+                  }
+                },
+                "actor_id": "manager",
+                "reason": "Explicit campaign action",
+                "created_at": "2026-10-07T12:00:00.000004Z",
+                "reviewed_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+                "approved_digest": "3a3ba7218fc2edb55de708422002d24fb602eae2bd98190f21b456732128dce2",
+                "external_message_sent": false,
+                "delivery_authorized": false
+              },
+              "original": {
+                "declaration": {
+                  "institute_id": "demo-institute-geneve",
+                  "customer_id": "aud_000",
+                  "purpose": "marketing",
+                  "communications": [
+                    {
+                      "channel": "email",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "email",
+                        "email": "customer@example.com",
+                        "phone": null,
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "sms",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "sms",
+                        "email": null,
+                        "phone": "+41791234567",
+                        "push_application": null,
+                        "push_token": null,
+                        "evidence": "Explicit destination declaration"
+                      }
+                    },
+                    {
+                      "channel": "push",
+                      "permission": "granted",
+                      "permission_evidence": "Explicit channel permission",
+                      "destination": {
+                        "channel": "push",
+                        "email": null,
+                        "phone": null,
+                        "push_application": "institute-app",
+                        "push_token": "explicit-device-token",
+                        "evidence": "Explicit destination declaration"
+                      }
+                    }
+                  ]
+                },
+                "previous_id": null,
+                "reason": "Explicit marketing contact declaration",
+                "idempotency_key": "contact",
+                "id": "marketing_contact_1e10d6c1e44d4b7793f30fd33a06c804",
+                "actor_id": "manager",
+                "created_at": "2026-10-07T12:00:00.000003Z"
+              },
+              "captured_at": "2026-10-07T12:00:00.000004Z",
+              "reason": "declared_eligible",
+              "eligible_by_current_declaration": true,
+              "delivery_authorized": false,
+              "external_message_sent": false
+            },
+            "actor_id": "manager",
+            "idempotency_key": "vector-intent-push"
+          },
+          "created_at": "2026-10-07T12:00:00.000004Z",
+          "request_fingerprint": "a4f8bc508fb75e3380d8d44e21f092333396a8d216c6058f6dbd2ac243f3a48f"
+        }
+      ]
+    },
+    "outcome": {
+      "id": "marketing_outcome_112fcf0885ee4c7db09596d1fb0eb3a4",
+      "actor_id": "fixture-worker",
+      "request": {
+        "intent_id": "marketing_dispatch_d6aba14ac2fa460e9135efcd5ca651d9",
+        "expected_previous_id": "marketing_outcome_9b033fd993d64eda9acf5b41491efaa5",
+        "result": {
+          "account": {
+            "institute_id": "demo-institute-geneve",
+            "provider": "fixture-only",
+            "account_id": "vector-account-push",
+            "channel": "push",
+            "sender_id": "fixture-sender",
+            "mode": "test",
+            "push_application": "institute-app"
+          },
+          "idempotency_key": "vector-intent-push",
+          "request_fingerprint": "a4f8bc508fb75e3380d8d44e21f092333396a8d216c6058f6dbd2ac243f3a48f",
+          "status": "accepted",
+          "provider_message_id": "fixture-reference",
+          "observed_at": "2026-10-07T12:00:00.000005Z",
+          "delivery_confirmed": false
+        },
+        "reason": "Explicit simulated vector observation",
+        "idempotency_key": "vector-outcome-push-1"
+      },
+      "created_at": "2026-10-07T12:00:00.000005Z"
+    },
+    "outcome_page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 2,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "id": "marketing_outcome_112fcf0885ee4c7db09596d1fb0eb3a4",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_d6aba14ac2fa460e9135efcd5ca651d9",
+            "expected_previous_id": "marketing_outcome_9b033fd993d64eda9acf5b41491efaa5",
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-push",
+                "channel": "push",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": "institute-app"
+              },
+              "idempotency_key": "vector-intent-push",
+              "request_fingerprint": "a4f8bc508fb75e3380d8d44e21f092333396a8d216c6058f6dbd2ac243f3a48f",
+              "status": "accepted",
+              "provider_message_id": "fixture-reference",
+              "observed_at": "2026-10-07T12:00:00.000005Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-push-1"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        },
+        {
+          "id": "marketing_outcome_9b033fd993d64eda9acf5b41491efaa5",
+          "actor_id": "fixture-worker",
+          "request": {
+            "intent_id": "marketing_dispatch_d6aba14ac2fa460e9135efcd5ca651d9",
+            "expected_previous_id": null,
+            "result": {
+              "account": {
+                "institute_id": "demo-institute-geneve",
+                "provider": "fixture-only",
+                "account_id": "vector-account-push",
+                "channel": "push",
+                "sender_id": "fixture-sender",
+                "mode": "test",
+                "push_application": "institute-app"
+              },
+              "idempotency_key": "vector-intent-push",
+              "request_fingerprint": "a4f8bc508fb75e3380d8d44e21f092333396a8d216c6058f6dbd2ac243f3a48f",
+              "status": "unknown",
+              "provider_message_id": null,
+              "observed_at": "2026-10-07T12:00:00.000004Z",
+              "delivery_confirmed": false
+            },
+            "reason": "Explicit simulated vector observation",
+            "idempotency_key": "vector-outcome-push-0"
+          },
+          "created_at": "2026-10-07T12:00:00.000005Z"
+        }
+      ]
+    }
+  }
+]
