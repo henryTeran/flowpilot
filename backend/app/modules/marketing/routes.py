@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.marketing import models as marketing_models  # noqa: F401
-from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents
+from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents, dispatch_outcomes
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
@@ -21,6 +21,22 @@ def dispatch_original(institute_id: str, key: str, user=Depends(manager), db: Se
 @router.get("/dispatch-intents/{identifier}", response_model=dispatch_intents.Original)
 def dispatch_by_id(institute_id: str, identifier: str, user=Depends(manager), db: Session=Depends(get_db)):
     return dispatch_intents.require(db, institute_id, identifier)
+
+@router.get("/dispatch-intents/{intent_id}/outcomes/current", response_model=dispatch_outcomes.Original | None)
+def dispatch_outcome_current(institute_id: str, intent_id: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_outcomes.current(db, institute_id, intent_id)
+
+@router.get("/dispatch-intents/{intent_id}/outcomes/original/{key}", response_model=dispatch_outcomes.Original | None)
+def dispatch_outcome_original(institute_id: str, intent_id: str, key: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_outcomes.original(db, institute_id, intent_id, key)
+
+@router.get("/dispatch-intents/{intent_id}/outcomes/{identifier}", response_model=dispatch_outcomes.Original)
+def dispatch_outcome_id(institute_id: str, intent_id: str, identifier: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_outcomes.require(db, institute_id, intent_id, identifier)
+
+@router.get("/dispatch-intents/{intent_id}/outcomes", response_model=catalogs.Page[dispatch_outcomes.Original])
+def dispatch_outcome_audit(institute_id: str, intent_id: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_outcomes.audit(db, institute_id, intent_id, offset, limit)
 @router.post("/audience-observations",response_model=audiences.Page|audiences.ContactPage)
 def observe(institute_id:str,payload:audiences.Selection|audiences.ContactSelection,user=Depends(manager),db:Session=Depends(get_db)):
     return audiences.read_contacts(db,institute_id,payload) if isinstance(payload,audiences.ContactSelection) else audiences.read(db,institute_id,payload)

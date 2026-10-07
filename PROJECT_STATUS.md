@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13AI_SIGNED_DISPATCH_INTENT_PREPARATION
+CURRENT_CHECKPOINT = PHASE13AJ_RETAINED_DISPATCH_OUTCOMES
 STATUS = ACTIVE
+
+PHASE13AJ_RETAINED_DISPATCH_OUTCOMES:
+- Added internal trusted-adapter append and immutable outcome receipt service. Exact intent account/operation key/fingerprint, current owned predecessor, signed worker actor/full-key terms, nonfuture retention and monotonic source/observation clocks required. Unknown may progress to unknown/accepted/rejected; known provider reference cannot change. Terminal submission result cannot be replaced. Original key replay precedes current outcome/clock. Atomic original+head failure rollback, older unknown retained. Pure Result remains submission observation, not delivery confirmation or authenticated network-provider evidence.
+- Signed manager-only readonly current/key/ID/bounded audit routes under owned intent. Client POST is absent (405), role/foreign/anonymous reads deny. Receipts validate retained intent and historical sources. Cross-intent ID/key refuses, corrupted fingerprint refuses, present predecessor cycles refuse; bounded audit does not establish all history outside page.
+- Initial four tests passed in 21.32s. Final results/intents/provider adjacent 17 passed in 57.81s, terminal exit 0, actual PostgreSQL same-key/competing-key serialization, known reference/status/clock/account/key refusal and owned source read isolation. Final focused outcome file: 5 passed in 27.59s, terminal exit 0, including three-original equal-clock audit cycle refusal. No schema/frontend/native/full-backend/live-provider acceptance claimed. Crypt deprecation and deliberate malformed-bool serializer warning in provider adjacent case only. Owned fixtures clean.
+- Updated MARKETING_DISPATCH.md with internal trusted retention/public readonly limits. CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. NEXT: durable first-attempt and reconciliation worker, fresh source/config decision, bounded provider adapters and native send audit/conversion. No provider I/O, campaign SEND or confirmed delivery yet. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13AI_SIGNED_DISPATCH_INTENT_PREPARATION:
 - Added manager-only signed dispatch-intent POST and original-key/ID reads. New preparation holds owned institute lock, pins exact current campaign/contact IDs, evaluates one aware clock with owned registration/approved retained membership and fresh channel grant/destination, resolves trusted server account and Push application, commits full submission/fingerprint/actor/reason atomically. One intent per approval/customer; duplicate operation requires original recovery. No provider I/O, SEND transition or delivery authority.

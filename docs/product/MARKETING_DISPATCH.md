@@ -2,8 +2,9 @@
 
 The current implementation prepares one durable transport intent for an owned
 customer and approved campaign revision. It performs no provider I/O and does not
-mark the campaign SEND or establish recipient delivery. Outcome execution and
-delivery-event verification remain to be implemented.
+mark the campaign SEND or establish recipient delivery. Trusted-worker outcome
+retention is implemented; execution and delivery-event verification remain to be
+implemented.
 
 `MARKETING_ACCOUNTS_JSON` is a server-side account allowlist, empty by default.
 Each entry is an exact `Account` with `institute_id`, `provider`, `account_id`,
@@ -39,3 +40,18 @@ in SQL. JSON semantics, APPROVE stage and current-source authority are enforced
 by services. Any retained dispatch history blocks downgrade, including an intent
 without a result. Offline downgrade cannot verify history and is refused. No
 production migration or live provider acceptance is implied by repository tests.
+
+The internal `dispatch_outcomes.append` entry point accepts trusted adapter
+observations only. It validates the stored intent account/key/fingerprint, exact
+current outcome predecessor, nonfuture retention and monotonic observation clocks.
+An unknown result can be followed by another unknown or a terminal acceptance or
+rejection; a known provider message reference cannot change. Terminal submission
+outcomes cannot be replaced. Delivery events require separate evidence and cannot
+be recorded as submission acceptance. Original-key recovery checks complete terms
+and worker actor before consulting the current outcome or clock.
+
+Managers can GET `dispatch-intents/{intent_id}/outcomes` with bounded `offset` and
+`limit` (default 20, maximum 50), plus `outcomes/current`, `outcomes/original/{key}`
+and `outcomes/{identifier}`. These routes cannot write provider results. The page
+is an ordered bounded audit, not proof of the full predecessor chain outside the
+page. Present predecessor cycles and incoherent predecessor transitions refuse.

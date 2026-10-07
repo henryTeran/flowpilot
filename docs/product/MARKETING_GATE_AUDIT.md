@@ -783,6 +783,27 @@ live-provider claim. See MARKETING_DISPATCH.md. Next outcome originals, durable
 attempt/reconciliation worker, configured adapters/native audit/conversion. All
 marketing/physical/production gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AJ - retained trusted submission outcomes
+
+Internal adapter outcome append binds exact stored intent account/key/fingerprint,
+owned current predecessor and worker actor/full replay terms. Nonfuture retention and
+monotonic observation clocks, stable known provider reference; unknown may progress,
+terminal acceptance/rejection cannot be replaced. Original-key replay before current
+head/clock. Atomic original/head rollback, historical unknown retained. Submission
+acceptance does not prove recipient delivery or authenticated live provider I/O.
+
+Signed manager readonly current/key/ID/bounded audit; no public write (POST 405).
+Role/institute/anonymous denial, cross-intent key/ID refusal, corrupted outcome refuses.
+Present predecessor cycles rejected, bounded page does not assert outside full chain.
+Initial 4 passed/21.32s; final adjacent outcome/intent/provider 17 passed/57.81s, exit 0,
+actual PostgreSQL same-key and competing-key races, stable known reference/terminal/
+clock/scope/key semantics and independent owned reads. Final focused outcome file: 5 passed in 27.59s, terminal exit 0, including three-original equal-clock audit cycle refusal.
+Crypt deprecation/deliberate malformed-bool serializer warning in adjacent provider
+case only. No schema/frontend/native/full-backend/live-provider claim; fixtures clean.
+Next durable first-attempt/reconciliation worker with fresh sources/config decisions,
+configured adapters/native audit/conversion. See MARKETING_DISPATCH.md. All marketing/
+physical/production gates OPEN; canonical goal ACTIVE. No SEND or delivery confirmed.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
