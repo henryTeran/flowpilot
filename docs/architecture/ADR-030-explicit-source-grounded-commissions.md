@@ -259,7 +259,7 @@ rounding modes, explicit zero/max rates at the retained source bound, numeric/
 boolean/coerced terms, original UTC/microsecond preservation, unknown entitlement,
 forged complete/partial day totals and clock diagnostics/cancellation transitions.
 Full frontend compatibility and production TypeScript/Vite build pass. Original
-native/profile lifecycle and signed Edge workflows remain open.
+source-linked accrual/cancellation and profile lifecycle remain open.
 
 ### Frontend closed-source choices
 
@@ -283,3 +283,28 @@ the capture clock must equal the header's generation instant to the microsecond.
 Duplicate source lines, forged preview amounts, mismatched policy and claimed
 complete coverage are refused. This is read validation; final writes still
 revalidate authoritative sources under the institute lock.
+
+### Native configured rule lifecycle
+
+The manager's Workforce section exposes owned employee rule histories and an
+explicit rule form. Currency, category, all-category versus named catalogue
+service, rate and cent rounding require deliberate choices. Decimal percentage
+input is converted to integer basis points without floating-point arithmetic;
+zero and 100 percent remain valid. Included civil days use the institute timezone.
+Original cards retain the pinned timezone/UTC period, configured terms, actor,
+reason and separate cancellation; overlapping policies do not imply precedence.
+
+Creation/cancellation requests are persisted per institute and signed actor
+before a possible POST. Recovery reads the original idempotency key first;
+only an explicit null permits a POST. Exact actor/terms, full pinned original
+verification and a fresh scoped bounded history read must pass before removing
+the saved request. Cancellation recovery additionally binds the unchanged
+original policy and every signed cancellation field, with semantic microsecond
+clock equality. A lost response retains the request; resuming does not repost
+a committed original. Failed history reads can be refreshed while the saved
+request continues to freeze new writes. Unreadable saved requests stay protected.
+
+Pending guards, token/institute/timezone remounts, employee scope and read sequence
+checks isolate late replies. Reception has no rule authoring/history surface.
+Rule cancellation prevents future accruals with that rule and conserves already
+recorded commissions; it does not silently retract them or create a payout.

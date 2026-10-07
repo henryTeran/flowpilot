@@ -1,0 +1,65 @@
+import { expect, test } from "@playwright/test";
+test.use({ timezoneId: "America/Los_Angeles" });
+test("native commission rule creation and cancellation recover committed lost replies", async ({ page, request }, info) => {
+  test.setTimeout(90000);
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, workforce = "http://127.0.0.1:4198/api/v1/workforce/institutes/demo-institute-geneve";
+  let original: any, cancellation: any, posts = 0, cancellations = 0;
+  const enter = async () => {
+    await expect(page.getByRole("combobox", { name: /Choisir.*institut/ })).toHaveValue("demo-institute-geneve");
+    await page.getByRole("button", { name: "Équipe", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Actualiser les compétences", exact: true })).toBeEnabled();
+    await page.getByRole("button", { name: "Règles de commission", exact: true }).click();
+  };
+  const panel = page.getByRole("region", { name: "Gestion des règles de commission", exact: true });
+  await page.route("**/workforce/institutes/*/commission-rules", async route => {
+    if (route.request().method() !== "POST") return route.continue();
+    posts++; const actual = await route.fetch(); expect(actual.status(), await actual.text()).toBe(200); original = await actual.json(); await route.abort("failed");
+  });
+  await enter(); await panel.getByRole("combobox", { name: "Collaboratrice des commissions", exact: true }).selectOption("emp-angela");
+  const form = panel.getByRole("form", { name: "Enregistrer une règle de commission", exact: true });
+  await form.getByLabel("Intitulé de la règle", { exact: true }).fill(`Native explicit commission ${info.project.name}`);
+  await form.getByRole("combobox", { name: "Devise de la règle", exact: true }).selectOption("CHF");
+  await form.getByRole("combobox", { name: "Catégorie de la règle", exact: true }).selectOption("care");
+  await form.getByRole("combobox", { name: "Prestations couvertes", exact: true }).selectOption("named");
+  await form.getByRole("combobox", { name: "Prestation de la règle", exact: true }).selectOption("svc-aisselles");
+  await form.getByLabel("Taux de commission (%)", { exact: true }).fill("10,25");
+  await form.getByRole("combobox", { name: "Arrondi au cent", exact: true }).selectOption("half_even");
+  await form.getByLabel("Premier jour inclus", { exact: true }).fill("2026-10-25");
+  await form.getByLabel("Dernier jour inclus", { exact: true }).fill("2026-10-25");
+  await form.getByLabel("Motif de la règle", { exact: true }).fill("Explicit native configured policy");
+  await form.getByRole("button", { name: "Enregistrer la règle", exact: true }).click();
+  await expect(panel.getByRole("alert")).toBeVisible(); expect(posts).toBe(1); expect(original.rate_basis_points).toBe(1025);
+  expect(original.period_start).toBe("2026-10-24T22:00:00Z"); expect(original.period_end).toBe("2026-10-25T23:00:00Z");
+  expect(original.timezone).toBe("Europe/Zurich"); expect(original.service_id).toBe("svc-aisselles"); expect(original.rounding).toBe("half_even");
+  const protectedKey = await page.evaluate(() => Object.keys(sessionStorage).find(key => key.startsWith("flowpilot.commission-rule-request:"))!);
+  expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)!).terms.idempotency_key, protectedKey)).toBe(original.idempotency_key);
+  await page.reload(); await enter(); await panel.getByRole("button", { name: "Reprendre la demande de règle conservée", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: /^Règle de commission enregistrée\.$/ })).toBeVisible(); expect(posts).toBe(1);
+  expect(await page.evaluate(key => sessionStorage.getItem(key), protectedKey)).toBeNull();
+  const card = panel.locator("li").filter({ hasText: original.id }); await card.locator("summary").click();
+  await expect(card).toContainText("10.25 %"); await expect(card).toContainText(original.period_start);
+  await expect(card).toContainText("Europe/Zurich"); await expect(card).toContainText("Aisselles"); await expect(card).toContainText("catégorie : Soins");
+  await panel.screenshot({ path: info.outputPath("native-commission-rule-created.png") });
+  await page.route("**/workforce/institutes/*/commission-rules/*/cancel", async route => {
+    cancellations++; const actual = await route.fetch(); expect(actual.status(), await actual.text()).toBe(200); cancellation = await actual.json(); await route.abort("failed");
+  });
+  await card.getByRole("button", { name: "Annuler cette règle", exact: true }).click();
+  await panel.getByLabel("Motif d’annulation de la règle", { exact: true }).fill("Explicit native correction");
+  await panel.getByRole("button", { name: "Confirmer l’annulation de la règle", exact: true }).click();
+  await expect(panel.getByRole("alert")).toBeVisible(); expect(cancellations).toBe(1); expect(cancellation).toBeTruthy();
+  await page.reload(); await enter(); await panel.getByRole("button", { name: "Reprendre la demande de règle conservée", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: /^Règle annulée ; commissions déjà enregistrées conservées\.$/ })).toBeVisible(); expect(cancellations).toBe(1);
+  expect(await page.evaluate(key => sessionStorage.getItem(key), protectedKey)).toBeNull();
+  const retainedReply = await request.get(`${workforce}/commission-rules/${original.id}`, { headers }); expect(retainedReply.status()).toBe(200);
+  const retained = await retainedReply.json(); expect(retained.cancellation.id).toBe(cancellation.id);
+  const { cancellation: ignoredOriginal, ...originalTerms } = original, { cancellation: ignoredRetained, ...retainedTerms } = retained;
+  expect(retainedTerms).toEqual(originalTerms);
+  for (const control of await panel.locator("button,select,input,summary").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
+  await panel.screenshot({ path: info.outputPath("native-commission-rule-cancelled.png") });
+  // The launcher removes only this run's owned temporary database, including failed fixtures.
+});

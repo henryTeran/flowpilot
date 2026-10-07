@@ -777,7 +777,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
 
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
         {mainView === "workforce" && <Suspense fallback={<div className="bm-banner loading" role="status">Chargement de l’équipe…</div>}>
-          <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} onChanged={refreshOperationalData} />
+          <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} services={services} onChanged={refreshOperationalData} />
         </Suspense>}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
