@@ -717,6 +717,27 @@ No new backend/schema/provider acceptance. Next delivery provider boundary, dura
 intent/outcome and retained conversion evidence; canonical marketing audit thereafter.
 All marketing/physical/production gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AG - typed delivery provider boundary
+
+Added pure channel-independent submit/reconcile protocol and owned configured-account
+terms, including live/test separation and Push application binding. Submission pins
+full supplied eligible approved recipient evidence, actor and original operation key;
+revalidates nested sources and refuses mismatched/unknown/refused/missing/draft facts.
+Canonical exact-term SHA fingerprint normalizes UTC instants but preserves microseconds,
+ordered source terms, evidence/content/account/actor/key. Outcome must match exact stored
+request account/key/fingerprint and nonbackward clock. Acceptance requires provider
+reference; accepted/rejected/unknown never mean recipient delivery. No public endpoint,
+credentials, network I/O or fresh-current/enabled-account authority established here.
+
+Six provider tests plus adjacent contacts/campaigns: 21 passed in 0.52s, terminal exit 0.
+All channels, source/account/app/mode/key/body/evidence/tamper/time refusals verified.
+Test-only fake accepts then loses reply, reconcile/exact retry retains one submission;
+changed terms refuse and unseen operation stays unknown. Not live provider acceptance.
+Starlette deprecation and intentional malformed-bool serializer warning only. No new
+schema/full-backend/frontend/native acceptance. Next durable dispatch intents/outcomes,
+current-source preparation, uncertain-I/O recovery, configured adapters/native audit
+and retained conversion. All marketing/physical/production gates OPEN; goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
