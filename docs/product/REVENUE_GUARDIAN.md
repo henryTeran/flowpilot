@@ -54,7 +54,7 @@ future-period and unsupported-write refusal.
 | Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
 | Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
-| Cancelled revenue | 14C verifies owned booking cancellation events and unchanged original slot terms. Historical quote/price evidence still missing; revenue remains null. Walk-in cancellation valuation remains to integrate. |
+| Cancelled revenue | 14C verifies booking events but has no historical quote.14G retains new walk-in commercial conditions atomically at cancellation; bounded source verification and value aggregation remain to integrate. Historical snapshots are not backfilled. |
 | No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
@@ -280,3 +280,48 @@ Existing crypt deprecation only. Fixture data is disposable owned source data;
 no real assignment, provider message, schema migration or native UI acceptance is
 claimed. Retained price/scenario audit and complete Revenue Guardian product
 acceptance remain open.
+
+## 14G: commercial terms retained at new walk-in cancellation
+
+New `QueueEvent.cancellation_terms` stores a canonical full-frame SHA256 envelope
+for newly recorded `queue.cancelled` events. Capture occurs in the existing
+institute-locked cancellation transaction before its commit; it includes institute,
+ticket/customer IDs, predecessor/terminal status, event time, optional actor,
+recorded basket currency/amount quality and original invoice-line quantities,
+durations/categories/unit/extended amounts/removal markers. No current catalog
+price is fetched or substituted. Signed route passes its authenticated subject;
+internal callers may have no actor, which remains explicitly absent.
+
+Basket and line amounts remain independent source terms, without recomputation
+or multiplication of already-extended totals. Missing/invalid/unknown source
+amount/currency remains diagnosed. Shared `money.amount_fact` contains the prior
+unchanged exact Numeric(10,2) classifier; CRM reexports it for caller compatibility.
+This removes a potential ticket-to-CRM/revenue dependency. The capture stays in
+the ticket domain; Revenue Guardian will consume its retained source.
+
+Existing cancellation retries return the terminal ticket before a new capture,
+so a different retry actor does not replace the original event/price. Commit
+failure rolls back both terminal state and snapshot. Later current ticket/line
+corrections cannot mutate the stored JSON. The fingerprint verifies complete
+frame consistency, not cryptographic authenticity against arbitrary administrator
+SQL. No database append-only trigger is introduced. It records commercial value
+at cancellation, not paid revenue, confirmed physical loss or a counterfactual
+sale. realized_revenue and causal_loss_proven are explicitly false.
+
+Alembic head `5bc2e310669d`, parent `4ab1d209558c`, adds a nullable JSON column.
+Legacy events remain SQL NULL with no fabricated price history. New ORM None is
+SQL NULL rather than JSON null. Online downgrade is permitted only when no
+retained snapshot exists; offline or nonempty-history downgrade refuses deletion.
+The migration has not been applied to any application/production database;
+deployment must migrate existing schema before starting the new application code.
+
+New source/migration plus ticket workflow and CRM billing/metric regressions:
+**40 passed46.64s**, SQLite and actual isolated PostgreSQL, zero failures/skips,
+terminal exit0, existing crypt deprecation only. Tests prove signed-route actor,
+exact historical basket/line terms, retry single event, independent current-price
+change stability, forced transaction failure rollback, migration metadata parity,
+empty/legacy-null down-up, history-preserving refusal and offline refusal.
+Compatibility evidence for the previous marketing conversion migration and
+trusted invocation head checks is recorded in PROJECT_STATUS.md. No new native
+UI or financial-loss aggregate acceptance is claimed; Revenue Guardian reader,
+booking historical quote and retained scenario/opportunity audit remain open.

@@ -215,7 +215,7 @@ def patch_cancel_ticket(
     db: Session = Depends(get_db),
 ) -> QueueTicketRead:
     _require_ticket_access(ticket_id, current_user, db)
-    ticket = cancel_ticket(db, ticket_id)
+    ticket = cancel_ticket(db, ticket_id, current_user.get("sub"))
     log_audit_event(
         request=request,
         current_user=current_user,

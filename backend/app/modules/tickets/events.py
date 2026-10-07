@@ -7,17 +7,22 @@ from app.shared.time import utcnow
 
 
 def record_event(db: Session, ticket: QueueTicket, event_type: str,
-                 previous_status: str | None, employee_id: str | None = None) -> None:
+                 previous_status: str | None, employee_id: str | None = None, *, actor_id=None) -> None:
+    at = utcnow()
+    terms = None
+    if event_type == "queue.cancelled":
+        from app.modules.tickets.cancellation_terms import capture
+        terms = capture(db, ticket, previous_status, at, actor_id)
     db.add(QueueEvent(
         institute_id=ticket.institute_id, ticket_id=ticket.id,
         event_type=event_type, previous_status=previous_status,
-        status=ticket.status, employee_id=employee_id, occurred_at=utcnow(),
+        status=ticket.status, employee_id=employee_id, occurred_at=at, cancellation_terms=terms,
     ))
 
 
 def transition_ticket(db: Session, ticket: QueueTicket, next_status: str,
-                      event_type: str, employee_id: str | None = None) -> None:
+                      event_type: str, employee_id: str | None = None, *, actor_id=None) -> None:
     previous = ticket.status
     validate_transition(previous, next_status)
     ticket.status = next_status
-    record_event(db, ticket, event_type, previous, employee_id)
+    record_event(db, ticket, event_type, previous, employee_id, actor_id=actor_id)

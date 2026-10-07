@@ -351,7 +351,7 @@ def unassign_ticket(db: Session, ticket_id: str) -> QueueTicket:
     return save_ticket(db, ticket)
 
 
-def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
+def cancel_ticket(db: Session, ticket_id: str, actor_id: str | None = None) -> QueueTicket:
     ticket = lock_ticket(db, ticket_id)
     if not ticket:
         raise not_found("Ticket introuvable")
@@ -383,7 +383,7 @@ def cancel_ticket(db: Session, ticket_id: str) -> QueueTicket:
     require_no_reward(db, ticket=ticket)
     from app.modules.resources.reservations import release
     release(db, ticket.institute_id, ticket_id=ticket.id)
-    transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id)
+    transition_ticket(db, ticket, "cancelled", "queue.cancelled", ticket.assigned_employee_id, actor_id=actor_id)
     ticket.assigned_employee_id = None
     ticket.assigned_at = None
     ticket.cancelled_at = utcnow()

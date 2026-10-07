@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint, Index
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, UniqueConstraint, Index, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -74,6 +74,7 @@ class QueueEvent(Base):
     status: Mapped[str] = mapped_column(String(40), nullable=False)
     employee_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    cancellation_terms: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
 
 
 class TicketLine(Base):
