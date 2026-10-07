@@ -5,6 +5,8 @@ from app.database.session import get_db
 from app.modules.customers.schemas import CustomerCreate, CustomerRead
 from app.modules.customers.service import create_customer, search_customers
 from app.modules.customers.repository import require_customer
+from app.modules.crm.billing import read as read_billing
+from app.modules.crm.metrics import RecordedBilling
 
 router = APIRouter(prefix="/customers/institutes/{institute_id}", tags=["customers"])
 
@@ -13,6 +15,20 @@ def operator(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id:
         raise HTTPException(403, "Institut non autorise")
     return user
+
+
+def billing_operator(user=Depends(operator)):
+    if user.get("role") != "responsable_institut":
+        raise HTTPException(403, "Permission insuffisante")
+    return user
+
+
+@router.get("/{customer_id}/billing", response_model=RecordedBilling)
+def billing(institute_id: str, customer_id: str,
+            start: str = Query(min_length=1, max_length=64),
+            end: str = Query(min_length=1, max_length=64),
+            user=Depends(billing_operator), db: Session = Depends(get_db)):
+    return read_billing(db, institute_id, customer_id, start, end)
 
 
 @router.get("", response_model=list[CustomerRead])
