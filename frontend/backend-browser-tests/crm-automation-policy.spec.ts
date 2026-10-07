@@ -1,0 +1,44 @@
+import { expect,test } from "@playwright/test";
+test("native explicit automation rules recovers committed lost reply and retains correction provenance",async({page,request},info)=>{
+  await page.goto("/");await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");await page.getByRole("button",{name:"Se connecter",exact:true}).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token=await page.evaluate(()=>sessionStorage.getItem("flowpilot.access_token"));
+  const headers={Authorization:`Bearer ${token}`},base="http://127.0.0.1:4198/api/v1",institute="demo-institute-geneve";
+  const path=`${base}/crm/institutes/${institute}/automation-policies`;
+  const before=await request.get(path+"/current",{headers});expect(before.status()).toBe(200);const previous=await before.json();
+  await page.getByRole("button",{name:"Clientes",exact:true}).click();
+  await page.getByText("Configurer les règles automatisation",{exact:true}).click();
+  const panel=page.getByRole("region",{name:"Règles automatisation",exact:true});
+  await panel.getByRole("button",{name:previous?"Préparer une correction des règles":"Préparer les règles",exact:true}).click();
+  const ruleLabels=["Anniversaire","Suivi de soin","Rebooking","Inactivit\u00e9","Expiration package","Renouvellement abonnement"];
+  const durations=["9007199254.740993","1","2","0","1.000001"];
+  for(let i=0;i<ruleLabels.length;i++){
+    const choice=panel.getByRole("combobox",{name:new RegExp("^Activation "+ruleLabels[i])});
+    if(!previous)await expect(choice).toHaveValue("");
+    await choice.selectOption(i%2 ? "true" : "false");
+  }
+  const inputs=panel.locator('input[inputmode="decimal"]');
+  for(let i=0;i<5;i++)await inputs.nth(i).fill(durations[i]);
+  await panel.getByLabel("Motif des r\u00e8gles").fill("Explicit automation browser fixture");
+  for(const control of await panel.locator("button,input,select").all())expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)).toBe(false);
+  await panel.screenshot({path:info.outputPath("native-automation-rule-form.png")});
+  let posts=0,first: any;
+  await page.route("**/automation-policies",async route=>{if(route.request().method()!=="POST")return route.continue();posts++;
+    if(posts===1){const actual=await route.fetch();expect(actual.status()).toBe(200);first=await actual.json();return route.abort("failed");}return route.continue();});
+  await panel.getByRole("button",{name:"Enregistrer les règles",exact:true}).click();
+  await expect(panel.getByRole("button",{name:"Reprendre les règles conservées",exact:true})).toBeEnabled();
+  await page.reload();await expect(page.locator(".flow-session-exit")).toBeVisible();await page.getByRole("button",{name:"Clientes",exact:true}).click();
+  await page.getByText("Configurer les règles automatisation",{exact:true}).click();await panel.getByRole("button",{name:"Reprendre les règles conservées",exact:true}).click();
+  await expect(panel).toContainText("Politique originale vérifiée");expect(posts).toBe(1);
+  expect(first.policy.rules.map((r:any)=>r.offset_us)).toEqual(["0","9007199254740993","1000000","2000000","0","1000001"]);expect(first.policy.rules.map((r:any)=>r.enabled)).toEqual([false,true,false,true,false,true]);expect(first.previous_policy_id).toBe(previous?.id||null);
+  expect(await page.evaluate(()=>Object.keys(sessionStorage).some(k=>k.startsWith("flowpilot.crm-automation-policy-request:")))).toBe(false);
+  await panel.getByRole("button",{name:"Préparer une correction des règles",exact:true}).click();
+  await expect(inputs.nth(0)).toHaveValue("9007199254.740993");
+  await inputs.nth(0).fill("9007199254.740994");await panel.getByLabel("Motif des r\u00e8gles").fill("Explicit automation correction");
+  await panel.getByRole("button",{name:"Enregistrer les règles",exact:true}).click();await expect(panel).toContainText("Politique originale vérifiée");expect(posts).toBe(2);
+  const current=await request.get(path+"/current",{headers});expect(current.status()).toBe(200);const corrected=await current.json();
+  expect(corrected.previous_policy_id).toBe(first.id);expect(corrected.policy.rules[1].offset_us).toBe("9007199254740994");
+  const retained=await request.get(path+"/"+first.id,{headers});expect(await retained.json()).toEqual(first);
+});

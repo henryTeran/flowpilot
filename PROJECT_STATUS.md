@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AJ_NATIVE_AUTOMATION_RULE_EDITOR
+CURRENT_CHECKPOINT = PHASE12AK_SIGNED_NATIVE_AUTOMATION_RECOVERY
 STATUS = ACTIVE
+
+PHASE12AK_SIGNED_NATIVE_AUTOMATION_RECOVERY:
+- Added actual signed API/Edge desktop and touch-tablet automation editor scenario. Initial blank activation choices checked before explicit alternating selections; six canonical offsets include unsafe-JavaScript integer precision. Committed POST reply is deliberately lost, reload resumes through original-key read with one POST, storage clears only after verification. Correction changes one microsecond, pins predecessor and independently confirms preserved first original.
+- Initial desktop/tablet scenario: 2 passed in 36.3s. Strengthened alternating activation/blank-choice scenario: 2 passed in 34.6s, terminal exit 0; owned fixture directory removed. Controls >=44px and no horizontal overflow asserted; both screenshots visually inspected. Existing nonfatal bcrypt-version/NO_COLOR warnings observed. Launcher builds before native run. No new full frontend/backend/physical-device or production receipt claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: exact guarded event source/revision/capture/current contracts and native reconciliation/processing/cancellation recovery workflows. Full canonical goal remains active.
 
 PHASE12AJ_NATIVE_AUTOMATION_RULE_EDITOR:
 - Added manager-only native six-rule automation declaration/correction in the customer directory. Every activation is explicitly selected; five elapsed durations are supplied in exact fractional seconds, birthday follows the separately declared local calendar. No guessed activation/timing defaults. Corrections preserve literal original order, activation and integer microseconds, including values beyond JavaScript-safe precision.

@@ -1084,6 +1084,10 @@ acceptance remain required; all canonical gates stay open.
 
 Manager-only six-rule declaration/correction now preserves literal rule order and exact microseconds through fractional-second inputs. All activation choices are explicit. Protected original-key recovery verifies signed actor/full terms and independent original/current reads before clearing pending intent. Focus tests cover response loss/remount, failed-current retention, original-clock mismatch and precision boundaries. Full frontend: 270 passed; final focused editor groups: 3 passed. Signed desktop/tablet browser verification for this editor is still pending. No worker/service was activated and no outbound message was sent. All four canonical CRM gates and physical/production gates remain OPEN.
 
+## Phase 12AK: signed native automation recovery
+
+Actual signed Edge desktop/touch-tablet editor tests now prove explicit alternating activation, blank initial activation, canonical six-rule durations, committed lost-response reload recovery with one POST, predecessor-pinned one-microsecond correction and independent retained original. Final strengthened run: 2 passed in 34.6s; fixture cleaned. Controls >=44px, no horizontal overflow and visually inspected screenshots. These controlled fixtures do not configure production or activate the recurring worker. All four CRM gates remain OPEN pending complete event workflows/acceptance; physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
