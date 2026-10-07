@@ -55,7 +55,7 @@ future-period and unsupported-write refusal.
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
 | Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
 | Cancelled revenue | 14C verifies booking events but has no historical quote.14G/H retain and verify walk-in cancellation conditions and full-period currency values; legacy unpriced and source diagnostics remain explicit. No causal revenue loss is claimed. |
-| No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
+| No-show revenue | 14C verifies owned no-show events;14I retains catalog references at booking service selection. Reader binding and explicit rate/scenario valuation remain required. A catalog reference is not an agreed quote or causal loss. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
 | Opportunities | 14C adds two source-backed unpriced closure follow-ups with all five required fields. Rebooking/scenario/feasible-capacity opportunities and historical price basis remain to integrate. No automatic contact/booking. |
@@ -369,3 +369,45 @@ anonymous/date-only/bounds/write refusal. Existing crypt deprecation only. No
 new schema, native UI, paid-loss or production acceptance is claimed. Booking
 quoted-price evidence, scenario/opportunity audit and desktop/tablet review remain
 open.
+
+## 14I: historical booking catalog reference
+
+BookingEvent.price_reference now retains a canonical full JSON SHA256 envelope
+when a new reservation selects a service or a modification changes its service.
+The capture is in the existing institute-locked booking/resource transaction,
+bound to the event ID/type/time, appointment/institute/service and optional actor.
+It retains service duration and both member/passage catalog amounts with known/
+missing/invalid diagnostics. No rate is chosen implicitly for the customer.
+
+Denomination comes only from explicit owned institute currency configuration,
+with its updated clock and actor retained. Absent/missing-clock/future configuration
+does not label an amount with an inferred currency. Catalog changes or currency
+changes cannot rewrite an old event. Idempotent creation replay returns the
+existing reservation before a new catalog read/capture. Note, customer or calendar
+changes alone do not reprice the reference; selecting another service creates
+a separate reference. Cancellation/no-show never captures today's catalog price.
+
+This is a historical catalog benchmark, not proof of an agreed quote, membership
+eligibility, consumed benefit, invoice total or paid amount. agreed_quote and
+paid_price stay false. Financial valuation must select an explicit source-backed
+rate or declared scenario basis and preserve that distinction. No original price
+is fabricated for legacy bookings. Private reference data is not added to the
+current high-frequency AppointmentRead product flow; a verified manager evidence
+reader and future valuation remain to implement.
+
+Alembic head `6cd3f421770e`, parent `5bc2e310669d`, adds nullable JSON with ORM None
+as SQL NULL. Empty/legacy-null down-up is permitted; offline or retained-reference
+history downgrade is refused. No application/production database was migrated.
+Deployment must migrate the schema before starting the new application code.
+
+Initial reference/source/migration and existing booking-checkout regressions:
+**7 passed29.03s**, SQLite and actual isolated PostgreSQL, zero failures/skips,
+exit0. Final currency-provenance/future-configuration and previous cancellation
+migration/trusted-invocation compatibility results are recorded in PROJECT_STATUS.md.
+Final forced booking-transaction failure source tests:2 passed6.31s, SQLite and
+actual isolated PostgreSQL, exit0; rollback removes both booking and price event.
+Tests prove historical two-rate amounts, event binding, actor, creation replay
+after catalog/currency change, no note-only reprice, service-change new reference,
+missing member amount, no cancellation reprice, metadata parity and data-preserving
+migration guards. Existing crypt deprecation only. No frontend, financial-loss
+aggregate, signed quote agreement or production acceptance is claimed.

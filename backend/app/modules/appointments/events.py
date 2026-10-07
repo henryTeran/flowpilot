@@ -13,6 +13,11 @@ def snapshot(appointment):
 
 
 def record_booking_event(db, appointment, event_type, before, actor_id=None):
-    db.add(BookingEvent(id=new_id("be"), institute_id=appointment.institute_id,
+    identifier, at = new_id("be"), utcnow()
+    reference = None
+    if event_type == "created" or event_type == "modified" and before and before["service_id"] != appointment.service_id:
+        from app.modules.appointments.price_references import capture
+        reference = capture(db, appointment, identifier, event_type, at, actor_id)
+    db.add(BookingEvent(id=identifier, institute_id=appointment.institute_id,
         appointment_id=appointment.id, event_type=event_type, actor_id=actor_id,
-        occurred_at=utcnow(), before=before, after=snapshot(appointment)))
+        occurred_at=at, before=before, after=snapshot(appointment), price_reference=reference))

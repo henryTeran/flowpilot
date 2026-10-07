@@ -44,6 +44,7 @@ class BookingEvent(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     before: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     after: Mapped[dict] = mapped_column(JSON, nullable=False)
+    price_reference: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
 
 
 class AppointmentInvoiceLine(Base):
