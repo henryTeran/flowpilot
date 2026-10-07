@@ -1,3 +1,4 @@
+from alembic.script import ScriptDirectory
 import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
@@ -40,6 +41,6 @@ def test_event_ledger_roundtrip_scope_constraints_and_protected_history(tmp_path
                     with db.begin_nested():db.execute(statement)
         with pytest.raises(RuntimeError,match="Recorded event history"):command.downgrade(config,"ea5b7cd43926")
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="3fa0c198447b"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version"))== ScriptDirectory.from_config(config).get_current_head()
             assert connection.scalar(text("SELECT COUNT(*) FROM crm_event_revisions"))==2
             assert compare_metadata(MigrationContext.configure(connection),Base.metadata)==[]

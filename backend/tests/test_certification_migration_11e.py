@@ -1,3 +1,4 @@
+from alembic.script import ScriptDirectory
 import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
@@ -39,5 +40,5 @@ def test_original_certification_migration_empty_roundtrip_and_revoked_history_gu
             command.downgrade(config, "3da908e5f70c")
         assert records() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "3fa0c198447b"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == ScriptDirectory.from_config(config).get_current_head()
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

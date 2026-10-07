@@ -1,3 +1,4 @@
+from alembic.script import ScriptDirectory
 import pytest
 import importlib.util
 from pathlib import Path
@@ -82,5 +83,5 @@ def test_dispatch_schema_pins_owned_sources_replay_recipient_and_outcome_history
             with pytest.raises(RuntimeError, match="dispatch history cannot be removed"):
                 command.downgrade(config, "2e9fb087336a")
             with engine.connect() as connection:
-                assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "3fa0c198447b"
+                assert connection.scalar(text("SELECT version_num FROM alembic_version")) == ScriptDirectory.from_config(config).get_current_head()
                 assert connection.scalar(text("SELECT COUNT(*) FROM marketing_dispatch_intents")) == 2

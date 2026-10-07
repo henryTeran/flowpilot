@@ -148,3 +148,44 @@ class DispatchHead(Base):
     institute_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     intent_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     original_id: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class ConversionOriginal(Base):
+    __tablename__ = "marketing_conversion_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "ticket_id", "id", name="uq_marketing_conversion_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_marketing_conversion_replay"),
+        ForeignKeyConstraint(["institute_id", "ticket_id"], ["queue_tickets.institute_id", "queue_tickets.id"], name="fk_marketing_conversion_ticket"),
+        ForeignKeyConstraint(["institute_id", "intent_id"], ["marketing_dispatch_intents.institute_id", "marketing_dispatch_intents.id"], name="fk_marketing_conversion_intent"),
+        ForeignKeyConstraint(["institute_id", "campaign_id", "authorization_id"], ["marketing_campaign_originals.institute_id", "marketing_campaign_originals.campaign_id", "marketing_campaign_originals.id"], name="fk_marketing_conversion_send"),
+        ForeignKeyConstraint(["institute_id", "intent_id", "accepted_outcome_id"], ["marketing_dispatch_outcomes.institute_id", "marketing_dispatch_outcomes.intent_id", "marketing_dispatch_outcomes.id"], name="fk_marketing_conversion_outcome"),
+        ForeignKeyConstraint(["institute_id", "ticket_id", "previous_id"], ["marketing_conversion_originals.institute_id", "marketing_conversion_originals.ticket_id", "marketing_conversion_originals.id"], name="fk_marketing_conversion_previous"),
+        CheckConstraint("previous_id IS NULL OR previous_id <> id", name="ck_marketing_conversion_previous_distinct"),
+        CheckConstraint("action IN ('linked', 'retracted')", name="ck_marketing_conversion_action"),
+        CheckConstraint("action <> 'retracted' OR previous_id IS NOT NULL", name="ck_marketing_conversion_retraction_previous"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    ticket_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    campaign_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    intent_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    authorization_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    accepted_outcome_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    previous_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    action: Mapped[str] = mapped_column(String(16), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    request: Mapped[dict] = mapped_column(JSON, nullable=False)
+    attribution: Mapped[dict] = mapped_column(JSON, nullable=False)
+    attribution_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class ConversionHead(Base):
+    __tablename__ = "marketing_conversion_heads"
+    __table_args__ = (ForeignKeyConstraint(["institute_id", "ticket_id", "original_id"],
+        ["marketing_conversion_originals.institute_id", "marketing_conversion_originals.ticket_id", "marketing_conversion_originals.id"], name="fk_marketing_conversion_head"),)
+    institute_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    ticket_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    original_id: Mapped[str] = mapped_column(String(80), nullable=False)

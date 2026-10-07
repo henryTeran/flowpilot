@@ -1,3 +1,4 @@
+from alembic.script import ScriptDirectory
 import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
@@ -58,7 +59,7 @@ def test_contact_schema_ownership_replay_and_retained_history(tmp_path, monkeypa
             command.downgrade(config, "1d8eaf762259")
         assert "marketing_contact_heads" in inspect(engine).get_table_names()
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "3fa0c198447b"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == ScriptDirectory.from_config(config).get_current_head()
             assert connection.scalar(text("SELECT COUNT(*) FROM marketing_contact_originals")) == 4
         # An original alone (without a current pointer) still protects retained history.
         with engine.begin() as connection: connection.execute(text("DELETE FROM marketing_contact_heads"))

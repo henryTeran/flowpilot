@@ -384,3 +384,32 @@ must never be presented as current or used as a write authority without fresh ca
 Full declared contact facts in the retained intent remain signed-manager-only.
 Durable link originals/corrections/audit, signed write/readonly catalog and native
 tracking remain next; no conversion completion or production acceptance implied.
+
+## Durable conversion schema foundation (13AY)
+
+Alembic `4ab1d209558c` follows `3fa0c198447b` and adds conversion originals and
+one current head per institute/recorded ticket. Each original holds event action
+(linked/retracted), full proposed request and attribution JSON/fingerprint, actor,
+reason, key/time and predecessor; source columns reference the owned billing ticket,
+intent, campaign authorization and exact intent/outcome pair. Institute operation
+keys are unique. Predecessor/head composite foreign keys pin the same institute and
+ticket; self predecessors, unknown actions and predecessor-free retractions refuse.
+A single head per ticket provides the structure for preventing double attribution
+across campaigns; the forthcoming write service must serialize/validate transitions.
+
+Database relationships are structural, not source authenticity or conversion
+semantics. They do not prove SEND stage, accepted status, ticket customer ownership,
+exact capture/fingerprint, valid snapshots or correct chain transitions. Existing
+authoritative preview and pure contracts must be applied by the future receipt/write
+service. No append/retract API, data backfill, attribution service write or native
+conversion tracking is introduced by this schema checkpoint. Direct administrative
+SQL is not constrained to be append-only; application services must preserve history.
+
+An online downgrade refuses if either conversion originals or heads exist; offline
+downgrade refuses without examining history. An empty owned schema can downgrade
+to its parent and upgrade again. This migration is additive and does not modify
+recorded tickets or previous source ledgers. It was applied only to owned disposable
+SQLite/PostgreSQL test databases. No existing application database was migrated.
+The opt-in invocation CLI derives expected heads from the checked-in migration graph
+and now requires this head in a deployment, rather than silently accepting the
+previous schema. Production migration/locks/backup acceptance remain OPEN.
