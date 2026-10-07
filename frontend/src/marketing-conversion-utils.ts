@@ -8,6 +8,8 @@ export type ConversionSelection = ConversionWindow & { intent_id: string; expect
   authorization_id: string; accepted_outcome_id: string; ticket_id: string; reason: string; idempotency_key: string };
 export type ConversionRequest = { action: "linked" | "retracted"; ticket_id: string; expected_previous_id: string | null;
   selection: ConversionSelection | null; reason: string; idempotency_key: string };
+export type ConversionTicketRequest = Pick<ConversionSelection, "intent_id" | "expected_fingerprint" | "accepted_outcome_id" | "start" | "end">;
+export type ConversionTicketRead = { request: ConversionTicketRequest; window: Attribution["window"]; page: DispatchPage<Attribution["ticket"]> };
 export type Attribution = { intent: DispatchIntent; authorization: CampaignOriginal; accepted: DispatchOutcome;
   ticket: { institute_id: string; customer_id: string; ticket_id: string; closed_at: string; captured_at: string;
     currency: "CHF" | "EUR" | null; amount_minor: string | null; amount_quality: "known" | "missing" | "invalid" };
@@ -183,4 +185,33 @@ export function validConversionReport(v: unknown, institute: string, campaign: s
     previous = c.mode + "/" + c.currency; totals[c.mode] += BigInt(c.linked_tickets);
   }
   return totals.live === BigInt(s.live_linked_tickets) && totals.test === BigInt(s.test_linked_tickets);
+}
+
+export async function validConversionTicketRead(v: unknown, institute: string, intent: DispatchIntent, accepted: DispatchOutcome,
+    request: ConversionTicketRequest, offset: number, limit: number): Promise<boolean> {
+  const r = v as ConversionTicketRead, w = r?.window, p = r?.page;
+  if (!await validDispatchOutcome(accepted, intent, institute) || accepted.request.result.status !== "accepted"
+    || !keys(request, ["intent_id", "expected_fingerprint", "accepted_outcome_id", "start", "end"])
+    || request.intent_id !== intent.id || request.expected_fingerprint !== intent.request_fingerprint || request.accepted_outcome_id !== accepted.id
+    || !window(request) || instant(request.start)! < instant(accepted.request.result.observed_at)!
+    || !keys(r, ["request", "window", "page"]) || !keys(r.request, ["intent_id", "expected_fingerprint", "accepted_outcome_id", "start", "end"])
+    || canonical(r.request) !== canonical(request) || !keys(w, ["institute_id", "customer_id", "start", "end", "captured_at"])
+    || w.institute_id !== institute || w.customer_id !== intent.request.customer_id || !sameInstant(w.start, request.start) || !sameInstant(w.end, request.end)
+    || instant(w.captured_at) === undefined || instant(w.end)! > instant(w.captured_at)! || instant(accepted.created_at)! > instant(w.captured_at)!
+    || !keys(p, ["institute_id", "total", "offset", "limit", "items"]) || p.institute_id !== institute || !count(p.total)
+    || !count(offset) || !Number.isSafeInteger(limit) || limit < 1 || limit > 50 || p.offset !== offset || p.limit !== limit
+    || !Array.isArray(p.items) || p.items.length !== Math.min(limit, Math.max(0, p.total - offset))) return false;
+  const tickets = new Set<string>(); let previous: Attribution["ticket"] | undefined;
+  for (const t of p.items) {
+    if (!keys(t, ["institute_id", "customer_id", "ticket_id", "closed_at", "captured_at", "currency", "amount_minor", "amount_quality"])
+      || t.institute_id !== institute || t.customer_id !== w.customer_id || !text(t.ticket_id) || tickets.has(t.ticket_id)
+      || instant(t.closed_at) === undefined || !sameInstant(t.captured_at, w.captured_at)
+      || instant(t.closed_at)! < instant(w.start)! || instant(t.closed_at)! >= instant(w.end)!
+      || ![null, "CHF", "EUR"].includes(t.currency) || !["known", "missing", "invalid"].includes(t.amount_quality)
+      || (t.amount_quality === "known" ? !unsigned(t.amount_minor) || t.amount_minor.length > 10 : t.amount_minor !== null)
+      || previous && (instant(previous.closed_at)! > instant(t.closed_at)!
+        || sameInstant(previous.closed_at, t.closed_at) && compare(previous.ticket_id, t.ticket_id) >= 0)) return false;
+    tickets.add(t.ticket_id); previous = t;
+  }
+  return true;
 }

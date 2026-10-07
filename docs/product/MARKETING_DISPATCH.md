@@ -522,3 +522,23 @@ ticket from choices; the eventual writer must explicitly read its current head a
 retain exact expected predecessor terms. Ticket correction after selection requires
 fresh authoritative validation before a new link. No automatic linking, provider
 I/O or billing mutation is performed. Native source selection/writer remains next.
+
+### Phase13BF native accepted ticket selection
+
+After explicit retained intent and outcome history reads, a current accepted outcome
+exposes a lazy ticket selector. Institute civil dates resolve in the selected zone;
+the first-day start is limited to the accepted observation to permit same-day paid
+tickets, and end stays exclusive. Intent ID/key and accepted outcome ID/key are
+independently reread and full terms compared before any billing catalog request.
+Every received fact/window/page is validated against the selected source and period;
+failed/loading pages are hidden. Exact diagnostics and amounts remain separate from
+any retained attribution. Ticket choice is local and explicitly records no link.
+Read/selection guards reject stale sessions, roles, periods or contexts.
+
+The extended opt-in backend vector includes four actual authoritative current billing
+facts (known, missing, invalid and unknown currency), distinct from historical
+attribution snapshots. Current billing does not require current sending permission;
+this screen never sends a message or changes billing. Protected link/retraction,
+original-key recovery and conversion current/audit screens remain required next.
+Native catalog desktop/tablet and populated retained conversion browser acceptance
+remain open; prior empty campaign summary browser evidence covers the summary only.

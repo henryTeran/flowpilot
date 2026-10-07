@@ -1,3 +1,4 @@
+import { MarketingConversionTickets } from "./MarketingConversionTickets";
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
@@ -6,11 +7,11 @@ import { validCampaignOriginal, sameCampaignOriginal, type CampaignOriginal } fr
 import { validContactOriginal, sameContactOriginal } from "../marketing-contact-utils";
 import { validDispatchIntentPage, sameDispatchIntent, sameDispatchTerms, validDispatchOutcome, validDispatchOutcomePage,
   type DispatchIntent, type DispatchOutcome, type DispatchPage } from "../marketing-dispatch-utils";
-export function MarketingDispatchHistory({ institute, campaign }: { institute: string; campaign: CampaignOriginal }) {
+export function MarketingDispatchHistory({ institute, campaign, timezone }: { institute: string; campaign: CampaignOriginal; timezone?: string }) {
   if (getOperatorRole() !== "responsable_institut" || campaign.revision.institute_id !== institute) return null;
-  return <Reader key={JSON.stringify([institute, campaign.revision.id, getAccessToken()])} institute={institute} campaign={campaign} />;
+  return <Reader key={JSON.stringify([institute, campaign.revision.id, getAccessToken()])} institute={institute} campaign={campaign} timezone={timezone} />;
 }
-function Reader({ institute, campaign }: { institute: string; campaign: CampaignOriginal }) {
+function Reader({ institute, campaign, timezone }: { institute: string; campaign: CampaignOriginal; timezone?: string }) {
   const token = getAccessToken(), mounted = useRef(false), pending = useRef(false);
   const [page, setPage] = useState<DispatchPage<DispatchIntent>>(), [offset, setOffset] = useState(0);
   const [busy, setBusy] = useState(false), [error, setError] = useState<string>();
@@ -50,13 +51,13 @@ function Reader({ institute, campaign }: { institute: string; campaign: Campaign
       {page.items.map(intent => <article key={intent.id} style={{ overflowWrap: "anywhere" }}><p>Intention {intent.id} · cliente {intent.request.customer_id}</p>
         <p>{intent.submission.account.channel} · {intent.submission.account.provider} · {intent.submission.account.account_id} · {intent.submission.account.mode === "test" ? "test" : "réel"}</p>
         <p>{intent.created_at} · {intent.submission.actor_id} · {intent.request.reason}</p>
-        <Outcomes key={JSON.stringify([intent.id, token])} institute={institute} intent={intent} /></article>)}
+        <Outcomes key={JSON.stringify([intent.id, token])} institute={institute} intent={intent} timezone={timezone} /></article>)}
       <button disabled={busy || page.offset === 0} onClick={() => void read(Math.max(0, page.offset - 20))}>Intentions précédentes</button>
       <button disabled={busy || page.offset + page.items.length >= page.total} onClick={() => void read(page.offset + 20)}>Intentions suivantes</button></>}
     <p>Une intention conservée ne prouve aucun envoi. Les permissions courantes se vérifient séparément.</p>
   </section>;
 }
-function Outcomes({ institute, intent }: { institute: string; intent: DispatchIntent }) {
+function Outcomes({ institute, intent, timezone }: { institute: string; intent: DispatchIntent; timezone?: string }) {
   const token = getAccessToken(), mounted = useRef(false), pending = useRef(false);
   const [page, setPage] = useState<DispatchPage<DispatchOutcome>>(), [head, setHead] = useState<DispatchOutcome | null>();
   const [offset, setOffset] = useState(0), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
@@ -101,5 +102,6 @@ function Outcomes({ institute, intent }: { institute: string; intent: DispatchIn
       <button disabled={busy || page.offset === 0} onClick={() => void read(Math.max(0, page.offset - 20))}>Résultats précédents</button>
       <button disabled={busy || page.offset + page.items.length >= page.total} onClick={() => void read(page.offset + 20)}>Résultats suivants</button>
       <p>Acceptation fournisseur ne signifie pas livraison. Cette page ne vérifie pas les prédécesseurs hors de sa tranche et ne déclenche aucun envoi.</p></>}
+    {head?.request.result.status === "accepted" && <MarketingConversionTickets institute={institute} intent={intent} accepted={head} timezone={timezone} />}
   </section>;
 }

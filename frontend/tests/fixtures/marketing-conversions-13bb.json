@@ -1,22 +1,22 @@
 {
   "institute_id": "demo-institute-geneve",
-  "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+  "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
   "window": {
     "start": "2026-10-07T12:00:00.000005Z",
     "end": "2026-10-09T12:00:00Z"
   },
   "linked": {
-    "id": "marketing_conversion_b17a4432bb354466bd4fb215341fbbc1",
+    "id": "marketing_conversion_ba11218521fd41bc9a632de0cbf0ff85",
     "institute_id": "demo-institute-geneve",
     "request": {
       "action": "linked",
       "ticket_id": "linked-paid",
       "expected_previous_id": null,
       "selection": {
-        "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-        "expected_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
-        "authorization_id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-        "accepted_outcome_id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+        "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+        "expected_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
+        "authorization_id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+        "accepted_outcome_id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
         "ticket_id": "linked-paid",
         "start": "2026-10-07T12:00:00.000005Z",
         "end": "2026-10-09T12:00:00Z",
@@ -30,12 +30,12 @@
     "created_at": "2026-10-10T12:00:00Z",
     "attribution": {
       "intent": {
-        "id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
+        "id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
         "request": {
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-          "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+          "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "customer_id": "aud_000",
-          "expected_contact_id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+          "expected_contact_id": "marketing_contact_f3751603901641309395435168378cf9",
           "account_id": "account",
           "reason": "Explicit approved recipient preparation",
           "idempotency_key": "intent"
@@ -57,10 +57,10 @@
               "created_at": "2026-10-07T12:00:00Z"
             },
             "campaign": {
-              "id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+              "id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
               "institute_id": "demo-institute-geneve",
-              "previous_id": "marketing_campaign_revision_604c8b1027cd42039d76d21c0be09bc4",
+              "previous_id": "marketing_campaign_revision_e5de599f3b4c42939829a0795244bf16",
               "state": "APPROVE",
               "content": {
                 "institute_id": "demo-institute-geneve",
@@ -70,7 +70,7 @@
                 "body": "Explicit literal campaign",
                 "template_original_id": null,
                 "audience": {
-                  "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                  "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                   "institute_id": "demo-institute-geneve",
                   "captured_at": "2026-10-07T12:00:00.000002Z",
                   "customer_ids": [
@@ -82,8 +82,8 @@
               "actor_id": "manager",
               "reason": "Explicit campaign action",
               "created_at": "2026-10-07T12:00:00.000003Z",
-              "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-              "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+              "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+              "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
               "external_message_sent": false,
               "delivery_authorized": false
             },
@@ -137,7 +137,7 @@
               "previous_id": null,
               "reason": "Explicit marketing contact declaration",
               "idempotency_key": "contact",
-              "id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+              "id": "marketing_contact_f3751603901641309395435168378cf9",
               "actor_id": "manager",
               "created_at": "2026-10-07T12:00:00.000003Z"
             },
@@ -151,22 +151,22 @@
           "idempotency_key": "intent"
         },
         "created_at": "2026-10-07T12:00:00.000004Z",
-        "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a"
+        "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c"
       },
       "authorization": {
         "request": {
           "action": "send",
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-          "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+          "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "content": null,
           "reason": "Explicit signed SEND declaration",
           "idempotency_key": "worker-send"
         },
         "revision": {
-          "id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+          "id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
           "institute_id": "demo-institute-geneve",
-          "previous_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "previous_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "state": "SEND",
           "content": {
             "institute_id": "demo-institute-geneve",
@@ -176,7 +176,7 @@
             "body": "Explicit literal campaign",
             "template_original_id": null,
             "audience": {
-              "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+              "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
               "institute_id": "demo-institute-geneve",
               "captured_at": "2026-10-07T12:00:00.000002Z",
               "customer_ids": [
@@ -188,18 +188,18 @@
           "actor_id": "manager",
           "reason": "Explicit signed SEND declaration",
           "created_at": "2026-10-07T12:00:00.000003Z",
-          "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-          "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+          "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+          "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
           "external_message_sent": false,
           "delivery_authorized": false
         }
       },
       "accepted": {
-        "id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+        "id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
         "actor_id": "worker",
         "request": {
-          "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-          "expected_previous_id": "marketing_outcome_0e1b7c5bf77c4e2dbb38578ddd765007",
+          "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+          "expected_previous_id": "marketing_outcome_340b79addad649ce8dfd850b2e18ffc2",
           "result": {
             "account": {
               "institute_id": "demo-institute-geneve",
@@ -211,14 +211,14 @@
               "push_application": null
             },
             "idempotency_key": "intent",
-            "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
+            "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
             "status": "accepted",
             "provider_message_id": "fixture-message",
             "observed_at": "2026-10-07T12:00:00.000005Z",
             "delivery_confirmed": false
           },
           "reason": "Trusted adapter submission observation",
-          "idempotency_key": "outcome_observation_4048e9706c72494bb97ca9d94c3b13c1"
+          "idempotency_key": "outcome_observation_cf4a70aa7ca0413cbadd6a9071f5b950"
         },
         "created_at": "2026-10-07T12:00:00.000005Z"
       },
@@ -246,15 +246,15 @@
       "causal_effect_proven": false,
       "delivery_confirmed": false
     },
-    "attribution_fingerprint": "0369135b6e0670a0e748744eada1e004c83ef4e997e5bcfcc570b598ceedff89"
+    "attribution_fingerprint": "b996787db43231f220edc09f62ba1ceca791a64b29e7814f2f1958242aab1e77"
   },
   "retracted": {
-    "id": "marketing_conversion_db9df4e6c5cd44268ae6b6fe6467a25b",
+    "id": "marketing_conversion_ee1e216f611a4eae9d50d92925437da8",
     "institute_id": "demo-institute-geneve",
     "request": {
       "action": "retracted",
       "ticket_id": "linked-paid",
-      "expected_previous_id": "marketing_conversion_b17a4432bb354466bd4fb215341fbbc1",
+      "expected_previous_id": "marketing_conversion_ba11218521fd41bc9a632de0cbf0ff85",
       "selection": null,
       "reason": "Explicit vector retraction",
       "idempotency_key": "vector-retraction"
@@ -263,12 +263,12 @@
     "created_at": "2026-10-10T12:00:00Z",
     "attribution": {
       "intent": {
-        "id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
+        "id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
         "request": {
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-          "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+          "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "customer_id": "aud_000",
-          "expected_contact_id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+          "expected_contact_id": "marketing_contact_f3751603901641309395435168378cf9",
           "account_id": "account",
           "reason": "Explicit approved recipient preparation",
           "idempotency_key": "intent"
@@ -290,10 +290,10 @@
               "created_at": "2026-10-07T12:00:00Z"
             },
             "campaign": {
-              "id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+              "id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
               "institute_id": "demo-institute-geneve",
-              "previous_id": "marketing_campaign_revision_604c8b1027cd42039d76d21c0be09bc4",
+              "previous_id": "marketing_campaign_revision_e5de599f3b4c42939829a0795244bf16",
               "state": "APPROVE",
               "content": {
                 "institute_id": "demo-institute-geneve",
@@ -303,7 +303,7 @@
                 "body": "Explicit literal campaign",
                 "template_original_id": null,
                 "audience": {
-                  "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                  "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                   "institute_id": "demo-institute-geneve",
                   "captured_at": "2026-10-07T12:00:00.000002Z",
                   "customer_ids": [
@@ -315,8 +315,8 @@
               "actor_id": "manager",
               "reason": "Explicit campaign action",
               "created_at": "2026-10-07T12:00:00.000003Z",
-              "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-              "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+              "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+              "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
               "external_message_sent": false,
               "delivery_authorized": false
             },
@@ -370,7 +370,7 @@
               "previous_id": null,
               "reason": "Explicit marketing contact declaration",
               "idempotency_key": "contact",
-              "id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+              "id": "marketing_contact_f3751603901641309395435168378cf9",
               "actor_id": "manager",
               "created_at": "2026-10-07T12:00:00.000003Z"
             },
@@ -384,22 +384,22 @@
           "idempotency_key": "intent"
         },
         "created_at": "2026-10-07T12:00:00.000004Z",
-        "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a"
+        "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c"
       },
       "authorization": {
         "request": {
           "action": "send",
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-          "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+          "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "content": null,
           "reason": "Explicit signed SEND declaration",
           "idempotency_key": "worker-send"
         },
         "revision": {
-          "id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-          "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+          "id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+          "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
           "institute_id": "demo-institute-geneve",
-          "previous_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+          "previous_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
           "state": "SEND",
           "content": {
             "institute_id": "demo-institute-geneve",
@@ -409,7 +409,7 @@
             "body": "Explicit literal campaign",
             "template_original_id": null,
             "audience": {
-              "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+              "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
               "institute_id": "demo-institute-geneve",
               "captured_at": "2026-10-07T12:00:00.000002Z",
               "customer_ids": [
@@ -421,18 +421,18 @@
           "actor_id": "manager",
           "reason": "Explicit signed SEND declaration",
           "created_at": "2026-10-07T12:00:00.000003Z",
-          "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-          "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+          "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+          "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
           "external_message_sent": false,
           "delivery_authorized": false
         }
       },
       "accepted": {
-        "id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+        "id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
         "actor_id": "worker",
         "request": {
-          "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-          "expected_previous_id": "marketing_outcome_0e1b7c5bf77c4e2dbb38578ddd765007",
+          "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+          "expected_previous_id": "marketing_outcome_340b79addad649ce8dfd850b2e18ffc2",
           "result": {
             "account": {
               "institute_id": "demo-institute-geneve",
@@ -444,14 +444,14 @@
               "push_application": null
             },
             "idempotency_key": "intent",
-            "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
+            "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
             "status": "accepted",
             "provider_message_id": "fixture-message",
             "observed_at": "2026-10-07T12:00:00.000005Z",
             "delivery_confirmed": false
           },
           "reason": "Trusted adapter submission observation",
-          "idempotency_key": "outcome_observation_4048e9706c72494bb97ca9d94c3b13c1"
+          "idempotency_key": "outcome_observation_cf4a70aa7ca0413cbadd6a9071f5b950"
         },
         "created_at": "2026-10-07T12:00:00.000005Z"
       },
@@ -479,13 +479,13 @@
       "causal_effect_proven": false,
       "delivery_confirmed": false
     },
-    "attribution_fingerprint": "0369135b6e0670a0e748744eada1e004c83ef4e997e5bcfcc570b598ceedff89"
+    "attribution_fingerprint": "b996787db43231f220edc09f62ba1ceca791a64b29e7814f2f1958242aab1e77"
   },
   "report": {
     "summary": {
       "window": {
         "institute_id": "demo-institute-geneve",
-        "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+        "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
         "start": "2026-10-07T12:00:00.000005Z",
         "end": "2026-10-09T12:00:00Z",
         "captured_at": "2026-10-11T12:00:00Z"
@@ -521,7 +521,7 @@
     "summary": {
       "window": {
         "institute_id": "demo-institute-geneve",
-        "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+        "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
         "start": "2026-10-07T12:00:00.000005Z",
         "end": "2026-10-09T12:00:00Z",
         "captured_at": "2026-10-11T12:00:00Z"
@@ -550,17 +550,17 @@
     "limit": 20,
     "items": [
       {
-        "id": "marketing_conversion_b17a4432bb354466bd4fb215341fbbc1",
+        "id": "marketing_conversion_ba11218521fd41bc9a632de0cbf0ff85",
         "institute_id": "demo-institute-geneve",
         "request": {
           "action": "linked",
           "ticket_id": "linked-paid",
           "expected_previous_id": null,
           "selection": {
-            "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-            "expected_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
-            "authorization_id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-            "accepted_outcome_id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+            "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+            "expected_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
+            "authorization_id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+            "accepted_outcome_id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
             "ticket_id": "linked-paid",
             "start": "2026-10-07T12:00:00.000005Z",
             "end": "2026-10-09T12:00:00Z",
@@ -574,12 +574,12 @@
         "created_at": "2026-10-10T12:00:00Z",
         "attribution": {
           "intent": {
-            "id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
+            "id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
             "request": {
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "customer_id": "aud_000",
-              "expected_contact_id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+              "expected_contact_id": "marketing_contact_f3751603901641309395435168378cf9",
               "account_id": "account",
               "reason": "Explicit approved recipient preparation",
               "idempotency_key": "intent"
@@ -601,10 +601,10 @@
                   "created_at": "2026-10-07T12:00:00Z"
                 },
                 "campaign": {
-                  "id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
-                  "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+                  "id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
+                  "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
                   "institute_id": "demo-institute-geneve",
-                  "previous_id": "marketing_campaign_revision_604c8b1027cd42039d76d21c0be09bc4",
+                  "previous_id": "marketing_campaign_revision_e5de599f3b4c42939829a0795244bf16",
                   "state": "APPROVE",
                   "content": {
                     "institute_id": "demo-institute-geneve",
@@ -614,7 +614,7 @@
                     "body": "Explicit literal campaign",
                     "template_original_id": null,
                     "audience": {
-                      "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                      "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                       "institute_id": "demo-institute-geneve",
                       "captured_at": "2026-10-07T12:00:00.000002Z",
                       "customer_ids": [
@@ -626,8 +626,8 @@
                   "actor_id": "manager",
                   "reason": "Explicit campaign action",
                   "created_at": "2026-10-07T12:00:00.000003Z",
-                  "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-                  "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+                  "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+                  "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
                   "external_message_sent": false,
                   "delivery_authorized": false
                 },
@@ -681,7 +681,7 @@
                   "previous_id": null,
                   "reason": "Explicit marketing contact declaration",
                   "idempotency_key": "contact",
-                  "id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+                  "id": "marketing_contact_f3751603901641309395435168378cf9",
                   "actor_id": "manager",
                   "created_at": "2026-10-07T12:00:00.000003Z"
                 },
@@ -695,22 +695,22 @@
               "idempotency_key": "intent"
             },
             "created_at": "2026-10-07T12:00:00.000004Z",
-            "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a"
+            "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c"
           },
           "authorization": {
             "request": {
               "action": "send",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "content": null,
               "reason": "Explicit signed SEND declaration",
               "idempotency_key": "worker-send"
             },
             "revision": {
-              "id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+              "id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
               "institute_id": "demo-institute-geneve",
-              "previous_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "previous_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "state": "SEND",
               "content": {
                 "institute_id": "demo-institute-geneve",
@@ -720,7 +720,7 @@
                 "body": "Explicit literal campaign",
                 "template_original_id": null,
                 "audience": {
-                  "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                  "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                   "institute_id": "demo-institute-geneve",
                   "captured_at": "2026-10-07T12:00:00.000002Z",
                   "customer_ids": [
@@ -732,18 +732,18 @@
               "actor_id": "manager",
               "reason": "Explicit signed SEND declaration",
               "created_at": "2026-10-07T12:00:00.000003Z",
-              "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-              "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+              "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+              "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
               "external_message_sent": false,
               "delivery_authorized": false
             }
           },
           "accepted": {
-            "id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+            "id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
             "actor_id": "worker",
             "request": {
-              "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-              "expected_previous_id": "marketing_outcome_0e1b7c5bf77c4e2dbb38578ddd765007",
+              "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+              "expected_previous_id": "marketing_outcome_340b79addad649ce8dfd850b2e18ffc2",
               "result": {
                 "account": {
                   "institute_id": "demo-institute-geneve",
@@ -755,14 +755,14 @@
                   "push_application": null
                 },
                 "idempotency_key": "intent",
-                "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
+                "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
                 "status": "accepted",
                 "provider_message_id": "fixture-message",
                 "observed_at": "2026-10-07T12:00:00.000005Z",
                 "delivery_confirmed": false
               },
               "reason": "Trusted adapter submission observation",
-              "idempotency_key": "outcome_observation_4048e9706c72494bb97ca9d94c3b13c1"
+              "idempotency_key": "outcome_observation_cf4a70aa7ca0413cbadd6a9071f5b950"
             },
             "created_at": "2026-10-07T12:00:00.000005Z"
           },
@@ -790,7 +790,7 @@
           "causal_effect_proven": false,
           "delivery_confirmed": false
         },
-        "attribution_fingerprint": "0369135b6e0670a0e748744eada1e004c83ef4e997e5bcfcc570b598ceedff89"
+        "attribution_fingerprint": "b996787db43231f220edc09f62ba1ceca791a64b29e7814f2f1958242aab1e77"
       }
     ]
   },
@@ -801,17 +801,17 @@
     "limit": 20,
     "items": [
       {
-        "id": "marketing_conversion_b17a4432bb354466bd4fb215341fbbc1",
+        "id": "marketing_conversion_ba11218521fd41bc9a632de0cbf0ff85",
         "institute_id": "demo-institute-geneve",
         "request": {
           "action": "linked",
           "ticket_id": "linked-paid",
           "expected_previous_id": null,
           "selection": {
-            "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-            "expected_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
-            "authorization_id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-            "accepted_outcome_id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+            "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+            "expected_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
+            "authorization_id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+            "accepted_outcome_id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
             "ticket_id": "linked-paid",
             "start": "2026-10-07T12:00:00.000005Z",
             "end": "2026-10-09T12:00:00Z",
@@ -825,12 +825,12 @@
         "created_at": "2026-10-10T12:00:00Z",
         "attribution": {
           "intent": {
-            "id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
+            "id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
             "request": {
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "customer_id": "aud_000",
-              "expected_contact_id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+              "expected_contact_id": "marketing_contact_f3751603901641309395435168378cf9",
               "account_id": "account",
               "reason": "Explicit approved recipient preparation",
               "idempotency_key": "intent"
@@ -852,10 +852,10 @@
                   "created_at": "2026-10-07T12:00:00Z"
                 },
                 "campaign": {
-                  "id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
-                  "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+                  "id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
+                  "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
                   "institute_id": "demo-institute-geneve",
-                  "previous_id": "marketing_campaign_revision_604c8b1027cd42039d76d21c0be09bc4",
+                  "previous_id": "marketing_campaign_revision_e5de599f3b4c42939829a0795244bf16",
                   "state": "APPROVE",
                   "content": {
                     "institute_id": "demo-institute-geneve",
@@ -865,7 +865,7 @@
                     "body": "Explicit literal campaign",
                     "template_original_id": null,
                     "audience": {
-                      "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                      "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                       "institute_id": "demo-institute-geneve",
                       "captured_at": "2026-10-07T12:00:00.000002Z",
                       "customer_ids": [
@@ -877,8 +877,8 @@
                   "actor_id": "manager",
                   "reason": "Explicit campaign action",
                   "created_at": "2026-10-07T12:00:00.000003Z",
-                  "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-                  "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+                  "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+                  "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
                   "external_message_sent": false,
                   "delivery_authorized": false
                 },
@@ -932,7 +932,7 @@
                   "previous_id": null,
                   "reason": "Explicit marketing contact declaration",
                   "idempotency_key": "contact",
-                  "id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+                  "id": "marketing_contact_f3751603901641309395435168378cf9",
                   "actor_id": "manager",
                   "created_at": "2026-10-07T12:00:00.000003Z"
                 },
@@ -946,22 +946,22 @@
               "idempotency_key": "intent"
             },
             "created_at": "2026-10-07T12:00:00.000004Z",
-            "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a"
+            "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c"
           },
           "authorization": {
             "request": {
               "action": "send",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "content": null,
               "reason": "Explicit signed SEND declaration",
               "idempotency_key": "worker-send"
             },
             "revision": {
-              "id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+              "id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
               "institute_id": "demo-institute-geneve",
-              "previous_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "previous_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "state": "SEND",
               "content": {
                 "institute_id": "demo-institute-geneve",
@@ -971,7 +971,7 @@
                 "body": "Explicit literal campaign",
                 "template_original_id": null,
                 "audience": {
-                  "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                  "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                   "institute_id": "demo-institute-geneve",
                   "captured_at": "2026-10-07T12:00:00.000002Z",
                   "customer_ids": [
@@ -983,18 +983,18 @@
               "actor_id": "manager",
               "reason": "Explicit signed SEND declaration",
               "created_at": "2026-10-07T12:00:00.000003Z",
-              "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-              "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+              "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+              "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
               "external_message_sent": false,
               "delivery_authorized": false
             }
           },
           "accepted": {
-            "id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+            "id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
             "actor_id": "worker",
             "request": {
-              "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-              "expected_previous_id": "marketing_outcome_0e1b7c5bf77c4e2dbb38578ddd765007",
+              "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+              "expected_previous_id": "marketing_outcome_340b79addad649ce8dfd850b2e18ffc2",
               "result": {
                 "account": {
                   "institute_id": "demo-institute-geneve",
@@ -1006,14 +1006,14 @@
                   "push_application": null
                 },
                 "idempotency_key": "intent",
-                "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
+                "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
                 "status": "accepted",
                 "provider_message_id": "fixture-message",
                 "observed_at": "2026-10-07T12:00:00.000005Z",
                 "delivery_confirmed": false
               },
               "reason": "Trusted adapter submission observation",
-              "idempotency_key": "outcome_observation_4048e9706c72494bb97ca9d94c3b13c1"
+              "idempotency_key": "outcome_observation_cf4a70aa7ca0413cbadd6a9071f5b950"
             },
             "created_at": "2026-10-07T12:00:00.000005Z"
           },
@@ -1041,15 +1041,15 @@
           "causal_effect_proven": false,
           "delivery_confirmed": false
         },
-        "attribution_fingerprint": "0369135b6e0670a0e748744eada1e004c83ef4e997e5bcfcc570b598ceedff89"
+        "attribution_fingerprint": "b996787db43231f220edc09f62ba1ceca791a64b29e7814f2f1958242aab1e77"
       },
       {
-        "id": "marketing_conversion_db9df4e6c5cd44268ae6b6fe6467a25b",
+        "id": "marketing_conversion_ee1e216f611a4eae9d50d92925437da8",
         "institute_id": "demo-institute-geneve",
         "request": {
           "action": "retracted",
           "ticket_id": "linked-paid",
-          "expected_previous_id": "marketing_conversion_b17a4432bb354466bd4fb215341fbbc1",
+          "expected_previous_id": "marketing_conversion_ba11218521fd41bc9a632de0cbf0ff85",
           "selection": null,
           "reason": "Explicit vector retraction",
           "idempotency_key": "vector-retraction"
@@ -1058,12 +1058,12 @@
         "created_at": "2026-10-10T12:00:00Z",
         "attribution": {
           "intent": {
-            "id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
+            "id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
             "request": {
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "customer_id": "aud_000",
-              "expected_contact_id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+              "expected_contact_id": "marketing_contact_f3751603901641309395435168378cf9",
               "account_id": "account",
               "reason": "Explicit approved recipient preparation",
               "idempotency_key": "intent"
@@ -1085,10 +1085,10 @@
                   "created_at": "2026-10-07T12:00:00Z"
                 },
                 "campaign": {
-                  "id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
-                  "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+                  "id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
+                  "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
                   "institute_id": "demo-institute-geneve",
-                  "previous_id": "marketing_campaign_revision_604c8b1027cd42039d76d21c0be09bc4",
+                  "previous_id": "marketing_campaign_revision_e5de599f3b4c42939829a0795244bf16",
                   "state": "APPROVE",
                   "content": {
                     "institute_id": "demo-institute-geneve",
@@ -1098,7 +1098,7 @@
                     "body": "Explicit literal campaign",
                     "template_original_id": null,
                     "audience": {
-                      "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                      "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                       "institute_id": "demo-institute-geneve",
                       "captured_at": "2026-10-07T12:00:00.000002Z",
                       "customer_ids": [
@@ -1110,8 +1110,8 @@
                   "actor_id": "manager",
                   "reason": "Explicit campaign action",
                   "created_at": "2026-10-07T12:00:00.000003Z",
-                  "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-                  "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+                  "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+                  "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
                   "external_message_sent": false,
                   "delivery_authorized": false
                 },
@@ -1165,7 +1165,7 @@
                   "previous_id": null,
                   "reason": "Explicit marketing contact declaration",
                   "idempotency_key": "contact",
-                  "id": "marketing_contact_3db7ebc59f31447b9c3da9f0f85c830a",
+                  "id": "marketing_contact_f3751603901641309395435168378cf9",
                   "actor_id": "manager",
                   "created_at": "2026-10-07T12:00:00.000003Z"
                 },
@@ -1179,22 +1179,22 @@
               "idempotency_key": "intent"
             },
             "created_at": "2026-10-07T12:00:00.000004Z",
-            "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a"
+            "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c"
           },
           "authorization": {
             "request": {
               "action": "send",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
-              "expected_revision_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
+              "expected_revision_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "content": null,
               "reason": "Explicit signed SEND declaration",
               "idempotency_key": "worker-send"
             },
             "revision": {
-              "id": "marketing_campaign_revision_1dbcd542f3d2479f83c98b6991f2e4ab",
-              "campaign_id": "marketing_campaign_70eb7cc8dd854f23a955348523ca071a",
+              "id": "marketing_campaign_revision_65e9ef83805e46d284dd69bbb572320b",
+              "campaign_id": "marketing_campaign_6aa656f72c9145dc97e4997fc744e2a7",
               "institute_id": "demo-institute-geneve",
-              "previous_id": "marketing_campaign_revision_3b4319d05ea645ff996a09a5acc5c8e5",
+              "previous_id": "marketing_campaign_revision_0fb0d01fb801473cb013d35f823eaa5c",
               "state": "SEND",
               "content": {
                 "institute_id": "demo-institute-geneve",
@@ -1204,7 +1204,7 @@
                 "body": "Explicit literal campaign",
                 "template_original_id": null,
                 "audience": {
-                  "id": "marketing_audience_2ea41f2c39f84bf2a5e897248574e8d7",
+                  "id": "marketing_audience_b449bf3913ed4ea0b7e3d73b956d063f",
                   "institute_id": "demo-institute-geneve",
                   "captured_at": "2026-10-07T12:00:00.000002Z",
                   "customer_ids": [
@@ -1216,18 +1216,18 @@
               "actor_id": "manager",
               "reason": "Explicit signed SEND declaration",
               "created_at": "2026-10-07T12:00:00.000003Z",
-              "reviewed_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
-              "approved_digest": "679d6079d6c04de04594fa19dd76cb12a4d72677cf0b8ccf70c726e2cb2b1275",
+              "reviewed_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
+              "approved_digest": "b2c690075da50aaa40718d0a387802e97369163eef359ad87dd4f1c9ed883587",
               "external_message_sent": false,
               "delivery_authorized": false
             }
           },
           "accepted": {
-            "id": "marketing_outcome_e283372b880c4230aa9b7c83cb80c3ba",
+            "id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
             "actor_id": "worker",
             "request": {
-              "intent_id": "marketing_dispatch_f6c51010e962460e98cf34086f1953e3",
-              "expected_previous_id": "marketing_outcome_0e1b7c5bf77c4e2dbb38578ddd765007",
+              "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+              "expected_previous_id": "marketing_outcome_340b79addad649ce8dfd850b2e18ffc2",
               "result": {
                 "account": {
                   "institute_id": "demo-institute-geneve",
@@ -1239,14 +1239,14 @@
                   "push_application": null
                 },
                 "idempotency_key": "intent",
-                "request_fingerprint": "0bdabf11c4663e82fe2a9516517ad9ef65aa153ec899f6aa79e3c040754fe57a",
+                "request_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
                 "status": "accepted",
                 "provider_message_id": "fixture-message",
                 "observed_at": "2026-10-07T12:00:00.000005Z",
                 "delivery_confirmed": false
               },
               "reason": "Trusted adapter submission observation",
-              "idempotency_key": "outcome_observation_4048e9706c72494bb97ca9d94c3b13c1"
+              "idempotency_key": "outcome_observation_cf4a70aa7ca0413cbadd6a9071f5b950"
             },
             "created_at": "2026-10-07T12:00:00.000005Z"
           },
@@ -1274,8 +1274,72 @@
           "causal_effect_proven": false,
           "delivery_confirmed": false
         },
-        "attribution_fingerprint": "0369135b6e0670a0e748744eada1e004c83ef4e997e5bcfcc570b598ceedff89"
+        "attribution_fingerprint": "b996787db43231f220edc09f62ba1ceca791a64b29e7814f2f1958242aab1e77"
       }
     ]
+  },
+  "tickets": {
+    "request": {
+      "intent_id": "marketing_dispatch_b724ad79777f4b998d476e2935eecca9",
+      "expected_fingerprint": "df31cf667cc66580fcb6ad65b2510624612ecefc9f5177899f6d9f04ffe7f30c",
+      "accepted_outcome_id": "marketing_outcome_b85dfc4738ba4552a9421a5a982a8443",
+      "start": "2026-10-07T12:00:00.000005Z",
+      "end": "2026-10-09T12:00:00Z"
+    },
+    "window": {
+      "institute_id": "demo-institute-geneve",
+      "customer_id": "aud_000",
+      "start": "2026-10-07T12:00:00.000005Z",
+      "end": "2026-10-09T12:00:00Z",
+      "captured_at": "2026-10-11T12:00:00Z"
+    },
+    "page": {
+      "institute_id": "demo-institute-geneve",
+      "total": 4,
+      "offset": 0,
+      "limit": 20,
+      "items": [
+        {
+          "institute_id": "demo-institute-geneve",
+          "customer_id": "aud_000",
+          "ticket_id": "invalid-amount",
+          "closed_at": "2026-10-08T12:00:00Z",
+          "captured_at": "2026-10-11T12:00:00Z",
+          "currency": "EUR",
+          "amount_minor": null,
+          "amount_quality": "invalid"
+        },
+        {
+          "institute_id": "demo-institute-geneve",
+          "customer_id": "aud_000",
+          "ticket_id": "linked-paid",
+          "closed_at": "2026-10-08T12:00:00Z",
+          "captured_at": "2026-10-11T12:00:00Z",
+          "currency": "CHF",
+          "amount_minor": "12345",
+          "amount_quality": "known"
+        },
+        {
+          "institute_id": "demo-institute-geneve",
+          "customer_id": "aud_000",
+          "ticket_id": "missing-amount",
+          "closed_at": "2026-10-08T12:00:00Z",
+          "captured_at": "2026-10-11T12:00:00Z",
+          "currency": "EUR",
+          "amount_minor": null,
+          "amount_quality": "missing"
+        },
+        {
+          "institute_id": "demo-institute-geneve",
+          "customer_id": "aud_000",
+          "ticket_id": "unknown-currency",
+          "closed_at": "2026-10-08T12:00:00Z",
+          "captured_at": "2026-10-11T12:00:00Z",
+          "currency": null,
+          "amount_minor": "100",
+          "amount_quality": "known"
+        }
+      ]
+    }
   }
 }

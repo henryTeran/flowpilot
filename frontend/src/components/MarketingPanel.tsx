@@ -88,7 +88,7 @@ function CampaignHistory({ institute, selected, timezone }: { institute: string;
     <MarketingCampaignActions institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingCampaignCreator institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingRecipientPanel institute={institute} original={original} />
-    {original && <MarketingDispatchHistory institute={institute} campaign={original} />}
+    {original && <MarketingDispatchHistory institute={institute} campaign={original} timezone={timezone} />}
     {original && <MarketingConversionReport institute={institute} campaign={root} timezone={timezone} />}
     {page && <><p>{page.originals.length ? `${page.offset + 1}–${page.offset + page.originals.length}` : "0"} sur {page.total} révisions</p>
       {page.originals.map(o => <article key={o.revision.id} style={{ overflowWrap: "anywhere" }}><h4>{stages[o.revision.state]}</h4>
