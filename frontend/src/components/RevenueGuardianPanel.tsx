@@ -6,11 +6,17 @@ import { instituteMidnight } from "../outlook-utils";
 import { revenueAverage, revenueMoney, validRevenueBilling, type RevenueBilling, type RevenueAmounts } from "../revenue-utils";
 import { RevenueCapacityReport } from "./RevenueCapacityReport";
 import { RevenueScenarioHistory } from "./RevenueScenarioHistory";
+import { RevenueScenarioWriter } from "./RevenueScenarioWriter";
 
 export function RevenueGuardianPanel({ institute, timezone }: { institute: string; timezone?: string }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
   return <><Reader key={JSON.stringify([institute, timezone, getAccessToken()])} institute={institute} timezone={timezone} />
-    <RevenueCapacityReport institute={institute} timezone={timezone} /><RevenueScenarioHistory institute={institute} /></>;
+    <RevenueCapacityReport institute={institute} timezone={timezone} /><ScenarioWorkspace institute={institute} timezone={timezone} /></>;
+}
+function ScenarioWorkspace({ institute, timezone }: { institute: string; timezone?: string }) {
+  const [revision, setRevision] = useState(0);
+  return <><RevenueScenarioWriter institute={institute} timezone={timezone} onRetained={() => setRevision(n => n+1)} />
+    <RevenueScenarioHistory key={revision} institute={institute} /></>;
 }
 function Amounts({ value }: { value: RevenueAmounts }) {
   return <>

@@ -714,3 +714,68 @@ while actual mixed-source native projection is explicitly unavailable.
 All three Phase14 gates remain OPEN. Protected declaration/key recovery, explicit
 retained comparison selection, retained opportunity/closure-value decisions and native
 closure/rebooking/opportunity review remain required before full Phase14 acceptance.
+
+## Phase14P — native protected scenario declaration and key recovery
+
+The manager scenario workspace now permits explicit declaration of the constant
+recorded-gross model: four institute civil-date boundaries, selected CHF/EUR,
+an exact activity fraction between zero and one and a reason. No defaults select
+currency, periods or fraction. Institute timezone resolves the boundaries to UTC;
+backend14M captures the current source evidence when retaining the declaration.
+An unavailable projection remains a legitimate original, with no validated forecast,
+complete-sales, bank-settlement or operational-action claim.
+
+Before any POST, the browser stores the signed institute/actor, complete declaration
+and generated recovery key in sessionStorage. The frozen request survives remount
+and reload in that browser session; it is not durable storage across browser closure.
+Every attempt first discovers the original by key. A lost acknowledgement leaves
+the original request locked and offers an explicit same-key recovery, never an
+automatic POST or replacement key. Initial rendering performs no API I/O.
+
+Success requires strict whole-original verification and canonical raw-JSON SHA,
+exact signed actor/reason/key/model/currency/fraction and semantically equal period
+instants. Independent key and original-ID reads must agree on identity and full
+fingerprint before clearing the local request or displaying success. Backend instant
+normalization does not change the request binding or the original hash. A definitive
+400/422 permits correction only after a fresh absent-key read; finding an original
+instead verifies and acknowledges it. Ambiguous outcomes, corrupt local state or
+different rereads retain the protected request. Session/context changes suppress
+late results and pending-key-lookup POSTs; a pending guard blocks double clicks.
+
+The receipt displays original identity, signed author, creation time, key/full SHA,
+reason, periods, fraction and exact conditional minor-unit result or unavailability.
+After verified success, a separate action starts another independent declaration
+with empty fields and a fresh key. The history reader is invalidated after each
+verified retention and requires a new explicit read. This does not add revisions,
+latest-head selection, a comparison selector or retained opportunities.
+
+Four writer tests cover lost acknowledgement after retention/remount, persisted
+terms before POST, no second POST on recovery, independent actor/reason/fraction/ID
+substitution refusal, definitive rejection/fresh-key correction, corrupt storage,
+role restrictions, double click and late session changes. Ten scenario-focused tests
+passed7.97s. Full frontend381 passed85.56s, zero failures/skips, terminal exit0,
+before a final clearer pre-send validation error; final ten focused tests passed4.40s
+on that version, zero failures/skips, exit0. No backend/schema change or persistent
+application migration is included.
+
+Initial native desktop/tablet tests failed only the44px control requirement because
+the new-scenario button was27px; applying the existing control style fixed it.
+The next two passed53.1s. PowerShell redirected server stderr reported wrapper1
+despite both tests passing; a fresh final harness rebuild/run captured the native
+exit code explicitly. Final desktop1440x900 and touch tablet1024x768 **2 passed56.5s**,
+zero failures/skips, BROWSER_PROCESS_EXIT=0 and terminal exit0. Both final screenshots
+were visually inspected; panel width>=600px, all tested controls>=44px and no horizontal
+overflow passed. The test intercepts the actual API200 after commit, aborts the first
+POST acknowledgement, reloads the browser, then recovers by key and ID with exactly
+one POST. A second native declaration uses a different key and invalidates old history.
+The signed actor, institute Europe/Zurich boundary, Unicode/multiline reason, full
+SHA and receipt are verified against the actual retained original. At least six
+historical paid records with missing/invalid/unknown/undated source diagnostics make
+this native projection unavailable; known-valued projections remain pure-vector/
+React evidence. Owned temporary database was removed. Existing passlib-bcrypt,
+Starlette and color warnings did not fail the final native process. Providers are
+fixture-only and no external delivery occurred.
+
+All three Phase14 gates remain OPEN. Native explicit original selection/comparison,
+retained opportunity/closure valuation and native closure/rebooking/opportunity
+source review remain required; the full26-phase goal remains ACTIVE.

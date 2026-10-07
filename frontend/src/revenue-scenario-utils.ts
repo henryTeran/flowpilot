@@ -6,6 +6,18 @@ export type RevenueScenarioOriginal = { institute_id: string; actor_id: string; 
   confidence: "conditional_unvalidated_scenario"; unavailable_reason: "unknown_currency" | "undated_paid_tickets" | "no_selected_currency" | "uncertain_amounts" | null;
   validated_prediction: false; action_executed: false; id: string; reason: string; idempotency_key: string; created_at: string; retained: true };
 export type RevenueScenarioEnvelope = { original: RevenueScenarioOriginal; fingerprint: string };
+export type RevenueScenarioDeclaration = { assumptions: RevenueAssumptions; reason: string; idempotency_key: string };
+export function validRevenueScenarioDeclaration(v: unknown): v is RevenueScenarioDeclaration {
+  return keys(v, "assumptions reason idempotency_key") && validRevenueAssumptions(v.assumptions) && text(v.reason, 240)
+    && Array.from(v.reason).length >= 3 && text(v.idempotency_key, 120);
+}
+export function matchesRevenueScenarioReceipt(e: RevenueScenarioEnvelope, terms: RevenueScenarioDeclaration, actor: string) {
+  const o = e.original, a = o.assumptions, b = terms.assumptions;
+  return o.actor_id === actor && o.reason === terms.reason && o.idempotency_key === terms.idempotency_key
+    && a.model === b.model && a.currency === b.currency && a.activity_fraction.numerator === b.activity_fraction.numerator
+    && a.activity_fraction.denominator === b.activity_fraction.denominator
+    && (["observed_start", "observed_end", "projected_start", "projected_end"] as const).every(k => instant(a[k]) === instant(b[k]));
+}
 export type RevenueScenarioAudit = { institute_id: string; captured_at: string; offset: number; limit: number; total: number; originals: RevenueScenarioEnvelope[];
   full_original_cohort_verified: true; complete_sales_history: false; action_executed: false };
 const keys = (v: unknown, names: string): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).sort().join(" ") === names.split(" ").sort().join(" ");
