@@ -1,6 +1,13 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11T_EXPLICIT_REBOOKING_SOURCE_CONTRACT
+CURRENT_CHECKPOINT = PHASE11U_ORIGINAL_REBOOKING_LEDGER_API
 STATUS = ACTIVE
+
+PHASE11U_ORIGINAL_REBOOKING_LEDGER_API:
+- Manager-only signed original rebooking declarations pin validated actual execution/customer/performer, original booking event/creation slot and current booked slot, reason, actor, key and recording instant. A separate cancellation retains every original capture and allows an explicit corrected attribution. Same-key replay verifies exact source/target/reason/actor before checking changed booking or regressed clock; cancellation replay protects its original signed terms.
+- Institute locking serializes create/cancel and rejects either an already attributed active source or target, including cross-kind source conflicts. Bounded employee history uses one joined original/cancellation page without per-source lookups. Original and cancellation key reads plus source record reads support recovery; actual signed HTTP create/replay/cancel/recovery and reception/foreign-institute denial are tested. No native recovery or day-summary UI claim.
+- Migration 8af04d719b32 adds original/cancellation tables with composite employee/session/source-appointment/target/cancellation ownership, exact-one-source and no-self-link constraints, replay uniqueness and stable employee history index. SQLite/PostgreSQL metadata parity, empty roundtrip and pre-DDL history-preserving downgrade refusal pass in owned fixtures. Existing application databases were not migrated.
+- Initial lifecycle/migration focus: 4 passed in 12.67s. Broader source/migration compatibility: 18 passed and one newly added cancellation-original HTTP case failed due to a route variable typo; it is corrected. Rebooking source/lifecycle/migration rerun: 6 passed in 16.09s, including actual PostgreSQL one-winner competing attribution and same-key writers. Final lifecycle/migration run: 4 passed in 12.84s after adding cancellation actor/reason conflicts and named session ownership. No frontend change or new full backend regression is claimed.
+- CHECKPOINT_STATUS = PARTIAL: original API/migration authority is implemented; scoped Employee 360 day counts/target diagnostics, native authoring/cancellation/lost-reply recovery and final acceptance remain open. Next: source-grounded bounded employee rebooking day read and native lifecycle, then configured commissions. Full canonical goal remains active.
 
 PHASE11T_EXPLICIT_REBOOKING_SOURCE_CONTRACT:
 - ADR-029 defines explicitly declared employee rebooking from actual completed execution to an original booking created afterwards for the same owned customer. Chronological/name/phone resemblance never creates attribution; absent declarations do not establish failures. Source identity is observed and must be pinned at declaration, without claiming missing historical customer snapshots exist.

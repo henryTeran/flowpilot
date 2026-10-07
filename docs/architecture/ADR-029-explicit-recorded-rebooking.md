@@ -1,7 +1,7 @@
 # ADR-029: Explicit recorded employee rebooking
 
-Status: source capture contract implemented and tested; declaration ledger,
-native lifecycle, Employee 360 read and acceptance remain open.
+Status: original declaration/cancellation API and migration implemented;
+native lifecycle, Employee 360 day read and acceptance remain open.
 
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
@@ -31,13 +31,32 @@ creation slot and current booked slot are captured distinctly.
 
 The source customer link is observed at declaration time, not claimed as an
 immutable historical completion snapshot where no such snapshot exists.
-The forthcoming original fact must pin validated source/customer/performer,
+The original fact pins validated source/customer/performer,
 execution instants, target/event/creation instants, both slots, signed actor,
 reason, idempotency key and recording instant under the institute lock. Replay
 must return the original before evaluating later source/booking/clock changes.
 Separate motivated cancellation must preserve the original; active source and
 target attribution must be unique to avoid crediting one booking repeatedly.
-Fresh bounded reads and native lost-reply recovery remain required.
+Fresh bounded history and original-key reads are available; native lost-reply
+recovery remains required.
+
+Manager-only scoped writes serialize on the existing institute transaction lock.
+New declarations validate captured sources, then refuse either a source or target
+already linked by a non-cancelled original. Separate cancellation releases that
+attribution for an explicitly corrected declaration while retaining all history.
+Same-key replay validates exact requested source/target/reason and actor before
+consulting current source, booking or clock state. Cancellation similarly
+replays its original signed terms before considering current cancellation state.
+The bounded employee history counts and pages under one institute lock, with a
+single outer join for cancellation; it does not fetch sources per original.
+
+Migration 8af04d719b32 follows 72c18fba901d. Composite ownership foreign keys
+protect employee, actual session/source appointment, target and cancellation.
+SQL enforces exactly one source kind and rejects appointment self-linking.
+Pinned captures are JSON containing typed instants/IDs, never customer names or
+phones. Any original/cancelled history blocks downgrade before destructive DDL;
+offline downgrade cannot bypass history verification. No existing application
+database is migrated by the controlled tests.
 
 Employee 360 will label counts as recorded declared rebookings and retain
 original provenance plus subsequent target cancellation/no-show diagnostics.
@@ -49,5 +68,9 @@ remain separate canonical work.
 Controlled SQLite and real PostgreSQL source tests verify both execution kinds,
 exact microsecond chronology, explicit identity, original creation provenance,
 invalid/missing/future execution, target states, malformed clocks, foreign
-scope and duplicate creation events. This foundation exposes no route, writes
-no facts and changes no schema. Production and physical acceptance remain open.
+scope and duplicate creation events. Original lifecycle tests additionally verify
+actor/term conflicts, correction, replay after changed booking and regressed
+clock, separate cancellation and PostgreSQL competing attribution/same-key
+writers. Migration tests verify metadata parity, empty roundtrip, named ownership
+and source constraints, and intact retained history. Production and physical
+acceptance remain open.

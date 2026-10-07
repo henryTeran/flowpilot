@@ -5,6 +5,49 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
 
+class EmployeeRebooking(Base):
+    __tablename__ = "employee_rebookings"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_rebooking_employee_owner"),
+        ForeignKeyConstraint(["institute_id", "session_id"], ["service_sessions.institute_id", "service_sessions.id"], name="fk_rebooking_session_owner"),
+        ForeignKeyConstraint(["institute_id", "source_appointment_id"], ["appointments.institute_id", "appointments.id"], name="fk_rebooking_source_booking_owner"),
+        ForeignKeyConstraint(["institute_id", "target_appointment_id"], ["appointments.institute_id", "appointments.id"], name="fk_rebooking_target_owner"),
+        UniqueConstraint("institute_id", "id", name="uq_rebooking_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_rebooking_replay"),
+        CheckConstraint("(session_id IS NOT NULL AND source_appointment_id IS NULL) OR (session_id IS NULL AND source_appointment_id IS NOT NULL)", name="ck_rebooking_one_source"),
+        CheckConstraint("source_appointment_id IS NULL OR source_appointment_id <> target_appointment_id", name="ck_rebooking_no_self"),
+        Index("ix_rebooking_employee_recorded", "institute_id", "employee_id", "created_at", "id"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    session_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    source_appointment_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    target_appointment_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    source_capture: Mapped[dict] = mapped_column(JSON, nullable=False)
+    booking_capture: Mapped[dict] = mapped_column(JSON, nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class RebookingCancellation(Base):
+    __tablename__ = "rebooking_cancellations"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "rebooking_id"], ["employee_rebookings.institute_id", "employee_rebookings.id"], name="fk_rebooking_cancel_owner"),
+        UniqueConstraint("institute_id", "rebooking_id", name="uq_rebooking_cancel_original"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_rebooking_cancel_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    rebooking_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class EmployeeWorkInterval(Base):
     __tablename__ = "employee_work_intervals"
     __table_args__ = (

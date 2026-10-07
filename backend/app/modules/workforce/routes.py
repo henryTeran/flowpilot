@@ -16,6 +16,7 @@ from app.modules.workforce.objective_schemas import ObjectiveCreate, ObjectiveCa
 from app.modules.workforce.work_interval_schemas import WorkIntervalCreate, WorkIntervalRead, WorkIntervalCancellationRead, WorkIntervalPage
 from app.modules.workforce.work_hours import EmployeeWorkHours
 from app.modules.workforce.occupation import EmployeeOccupation
+from app.modules.workforce import rebooking
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -39,6 +40,38 @@ def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manag
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut" or not str(user.get("sub") or "").strip():
         raise HTTPException(status_code=403, detail="Gestion de l'equipe reservee a la responsable signee de cet institut")
     return user
+
+
+@router.post("/rebookings", response_model=rebooking.RebookingRead)
+def create_rebooking(institute_id: str, payload: rebooking.RebookingCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return rebooking.create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/rebookings/original/{key}", response_model=rebooking.RebookingRead | None)
+def original_rebooking(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return rebooking.original(db, institute_id, key)
+
+
+@router.get("/rebooking-cancellations/original/{key}", response_model=rebooking.CancellationRead | None)
+def original_rebooking_cancellation(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    return db.scalar(select(rebooking.Cancellation).where(rebooking.Cancellation.institute_id == institute_id, rebooking.Cancellation.idempotency_key == key))
+
+
+@router.get("/rebookings/{identifier}", response_model=rebooking.RebookingRead)
+def read_rebooking(institute_id: str, identifier: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return rebooking.snapshot(db, rebooking.require(db, institute_id, identifier))
+
+
+@router.post("/rebookings/{identifier}/cancel", response_model=rebooking.CancellationRead)
+def cancel_rebooking(institute_id: str, identifier: str, payload: AbsenceCancel, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return rebooking.cancel(db, institute_id, identifier, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/rebookings", response_model=rebooking.RebookingPage)
+def employee_rebookings(institute_id: str, employee_id: str, limit: int = Query(20, ge=1, le=50),
+                       offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return rebooking.list_records(db, institute_id, employee_id, limit, offset)
 
 
 @router.post("/skill-changes", response_model=SkillChangeRead)
