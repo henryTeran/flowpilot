@@ -5,6 +5,7 @@ from app.database.session import get_db
 from app.modules.marketing import models as marketing_models  # noqa: F401
 from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents, dispatch_outcomes, dispatch_catalogs, provider
 from app.modules.marketing import conversion_sources
+from app.modules.marketing import conversion_originals
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
@@ -14,6 +15,26 @@ def manager(institute_id:str,user=Depends(require_ticket_manager)):
 @router.post("/conversions/validate", response_model=conversion_sources.Preview)
 def validate_conversion(institute_id: str, payload: conversion_sources.Request, user=Depends(manager), db: Session=Depends(get_db)):
     return conversion_sources.validate(db, institute_id, payload, user.get("sub"))
+
+@router.post("/conversions", response_model=conversion_originals.Original)
+def retain_conversion(institute_id: str, payload: conversion_originals.Request, user=Depends(manager), db: Session=Depends(get_db)):
+    return conversion_originals.execute(db, institute_id, payload, user.get("sub"))
+
+@router.get("/conversions/original/{key}", response_model=conversion_originals.Original | None)
+def conversion_original(institute_id: str, key: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return conversion_originals.original(db, institute_id, key)
+
+@router.get("/conversions/tickets/{ticket_id}/current", response_model=conversion_originals.Original | None)
+def current_conversion(institute_id: str, ticket_id: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return conversion_originals.current(db, institute_id, ticket_id)
+
+@router.get("/conversions/tickets/{ticket_id}/audit", response_model=catalogs.Page[conversion_originals.Original])
+def conversion_audit(institute_id: str, ticket_id: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
+    return conversion_originals.audit(db, institute_id, ticket_id, offset, limit)
+
+@router.get("/conversions/{identifier}", response_model=conversion_originals.Original)
+def conversion_by_id(institute_id: str, identifier: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return conversion_originals.require(db, institute_id, identifier)
 
 @router.get("/dispatch-accounts", response_model=catalogs.Page[provider.Account])
 def dispatch_accounts(institute_id: str, channel: contacts.Channel, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):

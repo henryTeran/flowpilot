@@ -413,3 +413,40 @@ SQLite/PostgreSQL test databases. No existing application database was migrated.
 The opt-in invocation CLI derives expected heads from the checked-in migration graph
 and now requires this head in a deployment, rather than silently accepting the
 previous schema. Production migration/locks/backup acceptance remain OPEN.
+
+## Retained attribution events (13AZ)
+
+Manager-only POST `conversions` retains linked/retracted events. A link supplies
+ticket, exact current predecessor (null only with no history), selected authoritative
+preview terms, reason/key. Selection ticket/reason/key must match event terms; the
+server freshly captures sources, never accepts a returned preview as write authority.
+Retraction supplies no new selection and preserves the exact linked predecessor's
+full attribution snapshot. A subsequent link can freshly capture corrected billing
+or explicit campaign reassignment using the current predecessor and a new key.
+Each event carries its own actor/reason/key/time; the retraction snapshot retains
+the original attribution actor/key/capture, rather than rewriting historical facts.
+
+Original-key replay checks full request and signed actor before any current pointer,
+clock or billing capture. Old original recovery remains possible after correction,
+retraction or missing current pointer. New keys require the exact current head;
+history with a missing pointer refuses a new initial link. Institute locking and
+atomic original/head flush+commit prevent competing initial keys both winning;
+head persistence failure rolls back the original too. No provider/outcome writes.
+
+GET `conversions/original/{key}`, `conversions/{id}`, ticket current and audit reads
+are manager-only. Receipt validates event columns, complete UTC-canonical SHA-256
+attribution, full immutable intent/SEND/outcome originals and entire predecessor
+chain. It preserves recorded billing snapshot even after ticket correction; it does
+not recapture price for historical reads. Retraction requires a linked predecessor
+and identical full snapshot; ticket/clock/cycles are checked. Verification refuses
+chains beyond 1000 events rather than publishing partially verified history. Audit
+pages default20/max50 with exact total/slice/created-at-ID ordering; equal-clock IDs
+do not define predecessor order. These page bounds do not bound all source-proof SQL
+reads; large-history performance remains unverified.
+
+There is one current head per owned ticket across campaigns. Retracted events remain
+in audit and never imply deleting history or undoing the sale. Attribution reports
+still require selecting only current linked events, separating test/live and currency
+and preserving unknown amounts; no campaign conversion dashboard/native writer yet.
+No statistical causal lift, delivery or bank settlement is proven. Actual provider
+evidence/operator resolution and production/physical acceptance remain OPEN.
