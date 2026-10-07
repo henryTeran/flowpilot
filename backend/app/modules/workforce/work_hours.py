@@ -41,11 +41,13 @@ class EmployeeWorkHours(BaseModel):
     complete_attendance: Literal[False] = False
 
 
-def read(db, institute, employee, day, limit=20, offset=0):
+def read(db, institute, employee, day, limit=20, offset=0, *, captured_at=None):
     lock_institute(db, institute)
     require_employee(db, institute, employee)
     start, end = day_bounds(db, institute, day)
-    now = utcnow()
+    # A trusted aggregate caller can share one capture while holding the same
+    # institute lock. Public routes never accept a caller-provided clock.
+    now = explicit_utc_instant(captured_at) if captured_at is not None else utcnow()
     try:
         zone = ZoneInfo(db.get(Institute, institute).timezone).key
     except (ZoneInfoNotFoundError, ValueError):

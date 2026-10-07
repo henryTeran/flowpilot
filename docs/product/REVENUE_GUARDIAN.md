@@ -51,9 +51,9 @@ future-period and unsupported-write refusal.
 | Average ticket | Exact recorded institute basket kernel and signed source API implemented; native review still required. |
 | Service mix | Recorded active invoice category/service groups implemented; native evidence drill-down still required. |
 | Retail attach rate | Explicit line-classification count/coverage kernel implemented; native review still required. |
-| Capacity utilization | Reuse workforce work-hours/occupation and core capacity authorities; integrate a pinned institute capture and distinguish recorded activity from complete attendance. |
-| Unused capacity | Derive covered free intervals from the same authority, without treating incomplete occupation as proven unused capacity. |
-| Employee capacity | Integrate owned employee/resource/skill constraints, not summed nominal minutes. |
+| Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
+| Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
+| Employee capacity | 14B exposes bounded owned employee occupation evidence; resource/skill constraints and core booking authority remain to integrate. |
 | Cancelled revenue | Capture owned cancellation events/retained invoice or booking terms; distinguish declared opportunity value from actual lost revenue. |
 | No-show revenue | Capture source-backed no-show status and original price basis; do not invent prices or settlement loss. |
 | Rebooking opportunities | Reuse CRM/workforce source-backed return/rebooking rules, preserve eligibility and contact permission boundaries. |
@@ -65,3 +65,47 @@ Large-cohort memory/load behavior and report-wide evidence navigation remain
 unverified: the pure kernel retains unique ticket/line IDs and mix groups even
 though SQL reads stream. A bounded page must not be substituted for this aggregate.
 Production/device/provider acceptance stays separate from local functional gates.
+
+## 14B: institute recorded occupation capture
+
+Manager-only `GET /api/v1/revenue/institutes/{institute_id}/capacity` accepts an
+explicit observed institute civil `day`, with employee offset and limit20/max50.
+A valid institute timezone and positive already-observed day are required; an
+invalid zone, skipped day or future/full unobserved day is refused. DST bounds
+come from the existing institute calendar. Signed role/institute checks precede
+the read; no public capture-clock input or write route exists.
+
+Existing workforce work-hours/occupation readers accept an optional internal
+capture clock, supplied only by this locked service. Their public routes and
+default behavior remain unchanged. It queries all owned employees, including
+unavailable historical staff, at the same capture, and aggregates their existing
+union/intersection calculations without substituting returned pages for totals.
+Bounded employee rows retain existing occupation/work-hours evidence and source
+page totals; full underlying source navigation remains in workforce readers.
+
+Returned known declared-union, covered-busy and outside-work durations are exact
+integer microseconds. A recorded unoccupied duration and exact utilization ratio
+are available only if every owned employee has usable declared hours and no
+candidate activity diagnostic. Missing hours or an uncertain employee outside the
+returned page invalidate the entire ratio/free-duration claim. Known subtotals
+remain visible. These are summed person-time, not feasible resource slots;
+complete attendance/activity stay false and physical-unused/bookable capacity
+and money estimate stay null. Missing activity with no date cannot be attributed
+to this day; the record is not complete physical truth. Opportunity estimation
+must still use owned skills/resources and the core capacity authority.
+
+The aggregate currently performs workforce reads per employee and proves no
+large-roster/load target. Each source may contain more originals than its evidence
+page. No source/row amount is projected from unused minutes. No UI acceptance is
+claimed at this checkpoint.
+
+The 14A SQLite source test's bootstrap tuple was corrected to use the actual
+service ID rather than an employee ID. The PostgreSQL fixture already used the
+proper service. New capacity/source/billing plus occupation/work-hours regression
+run: **23 passed37.18s**, SQLite and actual isolated PostgreSQL, zero failures/skips,
+exit0. This preceded final timezone/skipped-day guards; their final focused result
+is recorded in PROJECT_STATUS.md. Tests cover more than20 employee rows, identical
+whole-cohort aggregates across pages, one pinned clock despite a different default
+work-hours clock,25-hour DST day, unfinalized off-page activity refusal, empty/missing
+hours, future/calendar/bounds and strict nonliteral flags; signed API role/scope,
+anonymous and unsupported writes refused. Existing crypt deprecation only.

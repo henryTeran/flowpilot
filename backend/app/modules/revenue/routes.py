@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import AwareDatetime
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.revenue import billing, sources
+from app.modules.revenue import billing, sources, capacity
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -18,3 +19,9 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
 def recorded_billing(institute_id: str, start: AwareDatetime, end: AwareDatetime,
     user=Depends(manager), db: Session = Depends(get_db)):
     return sources.read(db, institute_id, start, end)
+
+
+@router.get("/capacity", response_model=capacity.Capacity)
+def recorded_capacity(institute_id: str, day: date, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return capacity.read(db, institute_id, day, offset, limit)

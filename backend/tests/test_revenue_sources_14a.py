@@ -37,7 +37,7 @@ def exercise(engine, institute, service, monkeypatch):
 
 
 def test_sqlite_authoritative_cohort_and_signed_manager_api(client, monkeypatch):
-    institute, services, _ = _bootstrap_reference_data(client)
+    institute, _, services = _bootstrap_reference_data(client)
     result = exercise(main_module.engine, institute, services[0]["id"], monkeypatch)
     path = f"/api/v1/revenue/institutes/{institute}/billing"
     params = dict(start=result.window.start.isoformat(), end=result.window.end.isoformat())

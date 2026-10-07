@@ -62,9 +62,9 @@ def exclusion(first, last, status, now):
     return None
 
 
-def read(db, institute, employee, day, limit=20, offset=0):
+def read(db, institute, employee, day, limit=20, offset=0, *, captured_at=None):
     # The hours authority holds the institute lock for this entire transaction.
-    hours = work_hours.EmployeeWorkHours.model_validate(work_hours.read(db, institute, employee, day))
+    hours = work_hours.EmployeeWorkHours.model_validate(work_hours.read(db, institute, employee, day, captured_at=captured_at))
     start, end, now = hours.start, hours.end, hours.generated_at
     source, predicate = source_query(institute, employee, start, end)
     total = db.scalar(select(func.count()).select_from(source).where(predicate))
