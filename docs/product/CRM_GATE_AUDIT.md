@@ -704,6 +704,39 @@ physical-device or production receipt is claimed. Native guard/declaration/
 recovery and all six durable lifecycle event triggers remain required; canonical
 CRM gates stay open.
 
+## Phase 12U: exact lifecycle/calendar frontend original and observation guards
+
+Frontend declaration/calendar contracts validate scoped evidenced month/day,
+explicit unknown birthday, complete unique channel/purpose dimensions and
+permission/evidence coherence. A valid month/day uses a leap-year reference
+without inventing birth year. Calendar requires an explicit supported named
+timezone and leap-day rule. Receipt/original comparators validate both shapes
+before binding literal declaration evidence/permission array order, full calendar
+terms, actor/key/reason/predecessor and semantic microsecond clock. A granted
+permission never substitutes for another purpose or channel.
+
+The lifecycle-read guard verifies registered source/header/capture and selected
+original chronology, all five unavailable reasons in priority order, and nested
+original declaration/calendar/registration/capture equality. Both outer and
+observation delivery-authorized/sent flags must remain false. Declared-zone
+Gregorian civil date and anniversary/leap behavior are independently derived;
+bounded binary search over UTC milliseconds determines the full civil day's
+boundaries. Exact microsecond comparison checks source bounds. No fixed 24-hour
+day is assumed. Unsupported calendar bounds fail closed without truncating a
+local day into the year range; unknown/absent birthday has null occurrence bounds.
+
+Controlled initial terms/original focus: 3 groups passed in 0.88s. Final six
+declaration/calendar/observation groups passed in 0.71s. Full frontend regression:
+261 passed in 42.52s, zero failures/skips. TypeScript/Vite build passes, 121
+modules; native bundles unchanged because these guards are not yet UI-bound.
+Tests cover missing/duplicate/coerced/evidence facts, explicit leap birthday,
+receipt actor/purpose/evidence/order/predecessor/clock, named-zone/leap declarations,
+substituted source/due/date/bounds/delivery facts, UTC aliases, 23/25-hour days,
+all three leap policies, not-today/unknown birthday and unavailable source priority.
+No new backend/schema, browser, physical-device or production receipt is claimed.
+Native declaration/recovery/observation and all six durable lifecycle event
+triggers remain required; canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
