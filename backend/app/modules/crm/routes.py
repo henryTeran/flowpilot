@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.crm import policies
 from app.modules.crm import profile
+from app.modules.crm import return_sources
 
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
 
@@ -17,6 +18,14 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
 @router.get("/customers/{customer_id}/segment", response_model=profile.SegmentProfile)
 def segment(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
     return profile.read(db, institute_id, customer_id)
+
+
+@router.get("/customers/{customer_id}/return-cycle", response_model=return_sources.ReturnRead)
+def return_cycle(institute_id: str, customer_id: str,
+                 start: str = Query(min_length=1, max_length=64), end: str = Query(min_length=1, max_length=64),
+                 limit: int = Query(default=20, ge=1, le=50), offset: int = Query(default=0, ge=0),
+                 user=Depends(manager), db: Session = Depends(get_db)):
+    return return_sources.read(db, institute_id, customer_id, start, end, limit, offset)
 
 
 @router.post("/segment-policies", response_model=policies.PolicyRead)

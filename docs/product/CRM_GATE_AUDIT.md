@@ -342,6 +342,45 @@ empty/single/overlapping episodes, half-open bounds, scope/capture/duplicate ref
 and nonactual/naive/future source clocks. This unit has no database capture, API,
 native UI, new PostgreSQL source-read or complete rebooking gate acceptance yet.
 
+## 12K: signed actual-care return-source read
+
+`backend/app/modules/crm/return_sources.py` and signed manager
+`GET /api/v1/crm/institutes/{institute_id}/customers/{customer_id}/return-cycle`
+capture actual completed session/appointment sources under the institute lock,
+after registered owned-customer validation. Required aware ISO `start`/`end`
+define a positive observed half-open completion period ending no later than the
+server capture. Sessions link through their explicit representative ticket line
+to the owned customer ticket; appointments require their explicit customer and
+checkout-ticket linkage. Source performers must belong to the institute and
+session service must match its representative line. Scheduled/noncompleted or
+out-of-period dated records are not return evidence. Neither paid timestamps nor
+customer names/phones replace actual execution dates or identity links.
+
+A single column UNION query streams both source families in batches of 100,
+with three SQL statements total (lock, registered identity, cohort). Full source
+metrics are computed before slicing episodes to the requested page (default 20,
+maximum 50); companion gaps follow their next episode and retain off-page predecessor
+IDs. Page offsets do not truncate counts/sums/means. Known but unlinked appointments,
+wrong owner/service/performer and undated/future/incoherent actual execution clocks
+have explicit diagnostics; any such uncertainty suppresses the mean rather than
+guessing periods or averaging the valid subset. Unknown legacy sessions lacking
+a client-identifying ticket-line link cannot be attributed to this customer.
+Execution/service coverage therefore explicitly stays false: session service IDs
+are representative, not a claim of every care line. Complete history and inferred
+booking credit remain false.
+
+Controlled focus plus adjacent CRM regression: 61 passed in 22.36s across source/
+cycle/billing/profile/metric/segment tests, zero failures/skips, actual PostgreSQL
+enabled; existing passlib crypt warning only. Final source focus after explicit
+coverage flags: 4 passed in 7.49s. SQLite/PostgreSQL fixtures prove 107 executions
+grouped into 106 episodes across a streaming boundary, exact global mean with
+20/6-row pages, three-query budget, equivalent UTC-offset bounds, undated/future
+clocks, missing/wrong-client checkout links, foreign performer and foreign/opaque
+registration rejection. Signed HTTP scope/period/page limits are tested. Actual
+PostgreSQL pauses the whole-cohort query and proves a cooperating writer waits
+until capture finishes; old/new source totals independently verified. No schema,
+native UI/browser, physical-device, production or complete rebooking gate claim.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
