@@ -3,8 +3,9 @@
 The current implementation prepares one durable transport intent for an owned
 customer and approved campaign revision. It performs no provider I/O and does not
 mark the campaign SEND or establish recipient delivery. Internal worker execution
-and trusted outcome retention are implemented with injected adapters. Deployment,
-live adapters and delivery-event verification remain to be implemented.
+and trusted outcome retention are implemented with injected adapters. Opt-in API
+adapters are available; deployed invocation, live acceptance and delivery-event
+verification remain. See [transport contracts](MARKETING_TRANSPORTS.md).
 
 `MARKETING_ACCOUNTS_JSON` is a server-side account allowlist, empty by default.
 Each entry is an exact `Account` with `institute_id`, `provider`, `account_id`,

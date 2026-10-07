@@ -833,6 +833,34 @@ SEND/delivery claim. MARKETING_DISPATCH.md updated. Next real adapter/invocation
 canonical SEND/native audit/conversion. All marketing/physical/production gates OPEN;
 full canonical goal ACTIVE.
 
+## Phase 13AL - opt-in SMS/email/Push API adapters
+
+Primary-doc grounded Resend email/Twilio SMS/FCM Push adapters bind exact configured
+live account and typed server credential. Exact literal subject/body/destination,
+scoped valid UUID/SID/project reference for acceptance, recognized vendor refusal only
+for rejection; other responses unknown. Fixed-host verified TLS 1.2+ HTTPS, 10s default
+caller deadline/max30, 64KiB bounds, no redirects/proxies/retries. Slow connection stop
+prevents late POST; OS DNS thread may finish later, runtime bounds still need acceptance.
+Secrets/body hidden from repr; JSON duplicate/nonstandard/oversize refuses.
+
+Resend scoped idempotency header has documented 24h TTL; worker never POSTs during
+reconciliation. Existing authoritatively bound references permit exact-message GET
+email/SMS, not a new binding inferred from matching recipient alone. Missing reference
+and FCM remain unknown; verified callback/reference evidence and operator resolution
+still required. No credential acquisition/refresh or deployment activation performed.
+
+Initial focused 13/.63s then 16/.61s pass. First five-file run 35 pass/1 fail/101.53s was
+wrongly scoped test assertion NameError; corrected and reran. Final transport/worker/
+outcome/intent/provider 37 pass/101.93s, zero failures/skips, exit 0. All wire responses
+simulated, no external message sent. Three-channel body/auth/path/reference/refusal,
+GET-only known-reference checks, deadline/late-POST/TLS/byte/redirect guards; SQLite
+pipeline ack/terminal or lost ack/reconciliation-only unknown. Actual PostgreSQL
+adjacent worker/state cases pass, isolated fixtures clean. Crypt deprecation/deliberate invalid
+provider-bool warnings only. No schema/frontend/native/full-backend/live-provider/SEND/
+delivery claim. See MARKETING_TRANSPORTS.md primary sources/config/deployment limits.
+Next credential/invocation wiring, authenticated evidence/operator resolution, SEND/
+native audit/conversion. Marketing/physical/production gates OPEN; canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
