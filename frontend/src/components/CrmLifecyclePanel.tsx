@@ -4,6 +4,8 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import { validLifecycleRead, type LifecycleRead } from "../crm-lifecycle-utils";
 import { CrmLifecycleEditor } from "./CrmLifecycleEditor";
 const reasons: Record<string,string> = { declaration_absent: "Déclaration cliente absente",calendar_absent: "Calendrier anniversaire absent",future_declaration: "Date de déclaration à vérifier",future_calendar: "Date du calendrier à vérifier",future_registration: "Date d’inscription à vérifier",birthday_unknown: "Anniversaire inconnu",absent_in_calendar_year: "Pas d’anniversaire dans cette année selon la règle déclarée",not_today: "Anniversaire hors de la journée locale",birthday_today: "Anniversaire dans la journée locale" };
+const leapLabels = { leap_year_only: "années bissextiles uniquement",february_28: "28 février hors année bissextile",march_1: "1er mars hors année bissextile" };
+const permissionLabels = { unknown: "permission inconnue",granted: "accord déclaré",refused: "refus déclaré" };
 export function CrmLifecyclePanel(props: { institute: string; customer: string }) {
   if (!props.institute || !props.customer || getOperatorRole() !== "responsable_institut") return null;
   return <Panel key={JSON.stringify([props.institute,props.customer,getAccessToken()])} {...props} />;
@@ -32,14 +34,14 @@ function Observation({ institute,customer }: { institute: string; customer: stri
     {loading && <p role="status">Lecture de l’anniversaire…</p>}{error && <p role="alert">{error}</p>}
     {result && <><p>Capture : {result.captured_at}. Lecture distincte du profil, des soins et du scénario CLV.</p>
       <p>{reasons[result.unavailable_reason || b!.reason]}</p>
-      {b && <><p>Journée locale : {b.local_date} · fuseau : {b.policy.timezone} · règle : {b.policy.leap_day}</p>
+      {b && <><p>Journée locale : {b.local_date} · fuseau : {b.policy.timezone} · 29 février : {leapLabels[b.policy.leap_day]}</p>
         <p>Anniversaire dans l’année : {b.anniversary_on || "Non déterminé"}</p>
         {b.occurrence_start && <p>Bornes UTC de l’anniversaire : {b.occurrence_start} — {b.occurrence_end} (fin exclue)</p>}</>}
       <details><summary>Sources anniversaire et permissions</summary>
         <p>Inscription : {result.customer.created_at}</p>
         {result.original && <><p>Déclaration {result.original.id} · acteur {result.original.actor_id} · motif : {result.original.reason}</p>
           <p>Anniversaire déclaré : {result.original.declaration.birthday ? `${result.original.declaration.birthday.day}/${result.original.declaration.birthday.month}` : "Inconnu"} · preuve : {result.original.declaration.birthday_evidence || "Absente"}</p>
-          {result.original.declaration.communications.map(c => <p key={`${c.channel}:${c.purpose}`}>{c.channel} · {c.purpose} · {c.permission} · preuve : {c.evidence || "Absente"}</p>)}</>}
+          {result.original.declaration.communications.map(c => <p key={`${c.channel}:${c.purpose}`}>{c.channel === "email" ? "Email" : "SMS"} · {c.purpose === "marketing" ? "marketing" : "suivi de soin"} · {permissionLabels[c.permission]} · preuve : {c.evidence || "Absente"}</p>)}</>}
         {result.calendar_original && <p>Calendrier {result.calendar_original.id} · acteur {result.calendar_original.actor_id} · motif : {result.calendar_original.reason}</p>}
       </details></>}
   </section>;

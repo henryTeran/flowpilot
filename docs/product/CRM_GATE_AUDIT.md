@@ -786,6 +786,31 @@ receipt claimed. Signed desktop/tablet lifecycle recovery/correction/observation
 and visual acceptance remain required, followed by all six durable lifecycle
 triggers; canonical gates stay open.
 
+## Phase 12X: signed native lifecycle browser evidence
+
+Signed own-customer Edge desktop/touch-tablet workflow uses a browser timezone
+separate from the explicit institute fixture calendar. February-29 declaration
+records granted follow-up email, refused marketing email and unknown SMS
+purposes independently. Lost committed POST reply recovers after reload with one
+POST. Correction to unknown birthday clears birthday evidence, retains exact
+permissions and preserves independent original-ID history. Successful verified
+write invalidates observation; selected calendar/declaration provenance remains
+inspectable. Forged due=true for unknown birthday is refused; fresh read recovers.
+French display labels replace internal rule/purpose/permission codes.
+
+Initial selector-only failures fixed with accessible combobox role. A later
+tablet independent current GET hit transient ECONNRESET after successful UI
+correction; complete unchanged calendar/lifecycle/customer rerun: 6 passed in
+1.1m. Final lifecycle after display-label edit: 2 passed in 37.3s. Zero
+failures/skips on final runs, owned fixtures removed. Controls >=44px/no overflow;
+tablet form/observation inspected. Existing bcrypt/NO_COLOR warnings and nonfatal
+socket reset during deliberate abort observed. Final targeted frontend 11 passed
+in 3.71s; build passes, 125 modules, lazy CRM 62.42kB. Full frontend receipt remains
+266 at Phase12W. No new full frontend/backend/schema, application database
+migration, external delivery or physical/production acceptance claimed.
+All six durable lifecycle event triggers and canonical gate acceptance remain
+required; CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
