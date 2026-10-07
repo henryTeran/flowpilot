@@ -8,6 +8,7 @@ from app.modules.crm import return_sources
 from app.modules.crm import lifetime_originals as lifetime
 from app.modules.crm import lifecycle_originals as lifecycle, calendar_policies as calendar
 
+from app.modules.crm import event_worker
 from app.modules.crm import event_ledger
 from app.modules.crm import event_sources
 from app.modules.crm import automation_originals as automation
@@ -19,6 +20,12 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.post("/event-worker-pass", response_model=event_worker.PassRead)
+def event_worker_pass(institute_id: str, payload: event_worker.PassRequest, user=Depends(manager), db: Session = Depends(get_db)):
+    from sqlalchemy.orm import sessionmaker
+    return event_worker.dispatch(sessionmaker(bind=db.get_bind()),institute_id,payload,user.get("sub"))
 
 
 @router.post("/customers/{customer_id}/event-captures", response_model=event_ledger.CaptureRead)

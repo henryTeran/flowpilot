@@ -1001,6 +1001,29 @@ No schema/migration, unattended dispatch/scheduling, new frontend/browser or
 physical/production receipt claimed. Worker lifecycle/dispatch and native rule/
 event recovery workflows remain required; canonical gates stay open.
 
+## Phase 12AG: bounded institute worker dispatch
+
+Signed manager worker-pass scans registered own-institute Customer IDs by keyset,
+with at most 50 customers, one lookahead and explicit next cursor. No name/phone
+matching or opaque ticket identity is used. Each customer has a separate session/
+atomic processing transaction; failure rolls back that customer and allows the
+next. Scoped IDs/error class are logged without request/token/source payload.
+Deterministic institute/customer/pass key preserves same-key receipt recovery;
+actor/reason changes do not mint another key. Page membership is a fresh scan,
+not an immutable institute manifest; new earlier IDs await the next full scan.
+No unattended scheduler or whole-institute atomicity is claimed.
+
+Initial combined run had 9 pass/1 synthetic fixture failure from null normalized
+phone_digits; corrected to existing empty non-null representation. Dispatcher/
+worker/ledger focus: 10 passed in 27.73s. Final dispatcher after failure logging:
+3 passed in 7.21s, zero failures/skips, actual PostgreSQL enabled. Covers receipt
+recovery, foreign exclusion, single-customer failure isolation, signed HTTP roles
+and 65+ customer keyset coverage without duplicates. Scan test stubs processing;
+separate real receipt tests prove dispatch integration. Existing passlib crypt
+deprecation warning observed. No schema/migration, new full CRM/backend/frontend/
+browser or physical/production acceptance claimed. Recurring worker lifecycle
+and native rule/event recovery remain required; canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
