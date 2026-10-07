@@ -344,6 +344,33 @@ all old articles, clean reread restores exact remainder. Final screenshots inspe
 existing bcrypt-version/NO_COLOR warnings only. Template/campaign editors and
 complete signed approval/audit acceptance pending; all marketing gates OPEN.
 
+## 13R: native template editor, correction and recovery
+
+Manager native templates now provide explicit new/correction targets, bounded
+current-root catalog and owned current/independent-ID preparation. Channel/origin
+must be chosen; email-only subject and literal body preserve whitespace, Unicode
+and placeholders. Correction pins exact current predecessor, original is immutable.
+AI origin is declared provenance, not generation. Full request/key stored per
+institute/actor before lookup/POST; exact actor/terms/receipt plus independent key/
+ID/current root checks precede clearing intent. Failed/foreign reads retain intent;
+invalid storage freezes writes; only definitive POST business refusal permits
+explicit correction reset. Async preparation uses token/mount/sequence guards.
+
+Four focused native tests pass; final two template tests pass after scope/wrapping
+refinement. Full frontend run: 304 passed in 76.20s, zero failures/skips, terminal
+exit 0. Final TypeScript/Vite build passes (137 modules). Actual signed Edge
+scenarios initially exposed test synchronization issues: matching textarea before
+receipt and checking resume before intercepted reply finished. Both fixed by
+waiting on actual lost reply and verified receipt. Corrected desktop/tablet runs:
+2 passed in 37.7s; final expanded editor geometry/screenshots: 2 passed in 37.4s,
+fixture cleaned. One creation POST recovered after reload; literal Unicode/subject/
+body/placeholder/script escaped; email-AI to SMS-human correction exact predecessor;
+old ID unchanged, current exact, one selected root and protected storage cleared.
+Form/result controls >=44px, no overflow, screenshots inspected on both formats.
+Existing bcrypt-version/NO_COLOR warnings only; no provider or production claim.
+Campaign draft/edit source selection and complete approval/audit acceptance pending;
+all marketing gates OPEN, physical/production gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
