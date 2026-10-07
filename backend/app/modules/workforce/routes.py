@@ -12,6 +12,7 @@ from app.modules.workforce.calendar_schemas import EmployeeDayRead
 from app.modules.workforce.certification_schemas import CertificationCreate, CertificationRevoke, CertificationRead, RevocationRead, CertificationPage
 from app.modules.workforce.skill_changes import SkillChangeCreate, SkillChangeRead
 from app.modules.workforce.revenue import EmployeeRevenue
+from app.modules.workforce.objective_schemas import ObjectiveCreate, ObjectiveCancel, ObjectiveRead, CancellationRead as ObjectiveCancellationRead, ObjectivePage
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -41,6 +42,47 @@ def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manag
 def create_skill_change(institute_id: str, payload: SkillChangeCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.skill_changes import create
     return create(db, institute_id, payload, user["sub"])
+
+
+@router.post("/objectives", response_model=ObjectiveRead)
+def create_objective(institute_id: str, payload: ObjectiveCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.objectives import create
+    return create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/objectives", response_model=ObjectivePage)
+def employee_objectives(institute_id: str, employee_id: str, limit: int = Query(20, ge=1, le=50),
+                        offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.objectives import list_records
+    return list_records(db, institute_id, employee_id, limit, offset)
+
+
+@router.get("/objectives/original/{key}", response_model=ObjectiveRead | None)
+def original_objective(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    from app.modules.workforce.models import EmployeeObjective
+    from app.modules.workforce.objectives import snapshot
+    row = db.scalar(select(EmployeeObjective).where(EmployeeObjective.institute_id == institute_id, EmployeeObjective.idempotency_key == key))
+    return snapshot(db, row) if row else None
+
+
+@router.get("/objective-cancellations/original/{key}", response_model=ObjectiveCancellationRead | None)
+def original_objective_cancellation(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    from app.modules.workforce.models import ObjectiveCancellation
+    return db.scalar(select(ObjectiveCancellation).where(ObjectiveCancellation.institute_id == institute_id, ObjectiveCancellation.idempotency_key == key))
+
+
+@router.get("/objectives/{identifier}", response_model=ObjectiveRead)
+def read_objective(institute_id: str, identifier: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.objectives import require, snapshot
+    return snapshot(db, require(db, institute_id, identifier))
+
+
+@router.post("/objectives/{identifier}/cancel", response_model=ObjectiveCancellationRead)
+def cancel_objective(institute_id: str, identifier: str, payload: ObjectiveCancel, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.objectives import cancel
+    return cancel(db, institute_id, identifier, payload, user["sub"])
 
 
 @router.get("/employees/{employee_id}/revenue", response_model=EmployeeRevenue)

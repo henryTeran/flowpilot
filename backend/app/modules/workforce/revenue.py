@@ -53,13 +53,17 @@ class EmployeeRevenue(BaseModel):
     institute_unattributed_lines: int
 
 
+def closed_line_conditions(institute, start, end):
+    return (QueueTicket.institute_id == institute, QueueTicket.status == "paid",
+            QueueTicket.paid_at >= start, QueueTicket.paid_at < end, TicketLine.invoice_removed_at.is_(None))
+
+
 def read(db, institute, employee, day, limit=50, offset=0):
     lock_institute(db, institute)
     if not db.scalar(select(Employee.id).where(Employee.institute_id == institute, Employee.id == employee)):
         raise not_found("Collaboratrice introuvable")
     start, end = day_bounds(db, institute, day)
-    closed = (QueueTicket.institute_id == institute, QueueTicket.status == "paid",
-              QueueTicket.paid_at >= start, QueueTicket.paid_at < end, TicketLine.invoice_removed_at.is_(None))
+    closed = closed_line_conditions(institute, start, end)
     own = (*closed, TicketLine.performed_by_employee_id == employee)
     source = lambda query: query.select_from(TicketLine).join(QueueTicket, QueueTicket.id == TicketLine.ticket_id)
     total = db.scalar(source(select(func.count())).where(*own))

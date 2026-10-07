@@ -5,6 +5,50 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
 
+class EmployeeObjective(Base):
+    __tablename__ = "employee_objectives"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_objective_employee_owner"),
+        UniqueConstraint("institute_id", "id", name="uq_objective_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_objective_replay"),
+        CheckConstraint("CAST(target AS NUMERIC) > 0 AND period_end > period_start AND last_day >= first_day", name="ck_objective_period_target"),
+        CheckConstraint("(metric = 'closed_attributed_gross' AND currency IS NOT NULL AND currency IN ('CHF', 'EUR')) OR (metric = 'completed_sessions' AND currency IS NULL AND CAST(target AS NUMERIC) = CAST(CAST(target AS NUMERIC) AS BIGINT))", name="ck_objective_metric_unit"),
+        Index("ix_objective_employee_period", "institute_id", "employee_id", "period_start", "period_end"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    metric: Mapped[str] = mapped_column(String(40), nullable=False)
+    currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    target: Mapped[str] = mapped_column(String(32), nullable=False)
+    first_day: Mapped[date] = mapped_column(Date, nullable=False)
+    last_day: Mapped[date] = mapped_column(Date, nullable=False)
+    timezone: Mapped[str] = mapped_column(String(80), nullable=False)
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ObjectiveCancellation(Base):
+    __tablename__ = "objective_cancellations"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "objective_id"], ["employee_objectives.institute_id", "employee_objectives.id"], name="fk_objective_cancel_owner"),
+        UniqueConstraint("institute_id", "objective_id", name="uq_objective_cancelled_original"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_objective_cancel_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    objective_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class EmployeeSkillChange(Base):
     __tablename__ = "employee_skill_changes"
     __table_args__ = (
