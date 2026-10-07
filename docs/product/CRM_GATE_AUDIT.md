@@ -313,6 +313,35 @@ to accessible combobox roles without extending timeouts. Launcher confirms remov
 only of its owned temporary fixture. No new backend/schema or application migration,
 physical-device, external message or production-ready claim.
 
+## 12J: recorded completed-care return-cycle contract
+
+`backend/app/modules/crm/return_cycle.py` defines explicit owned completed-care
+facts with session/appointment source identity, ticket/service links, actual start,
+actual completion and capture instants. Sources require a positive actual execution,
+same customer/institute/capture and unique (kind, ID). Cohort membership is completion
+inside the positive half-open observed window; care may start before the window.
+Grouping uses only a shared explicit ticket ID, spanning its observed completed
+care and retaining service IDs/counts. Nearby dates, names or phones never merge
+different tickets. Ordering is deterministic by actual start/end/ticket.
+
+The metric is the gap between successive recorded ticket-care episodes, measured
+from the prior observed completion to the next actual start. Nonnegative gaps,
+including zero, retain exact microseconds. Negative gaps mark overlapping episodes
+and suppress the overall mean rather than averaging only the favorable subset.
+Empty/single-episode cohorts have no inferred mean. Known gap sum/count and exact
+string numerator/denominator remain available. These are observed source intervals,
+not certified physical visits or proof of a booking/conversion; complete history
+and inferred booking credit remain false. Existing explicit Workforce booking
+attribution remains a separate authority.
+
+Controlled pure CRM focus: 48 passed in 1.75s across return-cycle, billing-metric
+and segmentation tests, zero failures/skips; existing passlib crypt warning only.
+Nine return-cycle cases cover shared multi-care tickets, appointments/session
+identity namespaces, deterministic input order, exact fractional/zero means,
+empty/single/overlapping episodes, half-open bounds, scope/capture/duplicate refusal
+and nonactual/naive/future source clocks. This unit has no database capture, API,
+native UI, new PostgreSQL source-read or complete rebooking gate acceptance yet.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
