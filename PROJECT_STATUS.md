@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AK_SIGNED_NATIVE_AUTOMATION_RECOVERY
+CURRENT_CHECKPOINT = PHASE12AL_EXACT_EVENT_CANDIDATE_GUARDS
 STATUS = ACTIVE
+
+PHASE12AL_EXACT_EVENT_CANDIDATE_GUARDS:
+- Added native typed anchor/candidate guards for six triggers with owned nonempty scope/source/policy ID, explicit positive source terms, package-only safe integer balance and canonical exact automation rules. Recomputes UTC microsecond due time (expiry anticipation clamps to source start) and candidate state, including expired/exhausted/disabled precedence. Refuses delivery/sent flags, future non-birthday anchors, inconsistent expiry, source kind or forged timing/state. Upcoming birthday interval remains allowed; calendar provenance is not certified by this candidate guard alone.
+- Initial focus: 2 passed in 0.46s. Expanded all-six-trigger focus: 3 passed in 1.71s. Full frontend: 273 passed in 47.11s, zero failures/skips; final TypeScript check passes. Vite build passes (127 modules, guards not UI-bound). No backend/native browser/physical/production receipt claimed for these guards. Remaining event identity, source capture, decision/revision/original/current guards and action UI are explicitly pending.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: exact event identity/decision/revision/capture/current validation, then native event reconciliation/processing/cancellation recovery. Full canonical goal remains active.
 
 PHASE12AK_SIGNED_NATIVE_AUTOMATION_RECOVERY:
 - Added actual signed API/Edge desktop and touch-tablet automation editor scenario. Initial blank activation choices checked before explicit alternating selections; six canonical offsets include unsafe-JavaScript integer precision. Committed POST reply is deliberately lost, reload resumes through original-key read with one POST, storage clears only after verification. Correction changes one microsecond, pins predecessor and independently confirms preserved first original.

@@ -1088,6 +1088,10 @@ Manager-only six-rule declaration/correction now preserves literal rule order an
 
 Actual signed Edge desktop/touch-tablet editor tests now prove explicit alternating activation, blank initial activation, canonical six-rule durations, committed lost-response reload recovery with one POST, predecessor-pinned one-microsecond correction and independent retained original. Final strengthened run: 2 passed in 34.6s; fixture cleaned. Controls >=44px, no horizontal overflow and visually inspected screenshots. These controlled fixtures do not configure production or activate the recurring worker. All four CRM gates remain OPEN pending complete event workflows/acceptance; physical/production gates remain OPEN.
 
+## Phase 12AL: exact event candidate guards
+
+Owned typed source anchors and candidates now recompute exact microsecond deadlines and state for all six triggers. Scope, source terms/kind, package-only balance, explicit activation and canonical duration are checked; delivery/sent claims rejected. Final focus: 3 passed; full frontend: 273 passed in 47.11s; TypeScript and Vite pass. Candidate guards do not independently certify birthday calendar provenance or event occurrence identity and are not UI-bound yet. Complete source/decision/revision/capture/current guards and native action workflows remain pending. All CRM and physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
