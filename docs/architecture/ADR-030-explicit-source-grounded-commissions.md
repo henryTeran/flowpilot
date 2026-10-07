@@ -259,4 +259,27 @@ rounding modes, explicit zero/max rates at the retained source bound, numeric/
 boolean/coerced terms, original UTC/microsecond preservation, unknown entitlement,
 forged complete/partial day totals and clock diagnostics/cancellation transitions.
 Full frontend compatibility and production TypeScript/Vite build pass. Original
-choice guards, native/profile lifecycle and signed Edge workflows remain open.
+native/profile lifecycle and signed Edge workflows remain open.
+
+### Frontend closed-source choices
+
+The bounded choice guard binds the requested institute, selected original rule,
+employee, source-closing day, timezone, exact UTC bounds and offset. Its header
+keeps source completeness unknown. The returned rule may include a newly retained
+cancellation; its original policy must still match the selected original.
+
+Each row retains its raw line/ticket/service/category, quantity, exact Decimal
+JSON text, currency and closing/arrival clocks. Decimal text is converted with
+integer arithmetic, including exponent notation and redundant fractional zeros;
+fractional cents, negative nonzero values and values beyond the retained source
+bound cannot produce eligible previews. Numeric JSON amounts are refused.
+
+The guard independently reproduces backend exclusion priority: cancelled rule,
+future rule, existing attribution, future cancellation, future closing, currency
+mismatch, original-period mismatch, invalid source. Excluded rows must have no
+calculation. Eligible rows must independently pass exact calculation validation
+and match every raw identity, quantity, currency, gross amount and semantic clock;
+the capture clock must equal the header's generation instant to the microsecond.
+Duplicate source lines, forged preview amounts, mismatched policy and claimed
+complete coverage are refused. This is read validation; final writes still
+revalidate authoritative sources under the institute lock.
