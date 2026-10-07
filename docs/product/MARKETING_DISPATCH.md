@@ -219,3 +219,31 @@ The backend unique approval/customer constraint refuses duplicate new preparatio
 but the UI does not yet recover that original through its catalog. Protected deployed
 invocation, authenticated provider evidence/operator resolution and retained
 conversion remain pending. No delivery, physical or production acceptance claimed.
+
+## Native retained intent and result reader (13AT)
+
+A manager can explicitly read a campaign's retained intentions without loading
+current recipients. Bounded pages default to 20, preserve failed offsets for retry,
+and hide the entire previous page while reading or after invalid data. Each intent
+must match its independently read ID/key, retained approval and historical contact
+ID/key; the selected campaign must still match the current campaign original.
+No current contact grant or account catalog is required for historical reading.
+The rendered summary omits recipient destinations and device tokens. Actor/token
+changes unmount readers; late replies cannot publish into a replacement session.
+
+Each intent offers a separate explicit bounded outcome audit and current-head read.
+Full outcome bindings/fingerprints/clocks and present predecessor relationships are
+validated; every page original and current head is independently read by ID/key.
+A present successor of the current head or contradictory present predecessor
+refuses the read. The current head is reread before publishing; a changed head
+hides results and asks for retry. Equal-clock observations are not assumed to have
+chain order equal to their ID sort order. Predecessors outside the page remain
+explicitly unverified. The reader reports unknown, rejected or accepted, a known
+provider reference and no-result state. Accepted never means delivered. Reading
+never prepares a new intent, submits/reconciles a provider or writes an outcome.
+
+This supplies historical discovery after storage clearing/audience changes. New
+preparation is still independently guarded by the backend's unique approval/customer
+constraint; selecting an existing intent inside the preparation form remains future
+UX work. Deployed protected invocation, authenticated evidence/operator resolution
+and conversion attribution remain incomplete.

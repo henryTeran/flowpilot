@@ -1033,6 +1033,23 @@ PHASE13AS_NATIVE_PROTECTED_PREPARATION:
 - Development failures resolved before acceptance: mixed Windows text encoding/build failure repaired to strict UTF-8; pre-POST cleanup regression fixed; copied browser keys collided with prior SEND fixtures and now use distinct preparation suffix; missing Push mismatch warning added. Earlier failed runs are not acceptance evidence. Explicit --marketing-fixture installs only owned loopback test-mode metadata, no adapter/credentials; default production configuration unchanged.
 - CHECKPOINT_STATUS = PARTIAL; all Phase13 gates OPEN, full goal ACTIVE. Native retained intent/outcome reader is still needed after storage clearing/audience changes; backend uniqueness already refuses duplicate preparation. NEXT: independently verified retained intent/outcome audit, protected deployed invocation, authenticated provider evidence/operator resolution and retained conversion. No full-backend/schema/migration/live-provider/physical/production acceptance claimed.
 
+## Phase 13AT native retained intent/result audit
+
+Manager campaign pages now expose explicit bounded retained intent reading without
+current-recipient loading, independently verified intent ID/key, approved source
+and historical contact ID/key, exact current campaign and no destination rendering.
+Outcome pages independently read every original/head ID/key and reread current head;
+changed or corrupt reads mask results. Present predecessor/head consistency checked,
+unknown/refused/accepted/no-result states distinct, accepted is never delivered.
+No provider call/outcome write, no outside-page full-history assertion. Token/scope
+remount and late reply guards remain. Backend uniqueness still protects preparation;
+existing-intent selection in the preparation form remains future UX. All Phase13
+gates OPEN; protected invocation/evidence/operator resolution/conversion remain.
+
+- Final component reader2 passed3.45s; full frontend339 passed84.93s, zero failures/skips, terminal exit0. Covers actual backend email retained vectors, unknown/accepted/no-result, forged intent/outcome refusal, head changing between reads, no mount reads/writes, role isolation and late actor response. Initial full339 passed69.21s before final narrow guards/test extensions; final full run includes them. Initial build145 modules passed; later Array.at extension failed the older TypeScript library target and was corrected to indexed access. First browser launch failed before cases on that build; subsequent desktop/tablet cases timed out on test-only French selectors corrupted through PowerShell stdin, now repaired with explicit Unicode escapes. Failed runs are not acceptance evidence.
+
+- Final signed desktop/tablet browser2 passed1.1m (18.7s/14.6s), zero failures/skips, production rebuild succeeds and owned fixture removed. Actual native lost-reply/withdrawal recovery plus retained catalog read independent of current recipients, no-result read, forged independent intent ID masks entire catalog then clean retry, one intent POST retained. Catalog controls >=44px asserted, final catalog screenshots visually inspected desktop/tablet; no horizontal overflow already asserted in same flow. Native accepted/rejected provider outcomes not claimed: those states remain simulated retained service vectors in component tests. Existing bcrypt/NO_COLOR warnings only, terminal exit0. No backend/full-backend/migration/live-provider acceptance in this checkpoint.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

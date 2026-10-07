@@ -151,4 +151,25 @@ test("signed native preparation paginates accounts loses reply and recovers inte
   for (const button of await actions.locator("button,input").all()) expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await history.screenshot({ path: info.outputPath("native-preparation-withdrawn.png") });
+
+  const retained = history.getByRole("region", { name: "Intentions conservées", exact: true });
+  await retained.getByRole("button", { name: "Vérifier les intentions conservées", exact: true }).click();
+  await expect(retained).toContainText(intent.id);
+  await expect(retained).toContainText("1 sur 1 intentions");
+  const outcomes = retained.getByRole("region", { name: "Résultats conservés", exact: true });
+  await outcomes.getByRole("button", { name: "Vérifier les résultats conservés", exact: true }).click();
+  await expect(outcomes).toContainText("Aucun résultat conservé. Aucun envoi prouvé.");
+  await page.route(`**/dispatch-intents/${intent.id}`, async route => {
+    const response = await route.fetch(); const value = await response.json(); value.request_fingerprint = "0".repeat(64);
+    await route.fulfill({ response, json: value });
+  });
+  await retained.getByRole("button", { name: "Vérifier les intentions conservées", exact: true }).click();
+  await expect(retained).toContainText("Intentions conservées à vérifier");
+  await expect(retained.locator("article")).toHaveCount(0);
+  await page.unroute(`**/dispatch-intents/${intent.id}`);
+  await retained.getByRole("button", { name: "Vérifier les intentions conservées", exact: true }).click();
+  await expect(retained).toContainText(intent.id); expect(intentPosts).toBe(1);
+  for (const control of await retained.locator("button").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await retained.screenshot({ path: info.outputPath("native-retained-intents.png") });
+
 });
