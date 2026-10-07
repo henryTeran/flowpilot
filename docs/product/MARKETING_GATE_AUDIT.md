@@ -190,6 +190,22 @@ same-key creation and review one winner, audit 2/2 pages/total/max bound and SEN
 422 tested. Existing passlib crypt warning only. No schema/native/provider/
 production acceptance inferred; all Phase 13 gates remain OPEN.
 
+## 13J: bounded owned marketing catalogs
+
+Signed manager GET catalogs expose retained audience captures and current template/
+campaign originals with exact total/offset/limit and 20-default/50-maximum pages.
+Head joins pin institute, root and original ID; missing/incoherent originals refuse
+rather than returning an incomplete page. Corrections retain one selectable root.
+Typed page validation requires returned item count to agree with total and bounds.
+No schema change, provider call or external delivery authority.
+
+Full six-file marketing regression, SQLite/actual PostgreSQL: 28 passed in 53.58s,
+zero failures/skips. Covers 24 template roots in 20/4 pages, correction selection,
+empty end page, three-query template budget, campaign/audience pages, foreign scope,
+signed manager-only routes, invalid bounds, page coherence and OpenAPI generation.
+Existing passlib crypt deprecation only. Native workflows, delivery and conversion
+remain pending; all Phase 13 gates remain OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

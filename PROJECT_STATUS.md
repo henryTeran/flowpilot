@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13I_SOURCE_BOUND_CAMPAIGN_APPROVAL_AUDIT
+CURRENT_CHECKPOINT = PHASE13J_BOUNDED_OWNED_MARKETING_CATALOGS
 STATUS = ACTIVE
+
+PHASE13J_BOUNDED_OWNED_MARKETING_CATALOGS:
+- Added signed manager GET catalogs for retained audience captures and current template/campaign roots. Each owned catalog reports total/offset/limit and returns bounded typed originals (20 default, 50 maximum). Template/campaign heads join originals on institute/root/original ID; incoherent heads refuse the whole read. Current correction replaces the selected original without duplicating the root. Audience captures preserve historical capture ordering. No schema change or provider operation.
+- Full six-file marketing regression with SQLite/actual PostgreSQL: 28 passed in 53.58s, zero failures/skips. New coverage verifies 24 template roots in 20/4 pages, correction/current selection, empty end page, three-query template catalog budget, campaign/audience pagination, foreign institute isolation, signed manager-only reads, invalid HTTP bounds, typed page total coherence and generated OpenAPI schemas. Existing passlib crypt deprecation only.
+- CHECKPOINT_STATUS = PARTIAL. All Phase 13 gates remain OPEN. NEXT: native marketing contracts and audience/template/campaign UI with original-key recovery, signed desktop/tablet review/approval/audit evidence, then explicit contacts/permissions/provider delivery and conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13I_SOURCE_BOUND_CAMPAIGN_APPROVAL_AUDIT:
 - Added signed manager campaign POST create/edit/review/approve plus scoped original-key/original-ID/current and bounded audit reads (20 default/50 maximum, complete total). Requests pin explicit current revision, reason/key and source IDs; caller cannot supply recipient list/actor. Content originates from verified historical audience constructor; optional template pins exact same channel/origin/subject/literal body and nonfuture original. Review/approval reverify retained audience/template content. Pure DRAFT -> REVIEW -> APPROVE chain used; edits return DRAFT/clear digests. SEND action deliberately not exposed until contact/permission/provider/dispatch integration; delivery_authorized/external_message_sent stay false.
