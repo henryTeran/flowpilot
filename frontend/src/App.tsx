@@ -40,6 +40,7 @@ import type {
 } from "./types";
 
 const MarketingPanel = lazy(() => import("./components/MarketingPanel").then(module => ({ default: module.MarketingPanel })));
+const RevenueGuardianPanel = lazy(() => import("./components/RevenueGuardianPanel").then(module => ({ default: module.RevenueGuardianPanel })));
 const CustomerCrmPanel = lazy(() => import("./components/CustomerCrmPanel").then(module => ({ default: module.CustomerCrmPanel })));
 const WorkforcePanel = lazy(() => import("./components/WorkforcePanel").then(module => ({ default: module.WorkforcePanel })));
 
@@ -904,6 +905,9 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
               onRefresh={handleRefreshChiffres}
             />
             <PaymentCashflows instituteId={selectedInstituteId} />
+            <Suspense fallback={<p>Chargement du Revenue Guardian…</p>}>
+              <RevenueGuardianPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} />
+            </Suspense>
           </main>
         )}
 

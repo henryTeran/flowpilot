@@ -6826,3 +6826,11 @@ body {
 .customer-crm .marketing-source-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .customer-crm .marketing-source-options p { flex-basis: 100%; }
 .customer-crm .marketing-source-options button { max-width: 100%; overflow-wrap: anywhere; }
+
+.revenue-guardian-panel { margin: 20px 0; padding: 24px; border: 1px solid #dce4ef; border-radius: 16px; background: white; min-width: 0; }
+.revenue-guardian-period { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin: 20px 0; }
+.revenue-guardian-period label { display: flex; flex-direction: column; gap: 6px; }
+.revenue-guardian-period input, .revenue-guardian-period button { min-height: 44px; padding: 10px 14px; border: 1px solid #c7d2e2; border-radius: 8px; font: inherit; }
+.revenue-guardian-period button { background: #17365a; color: white; cursor: pointer; }
+.revenue-guardian-period button:disabled { opacity: .6; cursor: wait; }
+.revenue-guardian-panel article { margin: 12px 0; padding: 12px 16px; border: 1px solid #e3e9f1; border-radius: 10px; }

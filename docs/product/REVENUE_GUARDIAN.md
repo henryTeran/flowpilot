@@ -457,3 +457,46 @@ keep historicalCHF after liveEUR/price changes, reject wrong fingerprint/closure
 reference/actor and injected amount, and return explicit unavailable states for
 missing/invalid rate and future currency configuration. No schema or native UI
 acceptance is claimed at this checkpoint; full Phase14 gates remain OPEN.
+
+## Phase14K — native recorded-billing review
+
+Pilotage/Chiffres now contains a lazy manager-only Revenue Guardian section.
+No report loads on mount: the manager explicitly chooses completed institute
+civil dates (start included, end excluded), resolved through the institute timezone.
+The native form requests the existing signed owned billing reader and validates
+the entire response before displaying its original window/capture, paid-ticket
+count and separate CHF/EUR groups. Monetary formatting uses BigInt minor units;
+a fractional-cent average is explicitly approximate. Unknown currencies do not
+receive a monetary label. Missing/invalid amounts preserve partial subtotals and
+unavailable averages. Category coverage, care/product attachment, active-line
+service mix and institute-wide undated-paid diagnostic remain distinct.
+
+Whole-frame validation covers exact keys, scope, observed time bounds, strict
+no-claim flags, safe counts, amount partitions/bounds/completeness, unique currency
+groups, active-line counts/units and category ratios. A malformed reread hides the
+old report and offers retry; edits, context/session replacement and unmount discard
+late responses. This is response contract checking, not a cryptographic proof of
+complete sales. No receipt settlement, prediction or causal attribution is asserted.
+The section is read only; no schema, business record or external messaging changes.
+
+TypeScript/Vite build passed. Full frontend suite: **368 passed126980.58ms**, zero
+failures/skips, terminal exit0, including four contract/React tests for exact money,
+incomplete/unknown coverage, explicit read, invalid reread, roles and stale results.
+The actual-backend browser fixture reuses owned historical paid-source records;
+the backend is real and external providers are fake, with no external delivery.
+Final no-known-amount wording was checked with **4 focused tests3.26s**, then a
+fresh harness rebuild and native actual-backend **2 passed52.5s**, zero failures/
+skips, terminal exit0. Desktop1440x900 and touch tablet1024x768 captures were both
+visually inspected; controls are at least44px and there is no horizontal overflow.
+BrowserLosAngeles still requests instituteZurich midnights. Six actual historic
+paid tickets retain CHF370.35/average123.45, unknown currency and missing/invalid
+EUR amounts; the isolated undated-paid diagnostic is1. Corrupt settlement claim
+refuses the whole frame and retry restores real source values. Native source mix
+is empty in this fixture; nonempty mix remains React contract coverage only.
+The initial desktop five-second assertion expired while the full suite ran; tablet
+passed. Both reruns with explicit15s assertions passed; initial run is not claimed
+as PASS. The final owned temporary database was removed. Existing passlib-bcrypt,
+Starlette and color warnings did not fail the final run.
+All Phase14 gates remain OPEN: this checkpoint covers recorded billing only,
+not native capacity, closures, rebooking, retained scenarios or the full opportunity
+review flow. Production, physical settlement and load acceptance remain separate.
