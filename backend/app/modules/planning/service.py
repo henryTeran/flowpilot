@@ -168,6 +168,8 @@ def get_day_planning(db: Session, institute_id: str) -> PlanningDayRead:
         sessions_by_employee.setdefault(session.employee_id, []).append(session)
 
     rows: list[PlanningEmployeeRow] = []
+    from app.modules.workforce.absences import remaining
+    absent_now = {row.employee_id for row in remaining(db, institute_id, now) if _ensure_aware(row.start_time) <= now}
     for employee in employees:
         employee_sessions = sessions_by_employee.get(employee.id, [])
         active_sessions = [session for session in employee_sessions if session.status in ACTIVE_SESSION_STATUSES]
@@ -178,6 +180,8 @@ def get_day_planning(db: Session, institute_id: str) -> PlanningDayRead:
             effective_status = employee.status
         elif delayed_session:
             effective_status = "delayed"
+        elif employee.id in absent_now:
+            effective_status = "absent"
         elif active_sessions or current_appointment:
             effective_status = "busy"
         else:
@@ -235,6 +239,8 @@ def get_institute_availability(db: Session, institute_id: str) -> PlanningAvaila
         wait_minutes = _minutes_until(available_at, now)
         if employee.status in UNAVAILABLE_EMPLOYEE_STATUSES:
             display_status = employee.status
+        elif result.current_slot and result.current_slot.reason.value == "scheduled_absence":
+            display_status = "absent"
         elif overdue:
             display_status = "delayed"
         elif active_session or current_appointment:
@@ -355,6 +361,8 @@ def start_service_session(db: Session, ticket_id: str, employee_id: str, service
 
     now = utcnow()
     planned_end_time = now + timedelta(minutes=total_duration)
+    from app.modules.workforce.absences import ensure_window
+    ensure_window(db, ticket.institute_id, employee.id, now, planned_end_time)
 
     active_appointments = list(
         db.scalars(
@@ -516,6 +524,8 @@ def extend_service_session(db: Session, session_id: str, minutes: int,
         raise business_error("Seule une prestation active peut etre prolongee")
 
     new_end = _ensure_aware(session.planned_end_time) + timedelta(minutes=minutes)
+    from app.modules.workforce.absences import ensure_window
+    ensure_window(db, session.institute_id, session.employee_id, _ensure_aware(session.start_time), new_end)
     appointment = db.scalar(select(Appointment.id).where(
         Appointment.institute_id == session.institute_id,
         Appointment.employee_id == session.employee_id,

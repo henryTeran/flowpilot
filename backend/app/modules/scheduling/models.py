@@ -27,6 +27,7 @@ class AvailabilityReason(str, Enum):
     SKILLS_MISSING = "skills_missing"
     RESOURCE_CAPACITY_UNKNOWN = "resource_capacity_unknown"
     RESOURCE_RESERVED = "resource_reserved"
+    SCHEDULED_ABSENCE = "scheduled_absence"
     
 
 @dataclass
@@ -41,6 +42,7 @@ class AvailabilitySlot:
     blocking_session_id: str | None = None  # ServiceSession.id if blocked by session
     blocking_appointment_id: str | None = None  # Appointment.id if blocked by appointment
     blocking_resource_id: str | None = None  # For Phase 5: room/equipment constraint
+    blocking_absence_id: str | None = None
     
     def to_dict(self) -> dict:
         """Serialize to JSON-compatible dict."""
@@ -53,6 +55,7 @@ class AvailabilitySlot:
             "blocking_session_id": self.blocking_session_id,
             "blocking_appointment_id": self.blocking_appointment_id,
             "blocking_resource_id": self.blocking_resource_id,
+            "blocking_absence_id": self.blocking_absence_id,
         }
 
 

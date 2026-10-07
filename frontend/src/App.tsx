@@ -8,7 +8,7 @@ import { AppointmentPanel } from "./components/AppointmentPanel";
 import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
 import { InventoryPanel } from "./components/InventoryPanel";
-import { SkillMatrixPanel } from "./components/SkillMatrixPanel";
+import { WorkforcePanel } from "./components/WorkforcePanel";
 import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
 import { PaymentCashflows } from "./components/PaymentCashflows";
@@ -775,7 +775,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
-        {mainView === "workforce" && <SkillMatrixPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} />}
+        {mainView === "workforce" && <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} onChanged={refreshOperationalData} />}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (

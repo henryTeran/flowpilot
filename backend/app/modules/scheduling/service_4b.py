@@ -56,7 +56,7 @@ def _reasonfor_assignable(
         return True, f"available from {available_from.strftime('%H:%M')}"
     else:
         # Service doesn't fit before next appointment
-        return False, f"service doesn't fit ({service_duration_minutes}min) before appointment at {available_until.strftime('%H:%M')}"
+        return False, f"service doesn't fit ({service_duration_minutes}min) before next reserved interval at {available_until.strftime('%H:%M')}"
 
 
 def assignment_options_for_ticket(

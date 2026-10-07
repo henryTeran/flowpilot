@@ -286,6 +286,8 @@ def ensure_employee_queue_capacity(db: Session, ticket: QueueTicket, employee_id
         raise business_error("La collaboratrice a deja un ticket affecte")
     now = utcnow()
     end = now + timedelta(minutes=_ticket_duration(db, ticket.id))
+    from app.modules.workforce.absences import ensure_window
+    ensure_window(db, ticket.institute_id, employee_id, now, end)
     appointment = db.scalar(select(Appointment.id).where(
         Appointment.institute_id == ticket.institute_id,
         Appointment.employee_id == employee_id,

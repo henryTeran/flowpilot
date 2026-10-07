@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, ForeignKey, String
+from sqlalchemy import JSON, ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -6,6 +6,7 @@ from app.database.base import Base
 
 class Employee(Base):
     __tablename__ = "employees"
+    __table_args__ = (Index("uq_employee_owner", "institute_id", "id", unique=True),)
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False, index=True)

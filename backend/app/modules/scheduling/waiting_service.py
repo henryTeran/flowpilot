@@ -34,6 +34,8 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
         Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES), Appointment.end_time > now,
     )).all()
     timelines = []
+    from app.modules.workforce.absences import remaining
+    absences = remaining(db, institute_id, now)
     for employee in employees:
         active = [session for session in sessions if session.employee_id == employee.id]
         if employee.status not in {"available", "busy"}:
@@ -47,6 +49,7 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
         if employee.status == "busy" and not active and not any(start <= now < end for start, end in booked):
             continue
         available_from = max([now] + [aware(session.planned_end_time) for session in active])
+        booked += tuple((aware(row.start_time), aware(row.end_time)) for row in absences if row.employee_id == employee.id)
         timelines.append(EmployeeTimeline(employee.id, available_from, booked, frozenset(qualifications.get(employee.id, set()))))
     tickets = db.scalars(select(QueueTicket).where(
         QueueTicket.institute_id == institute_id, QueueTicket.status.in_(["waiting", "assigned"]),

@@ -74,8 +74,12 @@ def availability_engine(
         return unknown(AvailabilityReason.CAPACITY_UNKNOWN)
 
     ready = max([now] + [_ensure_aware(session.planned_end_time) for session in sessions])
+    from app.modules.workforce.absences import remaining
+    absences = remaining(db, institute_id, now, employee_id)
+    current_absence = next((row for row in absences if _ensure_aware(row.start_time) <= now), None)
     windows = free_windows(ready, [(_ensure_aware(appt.start_time),
-                                   _ensure_aware(appt.end_time), appt.id) for appt in appointments])
+                                   _ensure_aware(appt.end_time), appt.id) for appt in appointments]
+                           + [(_ensure_aware(row.start_time), _ensure_aware(row.end_time), "absence:" + row.id) for row in absences])
     resource_delayed = False
     if service_id:
         from app.modules.resources.repository import resource_requirement_facts
@@ -107,6 +111,8 @@ def availability_engine(
         reason = AvailabilityReason.IN_PROGRESS_SESSION
     elif current_appointment:
         reason = AvailabilityReason.UPCOMING_APPOINTMENT
+    elif current_absence:
+        reason = AvailabilityReason.SCHEDULED_ABSENCE
     else:
         reason = AvailabilityReason.AVAILABLE_NOW
     if resource_delayed:
@@ -114,9 +120,12 @@ def availability_engine(
     begin, end, previous_appointment = windows[0]
     current_slot = AvailabilitySlot(employee_id, institute_id, begin, end, reason,
         blocking_session_id=active_session.id if active_session else None,
-        blocking_appointment_id=current_appointment.id if current_appointment else previous_appointment)
+        blocking_appointment_id=current_appointment.id if current_appointment else previous_appointment if previous_appointment and not previous_appointment.startswith("absence:") else None,
+        blocking_absence_id=current_absence.id if current_absence else previous_appointment.removeprefix("absence:") if previous_appointment and previous_appointment.startswith("absence:") else None)
     upcoming = [AvailabilitySlot(employee_id, institute_id, begin, end,
-                    AvailabilityReason.UPCOMING_APPOINTMENT, blocking_appointment_id=evidence_id)
+                    AvailabilityReason.SCHEDULED_ABSENCE if evidence_id and evidence_id.startswith("absence:") else AvailabilityReason.UPCOMING_APPOINTMENT,
+                    blocking_appointment_id=evidence_id if evidence_id and not evidence_id.startswith("absence:") else None,
+                    blocking_absence_id=evidence_id.removeprefix("absence:") if evidence_id and evidence_id.startswith("absence:") else None)
                 for begin, end, evidence_id in windows[1:]]
     return AvailabilityResult(employee_id, institute_id, service_id,
                               employee.status == "available" and begin == now,

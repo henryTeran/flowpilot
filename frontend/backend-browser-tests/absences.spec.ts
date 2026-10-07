@@ -1,0 +1,77 @@
+import { expect, test } from "@playwright/test";
+
+test.use({ timezoneId: "America/Los_Angeles" });
+test("native original absence and cancellation recover lost replies and retain distinct institute instants", async ({ page, request }, info) => {
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  await page.getByRole("button", { name: "Équipe", exact: true }).click();
+  await page.getByRole("button", { name: "Absences et congés", exact: true }).click();
+  let panel = page.getByRole("region", { name: "Absences et congés de l’équipe" });
+  await expect(panel.getByRole("button", { name: "Enregistrer l’absence", exact: true })).toBeEnabled();
+  let year = new Date().getUTCFullYear();
+  const fold = () => { const last = new Date(Date.UTC(year, 9, 31)); return new Date(last.getTime() - last.getUTCDay() * 86400000).toISOString().slice(0, 10); };
+  if (Date.parse(`${fold()}T00:30:00Z`) <= Date.now() + 86400000) year++;
+  const day = fold(), reason = `Native leave ${info.project.name}`;
+  await panel.getByLabel("Collaboratrice de l’absence").selectOption("emp-angela");
+  await panel.getByLabel("Type d’absence").selectOption("leave");
+  await panel.getByLabel("Date de début").fill(day); await panel.getByLabel("Heure de début").fill("02:30");
+  await panel.getByLabel("Date de fin").fill(day); await panel.getByLabel("Heure de fin").fill("02:30");
+  await panel.getByLabel("Motif de l’absence").fill(reason);
+  await panel.getByLabel("Occurrence de début").selectOption(`${day}T00:30:00.000Z`);
+  await panel.getByLabel("Occurrence de fin").selectOption(`${day}T01:30:00.000Z`);
+  let posts = 0;
+  page.on("request", req => { if (req.method() === "POST" && req.url().includes("/workforce/") && req.url().endsWith("/absences")) posts++; });
+  const path = "**/workforce/institutes/*/absences";
+  const lose = async (route: any) => {
+    if (route.request().method() !== "POST") { await route.continue(); return; }
+    const actual = await route.fetch(); expect(actual.status(), await actual.text()).toBe(200);
+    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Saved reply unavailable" }) });
+  };
+  await page.route(path, lose);
+  await panel.getByRole("button", { name: "Enregistrer l’absence", exact: true }).click();
+  await expect(panel.getByRole("alert")).toContainText("Saved reply unavailable"); expect(posts).toBe(1);
+  await page.unroute(path, lose); await page.reload();
+  await page.getByRole("button", { name: "Équipe", exact: true }).click();
+  await page.getByRole("button", { name: "Absences et congés", exact: true }).click();
+  panel = page.getByRole("region", { name: "Absences et congés de l’équipe" });
+  await panel.getByRole("button", { name: "Reprendre la demande d’absence conservée" }).click();
+  await expect(panel).toContainText("Absence enregistrée."); expect(posts).toBe(1);
+  let card = panel.locator("li").filter({ hasText: reason });
+  await expect(card).toContainText("UTC+02:00"); await expect(card).toContainText("UTC+01:00");
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, base = "http://127.0.0.1:4198/api/v1/workforce/institutes/demo-institute-geneve";
+  const recorded = (await (await request.get(`${base}/absences`, { headers })).json()).find((row: any) => row.reason === reason);
+  expect(Date.parse(recorded.end_time) - Date.parse(recorded.start_time)).toBe(3600000);
+  await card.getByRole("button", { name: "Annuler cette absence" }).click();
+  await panel.getByLabel("Motif d’annulation").fill("Retour confirmé");
+  let cancellations = 0;
+  page.on("request", req => { if (req.method() === "POST" && req.url().includes(`/absences/${recorded.id}/cancel`)) cancellations++; });
+  const cancelPath = `**/absences/${recorded.id}/cancel`;
+  await page.route(cancelPath, lose);
+  await panel.getByRole("button", { name: "Confirmer l’annulation" }).click();
+  await expect(panel.getByRole("alert")).toContainText("Saved reply unavailable");
+  await page.unroute(cancelPath, lose); await page.reload();
+  await page.getByRole("button", { name: "Équipe", exact: true }).click();
+  await page.getByRole("button", { name: "Absences et congés", exact: true }).click();
+  panel = page.getByRole("region", { name: "Absences et congés de l’équipe" });
+  await panel.getByRole("button", { name: "Reprendre la demande d’absence conservée" }).click();
+  await expect(panel).toContainText("Absence annulée ; historique conservé."); expect(cancellations).toBe(1);
+  card = panel.locator("li").filter({ hasText: reason }); await expect(card).toContainText("Annulée : Retour confirmé");
+  const recovered = await (await request.get(`${base}/absences/${recorded.id}`, { headers })).json();
+  expect(recovered.start_time).toBe(recorded.start_time); expect(recovered.reason).toBe(reason); expect(recovered.cancellation.actor_id).toBe(recorded.actor_id);
+  for (const control of await panel.locator("input,select,button").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+  await page.screenshot({ path: info.outputPath("native-absences.png"), fullPage: true });
+});
+
+test("reception cannot open or read sensitive absence history", async ({ page, request }) => {
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("cashier@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible(); await page.getByRole("button", { name: "Équipe", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Absences et congés de l’équipe" })).toHaveCount(0);
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  expect((await request.get("http://127.0.0.1:4198/api/v1/workforce/institutes/demo-institute-geneve/absences", { headers: { Authorization: `Bearer ${token}` } })).status()).toBe(403);
+});

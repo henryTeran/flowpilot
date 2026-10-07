@@ -6760,3 +6760,16 @@ body {
 .bm-sidebar .bm-nav::-webkit-scrollbar { display: none; }
 .bm-sidebar .bm-nav-item, .bm-sidebar .bm-brand-panel, .bm-sidebar .bm-logout-button { flex-shrink: 0; }
 .bm-sidebar .bm-logout-button { margin-top: 12px; }
+
+.absence-panel { margin-top: 24px; }
+.workforce-sections { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 24px; }
+.workforce-sections button { min-height: 44px; padding: 10px 16px; border-radius: 8px; border: 1px solid #c8d6e6; background: white; color: #173c65; font: inherit; }
+.workforce-sections button[aria-pressed="true"] { background: #d7f5f0; border-color: #99d8cd; font-weight: 600; }
+.absence-panel fieldset { border: 0; min-width: 0; padding: 0; display: grid; align-items: start; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.absence-panel label { display: grid; align-content: start; gap: 6px; min-width: 0; }
+.absence-panel input, .absence-panel select, .absence-panel button { min-height: 44px; padding: 8px 12px; font: inherit; }
+.absence-panel input, .absence-panel select { width: 100%; box-sizing: border-box; border: 1px solid #b5c5d8; border-radius: 8px; background: white; }
+.absence-clock { display: grid; gap: 12px; }
+.absence-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+.absence-list li { border: 1px solid #dce4ee; border-radius: 10px; padding: 16px; overflow-wrap: anywhere; }
+.absence-panel fieldset > button { align-self: end; }

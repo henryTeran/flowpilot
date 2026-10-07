@@ -151,6 +151,8 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
 
     duration = service.duration_max or service.duration_min
     end_time = start_time + timedelta(minutes=duration)
+    from app.modules.workforce.absences import ensure_window
+    ensure_window(db, payload.institute_id, employee.id, start_time, end_time)
 
     reserved_lines = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).where(TicketLine.invoice_removed_at.is_(None)).join(
         QueueTicket, QueueTicket.id == TicketLine.ticket_id,
@@ -257,6 +259,8 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
         duration = (timedelta(minutes=service.duration_max or service.duration_min) if service_id != appointment.service_id
                     else _ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time))
         end = start + duration
+        from app.modules.workforce.absences import ensure_window
+        ensure_window(db, appointment.institute_id, employee_id, start, end)
         now = utcnow()
         reserved = db.execute(select(TicketLine.duration_minutes, TicketLine.quantity).where(TicketLine.invoice_removed_at.is_(None)).join(
             QueueTicket, QueueTicket.id == TicketLine.ticket_id).where(
@@ -365,6 +369,8 @@ def start_appointment(db: Session, appointment_id: str, actor_id: str | None = N
     # Reserve the full original duration from actual start, including late starts.
     duration = _ensure_aware(appointment.end_time) - _ensure_aware(appointment.start_time)
     actual_end = now + duration
+    from app.modules.workforce.absences import ensure_window
+    ensure_window(db, appointment.institute_id, employee.id, now, actual_end)
     assigned_ticket = db.scalar(select(QueueTicket.id).where(
         QueueTicket.institute_id == appointment.institute_id,
         QueueTicket.assigned_employee_id == employee.id, QueueTicket.status == "assigned"))
