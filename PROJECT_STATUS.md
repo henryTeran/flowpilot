@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12A_CRM_SCOPE_AUDIT
+CURRENT_CHECKPOINT = PHASE12A_RECORDED_BILLING_FOUNDATION
 STATUS = ACTIVE
+
+PHASE12A_RECORDED_BILLING_FOUNDATION:
+- Added immutable explicit CRM billing-window/closed-ticket facts and pure exact cohort metrics. Owned institute/customer/capture, unique ticket IDs, aware clocks and positive half-open observation bounds are enforced. Frequency is recorded closed-ticket count per exact microsecond, not physical visit frequency; empty history has unknown recency. CHF/EUR recorded gross and average baskets remain separate exact integer ratios; missing/invalid amounts suppress the average, unknown currencies mark incomplete classification, and explicit zero remains valid. Complete history and predictive CLV are not inferred.
+- Focused executable evidence: tests/test_crm_metrics_12a.py, 16 passed in 0.38s, zero failures/skips; existing Starlette/httpx deprecation warning only. Pure calculation tested under local SQLite-configured infrastructure. No database capture, API, UI, PostgreSQL or production claim. CRM_GATE_AUDIT records boundaries and remaining canonical scope.
+- CHECKPOINT_STATUS = PARTIAL. All four Phase 12 gates remain OPEN; source-backed customer cohort capture, signed scoped routes, configured segments/lifecycle, CLV/rebooking semantics, declaration/event automations and native workflow verification remain required. NEXT: registered owned-customer capture from retained paid-ticket authority and signed scoped metric reads. Full canonical goal remains active.
 
 PHASE11AM_CONTROLLED_WORKFORCE_AUDIT:
 - Canonical section 32 requirements audited against current shared authorities/native bindings: all twelve Employee 360 subjects plus Skill Matrix have explicit implementation/test-family mapping in WORKFORCE_GATE_AUDIT. Removed stale claims that commissions/native profiles or completed-hours integration were still missing. Availability remains the shared engine at the current reading instant, independent of selected-day planning; completed declared hours are integrated without inventing a planned roster. Matrix reception reading remains intentional; sensitive profile/original lifecycle routes require the signed own-institute manager. All mapped implementation/test paths verified present.
