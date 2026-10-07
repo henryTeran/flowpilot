@@ -85,6 +85,28 @@ adapter deprecations only. Prior migration tests change only expected latest hea
 original downgrade targets and retention assertions remain unchanged. All Phase
 13 gates remain OPEN.
 
+## 13E: atomic retained audience capture
+
+Signed manager POST audience-captures takes explicit segments/channel/reason/key,
+scans all registered own customers through 50-member pages under one institute
+lock/server clock, retains each validated observation and commits original/final
+summary/pages once. Exact counts/page arithmetic checked. Original-key replay
+precedes new source/clock, pins actor/full literal terms; changed actor/terms fail.
+Scoped original-key/ID reads return bounded metadata; retained-page reads validate
+scope/clock/filter and cursor/end chain, including predecessor's filter. No edits
+or deletion routes. Historical eligibility never grants fresh contact/provider/send
+authority; delivery_authorized remains false. Complete registered cohort is the
+capture-time owned record cohort, not guaranteed complete historical customer data.
+
+Initial adjacent regression: 13 passed in 16.49s; expanded audience/campaign/profile:
+18 passed in 26.56s; final tightened page predecessor-filter focus: 3 passed in
+12.69s, actual PostgreSQL enabled, zero failures/skips. Real 55-member capture,
+50/5 historical pages, one clock, summary, backward-clock original replay, changed
+actor/terms/foreign/out-of-range, signed key/ID/page and role denial, injected second
+page flush rollback preserving old history, forged predecessor filter and competing
+same-key one original/two pages tested. Existing passlib crypt warning only. No
+schema/native/browser/provider/production receipt inferred; marketing gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

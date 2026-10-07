@@ -7,7 +7,7 @@ from app.modules.crm import profile, lifecycle_originals
 from app.modules.crm.segments import classify
 from app.modules.customers.models import Customer
 from app.modules.tickets.repository import lock_institute
-from app.shared.time import utcnow
+from app.shared.time import utcnow, explicit_utc_instant
 
 State=Literal["NEW","ACTIVE","LOYAL","VIP","AT_RISK","DORMANT"]
 class Selection(Fact):
@@ -81,10 +81,10 @@ def recorded_permission(channel,declaration,at):
     if declaration.created_at>at:return "future_declaration"
     return next(p.permission for p in declaration.declaration.communications if p.channel==channel and p.purpose=="marketing")
 
-def read(db,institute,selection):
+def read(db,institute,selection,*,_captured_at=None):
     selection=Selection.model_validate(selection.model_dump())
     lock_institute(db,institute)
-    now=utcnow()
+    now=explicit_utc_instant(_captured_at) if _captured_at is not None else utcnow()
     query=select(Customer.id).where(Customer.institute_id==institute)
     if selection.after is not None:query=query.where(Customer.id>selection.after)
     ids=list(db.scalars(query.order_by(Customer.id).limit(51)))
