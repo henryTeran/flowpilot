@@ -524,6 +524,37 @@ only. No full-backend, new frontend/browser, physical-device or production recei
 is claimed. Exact frontend guards and native declaration/recovery/display remain
 required; all canonical CRM gates stay open.
 
+## Phase 12P: exact lifetime declaration and scenario frontend guards
+
+Frontend contracts now validate scoped required lifetime terms, originals and
+scenario reads. Duration/costs and bounded activity/margin fractions retain
+canonical integer strings. Receipt matching pins every literal term, reason,
+actor, key and predecessor; equivalent mathematical fractions do not silently
+replace declared originals. Independent original comparison checks both shapes,
+original identity and semantic aware microsecond clocks before claiming equality.
+
+The read guard checks requested start, server end=capture, registered identity,
+original scope/date and unavailable reason priority. Billing scope/window/counts/
+quality and its exact ratios are verified with the existing whole-cohort guard.
+Scenario assumptions must exactly match the retained original. Gross,
+contribution and net remaining CLV are independently recalculated with BigInt
+and greatest-common-divisor reduction; canonical reduced signed ratios preserve
+zero, fractional and negative results without float conversion. The projected
+active date is checked against elapsed UTC microseconds and the year-9999 bound.
+Diagnostics, missing/unknown currency or uncertain amounts require null
+projections with the exact source reason and correct conditional active date.
+Complete history, validated prediction and discounting must remain false.
+
+Controlled focus: 4 test groups passed in 0.89s. Complete frontend regression:
+251 passed in 43.32s, zero failures/skips. TypeScript/Vite build passes, 118
+modules; native bundles unchanged because lifetime guards are not UI-bound yet.
+Tests cover scope/source clocks, forged/nonreduced/negative/zero/large-cost
+results, declared assumption substitutions, receipt actor/literal fraction/
+predecessor/clock, missing fields, registration/original date precedence and all
+six source unavailability reasons. No new backend/schema, browser, physical-device
+or production receipt is claimed. Native declaration/recovery/display and signed
+desktop/tablet evidence remain required; all canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
