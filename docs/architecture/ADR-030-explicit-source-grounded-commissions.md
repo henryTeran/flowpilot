@@ -4,8 +4,8 @@ Status: internal source/terms/calculation contract implemented and checked on
 SQLite and actual PostgreSQL. Signed original configured rules and separate
 rule cancellations, source-linked accrual/cancellation ledger and recorded-day
 exact read are implemented;
-bounded source choices, native manager lifecycle and employee commission profile
-remain open.
+bounded rule-specific source choices are implemented; native manager lifecycle
+and employee commission profile remain open.
 This decision does not close the canonical COMMISSIONS or EMPLOYEE_360 gates.
 
 The first supported basis is `closed_attributed_line_gross`: a retained line
@@ -180,3 +180,44 @@ skipped Apia day, real writes at exactly included start/excluded end boundaries,
 unknown entitlement on empty rows and signed scope/limit/date refusals. Full
 production-cohort performance and native/profile/source-choice acceptance remain
 open. No schema or application database change is made by this read addition.
+
+Manager rule-specific `sources?day=...` choices now use actual ticket closing day
+in shared half-open institute civil bounds (`source_closed_day`), explicitly
+separate from commission recording day. The original rule is read under the
+institute transaction lock. Candidate lines are retained paid sources with the
+rule's owned actual performer/category and optional explicit named-service scope;
+explicit null permits all services in that category. Unknown/unlocated closing
+instants, unassigned performers and removed/unpaid lines never acquire invented
+clocks or cashier attribution. `complete_sources=false` preserves unknown coverage.
+
+One independently counted, stable closing-time/ticket/line page joins source
+facts and correlated active-attribution/future-cancellation checks. There are no
+per-option employee, receipt, source or rule queries. Eligible previews use the
+same pure `capture_values` authority and exact `calculate` function as writes;
+source ownership and performer scope are established by the bounded read before
+that helper is called. The original-rule snapshot and full preview terms/source/
+exact calculation are included; selecting or reading a preview does not create
+any commission or protect against later source changes. The final write captures
+and revalidates authoritative facts again.
+
+Visible candidates retain explicit disabled reasons: cancelled/future rule,
+already attributed source, future cancellation clock, future closing instant,
+unknown/mismatched currency, closing outside the original pinned period or
+invalid source amounts/quantity/chronology. Invalid nonfinite/nondecimal amounts
+or noninteger quantities are represented as unknown raw values without fabricated
+eligible captures. All excluded previews are null. Later known cancellation
+releases eligibility; a cancellation timestamp later than the capture clock
+continues blocking a new source credit in both choices and final ledger writes.
+Original request-key replay still precedes this new-write clock check.
+
+Controlled SQLite and actual PostgreSQL tests verify exact preview arithmetic,
+no second quantity multiplication, cross-rule attribution/correction, future
+cancellation refusal before re-credit, missing/negative/nonfinite/float monetary
+facts, invalid quantity/chronology, unknown/wrong currency, unlocated/unpaid/
+removed/unassigned sources, named/all-service scope, source-period mismatch,
+exact closing-day boundaries, future rule, cancellation, Zurich 23/25-hour and
+skipped Apia days, role/institute/limit/date/missing-rule refusals and complete
+27-row traversal over 20+7 with <=8 SELECTs. Ledger/day/source compatibility is
+rechecked after the shared helper and cancellation-clock refinement. These
+bounded API checks do not close native, complete-cohort performance, physical
+or production acceptance; no schema/application database changes are made.

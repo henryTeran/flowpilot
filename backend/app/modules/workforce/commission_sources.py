@@ -116,12 +116,22 @@ def capture(db, institute, line_id, now):
     if row is None:
         raise not_found("Commission source line not found")
     line, ticket = row
+    performer_owned = bool(line.performed_by_employee_id and db.scalar(select(Employee.id).where(
+        Employee.institute_id == institute, Employee.id == line.performed_by_employee_id)))
+    return capture_values(line, ticket, institute, performer_owned, now)
+
+
+def capture_values(line, ticket, institute, performer_owned, now):
+    """Same source authority for bounded joined choices; caller verifies performer ownership."""
+    if ticket.institute_id != institute or line.ticket_id != ticket.id:
+        raise business_error("The source owner does not match the requested institute")
+    if not isinstance(now, datetime) or now.utcoffset() is None:
+        raise business_error("An explicit capture clock is required")
     if ticket.status != "paid" or line.invoice_removed_at is not None:
         raise business_error("Only retained internally closed lines can define this basis")
     if ticket.paid_at is None or ticket.currency not in ("CHF", "EUR"):
         raise business_error("The source closing instant and currency must be known")
-    if not line.performed_by_employee_id or not db.scalar(select(Employee.id).where(
-        Employee.institute_id == institute, Employee.id == line.performed_by_employee_id)):
+    if not line.performed_by_employee_id or not performer_owned:
         raise business_error("An owned actual performer is required; the cashier is not inferred")
     try:
         return ClosedLineCapture(institute_id=institute, ticket_id=ticket.id, line_id=line.id,

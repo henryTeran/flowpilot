@@ -25,6 +25,7 @@ from app.modules.workforce import commission_rules, commissions
 from app.modules.workforce.commission_rule_schemas import CommissionRuleCreate, CommissionRuleCancel, CommissionRulePage, CancellationRead as CommissionRuleCancellationRead
 
 from app.modules.workforce.commission_day import CommissionDay
+from app.modules.workforce.commission_options import CommissionSourceOptions
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -381,3 +382,10 @@ def employee_commission_day(institute_id: str, employee_id: str, day: date, limi
     offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.commission_day import read
     return read(db, institute_id, employee_id, day, limit, offset)
+
+
+@router.get("/commission-rules/{identifier}/sources", response_model=CommissionSourceOptions)
+def commission_source_choices(institute_id: str, identifier: str, day: date, limit: int = Query(20, ge=1, le=50),
+    offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.commission_options import read
+    return read(db, institute_id, identifier, day, limit, offset)

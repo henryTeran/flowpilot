@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Annotated
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, StringConstraints, AwareDatetime, field_validator, model_validator
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from app.modules.workforce.models import EmployeeCommission as Original, CommissionCancellation as Cancellation
 from app.modules.workforce.absence_schemas import AbsenceCancel, Reason, Key
 from app.modules.workforce.commission_sources import CommissionCalculation, calculate, capture
@@ -119,7 +119,8 @@ def create(db, institute, payload, actor):
     calculation = calculate(calculation_terms(rule), source)
     active = select(Original.id).outerjoin(Cancellation,
         (Cancellation.institute_id == Original.institute_id) & (Cancellation.commission_id == Original.id)).where(
-        Original.institute_id == institute, Original.line_id == source.line_id, Cancellation.id.is_(None)).limit(1)
+        Original.institute_id == institute, Original.line_id == source.line_id,
+        or_(Cancellation.id.is_(None), Cancellation.created_at > now)).limit(1)
     if db.scalar(active): raise business_error("Cette ligne possede deja une commission active")
     row = Original(id=new_id("commission"), institute_id=institute, employee_id=source.employee_id, rule_id=rule.id,
         ticket_id=source.ticket_id, line_id=source.line_id, currency=source.currency, amount_minor=calculation.amount_minor,
