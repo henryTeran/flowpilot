@@ -539,6 +539,34 @@ owned current declaration evaluation, native contact editing/recovery, provider
 transport/send and conversion. All marketing/physical/production gates OPEN;
 full canonical goal ACTIVE. No external message or production configuration.
 
+## 13Z: current declared recipient observation pages
+
+Signed manager GET requires exact current campaign revision and bounded offset/limit
+(default20/max50). Own institute lock covers current campaign and contact declarations,
+with one observation clock per page. Retained campaign member IDs/order/total stay
+historical; current own registered customer/contact original reread for each member.
+Historical lifecycle grant alone cannot establish a fresh destination declaration.
+Withdrawal/absent/unknown/future/current DRAFT refuse eligibility; campaign head
+change refuses the prior expected revision. No write/send/provider operation.
+
+Typed page retains campaign original once, current source facts and strict derived
+eligibility/reason. Guard checks campaign request/revision coherence, owned exact
+revision/count/order/page bounds and recomputes each observation. Complete-campaign,
+delivery/sent remain false; no cross-page atomicity, provider authority or delivered
+result claimed. Missing/foreign/corrupted source refuses a whole read.
+
+Initial SQLite/PostgreSQL: 2 passed in 12.43s. Final observation/contact/campaign
+service regression: 11 passed in 49.79s, terminal exit 0. Two retained members through
+1/1 pages, historical grant vs absent current declaration, withdrawal/future source,
+stale campaign after edit, role/foreign/anonymous, bounds and forged page terms/count/
+order/scope/eligibility/authority refusal covered. PostgreSQL writer attempts FOR
+UPDATE and waits while sampled observation holds institute lock; page retains old
+original, subsequent read sees committed withdrawal. OpenAPI required revision,
+max50 and nonnegative offset verified. Crypt deprecation only. No new full backend,
+schema/native/provider acceptance. Coherent three-channel audiences with legacy
+retained-page compatibility, native contacts/observations, provider/send/conversion
+still pending. All gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
