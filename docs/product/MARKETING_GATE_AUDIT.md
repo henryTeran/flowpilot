@@ -167,6 +167,29 @@ correction one winner covered. Existing passlib crypt and Windows Starlette/http
 deprecations only. No schema/native/provider/production acceptance inferred;
 campaign draft/review/approve/audit persistence remains pending; gates OPEN.
 
+## 13I: source-bound campaign originals, approval and audit
+
+Signed manager campaign create/edit/review/approve now persist immutable request/
+revision/actor/clock and update owned current head atomically. Explicit source IDs
+are resolved server-side; caller recipient/actor lists are not accepted. Audience
+is verified across all retained pages; optional template must match literal content
+and not be from the future. Review/approval reverify these retained sources. Exact
+predecessor and pure review chain enforced; edits clear review/approval digests.
+Key-first replay pins actor/full terms before mutable head/clock. Independent
+original-key/ID/current and bounded 20/default 50/max audit/total reads retain all
+versions. Audit timestamp/ID ordering exposes predecessor IDs for causal history.
+SEND is not yet an API action; fresh destination/permission/provider integration
+is pending and delivery/sent flags remain false. No message/provider operation.
+
+Initial focus: 11 passed in 16.29s. Five-file marketing regression: 26 passed in
+41.92s, zero failures/skips, actual PostgreSQL. Final audit focus: 3 passed in
+16.40s. Source-bound two recipients across 50/5 cohort, template exactness, review/
+approve/edit reset, signed roles/key/ID/current, actor/terms/scope/stale/backward
+clock refusals, injected original/head rollback, immutable history, competing
+same-key creation and review one winner, audit 2/2 pages/total/max bound and SEND
+422 tested. Existing passlib crypt warning only. No schema/native/provider/
+production acceptance inferred; all Phase 13 gates remain OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

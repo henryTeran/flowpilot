@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.marketing import models as marketing_models  # noqa: F401
-from app.modules.marketing import audiences, audience_originals, templates
+from app.modules.marketing import audiences, audience_originals, templates, campaign_originals
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
     if user.get("institute_id")!=institute_id or user.get("role")!="responsable_institut":raise HTTPException(403,"Permission insuffisante")
@@ -37,3 +37,20 @@ def template_by_id(institute_id:str,identifier:str,user=Depends(manager),db:Sess
 @router.get("/templates/{template_id}/current",response_model=templates.Original|None)
 def template_current(institute_id:str,template_id:str,user=Depends(manager),db:Session=Depends(get_db)):
     return templates.current(db,institute_id,template_id)
+
+@router.post("/campaigns",response_model=campaign_originals.Original)
+def campaign_execute(institute_id:str,payload:campaign_originals.Request,user=Depends(manager),db:Session=Depends(get_db)):
+    return campaign_originals.execute(db,institute_id,payload,user.get("sub"))
+@router.get("/campaigns/original/{key}",response_model=campaign_originals.Original|None)
+def campaign_original(institute_id:str,key:str,user=Depends(manager),db:Session=Depends(get_db)):
+    return campaign_originals.original(db,institute_id,key)
+@router.get("/campaigns/{identifier}",response_model=campaign_originals.Original)
+def campaign_by_id(institute_id:str,identifier:str,user=Depends(manager),db:Session=Depends(get_db)):
+    return campaign_originals.require(db,institute_id,identifier)
+@router.get("/campaigns/{campaign_id}/current",response_model=campaign_originals.Original|None)
+def campaign_current(institute_id:str,campaign_id:str,user=Depends(manager),db:Session=Depends(get_db)):
+    return campaign_originals.current(db,institute_id,campaign_id)
+
+@router.get("/campaigns/{campaign_id}/audit",response_model=campaign_originals.AuditPage)
+def campaign_audit(institute_id:str,campaign_id:str,offset:int=Query(0,ge=0),limit:int=Query(20,ge=1,le=50),user=Depends(manager),db:Session=Depends(get_db)):
+    return campaign_originals.audit(db,institute_id,campaign_id,offset,limit)
