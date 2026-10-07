@@ -627,6 +627,40 @@ denomination, without weakening guards/increasing timeouts. Existing bcrypt/
 NO_COLOR warnings only. No new backend/schema/application migration, full-backend,
 physical-device or production receipt is claimed; canonical CRM gates stay open.
 
+## Phase 12S: explicit lifecycle declarations and birthday calendar
+
+Source audit confirms registered customers currently have no birthday or
+communication-permission authority. Existing commerce packages have issue/
+expiry/balance facts; memberships have active terms and renewal originals.
+`backend/app/modules/crm/lifecycle.py` adds immutable scoped declaration contracts.
+Birthday is an optional evidenced month/day; a birth year is not guessed.
+Exactly one explicit declaration is required per email/SMS channel and per
+service-follow-up/marketing purpose. Unknown has no evidence; grants/refusals
+require recorded evidence references and remain separate by purpose/channel.
+Recorded permission does not itself certify a lawful/available delivery route.
+
+Birthday observation retains explicit declaration, named timezone/leap-day
+policy, registered identity/creation fact and aware capture. Scope and actual
+UTC source chronology are checked, including repeated daylight-saving wall
+hours. Birthday matching uses local civil date and aware midnight boundaries,
+not a fixed 24-hour interval. The February-29 rule must explicitly select
+February 28, March 1 or leap years only. Unknown birthday, absent anniversary
+in this year, not-today and due remain distinct. Unsupported calendar bounds
+fail explicitly. External delivery-authorized and message-sent flags remain
+false; this pure calculation does not claim a persisted/scheduled/delivered event.
+
+Controlled pure lifecycle/lifetime/segment/metric regression: 78 passed in 2.32s,
+zero failures/skips, including 16 new lifecycle cases. Initial focus: 14 passed
+in 0.69s; adjacent 77 passed in 2.22s before final repeated-hour UTC-order test.
+Local-day boundaries/offsets, 23/25-hour days, all three leap policies, unknown
+birthday, recorded grants/refusals, complete distinct dimensions/evidence,
+strict dates/coercion, scoped registered chronology and calendar overflow are
+covered. Existing passlib crypt warning only. No durable originals/calendar
+policy, database capture, schema/API/UI, actual PostgreSQL source, frontend/
+browser, physical-device or production receipt is claimed. Durable native
+declaration/recovery and all six source-grounded repeatable lifecycle events
+remain required; canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
