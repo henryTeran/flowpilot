@@ -1,6 +1,6 @@
 # ADR-027: Original declared effective workforce hours
 
-Status: API/migration foundation implemented; day totals, native lifecycle and
+Status: API/migration foundation and exact day-duration read implemented; native lifecycle and
 Employee 360 integration remain open.
 
 The canonical Employee 360 requires workforce hours. Existing employee status,
@@ -41,7 +41,28 @@ migrated by this verification.
 
 These records do not establish complete daily attendance, payroll, legal
 working-time compliance, paid breaks or overtime. A missing record is unknown,
-not proof of zero hours. Remaining work: exact institute-day clipping/duration
-reads, native original creation/cancellation/lost-reply recovery, profile
+not proof of zero hours.
+
+The manager employee/day read uses the shared half-open institute-day boundaries,
+including 23/25-hour and genuinely skipped days. Original intervals are clipped
+to those bounds, retain their complete original/cancellation facts, and page
+stably under the same institute lock as counts and duration aggregation. Cancelled
+sources remain in history but contribute no hours. Future-ending sources at the
+reading instant are explicitly excluded and leave the recorded total unknown.
+An empty active ledger also leaves that total unknown; the known subtotal is
+explicitly zero and complete_attendance is always false.
+
+Durations use exact integer microseconds, serialized as decimal strings.
+The aggregate streams only sorted endpoint pairs in bounded chunks and constant
+aggregate memory; it does not load every ORM fact or issue per-source queries.
+This avoids SQLite Julian-date and floating-point loss without adding redundant
+timestamp columns or changing schema. Counts and totals cover all sources,
+independently of the bounded visible page. A union merges legacy overlapping
+sources to prevent double counting, while separate declared-duration and overlap
+diagnostics preserve the discrepancy. The union cannot exceed the selected day.
+PostgreSQL verifies a writer remains locked out between count and source/page
+reads, then appears consistently in the next reading.
+
+Remaining work: native original creation/cancellation/lost-reply recovery, profile
 integration and acceptance. Occupancy must retain explicit source coverage
 and cannot infer complete working time or a ratio from an empty/partial ledger.

@@ -27,7 +27,7 @@ authorized Workforce scope progresses.
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
-| Heures | Original signed completed effective-work intervals with explicit instants, separate cancellations, overlap/replay protection and bounded manager history API; session duration/status remains a separate source | Exact day totals, native lifecycle/profile and acceptance; no inferred complete attendance, payroll or legal acceptance |
+| Heures | Original signed completed effective-work intervals, separate cancellations and bounded manager history; exact institute-day union durations retain DST/microseconds, excluded/overlapping sources and unknown attendance coverage | Native lifecycle/profile and acceptance; no inferred complete attendance, payroll or legal acceptance |
 
 Gates remain:
 
@@ -43,7 +43,7 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: exact workforce day-duration read and native hours lifecycle/profile, then occupation/rebooking and
+Next independent unit: native hours lifecycle/profile, then occupation/rebooking and
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and explicit objective,

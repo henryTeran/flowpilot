@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11L_ORIGINAL_WORK_INTERVALS_API
+CURRENT_CHECKPOINT = PHASE11M_EXACT_WORKFORCE_DAY_HOURS_API
 STATUS = ACTIVE
+
+PHASE11M_EXACT_WORKFORCE_DAY_HOURS_API:
+- Manager-only employee/institute-day work-hours read clips original declarations to shared half-open calendar bounds and returns original/cancellation provenance on a stable bounded page. Exact integer microseconds serialize as strings; no floating-point/Julian-date arithmetic. Aggregate reads stream sorted endpoint pairs in bounded chunks with constant aggregate memory and no per-source queries; totals cover all sources independently of the visible page.
+- Cancelled sources retain clipped original duration but contribute no hours. Future-ending sources at generated_at are excluded and leave the recorded total unknown; an empty active ledger also leaves it unknown, with explicit known subtotal zero and complete_attendance=false. Legacy overlaps are merged into a duration union, with separate declared sum/overlap diagnostics. No complete attendance, payroll or occupation ratio is inferred.
+- Initial SQLite/PostgreSQL hour-duration/interval bundle: 5 passed in 8.56s. Final hour/interval/calendar compatibility after count/page concurrency proof: 11 passed in 17.54s. Final hour cases after adding exact boundary-source exclusions: 4 passed in 24.58s. Tests cover 1us clipping, overnight sources, 23/25-hour days, skipped Apia day, cancellation/future exclusion, legacy overlap union, empty unknown totals, HTTP ownership/limits/extreme dates, all-page totals over 21 sources with <=8 SELECTs, and an actual PostgreSQL writer blocked between count and aggregate/page then visible on the next read.
+- No schema change, application database migration, frontend/native acceptance or new full backend regression is claimed. ADR-027 and Workforce audit describe the exact recorded-duration/coverage contract. CHECKPOINT_STATUS = PARTIAL until native hours lifecycle/recovery and Employee 360 read integration/acceptance. Next: native original working-interval authoring/cancellation/recovery and readonly selected-day hours, then source-grounded occupation/rebooking/commissions.
 
 PHASE11L_ORIGINAL_WORK_INTERVALS_API:
 - Original signed manager declarations record employee-owned completed effective-work start/end instants, reason, actor, key and recording instant. Explicit UTC normalization retains DST repeated-hour duration; numeric/boolean epochs, naive instants, UTC overflows, empty/reversed intervals and future effective ends are refused. These are declared effective working intervals excluding breaks, not device-attested attendance, planned shifts or inferred session hours.
