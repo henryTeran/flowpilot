@@ -943,6 +943,34 @@ authenticated provider evidence/operator uncertainty resolution, conversion and
 physical/production acceptance remain. No new full-backend/migration acceptance.
 All Phase 13 gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AP - current recipient observations after SEND
+
+SEND is now recognized by the bounded Page stage validator (previous mapping
+raised KeyError) and pure permission evaluation. APPROVE/SEND retain reviewed/
+approved digest coherence; stage does not override current permission/destination
+or future source clock. Read service still pins exact current owned revision and
+retained membership, one clock and current contact originals. DB SEND receipt checks
+its approved predecessor. Frontend recomputes the same reasons and independently
+rereads campaign/contact originals before rendering; forged eligibility hides page.
+
+Five backend files (contacts/recipient/worker/post-SEND preparation/new SEND recipient)
+23 passed in 74.42s. Provider adjacent 6 passed in 1.02s. SQLite and actual PostgreSQL,
+signed scoped GET, stale approval observation refusal, withdrawal, unchanged SEND/
+approval/contact originals and page roundtrip; pure three-channel grant/refusal/
+future-clock coverage. Existing crypt and intentional malformed-bool warning only.
+Native focused 5 passed in 3.50s; full frontend 323 passed in 57.13s. Signed desktop/
+tablet SEND scenario extended to read current grant after SEND, withdraw and reread,
+reject forged true eligibility then retry clean: 2 passed in 37.4s. Actual contacts
+are explicit API fixtures; native contact editing acceptance remains earlier work.
+SEND lost acknowledgement/recovery still one POST. 142 modules built, fixture
+cleaned, final screenshots inspected, >=44px controls/no overflow. All terminal
+exit 0; no live provider calls or physical/production acceptance inferred.
+
+Native intent preparation/outcome audit, protected invocation, authenticated
+provider evidence/operator uncertainty resolution, conversion and canonical
+requirement acceptance remain. No new migration/full-backend acceptance. All
+Phase 13 gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

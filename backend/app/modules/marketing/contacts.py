@@ -140,7 +140,7 @@ def record(identifier: str, actor: str, customer: RegisteredCustomerFact, reques
 
 def reason(customer, campaign, original, at):
     if customer.customer_id not in campaign.content.audience.customer_ids: return "customer_not_retained"
-    if campaign.state != "APPROVE": return "campaign_not_approved"
+    if campaign.state not in ("APPROVE", "SEND"): return "campaign_not_approved"
     if campaign.created_at > at: return "future_campaign"
     if customer.created_at > at: return "future_registration"
     if original is None: return "declaration_absent"

@@ -116,3 +116,14 @@ def test_owned_sources_clocks_membership_and_forged_results_refused():
     for changes in [{"reason": "declared_eligible", "eligible_by_current_declaration": True}, {"eligible_by_current_declaration": 1},
                     {"delivery_authorized": True}, {"external_message_sent": True}]:
         with pytest.raises(ValidationError): contacts.Eligibility.model_validate({**result, **changes})
+
+@pytest.mark.parametrize("channel", ["email", "sms", "push"])
+def test_send_preserves_approval_but_never_overrides_current_withdrawal(channel):
+    customer, _, approved = sources(channel)
+    sent = transition(approved, approved.id, "s", "send", "manager", "Explicit SEND", NOW, None)
+    result = contacts.evaluate(customer, sent, declaration(), NOW)
+    assert result.eligible_by_current_declaration and result.reason == "declared_eligible"
+    assert not result.delivery_authorized and not result.external_message_sent
+    assert contacts.evaluate(customer, sent, declaration("refused"), NOW).reason == "permission_refused"
+    future = sent.model_copy(update={"created_at":NOW + timedelta(microseconds=1)})
+    assert contacts.evaluate(customer, future, declaration(), NOW).reason == "future_campaign"

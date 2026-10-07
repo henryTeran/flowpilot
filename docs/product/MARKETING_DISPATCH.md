@@ -115,5 +115,20 @@ APPROVE predecessor, stage, digest and chronology before clearing protected term
 A lost reply/reload recovers without another POST; corrupted approval keeps the
 request frozen. Native SEND performs no provider I/O. New corrections are disabled
 there, while protected old-request recovery remains. Native recipient intent/result
-workflow, post-SEND current-recipient observations and deployed sending acceptance
+workflow and deployed sending acceptance
 remain to be completed.
+
+## Current recipient observations after SEND
+
+The owned bounded recipient page now accepts current SEND as an approved stage.
+It still pins the exact current revision and retained membership order, one aware
+observation clock, current contact original and explicit channel grant/destination.
+SEND does not override withdrawal, unknown permission, missing destination or
+future source clocks. Backend SEND receipt validation retains the approved
+predecessor; an old approval ID cannot stand in for the current SEND observation.
+The frontend recomputes the same reasons and independently rereads campaign and
+contact originals. Forged eligibility hides the whole page until a clean reread.
+
+These observations declare current eligibility only. Whole-campaign evaluation,
+provider submission and delivery flags remain false; native intent preparation,
+provider outcome audit and deployed execution remain separate pending work.

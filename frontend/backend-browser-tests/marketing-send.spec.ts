@@ -76,6 +76,34 @@ test("signed native SEND loses acknowledgement and recovers approved original wi
   expect(original.revision.external_message_sent).toBe(false); expect(original.revision.delivery_authorized).toBe(false);
   expect(await (await request.get(`${base}/campaigns/${approval.revision.id}`, { headers })).json()).toEqual(approval);
   expect(await page.evaluate(() => Object.keys(sessionStorage).some(key => key.startsWith("flowpilot.marketing-campaign-request:")))).toBe(false);
+  const contactPath = `${base}/customers/${customer.id}/contact-declarations`;
+  const declaration = { institute_id: institute, customer_id: customer.id, purpose: "marketing", communications: ["email", "sms", "push"].map(channel => ({
+    channel, permission: channel === "email" ? "granted" : "unknown", permission_evidence: channel === "email" ? "Explicit current SEND permission" : null,
+    destination: channel === "email" ? { channel, email: "recipient@example.com", phone: null, push_application: null, push_token: null, evidence: "Explicit SEND endpoint" } : null })) };
+  const contactReply = await request.post(contactPath, { headers, data: { declaration, previous_id: null, reason: "Explicit SEND recipient", idempotency_key: `send-contact-${prefix}` } });
+  expect(contactReply.status()).toBe(200); const contact = await contactReply.json();
+  const recipients = page.getByRole("region", { name: "Destinataires courants", exact: true });
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  const own = recipients.locator("article").filter({ hasText: `Cliente ${customer.id}` });
+  await expect(own).toContainText("Accord et destination déclarés");
+  await expect(own).toContainText("Éligible selon la déclaration lue");
+  const withdrawn = structuredClone(declaration); withdrawn.communications[0].permission = "refused";
+  const withdrawalReply = await request.post(contactPath, { headers, data: { declaration: withdrawn, previous_id: contact.id, reason: "Explicit withdrawal after SEND", idempotency_key: `send-withdraw-${prefix}` } });
+  expect(withdrawalReply.status()).toBe(200);
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  await expect(own).toContainText("Refus déclaré"); await expect(own).toContainText("Non éligible");
+  expect(await (await request.get(contactPath + `/${contact.id}`, { headers })).json()).toEqual(contact);
+  expect(await (await request.get(`${base}/campaigns/${original.revision.campaign_id}/current`, { headers })).json()).toEqual(original);
+  await page.route("**/recipient-observations?**", async route => {
+    const response = await route.fetch(); const value = await response.json();
+    value.items.find((item: any) => item.customer.customer_id === customer.id).eligible_by_current_declaration = true;
+    await route.fulfill({ response, json: value });
+  });
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  await expect(recipients).toContainText("Destinataires à vérifier"); await expect(recipients.locator("article")).toHaveCount(0);
+  await page.unroute("**/recipient-observations?**");
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  await expect(own).toContainText("Non éligible");
   for (const button of await actions.locator("button,input").all()) expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await history.screenshot({ path: info.outputPath("native-send-recovered.png") });

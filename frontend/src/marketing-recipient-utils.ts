@@ -23,7 +23,7 @@ export async function validRecipientPage(v: unknown, campaign: CampaignOriginal,
       || c.institute_id !== r.institute_id || c.customer_id !== members[index] || instant(c.created_at) === undefined
       || o !== null && !validContactOriginal(o, r.institute_id, c.customer_id)) return false;
     const communication = o?.declaration.communications.find(c => c.channel === r.content.channel);
-    const reason = r.state !== "APPROVE" ? "campaign_not_approved" : instant(r.created_at)! > instant(p.captured_at)! ? "future_campaign"
+    const reason = !["APPROVE", "SEND"].includes(r.state) ? "campaign_not_approved" : instant(r.created_at)! > instant(p.captured_at)! ? "future_campaign"
       : instant(c.created_at)! > instant(p.captured_at)! ? "future_registration" : o === null ? "declaration_absent"
       : instant(o.created_at)! > instant(p.captured_at)! ? "future_declaration" : communication!.permission === "unknown" ? "permission_unknown"
       : communication!.permission === "refused" ? "permission_refused" : communication!.destination === null ? "destination_absent" : "declared_eligible";

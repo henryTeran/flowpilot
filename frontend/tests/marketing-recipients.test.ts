@@ -45,3 +45,19 @@ test("recipient observations recompute current eligibility across all channels",
     assert.equal(await validRecipientPage({ ...page, items: [{ ...page.items[0], eligible_by_current_declaration: 1 }] }, campaign, 0, 20), false);
   }
 });
+
+test("SEND observations retain current grants and reject forged withdrawal eligibility", async () => {
+  for (const channel of ["email", "sms", "push"] as const) {
+    const { campaign, page } = await recipientFixture(channel);
+    const approval = campaign.revision.id;
+    campaign.request.action = "send"; campaign.request.expected_revision_id = approval;
+    campaign.revision.id = "send"; campaign.revision.previous_id = approval; campaign.revision.state = "SEND";
+    page.expected_revision_id = "send";
+    assert.equal(await validRecipientPage(page, campaign, 0, 20), true);
+    const communication = page.items[0].original!.declaration.communications.find(value => value.channel === channel)!;
+    communication.permission = "refused";
+    assert.equal(await validRecipientPage(page, campaign, 0, 20), false);
+    page.items[0].reason = "permission_refused"; page.items[0].eligible_by_current_declaration = false;
+    assert.equal(await validRecipientPage(page, campaign, 0, 20), true);
+  }
+});

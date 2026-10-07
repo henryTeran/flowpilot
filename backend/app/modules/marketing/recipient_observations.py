@@ -36,7 +36,7 @@ class Page(Fact):
         campaign = campaign_originals.Original.model_validate(self.campaign.model_dump())
         revision = campaign.revision
         request = campaign.request
-        expected_state = {"create": "DRAFT", "edit": "DRAFT", "review": "REVIEW", "approve": "APPROVE"}[request.action]
+        expected_state = {"create": "DRAFT", "edit": "DRAFT", "review": "REVIEW", "approve": "APPROVE", "send": "SEND"}[request.action]
         if revision.state != expected_state or request.reason != revision.reason or request.expected_revision_id != revision.previous_id or request.campaign_id is not None and request.campaign_id != revision.campaign_id:
             raise ValueError("Retained campaign original terms must agree with its revision")
         if request.content is not None:
