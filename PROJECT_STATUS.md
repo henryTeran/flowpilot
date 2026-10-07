@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AL_EXACT_EVENT_CANDIDATE_GUARDS
+CURRENT_CHECKPOINT = PHASE12AM_EVENT_IDENTITY_REVISION_PAGE_GUARDS
 STATUS = ACTIVE
+
+PHASE12AM_EVENT_IDENTITY_REVISION_PAGE_GUARDS:
+- Added asynchronous browser WebCrypto SHA256 occurrence identity using Python-compatible compact ASCII JSON and exact normalized UTC expiry terms. Source Unicode/surrogate escaping, equivalent timezone clocks and one-microsecond term renewal tested against independently computed Python oracle hashes. Care/birthday identity omits mutable capture/policy/balance fields as canonical backend does.
+- Added typed decision/revision/current-page guards: verified own candidate and identity, monotonic evaluation clock, allowed state/reason plus candidate-state consistency for direct reasons, scoped revision IDs/capture/predecessor and no self predecessor. Current page pins requested offset/limit, safe complete total/count, <=50 bounded page, strictly ordered unique keys and unique revision IDs. Captures/source provenance/original receipt recovery remain pending; guards not UI-bound.
+- Focus: 5 passed in 0.43s. Initial TypeScript build rejected unsupported Object.hasOwn under existing target; corrected to hasOwnProperty.call without changing target. Final full frontend: 276 passed in 47.31s, zero failures/skips; TypeScript/Vite build passes (127 modules, unchanged native bundles). No new backend/browser/physical/production acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: source/capture/original-action recovery contracts, then native reconciliation/processing/cancellation workflow and full Phase 12 acceptance. Full canonical goal remains active.
 
 PHASE12AL_EXACT_EVENT_CANDIDATE_GUARDS:
 - Added native typed anchor/candidate guards for six triggers with owned nonempty scope/source/policy ID, explicit positive source terms, package-only safe integer balance and canonical exact automation rules. Recomputes UTC microsecond due time (expiry anticipation clamps to source start) and candidate state, including expired/exhausted/disabled precedence. Refuses delivery/sent flags, future non-birthday anchors, inconsistent expiry, source kind or forged timing/state. Upcoming birthday interval remains allowed; calendar provenance is not certified by this candidate guard alone.

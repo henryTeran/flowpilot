@@ -1092,6 +1092,10 @@ Actual signed Edge desktop/touch-tablet editor tests now prove explicit alternat
 
 Owned typed source anchors and candidates now recompute exact microsecond deadlines and state for all six triggers. Scope, source terms/kind, package-only balance, explicit activation and canonical duration are checked; delivery/sent claims rejected. Final focus: 3 passed; full frontend: 273 passed in 47.11s; TypeScript and Vite pass. Candidate guards do not independently certify birthday calendar provenance or event occurrence identity and are not UI-bound yet. Complete source/decision/revision/capture/current guards and native action workflows remain pending. All CRM and physical/production gates remain OPEN.
 
+## Phase 12AM: event identity, revision and current-page guards
+
+Browser occurrence SHA256 matches independently computed Python compact ASCII/normalized UTC hashes, including Unicode and exact microsecond renewed expiry. Decision/revision guards verify scoped identity, chronology, state/reason, capture/predecessor IDs; current-page guard pins request bounds, total/count and sorted unique occurrences/revisions. Focus: 5 passed; full frontend: 276 passed in 47.31s; TypeScript/Vite pass. These contracts are not UI-bound; source/capture provenance and original action recovery remain pending. All four CRM and physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

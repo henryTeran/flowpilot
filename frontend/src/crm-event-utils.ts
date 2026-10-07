@@ -28,3 +28,38 @@ export function validEventCandidate(v:unknown,institute:string,customer:string):
   if(!c.rule.enabled)state="disabled";
   return c.state===state;
 }
+
+export type EventDecision={event_key:string;candidate:EventCandidate;state:"scheduled"|"due"|"blocked"|"cancelled"|"expired"|"processed";reason:"candidate"|"source_uncertain"|"rule_disabled"|"package_exhausted"|"occurrence_expired"|"superseded"|"birthday_declared_unknown"|"explicit_cancellation"|"already_processed";evaluated_at:string};
+export type EventRevision={id:string;institute_id:string;customer_id:string;event_key:string;capture_id:string;previous_id:string|null;decision:EventDecision};
+export type EventPage={institute_id:string;customer_id:string;total:number;offset:number;limit:number;revisions:EventRevision[]};
+function pythonUtc(value:string){
+ const us=instant(value)!;const seconds=us>=0n ? us/1000000n : (us-999999n)/1000000n;
+ const fraction=us-seconds*1000000n,base=new Date(Number(seconds*1000n)).toISOString().slice(0,19);
+ return base+(fraction ? "."+String(fraction).padStart(6,"0") : "")+"+00:00";
+}
+export async function eventIdentity(c:EventCandidate):Promise<string>{
+ const term=["package","membership"].includes(c.source.source_kind) ? pythonUtc(c.source.expires_at!) : null;
+ const parts=[c.institute_id,c.customer_id,c.rule.trigger,c.source.source_kind,c.source.source_id,term];
+ const canonical=JSON.stringify(parts).replace(/[\u007f-\uffff]/g,char=>"\\u"+char.charCodeAt(0).toString(16).padStart(4,"0"));
+ return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(canonical))),b=>b.toString(16).padStart(2,"0")).join("");
+}
+export async function validEventDecision(v:unknown,institute:string,customer:string):Promise<boolean>{
+ const d=v as EventDecision;if(!d || !validEventCandidate(d.candidate,institute,customer))return false;
+ const evaluated=instant(d.evaluated_at);if(evaluated===undefined || evaluated<instant(d.candidate.captured_at)!)return false;
+ const allowed:Record<EventDecision["state"],string[]>={scheduled:["candidate"],due:["candidate"],blocked:["source_uncertain"],cancelled:["rule_disabled","package_exhausted","superseded","birthday_declared_unknown","explicit_cancellation"],expired:["occurrence_expired"],processed:["already_processed"]};
+ if(d.reason==="candidate" && d.state!==d.candidate.state || d.reason==="occurrence_expired" && d.candidate.state!=="expired"
+  || d.reason==="rule_disabled" && d.candidate.state!=="disabled" || d.reason==="package_exhausted" && d.candidate.state!=="exhausted")return false;
+ return Object.prototype.hasOwnProperty.call(allowed,d.state) && allowed[d.state].includes(d.reason) && d.event_key===await eventIdentity(d.candidate);
+}
+export async function validEventRevision(v:unknown,institute:string,customer:string):Promise<boolean>{
+ const r=v as EventRevision;return !!r && r.institute_id===institute && r.customer_id===customer && text(r.id) && text(r.capture_id)
+  && (r.previous_id===null || text(r.previous_id) && r.previous_id!==r.id) && r.event_key===r.decision?.event_key && await validEventDecision(r.decision,institute,customer);
+}
+export async function validEventPage(v:unknown,institute:string,customer:string,offset:number,limit:number):Promise<boolean>{
+ const p=v as EventPage;if(!p || p.institute_id!==institute || p.customer_id!==customer || p.offset!==offset || p.limit!==limit
+  || !Number.isSafeInteger(p.total) || p.total<0 || !Number.isSafeInteger(offset) || offset<0 || !Number.isInteger(limit) || limit<1 || limit>50 || !Array.isArray(p.revisions)
+  || p.revisions.length!==Math.min(limit,Math.max(0,p.total-offset)))return false;
+ let previous="";const ids=new Set<string>();
+ for(const r of p.revisions){if(!await validEventRevision(r,institute,customer) || r.event_key<=previous || ids.has(r.id))return false;previous=r.event_key;ids.add(r.id);}
+ return true;
+}
