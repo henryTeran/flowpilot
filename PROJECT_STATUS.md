@@ -1,6 +1,13 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11I_ORIGINAL_OBJECTIVES_API
+CURRENT_CHECKPOINT = PHASE11J_READONLY_OBJECTIVE_PROFILE
 STATUS = ACTIVE
+
+PHASE11J_READONLY_OBJECTIVE_PROFILE:
+- Manager-only employee profile now reads bounded original objectives/progress with its own timestamp independently of the selected calendar day. Exact targets, original included days, pinned timezone/UTC bounds, source measure, known subtotal/unknown diagnostics and separate cancellation are displayed. Direct navigation avoids long event-history scrolling; original actor/reason/IDs are available in a >=44px disclosure.
+- Typed response validation checks ownership, complete 20-row pages, unique originals, pinned DST/skipped-day boundaries, exact BigInt cents, source diagnostics, period state and achievement at generated_at. Cancelled originals require null progress/counts. Fresh failed/corrupt reads hide old facts; employee/token changes isolate late responses. Redundant fractional zeros compare without rounding and current institute timezone never replaces an original's zone.
+- Frontend full compatibility: 179 passed in 26.62s before adding the new response-isolation component case. Final objective/component focus: 5 passed after that case and zero-known-source subtotal refinement; production build passes (initial index 466.88kB, separate Workforce 60.01kB). No backend source/schema change or new full backend regression is claimed.
+- Backend-connected Edge: initial calendar/objective bundle 3 passed, 1 failed because a fixture selector matched two original disclosures on the shared disposable database. Corrected selector's final objective rerun: 2 passed in 31.5s on desktop/tablet with LA host clock; preceding calendar cases both passed. Original exact target, cancelled history, corrupt fresh read/retry, scope switch, direct navigation, >=44px controls and no horizontal overflow pass; final tablet screenshot inspected and owned fixture cleanup confirmed. PowerShell reports exit 1 for redirected legacy bcrypt stderr despite Playwright's terminal 2-pass report; this is not a claim of a clean shell exit.
+- CHECKPOINT_STATUS = PARTIAL: readonly integration is verified at controlled component/Edge scope; native original authoring/cancellation/lost-reply recovery and physical/production acceptance remain open. Next: manager objective lifecycle with actor-scoped original request recovery, then remaining hours/occupation/rebooking/commissions authorities.
 
 PHASE11I_ORIGINAL_OBJECTIVES_API:
 - Original manager-configured employee targets preserve measure, exact positive target, explicit currency/unit, inclusive civil days, resolved timezone/UTC period, actor/reason/key and recording instant. Separate signed cancellation never overwrites an original. Same-key replay precedes current timezone resolution; changed actors/conditions are rejected. Composite ownership and metric/unit checks are enforced.

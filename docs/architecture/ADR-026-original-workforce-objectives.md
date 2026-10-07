@@ -1,6 +1,7 @@
 # ADR-026: Explicit original Workforce objectives and recorded progress
 
-Status: API/migration foundation verified; native lifecycle/profile remains open.
+Status: API/migration foundation and native readonly profile implemented;
+manager authoring/cancellation/recovery remains open.
 
 A signed institute manager declares an objective's employee, title, measure,
 positive target, first and last included civil days, explicit currency or no
@@ -55,7 +56,18 @@ of any original/cancelled history are refused before DDL. Owned SQLite and
 PostgreSQL fixtures verify metadata parity and preserved facts. Application
 databases are not migrated by these checks.
 
-Native manager authoring/recovery, readonly profile integration and physical/
-production acceptance remain open. Objectives do not define payroll, commissions,
+The native readonly employee profile reads objectives independently of the
+selected calendar day and shows each original civil period, pinned zone,
+exact target, current source progress, unknown diagnostics and cancellation.
+BigInt cents preserve exact comparisons and redundant-zero replay equivalence.
+Response validation checks ownership, complete bounded pages, pinned DST/skipped
+day boundaries, source counts, period state and achievement at generated_at.
+Cancelled facts require null progress/counts. Fresh failed reads hide old facts;
+employee and signed-session changes isolate late responses. Original identifiers,
+actors/reasons and UTC bounds remain in a 44px provenance disclosure. Direct
+profile navigation avoids scrolling through long calendar histories.
+
+Native manager authoring/recovery and physical/production acceptance remain
+open. Objectives do not define payroll, commissions,
 external settlement, refund attribution, net revenue or workforce hours. Those
 remaining Employee 360 authorities stay separate in WORKFORCE_GATE_AUDIT.md.
