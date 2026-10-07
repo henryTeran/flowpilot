@@ -548,3 +548,63 @@ not native physical execution proof. Owned temporary database was removed. Exist
 passlib-bcrypt and color warnings did not fail the run.
 All three Phase14 gates remain OPEN; native closure/rebooking/scenario/opportunity
 review and retained scenario/audit/selected-scenario reports are still required.
+
+## Phase14M — retained conditional recorded-gross scenarios
+
+Managers can now retain independent explicit constant-recorded-gross declarations
+through `POST /scenarios/originals`: assumptions, reason and a scoped replay key.
+Actor is signed session identity; billing evidence is captured by the server under
+the shared institute lock. The original retains the full existing Billing response,
+exact conditional projection or its unavailable reason, assumptions, actor, owned
+ID/key/reason and source capture time. This is a retained aggregate source snapshot,
+not retention of every underlying mutable SQL ticket/line or proof of all sales.
+
+Full canonical JSON is SHA256 fingerprinted. Read-by-ID and key recovery return
+the exact original raw JSON and digest after strict model, owned column/actor/key/
+capture binding and deterministic recomputation from its retained evidence.
+Datetime spellings are preserved in the envelope. Same-key replay requires the
+same actor and declaration; it returns the original before current sources are
+read again, even when prices have changed or the original projection period is
+now past. Conflicting actor/terms are refused. There are no updates/deletes through
+this API and no implicit revision/head: new declarations are independent originals.
+The database is not claimed to have append-only triggers or protection against
+coherent SQL-admin substitution. Hashes and recalculation verify stored coherence,
+not cryptographic administrator authenticity.
+
+`GET /scenarios/originals` audits the entire own-institute original cohort under one
+read capture before returning an offset20/max50 page. Malformed originals outside
+the page refuse the whole audit. Its completeness flag concerns the stored scenario
+cohort only, not underlying sales. Selected-scenario reporting and retained closure/
+opportunity decisions remain to implement. Key/ID reads verify the selected original,
+not the whole institute audit. All routes require the signed owned manager role.
+No injected monetary facts, capture clock or actor is accepted in declarations.
+
+Retention changes only provenance: `retained=true`. Validated prediction and action
+execution remain strictly false, official Billing.projected_revenue stays null,
+and confidence remains `conditional_unvalidated_scenario`. Existing preview shape
+and strict retained=false contract are preserved through a shared Calculation base.
+Commit failures roll back newly retained rows; a lost response after commit can be
+recovered by key without creating a second original. Actual PostgreSQL institute
+locking plus scoped uniqueness serializes simultaneous same-key requests. SQLite
+concurrency is not claimed by this acceptance.
+
+Alembic head `7de4a532881f`, parent `6cd3f421770e`, introduces the original table,
+scoped replay uniqueness and institute/history index. Empty online downgrade/upgrades
+are allowed; any retained history and offline downgrade refuse removal. Metadata
+and migrated schema match on SQLite and actual isolated PostgreSQL. No persistent
+application or production database was migrated; deployment must apply migrations
+before using the new writer. The full-cohort audit is linear in retained originals;
+production load acceptance remains open.
+
+Initial original/migration/preview tests: **15 passed56.42s**, zero failures/skips,
+terminal exit0, SQLite and actual isolated PostgreSQL. Final expanded original and
+new/prior migration plus trusted marketing invocation: **17 passed99.99s**, zero
+failures/skips, terminal exit0; existing crypt deprecation only (cache disabled).
+Tests cover25actual originals20/5, off-page corruption, preserved2525/2 vs fresh2625/2
+after a paid-price change, unavailable-source originals, intact full raw SHA,
+recomputed malformed hashes/metadata/clock/key/actor/ratio/source substitution,
+signed manager scope/roles/APIactor, amount/evidence injection, copied invalid
+assumptions, actualPg same-key race, failed transaction rollback and committed
+response-loss recovery. Previous booking-history migration and trusted marketing
+invocation remain compatible with the new schema head. No native retention interface
+or complete Phase14/production acceptance is claimed. All three Phase14 gates OPEN.

@@ -7,6 +7,7 @@ from app.database.session import get_db
 from app.modules.revenue import billing, sources, capacity, closures, scenarios, rebooking, slot_opportunities, walk_in_cancellations
 from app.modules.revenue import booking_references
 from app.modules.revenue import booking_valuation
+from app.modules.revenue import scenario_originals
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -39,6 +40,27 @@ def booking_closures(institute_id: str, start: AwareDatetime, end: AwareDatetime
 @router.post("/scenarios/revenue-preview", response_model=scenarios.Scenario)
 def revenue_scenario(institute_id: str, request: scenarios.Request, user=Depends(manager), db: Session = Depends(get_db)):
     return scenarios.preview(db, institute_id, request, user.get("sub"))
+
+
+@router.post("/scenarios/originals", response_model=scenario_originals.Envelope)
+def retain_revenue_scenario(institute_id: str, request: scenario_originals.Declaration, user=Depends(manager), db: Session = Depends(get_db)):
+    return scenario_originals.create(db, institute_id, request, user.get("sub"))
+
+
+@router.get("/scenarios/original-by-key", response_model=scenario_originals.Envelope | None)
+def recover_revenue_scenario(institute_id: str, key: str = Query(min_length=1, max_length=120), user=Depends(manager), db: Session = Depends(get_db)):
+    return scenario_originals.by_key(db, institute_id, key)
+
+
+@router.get("/scenarios/originals", response_model=scenario_originals.Audit)
+def audit_revenue_scenarios(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return scenario_originals.audit(db, institute_id, offset, limit)
+
+
+@router.get("/scenarios/originals/{original_id}", response_model=scenario_originals.Envelope)
+def original_revenue_scenario(institute_id: str, original_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return scenario_originals.require(db, institute_id, original_id)
 
 
 @router.get("/rebooking", response_model=rebooking.Rebooking)

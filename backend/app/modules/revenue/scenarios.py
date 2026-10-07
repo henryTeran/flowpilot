@@ -34,7 +34,7 @@ class Request(Fact):
         return self
 
 
-class Scenario(Fact):
+class Calculation(Fact):
     institute_id: Identifier
     actor_id: str
     assumptions: Request
@@ -44,14 +44,24 @@ class Scenario(Fact):
     confidence: Literal["conditional_unvalidated_scenario"] = "conditional_unvalidated_scenario"
     unavailable_reason: Literal["unknown_currency", "undated_paid_tickets", "no_selected_currency", "uncertain_amounts"] | None
     validated_prediction: Literal[False] = False
-    retained: Literal[False] = False
     action_executed: Literal[False] = False
 
-    @field_validator("validated_prediction", "retained", "action_executed", mode="before")
+    @field_validator("validated_prediction", "action_executed", mode="before")
     @classmethod
     def no_claim(cls, value):
         if value is not False:
             raise ValueError("A scenario preview cannot certify a forecast or execute an action")
+        return value
+
+
+class Scenario(Calculation):
+    retained: Literal[False] = False
+
+    @field_validator("retained", mode="before")
+    @classmethod
+    def preview_only(cls, value):
+        if value is not False:
+            raise ValueError("A preview is not a retained original")
         return value
 
 
