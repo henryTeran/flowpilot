@@ -22,6 +22,7 @@ from app.modules.loyalty.routes import router as loyalty_router
 from app.modules.payments import models as payments_models  # noqa: F401
 from app.modules.auth.routes import router as auth_router
 from app.modules.dashboard.routes import router as dashboard_router
+from app.modules.revenue.routes import router as revenue_router
 from app.modules.dev.routes import router as dev_router
 from app.modules.employees.routes import router as employees_router
 from app.modules.institutes.routes import router as institutes_router
@@ -115,6 +116,7 @@ def create_app(payment_bindings=()) -> FastAPI:
     app.include_router(resources_router, prefix=prefix)
     app.include_router(workforce_router, prefix=prefix)
     app.include_router(dashboard_router, prefix=prefix)
+    app.include_router(revenue_router, prefix=prefix)
     app.include_router(dev_router, prefix=prefix)
     app.include_router(realtime_router)
 
