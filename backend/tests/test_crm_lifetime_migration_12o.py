@@ -39,5 +39,5 @@ def test_lifetime_roundtrip_scope_and_history_protection(tmp_path,monkeypatch,da
             assert lifetime.current(db,institute,"customer_crm")==second
             assert lifetime.require(db,institute,"customer_crm",first.id)==first
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="2e9fb087336a"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="3fa0c198447b"
             assert compare_metadata(MigrationContext.configure(connection),Base.metadata)==[]

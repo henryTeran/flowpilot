@@ -53,5 +53,5 @@ def test_commission_migration_exact_money_ownership_roundtrip_and_protected_hist
             command.downgrade(config, "9bc52e18d430")
         assert facts() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "2e9fb087336a"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "3fa0c198447b"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

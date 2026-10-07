@@ -97,3 +97,54 @@ class ContactHead(Base):
     institute_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     customer_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     original_id: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class DispatchIntent(Base):
+    __tablename__ = "marketing_dispatch_intents"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "id", name="uq_marketing_dispatch_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_marketing_dispatch_replay"),
+        UniqueConstraint("institute_id", "approval_id", "customer_id", name="uq_marketing_dispatch_recipient"),
+        ForeignKeyConstraint(["institute_id", "campaign_id", "approval_id"], ["marketing_campaign_originals.institute_id", "marketing_campaign_originals.campaign_id", "marketing_campaign_originals.id"], name="fk_marketing_dispatch_approval"),
+        ForeignKeyConstraint(["institute_id", "customer_id", "contact_id"], ["marketing_contact_originals.institute_id", "marketing_contact_originals.customer_id", "marketing_contact_originals.id"], name="fk_marketing_dispatch_contact"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    campaign_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    approval_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    customer_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    contact_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    submission: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class DispatchOutcome(Base):
+    __tablename__ = "marketing_dispatch_outcomes"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "intent_id", "id", name="uq_marketing_outcome_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_marketing_outcome_replay"),
+        ForeignKeyConstraint(["institute_id", "intent_id"], ["marketing_dispatch_intents.institute_id", "marketing_dispatch_intents.id"], name="fk_marketing_outcome_intent"),
+        ForeignKeyConstraint(["institute_id", "intent_id", "previous_id"], ["marketing_dispatch_outcomes.institute_id", "marketing_dispatch_outcomes.intent_id", "marketing_dispatch_outcomes.id"], name="fk_marketing_outcome_previous"),
+        CheckConstraint("previous_id IS NULL OR previous_id <> id", name="ck_marketing_outcome_previous_distinct"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    intent_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    previous_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    result: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class DispatchHead(Base):
+    __tablename__ = "marketing_dispatch_heads"
+    __table_args__ = (ForeignKeyConstraint(["institute_id", "intent_id", "original_id"], ["marketing_dispatch_outcomes.institute_id", "marketing_dispatch_outcomes.intent_id", "marketing_dispatch_outcomes.id"], name="fk_marketing_dispatch_head"),)
+    institute_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    intent_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    original_id: Mapped[str] = mapped_column(String(80), nullable=False)

@@ -738,6 +738,27 @@ schema/full-backend/frontend/native acceptance. Next durable dispatch intents/ou
 current-source preparation, uncertain-I/O recovery, configured adapters/native audit
 and retained conversion. All marketing/physical/production gates OPEN; goal ACTIVE.
 
+## Phase 13AH - durable dispatch storage schema
+
+Added intent/outcome/head models and migration 3fa0c198447b. Owned campaign revision
+and contact source FKs; one intent per approval/customer, per-institute operation key,
+full transport terms/fingerprint/actor/reason/clock retained. Outcome originals and
+owned predecessor/current pointer preserve uncertain observations and later results.
+SQL source references do not prove approved stage, fresh permissions, provider authority
+or JSON semantics. Raw-SQL immutability not claimed; signed services still required.
+
+Initial dual-database 2 passed/12.50s; final 3 passed/28.19s, SQLite/actual PostgreSQL,
+exact metadata parity/empty down-up, independent FK failures, duplicate keys/recipient,
+self/missing/cross-intent predecessor and wrong head rejected. Old unknown remains when
+accepted outcome selected. Retained intents alone block atomic downgrade; offline
+explicitly refused. Fifteen older tests change latest-head assertion only.
+Full 11 nonmigration marketing files: 50 passed/164.39s, exit 0; actual PostgreSQL
+service tests, isolated fixtures clean. All 25 migration files: 52 passed in 351.65s, terminal exit 0, SQLite/actual PostgreSQL. Full run started before final test-case FK isolation; final focused run separately validates that refinement.
+Crypt deprecation/intentional provider malformed-bool serialization warning only.
+No production migration/new frontend/native/live-provider acceptance. Next signed owned
+intent preparation/replay and outcome service, durable uncertain-I/O worker, configured
+adapters/native audit/conversion. Marketing/physical/production gates OPEN; goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
