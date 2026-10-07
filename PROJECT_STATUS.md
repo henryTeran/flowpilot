@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12K_ACTUAL_CARE_RETURN_READ
+CURRENT_CHECKPOINT = PHASE12L_RETURN_FRONTEND_GUARDS
 STATUS = ACTIVE
+
+PHASE12L_RETURN_FRONTEND_GUARDS:
+- Added exact scoped frontend return-cycle contracts and guards for aware observation/capture clocks, owned institute/customer, incomplete source coverage, diagnostic keys/counts, whole-cohort execution/episode/gap conservation and exact integer-string mean. Diagnostics/overlaps suppress averages; empty/single cohorts do not fabricate a return cycle. Known positive gaps are disjoint and their global sum is bounded by the observed window.
+- Independently verifies visible episode chronology, unique ticket/service links, positive execution counts, completion membership and adjacent actual gaps. Bounded page shape follows requested offset/limit; complete pages reconcile all counts/sums while partial pages retain global metrics and refuse self/visible predecessor substitutions without inventing off-page execution clocks. Complete history and inferred booking credit remain false.
+- Full frontend regression: 245 passed in 38.56s, zero failures/skips. Final focused guards after strengthening partial-page global sum bound: 3 passed in 0.84s; TypeScript/Vite build passes, 116 modules, unchanged native bundles because guards are not yet bound to UI. Tests cover scope/UTC aliases, forged exact mean/counts/gaps, duplicate links, boundary clocks, diagnostic/overlap suppression, empty and partial pages including impossible hidden totals. No new backend/schema/browser/physical/production acceptance claim.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: native observed return-cycle profile binding with signed desktop/tablet evidence, then source-supported CLV and explicit lifecycle declarations/events. Full canonical goal remains active.
 
 PHASE12K_ACTUAL_CARE_RETURN_READ:
 - Added signed own-institute manager return-cycle read with explicit aware observed start/end and registered owned-customer validation under the institute lock. Sessions resolve only through their representative ticket line/owned ticket customer; appointments use explicit customer and checkout-ticket links. Performer ownership and representative service consistency checked. Actual positive completed execution times establish the source, never paid clocks, scheduled slots, nearby dates, names or phones.

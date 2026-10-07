@@ -381,6 +381,32 @@ PostgreSQL pauses the whole-cohort query and proves a cooperating writer waits
 until capture finishes; old/new source totals independently verified. No schema,
 native UI/browser, physical-device, production or complete rebooking gate claim.
 
+## Phase 12L: exact return-cycle frontend guards
+
+Typed frontend guards bind the registered customer/institute and explicit aware
+observation bounds to the return read. Capture chronology, incomplete execution/
+service coverage, whole-cohort count conservation, canonical exact duration sums
+and ratios, and all three diagnostic categories are checked before consumption.
+Any diagnostic or overlapping pair requires an indeterminate mean. Positive gaps
+between chronologically ordered episodes are disjoint; their total cannot exceed
+the observation duration, including on partial pages.
+
+Visible episodes independently validate actual positive clocks, completion cohort
+membership, unique ticket/service links and execution counts. Adjacent visible
+gaps are recalculated with integer microseconds. Complete pages reconcile global
+counts/sums; partial pages check their contributions and predecessor identity
+without pretending to know off-page actual clocks. Empty/single cohorts retain no
+mean, complete customer history and inferred booking credit remain false.
+
+Controlled full frontend regression: 245 passed in 38.56s, zero failures/skips.
+Final focused guards after the stricter partial-page sum bound: 3 passed in 0.84s;
+TypeScript/Vite build passes (116 modules). Scope, offset aliases, forged ratios/
+counts/gaps, duplicate links, boundary completion dates, diagnostic/overlap
+uncertainty, empty and partial pages and impossible hidden totals are covered.
+Guards are not yet native-bound; existing bundles remain unchanged. No backend,
+new browser, physical-device or production receipt is claimed. Canonical CRM
+gates remain open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
