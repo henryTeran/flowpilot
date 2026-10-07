@@ -1024,6 +1024,15 @@ live provider/physical/production acceptance. Native preparation/recovery and re
 result readers, invocation, authenticated evidence/operator uncertainty resolution,
 conversion and canonical acceptance remain. All Phase 13 gates OPEN; full goal ACTIVE.
 
+## Phase 13AS native protected preparation
+
+PHASE13AS_NATIVE_PROTECTED_PREPARATION:
+- Connected manager recipient preparation: explicit bounded account selection pages20/5, visible provider/mode/sender/application, Push application mismatch explanation, explicit reason. Signed exact account metadata GET added; no mount reads or provider calls. Storage scoped institute/actor/campaign/customer contains only Request/Account, no recipient destination/device token. New POST independently verifies current campaign, historical approval, current contact ID/key and selected account; backend remains fresh authority.
+- Original-key recovery verifies full actor/request/account/fingerprint and independent intent ID/key, approval/contact originals and owned current campaign before clearing storage. Lost committed reply followed by withdrawal recovers one original without another POST. Forged independent fingerprint retains request. New pre-POST failures clear only newly generated unposted requests; older/uncertain requests freeze. Explicit400/422 permits deliberate exact-storage correction. No worker/outcome writes.
+- Backend account/catalog SQLite and actual PostgreSQL: 2 passed15.29s. Final component/recipient focused7 passed9.06s; full frontend337 passed64.08s, zero failures/skips. Final signed native desktop/tablet preparation2 passed53.4s (13.8s/13.0s), build144 modules, owned fixture removed; combined preparation/prior SEND4 passed1.2m before final visual-only assertion extension. Final selection/recovered/withdrawn screenshots inspected on both profiles; preparation controls >=44px and no horizontal overflow asserted. Existing crypt/bcrypt/NO_COLOR warnings only, terminal exit0.
+- Development failures resolved before acceptance: mixed Windows text encoding/build failure repaired to strict UTF-8; pre-POST cleanup regression fixed; copied browser keys collided with prior SEND fixtures and now use distinct preparation suffix; missing Push mismatch warning added. Earlier failed runs are not acceptance evidence. Explicit --marketing-fixture installs only owned loopback test-mode metadata, no adapter/credentials; default production configuration unchanged.
+- CHECKPOINT_STATUS = PARTIAL; all Phase13 gates OPEN, full goal ACTIVE. Native retained intent/outcome reader is still needed after storage clearing/audience changes; backend uniqueness already refuses duplicate preparation. NEXT: independently verified retained intent/outcome audit, protected deployed invocation, authenticated provider evidence/operator resolution and retained conversion. No full-backend/schema/migration/live-provider/physical/production acceptance claimed.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

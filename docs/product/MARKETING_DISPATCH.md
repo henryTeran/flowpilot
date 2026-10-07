@@ -177,6 +177,45 @@ The checked-in three-channel JSON vectors come from the explicit isolated SQLite
 exporter `backend/tests/export_marketing_dispatch_13ar.py`: actual retained service
 intent/approval/contact/catalog/outcome originals, test-mode fixture accounts and
 simulated internal observations, never provider I/O. Native tests use these backend
-fingerprints, offset-equivalent clocks, Unicode and deliberate corruption. The native
-preparation/recovery/outcome reader components remain to be connected; these helpers
-do not read storage, prepare intents, invoke workers or display live acceptance.
+fingerprints, offset-equivalent clocks, Unicode and deliberate corruption. The native preparation/recovery component now consumes these helpers. Retained
+outcome readers remain pending; the helpers themselves do not read storage, invoke
+workers or display live acceptance.
+
+## Native protected recipient preparation (13AS)
+
+The verified recipient panel offers an explicit account selection and reason. No
+account is preselected and no account/intent read runs on mount. Bounded account
+pages preserve retry offsets; signed manager GET `dispatch-accounts/{id}?channel=...`
+rereads the selected metadata independently. Provider, mode, sender and Push
+application remain visible; a mismatched Push application blocks preparation with
+an explanation. Catalog metadata does not establish live provider readiness.
+
+Protected session storage is scoped to institute/actor/campaign/customer and holds
+only full Request and selected Account metadata, never recipient destinations or
+device tokens. Before a new POST, current campaign, retained approval, current
+contact plus its ID/key originals and selected account must match the verified
+selection. The backend remains authoritative for fresh scope/grant/clock checks.
+A newly generated request that fails before any POST is cleared for correction;
+older protected requests and ambiguous POST responses remain frozen for recovery.
+Explicit 400/422 refusal permits deliberate correction with an exact storage match.
+
+Recovery first reads the original operation key. It verifies full actor/request/
+account/fingerprint, independent intent key/ID, historical approval/contact ID/key
+and owned current campaign before clearing protected storage. A lost reply and
+subsequent withdrawal recover the same retained intention without another POST;
+historical recovery does not require current permission or configured account.
+The verified receipt explicitly says that preparation triggers no sending. This
+component neither invokes a worker nor writes an outcome.
+
+The owned loopback browser launcher accepts the explicit test-only profile:
+`npm.cmd run test:browser:backend -- --marketing-fixture marketing-dispatch-prepare.spec.ts`.
+It supplies fixture-only test-mode account metadata in the owned temporary SQLite
+server, including 25 email choices for pages 20/5. Default application configuration
+remains empty; no credential binding, adapter or external provider is installed.
+
+A retained intent/outcome catalog reader is still needed to find originals after
+protected storage is cleared or a changed audience no longer renders the customer.
+The backend unique approval/customer constraint refuses duplicate new preparation,
+but the UI does not yet recover that original through its catalog. Protected deployed
+invocation, authenticated provider evidence/operator resolution and retained
+conversion remain pending. No delivery, physical or production acceptance claimed.

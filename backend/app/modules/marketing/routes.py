@@ -14,6 +14,10 @@ def manager(institute_id:str,user=Depends(require_ticket_manager)):
 def dispatch_accounts(institute_id: str, channel: contacts.Channel, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
     return dispatch_catalogs.accounts(db, institute_id, channel, offset, limit)
 
+@router.get("/dispatch-accounts/{identifier}", response_model=provider.Account)
+def dispatch_account(institute_id: str, identifier: str, channel: contacts.Channel, user=Depends(manager)):
+    return dispatch_intents.configured(institute_id, channel, identifier)
+
 @router.get("/campaigns/{campaign_id}/dispatch-intents", response_model=catalogs.Page[dispatch_intents.Original])
 def campaign_dispatch_intents(institute_id: str, campaign_id: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
     return dispatch_catalogs.intents(db, institute_id, campaign_id, offset, limit)

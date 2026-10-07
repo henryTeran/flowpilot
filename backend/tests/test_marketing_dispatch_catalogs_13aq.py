@@ -80,6 +80,9 @@ def test_sqlite_dispatch_selection_pages_and_signed_scope(client, monkeypatch):
             assert client.get(base + path, headers=_auth_headers(role, owner)).status_code == 403
     assert client.get(base + "/dispatch-accounts?channel=unknown", headers=headers).status_code == 422
     assert client.get(base + "/dispatch-accounts", headers=headers).status_code == 422
+    assert client.get(base + "/dispatch-accounts/account?channel=email", headers=headers).json() == account
+    assert client.get(base + "/dispatch-accounts/account?channel=push", headers=headers).status_code == 400
+    assert client.get(base + "/dispatch-accounts/account?channel=email", headers=_auth_headers("accueil", institute)).status_code == 403
     value = client.get(base + "/dispatch-accounts?channel=email&limit=1", headers=headers).json()["items"][0]
     assert set(value) == set(account) and "secret" not in value
     monkeypatch.setattr(dispatch_intents.settings, "MARKETING_ACCOUNTS_JSON", "[]")

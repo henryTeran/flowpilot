@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { MarketingDispatchPrepare } from "./MarketingDispatchPrepare";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { sameCampaignOriginal, type CampaignOriginal } from "../marketing-campaign-utils";
@@ -48,10 +49,11 @@ function Reader({ institute, original }: { institute: string; original: Campaign
     {busy && <p role="status">Lecture des contacts courants…</p>}{error && <p role="alert">{error}</p>}
     {page && <><p>Lecture : {page.captured_at} · {page.items.length ? `${page.offset + 1}–${page.offset + page.items.length}` : "0"} sur {page.total} destinataires retenus</p>
       {page.items.map(i => <article key={i.customer.customer_id} style={{ overflowWrap: "anywhere" }}><p>Cliente {i.customer.customer_id}</p>
-        <p>{reasons[i.reason]} · {i.eligible_by_current_declaration ? "Éligible selon la déclaration lue" : "Non éligible"}</p></article>)}
+        <p>{reasons[i.reason]} · {i.eligible_by_current_declaration ? "Éligible selon la déclaration lue" : "Non éligible"}</p>
+        <MarketingDispatchPrepare institute={institute} campaign={original} customer={i.customer.customer_id} contact={i.original} eligible={i.eligible_by_current_declaration} /></article>)}
       <button disabled={busy || page.offset === 0} onClick={() => void read(Math.max(0, page.offset - 20))}>Destinataires précédents</button>
       <button disabled={busy || page.offset + page.items.length >= page.total} onClick={() => void read(page.offset + 20)}>Destinataires suivants</button>
     </>}
-    <p>Lecture limitée à cette page. Aucun envoi ni aucune autorisation de livraison n’est enregistré.</p>
+    <p>Cette lecture décrit les permissions courantes. Les résultats fournisseur se vérifient séparément.</p>
   </section>;
 }

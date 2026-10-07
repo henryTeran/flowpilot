@@ -1,5 +1,6 @@
 """Owned loopback browser-test backend; never uses an existing database."""
 import os
+import json
 import argparse
 from pathlib import Path
 import secrets
@@ -37,6 +38,14 @@ def main():
     from sqlalchemy.orm import Session
     import uvicorn
 
+    if os.environ.get("FLOWPILOT_BROWSER_MARKETING_FIXTURE") == "1":
+        from app.core.config import settings
+        # Metadata-only test accounts in this owned loopback database. No adapter or credentials.
+        accounts = [dict(institute_id=DEMO_INSTITUTE_ID, provider="fixture-only", account_id="browser-test-account", channel=channel,
+            sender_id="fixture-sender", mode="test", push_application="institute-app" if channel == "push" else None)
+            for channel in ("email", "sms", "push")]
+        accounts += [{**accounts[0], "account_id":f"browser-account-{index:02}"} for index in range(24)]
+        settings.MARKETING_ACCOUNTS_JSON = json.dumps(accounts)
     Base.metadata.create_all(engine)
     with Session(engine) as db:
         init_demo_data(db)
