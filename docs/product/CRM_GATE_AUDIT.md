@@ -851,6 +851,32 @@ ledger/cancellation/worker, schema/API, frontend/browser or production acceptanc
 claimed. Durable originals, authoritative capture/diagnostics and ledger remain
 required; all canonical gates stay open.
 
+## Phase 12AA: durable automation policy originals and scoped API
+
+Institute automation rules now have immutable originals and explicit current
+pointers, scoped original/key uniqueness and composite predecessor/head foreign
+keys. Signed own-institute managers can declare/read current, original-key and
+original-ID. Full six-rule terms/order, signed actor, reason/key/predecessor and
+server creation clock retained. Same-key exact replay precedes mutable head/clock
+checks; foreign owner, stale predecessor, changed actor/terms and backward clock
+fail. No edit/delete API or activation/timing defaults.
+
+Migration ea5b7cd43926 after d94f6ab32815 adds original/head tables. Controlled
+SQLite/PostgreSQL roundtrip, metadata equality, cross-institute head/predecessor
+refusal and history-protected online downgrade verified. Twelve prior migration
+files change only expected latest-head constants; historical targets retained.
+No application database migration applied.
+
+Initial original/rule/candidate focus: 25 passed in 6.33s. Final fourteen-file CRM
+regression: 137 passed in 107.51s; new plus twelve affected migration files:
+27 passed in 173.17s. Zero failures/skips, actual PostgreSQL enabled. Includes
+signed roles/actor-spoof refusal, replay after clock/head changes and one-of-two
+competing corrections, with prior CRM source/calculation/original regressions.
+Existing passlib crypt deprecation warning observed. No new frontend/browser,
+physical/production or full-backend acceptance claimed. Authoritative source
+capture/diagnostics, durable event ledger/reconciliation, repeatability/cancellation
+and worker/native acceptance remain required; all canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

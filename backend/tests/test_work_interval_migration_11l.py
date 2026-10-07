@@ -37,5 +37,5 @@ def test_work_interval_migration_roundtrip_and_history_protection(tmp_path, monk
             command.downgrade(config, "6ade31b9204f")
         assert facts() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "d94f6ab32815"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "ea5b7cd43926"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

@@ -8,6 +8,8 @@ from app.modules.crm import return_sources
 from app.modules.crm import lifetime_originals as lifetime
 from app.modules.crm import lifecycle_originals as lifecycle, calendar_policies as calendar
 
+from app.modules.crm import automation_originals as automation
+
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
 
 
@@ -15,6 +17,26 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.post("/automation-policies", response_model=automation.PolicyRead)
+def automation_create(institute_id: str, payload: automation.PolicyCreate, user=Depends(manager), db: Session = Depends(get_db)):
+    return automation.create(db,institute_id,payload,user.get("sub"))
+
+
+@router.get("/automation-policies/current", response_model=automation.PolicyRead | None)
+def automation_current(institute_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return automation.current(db,institute_id)
+
+
+@router.get("/automation-policies/original/{key}", response_model=automation.PolicyRead | None)
+def automation_original(institute_id: str, key: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return automation.original(db,institute_id,key)
+
+
+@router.get("/automation-policies/{identifier}", response_model=automation.PolicyRead)
+def automation_detail(institute_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return automation.require(db,institute_id,identifier)
 
 
 @router.post("/birthday-calendar-policies", response_model=calendar.PolicyRead)

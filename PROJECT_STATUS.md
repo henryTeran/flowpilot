@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12Z_SOURCE_GROUNDED_EVENT_CANDIDATES
+CURRENT_CHECKPOINT = PHASE12AA_AUTOMATION_POLICY_ORIGINALS_API
 STATUS = ACTIVE
+
+PHASE12AA_AUTOMATION_POLICY_ORIGINALS_API:
+- Added immutable institute automation policy originals and explicit current pointers with scoped original/key uniqueness and composite predecessor/head foreign keys. Signed own-institute manager API supports declaration/current/original-key/original-ID reads. Full six-rule terms, literal order, signed actor, reason, key, predecessor and server clock retained. Same-key exact actor/terms replay precedes mutable head/clock checks; stale predecessor, changed terms/actor, foreign owner and backward correction clock fail. No edit/delete API or default activation/delay.
+- Added migration ea5b7cd43926 after d94f6ab32815 for original/head tables. Empty roundtrip, metadata equality, scoped head/predecessor DB refusal and history-protected online downgrade tested on disposable SQLite/PostgreSQL fixtures. Twelve previous migration tests update only expected latest-head constants, preserving their original downgrade/history targets. No application database migration applied.
+- Initial originals/rules/candidate focus: 25 passed in 6.33s, zero failures/skips, actual PostgreSQL enabled. Includes signed HTTP roles/actor-spoof refusal, exact same-key replay after clock/head changes, historical originals and one-of-two competing corrections. Final fourteen-file CRM regression: 137 passed in 107.51s. New plus twelve affected migration files: 27 passed in 173.17s. Zero failures/skips, actual PostgreSQL enabled for both final suites. Existing passlib crypt deprecation warning observed. No new frontend/browser/physical/production or full-backend acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: authoritative full source capture with unavailable diagnostics and durable event ledger/reconciliation, repeatability/cancellation and worker/native acceptance; complete Phase 12. Full canonical goal remains active.
 
 PHASE12Z_SOURCE_GROUNDED_EVENT_CANDIDATES:
 - Added pure typed scoped event anchors for grouped care completion, birthday civil occurrence, package issue/expiry/remaining balance and membership observed terms. Requires explicit aware UTC-comparable clocks, positive expiring terms, package-only strict remaining balance and unique own-customer sources. Observed non-birthday anchors cannot be future or pre-registration; birthday civil occurrence can be upcoming/past because it is calendar-derived rather than a historical execution.
