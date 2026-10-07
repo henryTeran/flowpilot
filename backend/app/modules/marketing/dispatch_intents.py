@@ -79,7 +79,14 @@ def prepare(db, institute, payload, actor):
         if old.request != payload or old.submission.actor_id != actor: raise business_error("Dispatch key retains original terms and actor")
         return old
     campaign = campaign_originals.current(db, institute, payload.campaign_id)
-    if campaign is None or campaign.revision.id != payload.expected_revision_id: raise business_error("Campaign revision changed")
+    if campaign is None: raise business_error("Campaign revision changed")
+    current_revision = campaign.revision
+    if current_revision.state == "SEND":
+        if current_revision.previous_id != payload.expected_revision_id:
+            raise business_error("SEND does not retain the selected approval")
+        campaign = campaign_originals.require(db, institute, payload.expected_revision_id)
+    elif current_revision.id != payload.expected_revision_id:
+        raise business_error("Campaign revision changed")
     customer = contact_originals.owned(db, institute, payload.customer_id)
     contact = contact_originals.current(db, institute, payload.customer_id)
     if contact is None or contact.id != payload.expected_contact_id: raise business_error("Marketing contact changed")
@@ -89,6 +96,7 @@ def prepare(db, institute, payload, actor):
     account = configured(institute, campaign.revision.content.channel, payload.account_id)
     try:
         at = utcnow()
+        if current_revision.created_at > at: raise ValueError("Current campaign stage is later than preparation")
         registered = RegisteredCustomerFact(institute_id=institute, customer_id=payload.customer_id, created_at=explicit_utc_instant(customer.created_at))
         eligible = contacts.evaluate(registered, campaign.revision, contact, at)
         submission = provider.Submission(account=account, eligibility=eligible, actor_id=actor, idempotency_key=payload.idempotency_key)

@@ -20,7 +20,9 @@ A signed institute manager can POST `/api/v1/marketing/institutes/{institute_id}
 with `campaign_id`, `expected_revision_id`, `customer_id`, `expected_contact_id`,
 `account_id`, `reason` and `idempotency_key`. Actor comes from the signed session.
 The service locks the institute, resolves an existing key first, then for a new
-intent requires the exact current campaign and contact, an approved retained
+intent requires the exact retained approval selected by expected_revision_id and
+current contact. The campaign must currently be that APPROVE or its direct SEND
+successor, with a nonfuture current stage. It requires an approved retained
 customer, granted permission and declared channel destination at one aware clock.
 Push application must match the server account. Current approval does not override
 a withdrawal. There can be only one intent for a revision/customer; recovery must
@@ -99,8 +101,19 @@ contact/registration and configured account. APPROVE alone creates no outcome or
 provider attempt. An already uncertain attempt still reconciles only, independently
 of subsequent source corrections; terminal results remain read-only.
 
-At this checkpoint, prepare recipient intents while APPROVE is current, then
-explicitly declare SEND before first execution. Preparing additional recipients
-after SEND and the native SEND command/dispatch audit are still pending. This is
-not a deployed sending workflow. Native contracts/catalog/history can display SEND;
-new corrections are disabled there, while protected old-request recovery remains.
+Recipient intents can be prepared while APPROVE is current or after its direct
+SEND successor. expected_revision_id always names the retained APPROVE, not the
+SEND revision; submissions keep that approval and the fresh contact originals.
+The SEND head must be nonfuture, and permissions/destination/configuration are
+reevaluated during preparation. A foreign or replaced approval refuses; one
+intent per approval/customer and full-key historical recovery remain unchanged.
+
+The manager can now choose Autoriser l'envoi from a verified approved campaign,
+with an explicit reason. The request is retained per institute/actor/campaign
+before POST. Recovery reads by key/ID/current and independently reads the exact
+APPROVE predecessor, stage, digest and chronology before clearing protected terms.
+A lost reply/reload recovers without another POST; corrupted approval keeps the
+request frozen. Native SEND performs no provider I/O. New corrections are disabled
+there, while protected old-request recovery remains. Native recipient intent/result
+workflow, post-SEND current-recipient observations and deployed sending acceptance
+remain to be completed.

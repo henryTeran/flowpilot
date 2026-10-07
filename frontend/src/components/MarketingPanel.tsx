@@ -82,7 +82,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
       {original.revision.content.subject && <h4>{original.revision.content.subject}</h4>}
       <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{original.revision.content.body}</p>
       <p>{original.revision.content.audience.customer_ids.length} destinataires retenus · audience {original.revision.content.audience.id}</p>
-      <p>Aucun envoi enregistré. Les permissions retenues ne constituent pas une autorisation d’envoi actuelle.</p></>}
+      <p>Les résultats fournisseur se vérifient séparément. Chaque destinataire reste soumis à ses permissions actuelles.</p></>}
     <MarketingCampaignActions institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingCampaignCreator institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingRecipientPanel institute={institute} original={original} />

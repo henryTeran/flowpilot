@@ -65,10 +65,34 @@ test("invalid stored terms freeze writes and reception cannot recover manager re
   const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let calls = 0;
   globalThis.fetch = async () => { calls++; return reply(null); };
   try {
-    sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(storage, JSON.stringify({ ...terms, action: "send" }));
+    sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(storage, JSON.stringify({ ...terms, action: "delete" }));
     await act(async () => root.render(<MarketingCampaignActions institute="i" campaign="campaign" onChanged={() => {}} />));
     assert.match(document.body.textContent!, /Demande conservée invalide/); assert.ok([...document.querySelectorAll("button")].every(b => b.disabled));
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<MarketingCampaignActions institute="i" campaign="campaign" onChanged={() => {}} />));
     assert.equal(document.body.textContent, ""); assert.equal(calls, 0); assert.ok(sessionStorage.getItem(storage));
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+
+test("SEND lost response recovers exact approval and never repeats POST", async () => {
+  const savedFetch = globalThis.fetch; let root = createRoot(document.getElementById("root")!);
+  const review = await receipt();
+  const approved: CampaignOriginal = { request: { ...terms, action: "approve", expected_revision_id: "review" },
+    revision: { ...review.revision, id: "approval", previous_id: "review", state: "APPROVE", approved_digest: review.revision.reviewed_digest } };
+  const request: CampaignRequest = { ...terms, action: "send", expected_revision_id: "approval", reason: "Explicit SEND" };
+  const sent: CampaignOriginal = { request, revision: { ...approved.revision, id: "send", previous_id: "approval", state: "SEND", reason: request.reason } };
+  let committed = false, posts = 0, changed = 0, corruptApproval = true;
+  globalThis.fetch = async (url, options) => {
+    if (options?.method === "POST") { posts++; committed = true; assert.deepEqual(JSON.parse(String(options.body)), request); throw new TypeError("Lost SEND response"); }
+    if (String(url).endsWith("/approval")) return reply(corruptApproval ? review : approved);
+    return reply(committed ? sent : null);
+  };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(storage, JSON.stringify(request));
+    await act(async () => root.render(<MarketingCampaignActions institute="i" campaign="campaign" onChanged={() => changed++} />));
+    await resume(); assert.equal(posts, 1); assert.ok(sessionStorage.getItem(storage));
+    await act(async () => root.unmount()); root = createRoot(document.getElementById("root")!);
+    await act(async () => root.render(<MarketingCampaignActions institute="i" campaign="campaign" onChanged={() => changed++} />));
+    await resume(); assert.equal(posts, 1); assert.ok(sessionStorage.getItem(storage)); assert.equal(changed, 0);
+    corruptApproval = false; await resume(); assert.equal(posts, 1); assert.equal(sessionStorage.getItem(storage), null); assert.equal(changed, 1);
   } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
 });

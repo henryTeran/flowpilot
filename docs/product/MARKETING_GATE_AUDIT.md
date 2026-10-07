@@ -911,6 +911,38 @@ Post-SEND recipient preparation, native intent/results, deployment invocation,
 authenticated evidence/operator uncertainty resolution and conversion remain.
 No new migration/full-backend/live provider/physical acceptance. All gates OPEN.
 
+## Phase 13AO - native SEND and preparation after SEND
+
+Native manager SEND now uses the verified current approval with explicit reason,
+protected institute/actor/campaign request, original key/ID/current recovery plus
+independent approved predecessor ID/root/stage/digest/chronology. Lost committed
+response survives reload and resumes without another POST. Corrupt approval keeps
+pending terms; verified recovery clears them. SEND action performs no provider I/O.
+History copy distinguishes authorization from separately verified provider results.
+
+Preparation now accepts the selected current APPROVE or its direct SEND successor.
+expected_revision_id remains approval ID, never SEND ID; submissions pin approval
+and fresh contact originals. Nonfuture current stage, exact contact, current grant/
+destination/account and unique approval/customer intent remain required. No schema
+change or new sending endpoint/daemon installed.
+
+Backend four files 19 passed in 94.47s; final expanded new file 2 passed in 11.07s,
+SQLite and actual PostgreSQL. Added withdrawal before any intent and renewed explicit
+grant cases; wrong SEND/foreign approval/future stage refuse, historical replay
+survives later withdrawal. Native action focused 4 passed in 2.47s; full frontend
+322 passed in 53.99s before final copy adjustment. Initial signed SEND two browser
+cases passed in 36.2s. First combined prior campaign/SEND run 3 passed/1 failed in
+3.0m: test assumed target on first catalog page after expansion. Snapshot proved
+selection test defect; corrected native bounded pagination. Final combined desktop/
+tablet four cases passed in 1.0m, zero failures/skips, terminal exit 0. 142 modules
+built, fixture cleaned. Final screenshots inspected, >=44px controls/no overflow.
+Existing crypt/bcrypt compatibility/NO_COLOR warnings; no live message acceptance.
+
+Current-recipient observations after SEND, native intent/result audit, invocation,
+authenticated provider evidence/operator uncertainty resolution, conversion and
+physical/production acceptance remain. No new full-backend/migration acceptance.
+All Phase 13 gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
