@@ -1,8 +1,9 @@
 # ADR-030: Explicit source-grounded recorded commissions
 
 Status: internal source/terms/calculation contract implemented and checked on
-SQLite and actual PostgreSQL. Original configured rules, accrual/cancellation
-ledger, signed routes, native manager lifecycle and employee profile remain open.
+SQLite and actual PostgreSQL. Signed original configured rules and separate
+rule cancellations are implemented; accrual/cancellation ledger, native manager
+lifecycle and employee commission profile remain open.
 This decision does not close the canonical COMMISSIONS or EMPLOYEE_360 gates.
 
 The first supported basis is `closed_attributed_line_gross`: a retained line
@@ -59,3 +60,40 @@ native authoring and lost-reply recovery must use those authorities. No inferred
 retroactive rate, commission payment, allocated refund/net revenue, payroll or
 legal liability is asserted. Physical-device and production acceptance remain
 separate from controlled domain/migration/API/component/browser evidence.
+
+Original configured rules now use `employee_commission_rules` and separate
+`commission_rule_cancellations`, migration `9bc52e18d430` after `8af04d719b32`.
+Signed exact-institute managers supply civil first/last days, title, complete
+explicit policy, reason and original key. Creation pins the institute zone and
+half-open UTC period once. An empty skipped-day period or calendar overflow is
+refused. The service catalog is global in the established architecture; an
+optional named service must exist, while employee ownership is institute-scoped.
+There are no seeded/default rules. Explicit overlapping originals are allowed;
+future accrual source uniqueness, not implicit rule priority, must prevent double
+credit. Cancelling a rule prevents future new accruals but must not silently
+rewrite or cancel existing pinned commission originals.
+
+Matching actor/terms replay is resolved before current calendar or clock reads.
+Original terms and captures remain unchanged after timezone changes or later
+cancellation. Conflicting actor/terms fail. Rule cancellation has its own original
+key, one cancellation per rule, signed actor/reason and independent original
+receipt read. Matching cancellation replay precedes current clock validation;
+a new cancellation refuses a clock earlier than the rule original. Both create
+and cancel hold the shared institute transaction lock, including PostgreSQL
+competing same-key writers. Cancellation never deletes a rule or edits its rate.
+
+Manager routes expose create, original-key recovery, original-ID read, separate
+cancellation and cancellation-key recovery, plus employee history with stable
+period/id ordering and limit <=50. Journals join cancellations in one bounded
+page query, with independently counted totals; no per-rule receipt lookup. The
+`calculation_terms` adapter reads only the original pinned terms for future
+source-linked calculations. Reception, other institutes and unknown employees
+cannot access this rule authority.
+
+Migration metadata matches both SQLite and PostgreSQL. Constraints retain
+employee/rule ownership, optional service reference, unique replay and unique
+cancellation, explicit basis/currency/rounding/category and bounded integer rate
+with positive period. Empty upgrade/downgrade roundtrip is verified on owned
+fixtures; any recorded rule or cancellation prevents downgrade before DDL.
+Earlier protected-history migration tests remain compatible with the new head.
+No existing application database is migrated by these controlled tests.

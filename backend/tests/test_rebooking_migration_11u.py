@@ -60,5 +60,5 @@ def test_original_rebooking_migration_ownership_and_history_protection(tmp_path,
             command.downgrade(config, "72c18fba901d")
         assert facts() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "8af04d719b32"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "9bc52e18d430"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

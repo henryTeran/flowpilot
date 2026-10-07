@@ -1,8 +1,55 @@
 from datetime import datetime
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKeyConstraint, Index, JSON, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKeyConstraint, Index, Integer, JSON, String, UniqueConstraint, ForeignKey
 from datetime import date
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
+
+
+class EmployeeCommissionRule(Base):
+    __tablename__ = "employee_commission_rules"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_commission_rule_employee_owner"),
+        UniqueConstraint("institute_id", "id", name="uq_commission_rule_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_commission_rule_replay"),
+        CheckConstraint("rate_basis_points >= 0 AND rate_basis_points <= 10000 AND rate_basis_points = CAST(rate_basis_points AS INTEGER) AND period_end > period_start AND last_day >= first_day", name="ck_commission_rule_period_rate"),
+        CheckConstraint("basis = 'closed_attributed_line_gross' AND currency IN ('CHF', 'EUR') AND rounding IN ('half_up', 'half_even', 'down') AND length(trim(category)) > 0", name="ck_commission_rule_terms"),
+        Index("ix_commission_rule_employee_period", "institute_id", "employee_id", "period_start", "period_end"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    basis: Mapped[str] = mapped_column(String(40), nullable=False)
+    category: Mapped[str] = mapped_column(String(40), nullable=False)
+    service_id: Mapped[str | None] = mapped_column(ForeignKey("services.id"), nullable=True)
+    rounding: Mapped[str] = mapped_column(String(16), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    rate_basis_points: Mapped[int] = mapped_column(Integer, nullable=False)
+    first_day: Mapped[date] = mapped_column(Date, nullable=False)
+    last_day: Mapped[date] = mapped_column(Date, nullable=False)
+    timezone: Mapped[str] = mapped_column(String(80), nullable=False)
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CommissionRuleCancellation(Base):
+    __tablename__ = "commission_rule_cancellations"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "rule_id"], ["employee_commission_rules.institute_id", "employee_commission_rules.id"], name="fk_commission_rule_cancel_owner"),
+        UniqueConstraint("institute_id", "rule_id", name="uq_commission_rule_cancelled_original"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_commission_rule_cancel_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    rule_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class EmployeeRebooking(Base):

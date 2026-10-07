@@ -21,6 +21,9 @@ from app.modules.workforce import rebooking
 from app.modules.workforce.rebooking_day import RebookingDay
 from app.modules.workforce.rebooking_options import SourceOptions, TargetOptions
 
+from app.modules.workforce import commission_rules
+from app.modules.workforce.commission_rule_schemas import CommissionRuleCreate, CommissionRuleCancel, CommissionRulePage, CancellationRead as CommissionRuleCancellationRead
+
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
 
@@ -303,3 +306,37 @@ def revoke_certification(institute_id: str, identifier: str, payload: Certificat
                          user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.certifications import revoke
     return revoke(db, institute_id, identifier, payload, user["sub"])
+
+
+@router.post("/commission-rules", response_model=commission_rules.CommissionRuleRead)
+def create_commission_rule(institute_id: str, payload: CommissionRuleCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return commission_rules.create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/commission-rules/original/{key}", response_model=commission_rules.CommissionRuleRead | None)
+def original_commission_rule(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return commission_rules.original(db, institute_id, key)
+
+
+@router.get("/commission-rule-cancellations/original/{key}", response_model=CommissionRuleCancellationRead | None)
+def original_commission_rule_cancellation(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    return db.scalar(select(commission_rules.CommissionRuleCancellation).where(
+        commission_rules.CommissionRuleCancellation.institute_id == institute_id,
+        commission_rules.CommissionRuleCancellation.idempotency_key == key))
+
+
+@router.get("/commission-rules/{identifier}", response_model=commission_rules.CommissionRuleRead)
+def get_commission_rule(institute_id: str, identifier: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return commission_rules.snapshot(db, commission_rules.require(db, institute_id, identifier))
+
+
+@router.post("/commission-rules/{identifier}/cancel", response_model=CommissionRuleCancellationRead)
+def cancel_commission_rule(institute_id: str, identifier: str, payload: CommissionRuleCancel, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return commission_rules.cancel(db, institute_id, identifier, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/commission-rules", response_model=CommissionRulePage)
+def employee_commission_rules(institute_id: str, employee_id: str, limit: int = Query(20, ge=1, le=50),
+    offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    return commission_rules.list_records(db, institute_id, employee_id, limit, offset)
