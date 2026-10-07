@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
+from app.modules.marketing import models as marketing_models  # noqa: F401
 from app.modules.marketing import audiences
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 def manager(institute_id:str,user=Depends(require_ticket_manager)):

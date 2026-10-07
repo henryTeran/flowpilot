@@ -65,6 +65,26 @@ Existing passlib crypt warning only. This establishes coherent replay contracts,
 not database completeness, persisted original authority or permission to send.
 Immutable audience schema/service is still pending; all marketing gates OPEN.
 
+## 13D: audience original/page schema
+
+Added audience original table (owned actor/reason/key/capture clock/request/summary)
+and retained page table (owned capture, nonnegative page index and observation
+JSON). Composite owner/capture foreign key rejects cross-institute page links;
+original key is unique per institute, page index unique per owned capture. Migration
+`0c7d9ef65148` follows `fb6c8de54037`, matches ORM metadata and refuses offline
+history verification or removal of any retained audience row. No production
+migration was applied. Typed capture persistence/replay service remains pending;
+schema fixture JSON is not a validated audience or delivery authority.
+
+SQLite/actual PostgreSQL schema focus: 2 passed in 10.07s, including empty roundtrip,
+metadata comparison, foreign page/negative index/duplicate key refusal and protected
+history. Adjacent audience/campaign tests: 11 passed in 9.40s. Full migration
+regression (all 22 files, actual PostgreSQL enabled): 45 passed in 270.48s,
+zero failures/skips, terminal exit 0. Existing passlib crypt and SQLite datetime
+adapter deprecations only. Prior migration tests change only expected latest head;
+original downgrade targets and retention assertions remain unchanged. All Phase
+13 gates remain OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

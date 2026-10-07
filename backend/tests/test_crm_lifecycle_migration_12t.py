@@ -47,5 +47,5 @@ def test_lifecycle_calendar_roundtrip_scoped_originals_and_protected_history(tmp
             assert calendar.current(db,institute)==corrected
             assert calendar.require(db,institute,cal.id)==cal
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="fb6c8de54037"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="0c7d9ef65148"
             assert compare_metadata(MigrationContext.configure(connection),Base.metadata)==[]

@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13C_REPLAYABLE_AUDIENCE_COHERENCE
+CURRENT_CHECKPOINT = PHASE13D_OWNED_AUDIENCE_ORIGINAL_PAGE_SCHEMA
 STATUS = ACTIVE
+
+PHASE13D_OWNED_AUDIENCE_ORIGINAL_PAGE_SCHEMA:
+- Added ORM audience originals (institute/actor/reason/key/capture/request/summary) and retained observation pages with owned composite capture foreign key, nonnegative index and unique owned page index. Original replay key unique per institute. Migration 0c7d9ef65148 after fb6c8de54037 matches metadata; empty downgrade allowed, offline verification or any retained history removal refused. Marketing routes import model registry for schema consistency. No production database migration applied and no create/update/delete capture service claimed yet.
+- SQLite/actual PostgreSQL schema focus: 2 passed in 10.07s, metadata exact, empty roundtrip, cross-owner page/negative index/duplicate key refusal and retained-history protection. All 22 migration test files: 45 passed in 270.48s, zero failures/skips, terminal exit 0. Fourteen prior migration tests update only latest-head assertion; downgrade targets/retention invariants preserved. Adjacent actual-source audience/campaign regression: 11 passed in 9.40s. Existing passlib crypt/SQLite datetime adapter deprecations only.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: atomic whole-institute immutable audience capture using bounded pages at one locked clock, actor/terms-pinned original-key replay and scoped bounded historical reads, then campaign/template persistence/review/approval/audit. Full canonical goal remains active; physical/production gates OPEN.
 
 PHASE13C_REPLAYABLE_AUDIENCE_COHERENCE:
 - Strengthened typed audience page for future immutable stored replay: strict booleans, <=50 unique ordered exact own customer IDs after cursor, shared page/profile clock, owned registered/policy/declaration dimensions, segment reclassification from retained policy/customer/billing/diagnostics, and exact selected-segment/marketing-permission/eligibility recomputation. Next cursor must match full page's final scanned member. Marketing purpose/channel/future-declaration logic shared by source read and replay validator, preventing drift.
