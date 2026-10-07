@@ -1,7 +1,7 @@
 # ADR-029: Explicit recorded employee rebooking
 
 Status: original declaration/cancellation API and migration implemented;
-native lifecycle, Employee 360 day read and acceptance remain open.
+bounded employee declaration-day read implemented; native lifecycle/profile and acceptance remain open.
 
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
@@ -64,6 +64,29 @@ An absent declaration is unknown attribution, not a failed rebooking. No full
 conversion rate, causal employee performance or future attended-return claim
 is inferred from incomplete declarations. CRM cycles and automated reminders
 remain separate canonical work.
+
+The manager employee day endpoint explicitly uses `declaration_recorded_at`:
+the institute civil day of the original recording instant, not execution day,
+booking creation day or planned return day. It retains shared half-open calendar
+bounds, timezone and one capture clock under the institute lock. Exact global
+counts partition all originals into cancelled declaration, future recording,
+unknown target, cancelled booking, no-show, booked return and completed return.
+Cancelled declarations retain their provenance and take precedence; future
+recordings are explicit after clock regression. Changed/missing current client
+links cannot support a known return. Booked returns are reservations, not a
+prediction of attendance. A completed return requires the same explicit client,
+positive actual endpoints ending by the snapshot clock and actual start after
+the pinned source completion and at/after original booking creation. Planned
+slots never fill missing actual endpoints.
+
+Both current actual endpoints and client/status facts are returned beside the
+unchanged original so native guards can verify the classification. Counts cover
+all originals through bounded 100-row streaming; the stable history page is
+independently limited and uses joined facts without per-source queries. Snapshot
+counts/page are protected against institute writers; the subsequent reading
+includes writes committed after that snapshot. `complete_attribution=false`
+and null conversion basis points retain unknown full conversion, including an
+empty journal. This read adds no schema or write path.
 
 Controlled SQLite and real PostgreSQL source tests verify both execution kinds,
 exact microsecond chronology, explicit identity, original creation provenance,

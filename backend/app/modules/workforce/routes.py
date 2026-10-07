@@ -17,6 +17,7 @@ from app.modules.workforce.work_interval_schemas import WorkIntervalCreate, Work
 from app.modules.workforce.work_hours import EmployeeWorkHours
 from app.modules.workforce.occupation import EmployeeOccupation
 from app.modules.workforce import rebooking
+from app.modules.workforce.rebooking_day import RebookingDay
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -72,6 +73,13 @@ def cancel_rebooking(institute_id: str, identifier: str, payload: AbsenceCancel,
 def employee_rebookings(institute_id: str, employee_id: str, limit: int = Query(20, ge=1, le=50),
                        offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     return rebooking.list_records(db, institute_id, employee_id, limit, offset)
+
+
+@router.get("/employees/{employee_id}/rebooking-day", response_model=RebookingDay)
+def employee_rebooking_day(institute_id: str, employee_id: str, day: date, limit: int = Query(20, ge=1, le=50),
+                          offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.rebooking_day import read
+    return read(db, institute_id, employee_id, day, limit, offset)
 
 
 @router.post("/skill-changes", response_model=SkillChangeRead)
