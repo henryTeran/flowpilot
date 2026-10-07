@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
-import { validRevenueScenarioAudit, type RevenueScenarioAudit } from "../revenue-scenario-utils";
+import { validRevenueScenarioAudit, type RevenueScenarioAudit, type RevenueScenarioEnvelope } from "../revenue-scenario-utils";
+import { RevenueScenarioComparison } from "./RevenueScenarioComparison";
 import { revenueMoney } from "../revenue-utils";
 const unavailable = { unknown_currency: "Une devise enregistrée est inconnue.", undated_paid_tickets: "Des tickets payés de l’institut n’ont pas de date exploitable.",
   no_selected_currency: "Aucun ticket dans la devise sélectionnée.", uncertain_amounts: "Des montants sont manquants ou invalides." };
@@ -12,15 +13,16 @@ export function RevenueScenarioHistory({ institute }: { institute: string }) {
 function Reader({ institute }: { institute: string }) {
   const token = getAccessToken(), sequence = useRef(0);
   const [report, setReport] = useState<RevenueScenarioAudit>(), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
+  const [baseline, setBaseline] = useState<RevenueScenarioEnvelope>(), [alternatives, setAlternatives] = useState<RevenueScenarioEnvelope[]>([]), [revision, setRevision] = useState(0);
   useEffect(() => () => { sequence.current++; }, []);
   async function load(offset = 0) {
     const request = ++sequence.current, current = () => request === sequence.current && token === getAccessToken() && getOperatorRole() === "responsable_institut";
-    setReport(undefined); setError(undefined); setBusy(true);
+    setReport(undefined); setError(undefined); setBusy(true); setRevision(n => n+1);
     try {
       const value = await apiGet<RevenueScenarioAudit>(`/revenue/institutes/${encodeURIComponent(institute)}/scenarios/originals?offset=${offset}&limit=20`);
       if (!await validRevenueScenarioAudit(value, institute, offset)) throw new Error("Invalid scenario audit");
       if (current()) setReport(value);
-    } catch { if (current()) setError("Historique des scénarios à vérifier. Relancez la lecture."); }
+    } catch { if (current()) { setBaseline(undefined); setAlternatives([]); setError("Historique des scénarios à vérifier. Relancez la lecture."); } }
     finally { if (current()) setBusy(false); }
   }
   return <section className="revenue-guardian-panel" aria-label="Scénarios conservés">
@@ -37,6 +39,8 @@ function Reader({ institute }: { institute: string }) {
         <p>Projection conditionnelle : {e.original.projected_gross_minor
           ? `${e.original.projected_gross_minor.numerator} / ${e.original.projected_gross_minor.denominator} centimes ${e.original.assumptions.currency}` : "indisponible"}.</p>
         {e.original.unavailable_reason && <p>{unavailable[e.original.unavailable_reason]}</p>}
+        <div className="revenue-guardian-period"><button aria-label={`Choisir comme référence ${e.original.id}`} disabled={baseline?.original.id === e.original.id} onClick={() => { setBaseline(e); setAlternatives(old => old.filter(v => v.original.id !== e.original.id)); }}>Choisir comme référence</button>
+          <button aria-label={`Ajouter comme variante ${e.original.id}`} disabled={baseline?.original.id === e.original.id || alternatives.some(v => v.original.id === e.original.id) || alternatives.length >= 19} onClick={() => setAlternatives(old => old.length >= 19 || old.some(v => v.original.id === e.original.id) ? old : [...old, e])}>Ajouter comme variante</button></div>
         <details><summary>Voir les hypothèses et preuves de {e.original.id}</summary>
           <p>Modèle : rythme brut enregistré constant, appliqué à la période projetée avec la fraction d’activité déclarée.</p>
           <p>Devise sélectionnée : {e.original.assumptions.currency}. Début inclus, fin exclue.</p>
@@ -54,5 +58,6 @@ function Reader({ institute }: { institute: string }) {
       <div className="revenue-guardian-period"><button disabled={report.offset === 0} onClick={() => void load(Math.max(0, report.offset-20))}>Scénarios précédents</button>
         <button disabled={report.offset+report.originals.length >= report.total} onClick={() => void load(report.offset+20)}>Scénarios suivants</button></div>
     </>}
+    <RevenueScenarioComparison key={revision} institute={institute} baseline={baseline} alternatives={alternatives} disabled={busy} onRemove={id => { if (baseline?.original.id === id) setBaseline(undefined); setAlternatives(old => old.filter(v => v.original.id !== id)); }} />
   </section>;
 }

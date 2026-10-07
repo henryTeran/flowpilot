@@ -779,3 +779,80 @@ fixture-only and no external delivery occurred.
 All three Phase14 gates remain OPEN. Native explicit original selection/comparison,
 retained opportunity/closure valuation and native closure/rebooking/opportunity
 source review remain required; the full26-phase goal remains ACTIVE.
+
+## Phase14Q — native explicit retained-scenario selection and comparison
+
+Verified history cards now offer explicit baseline and alternative selection.
+The chosen baseline is never inferred from recency or a latest-head selector;
+choosing another baseline does not silently turn the old one into an alternative.
+One to nineteen distinct alternatives retain their declared order. Selection can
+span multiple audit pages. Every comparison explicitly posts only selected original
+IDs and full fingerprints to backend14N; this POST reads retained originals and
+does not create a scenario, recapture billing evidence or trigger an action.
+
+The browser validates exact comparison scope, capture, count, order, identity and
+expected SHA, then every complete original and its raw canonical fingerprint.
+Capture cannot precede selected creation times. Baseline flags and difference basis
+must match. Exact signed BigInt fractions verify reduced positive/negative/zero
+deltas only for compatible currency/model/observed/projected periods with two
+available projections; unavailable precedence follows the backend. Missing amounts
+or incompatible terms never receive a monetary zero. Currency counts must agree
+with selected originals and valued/unavailable partitions, with no combined
+projection sums. Strict prediction/causal/action/full-institute-cohort claims remain
+false. The comparison proves selected originals, not all institute scenarios.
+
+Source capture-instant equality and retained billing-aggregate equality are separate
+checks. Aggregate equality omits capture clocks, normalizes aware period instants
+and preserves all other source terms; it never establishes identity of individual
+SQL source records. The backend remains authoritative; client rational verification
+refuses inconsistent reports rather than inventing a new official forecast.
+
+Changing/removing selections remounts the comparison and hides prior results.
+History refresh clears comparison proof while retaining explicit selection across
+successful pages; invalid history clears the selection too. Verified declarations
+already invalidate the entire history workspace. Pending guards, signed-token/role
+checks and unmount/context invalidation prevent duplicate or stale result revival.
+No mount comparison I/O occurs. Short button labels keep identifiers in accessible
+control names and folded selected-original proof details. Those details show signed
+author, creation/source capture, original ID/full SHA, observed/projected periods
+and declared fraction/currency, including references selected on another page.
+
+Four new tests cover Python-produced pure comparison frame acceptance, ordered
+selection/SHA/institute/capture binding, negative and zero deltas, counts/no-claim
+guards, incompatible/unavailable variants and equivalent datetime spellings with
+different capture clocks, corrupt reread clearing/retry, incomplete selection,
+duplicate click and selection/session invalidation. The backend-produced pure
+vector is frontend/tests/fixtures/revenue-comparison-14q.json; its derivation uses
+the backend comparison/original models and variant calculator without database
+reads or writes. It is not claimed as native SQL-source acceptance.
+
+Initial pure2 passed0.71s; combined comparison/history6 passed30.25s. Fullfrontend
+**385 passed98.33s**, zero failures/skips, exit0 before final short labels/folded
+proof refinement; final6 focused on that version passed4.91s, zero failures/skips,
+exit0. Initial native harness stopped before tests on60s server-readiness timeout
+and cleaned its owned database. Process/port state was checked before relaunch;
+fresh debug run2 passed5.4m, actualexit0. Final fresh harness TypeScript/Vite rebuild
+passed; native desktop1440x900 and touch tablet1024x768 **2 passed1.3m**, zero
+failures/skips, BROWSER_PROCESS_EXIT=0 and terminalexit0. Both final screenshots
+were visually inspected with an opened full original-proof fold; region>=600px,
+controls>=44px and no horizontal overflow passed.
+
+The owned fixture script permits only the harness-created marked temporary SQLite
+database and known browser projects; it inserts a recorded paidCHF1.01 ticket,
+without banking/checkout/completeness claims. Actual signed API declarations create
+25 originals per project, producing25 then50 institute originals. The UI chooses a
+baseline from the first20 records and variants from the next page (20/5 then20/20).
+Native evidence now includes retained101/2 minorCHF, explicit zero0/1, exact negative
+delta-101/2, EUR absence/differentcurrency, separate currency counts, and distinct
+capture clocks with identical aggregate terms. An intercepted corrupt causal flag
+hides all comparison-result proof; correct retry restores it. Removing a selected
+variant clears proof without a new POST. Originals are API-authored fixtures here;
+native declaration itself remains14P evidence. No SQL-administrator authenticity,
+provider/physical/load or whole-project backend acceptance is claimed.
+
+Owned temporary database was removed. Existing passlib-bcrypt/Starlette/color
+warnings did not fail the final process. Backend14N and the schema are unchanged;
+no persistent application migration or external delivery occurred. All threePhase14
+gates remain OPEN. Retained opportunity/closure-value decisions, native closure/
+rebooking/capacity-opportunity review and fullPhase14 requirement audit remain next;
+the full26-phase goal remains ACTIVE.

@@ -6,6 +6,18 @@ export type RevenueScenarioOriginal = { institute_id: string; actor_id: string; 
   confidence: "conditional_unvalidated_scenario"; unavailable_reason: "unknown_currency" | "undated_paid_tickets" | "no_selected_currency" | "uncertain_amounts" | null;
   validated_prediction: false; action_executed: false; id: string; reason: string; idempotency_key: string; created_at: string; retained: true };
 export type RevenueScenarioEnvelope = { original: RevenueScenarioOriginal; fingerprint: string };
+export type RevenueScenarioReference = { original_id: string; fingerprint: string };
+export type RevenueScenarioSelection = { baseline: RevenueScenarioReference; alternatives: RevenueScenarioReference[] };
+export type RevenueScenarioComparison = {
+  institute_id: string; captured_at: string; baseline_original_id: string; selected_count: number;
+  variants: { original: RevenueScenarioEnvelope; is_baseline: boolean; same_source_capture: boolean; same_recorded_billing_aggregates: boolean;
+    difference_from_baseline_minor: { numerator: string; denominator: string } | null;
+    difference_unavailable_reason: "currency_difference" | "model_difference" | "observed_period_difference" | "projected_period_difference" | "unavailable_projection" | null;
+    difference_basis: "comparison_only_not_attributed_effect" }[];
+  currencies: { currency: "CHF" | "EUR"; selected_count: number; valued_count: number; unavailable_count: number; summed_projected_gross_minor: null }[];
+  basis: "explicit_retained_scenario_comparison"; confidence: "conditional_unvalidated_scenarios"; summed_projected_gross_minor: null;
+  validated_prediction: false; causal_effect_confirmed: false; action_executed: false; full_institute_scenario_cohort: false;
+};
 export type RevenueScenarioDeclaration = { assumptions: RevenueAssumptions; reason: string; idempotency_key: string };
 export function validRevenueScenarioDeclaration(v: unknown): v is RevenueScenarioDeclaration {
   return keys(v, "assumptions reason idempotency_key") && validRevenueAssumptions(v.assumptions) && text(v.reason, 240)
@@ -44,6 +56,52 @@ export async function revenueOriginalFingerprint(value: unknown) {
   return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
 }
 function gcd(a: bigint, b: bigint): bigint { while (b) { const rest = a % b; a = b; b = rest; } return a; }
+export function validRevenueScenarioSelection(v: unknown): v is RevenueScenarioSelection {
+  if (!keys(v, "baseline alternatives") || !Array.isArray(v.alternatives) || v.alternatives.length < 1 || v.alternatives.length > 19) return false;
+  const refs = [v.baseline, ...v.alternatives];
+  return refs.every(r => keys(r, "original_id fingerprint") && text(r.original_id, 80) && typeof r.fingerprint === "string" && /^[a-f0-9]{64}$/.test(r.fingerprint))
+    && new Set(refs.map(r => r.original_id)).size === refs.length;
+}
+function stable(v: unknown): string { return canonical(v); }
+function aggregateTerms(o: RevenueScenarioOriginal) {
+  const { window, ...rest } = o.evidence;
+  return { ...rest, window: { institute_id: window.institute_id, start: String(instant(window.start)), end: String(instant(window.end)) } };
+}
+export async function validRevenueScenarioComparison(v: unknown, institute: string, selection: RevenueScenarioSelection): Promise<boolean> {
+  if (!validRevenueScenarioSelection(selection) || !keys(v, "institute_id captured_at baseline_original_id selected_count variants currencies basis confidence summed_projected_gross_minor validated_prediction causal_effect_confirmed action_executed full_institute_scenario_cohort")
+    || v.institute_id !== institute || v.baseline_original_id !== selection.baseline.original_id || v.basis !== "explicit_retained_scenario_comparison"
+    || v.confidence !== "conditional_unvalidated_scenarios" || v.summed_projected_gross_minor !== null || v.validated_prediction !== false
+    || v.causal_effect_confirmed !== false || v.action_executed !== false || v.full_institute_scenario_cohort !== false || !Array.isArray(v.variants) || !Array.isArray(v.currencies)) return false;
+  const refs = [selection.baseline, ...selection.alternatives], capture = instant(v.captured_at);
+  if (capture === undefined || v.selected_count !== refs.length || v.variants.length !== refs.length) return false;
+  for (let i = 0; i < refs.length; i++) {
+    const item = v.variants[i];
+    if (!keys(item, "original is_baseline same_source_capture same_recorded_billing_aggregates difference_from_baseline_minor difference_unavailable_reason difference_basis")
+      || !await validRevenueScenarioEnvelope(item.original, institute)) return false;
+    const e = item.original as RevenueScenarioEnvelope;
+    if (e.original.id !== refs[i].original_id || e.fingerprint !== refs[i].fingerprint || instant(e.original.created_at)! > capture
+      || item.is_baseline !== (i === 0) || item.difference_basis !== "comparison_only_not_attributed_effect") return false;
+  }
+  const variants = v.variants as RevenueScenarioComparison["variants"], baseline = variants[0].original.original, b = baseline.assumptions;
+  const groups = new Map<string, { currency: string; selected_count: number; valued_count: number; unavailable_count: number; summed_projected_gross_minor: null }>();
+  for (const item of variants) {
+    const o = item.original.original, a = o.assumptions;
+    const reason = a.currency !== b.currency ? "currency_difference" : a.model !== b.model ? "model_difference"
+      : instant(a.observed_start) !== instant(b.observed_start) || instant(a.observed_end) !== instant(b.observed_end) ? "observed_period_difference"
+      : instant(a.projected_start) !== instant(b.projected_start) || instant(a.projected_end) !== instant(b.projected_end) ? "projected_period_difference"
+      : !o.projected_gross_minor || !baseline.projected_gross_minor ? "unavailable_projection" : null;
+    if (item.difference_unavailable_reason !== reason || item.same_source_capture !== (instant(o.evidence.window.captured_at) === instant(baseline.evidence.window.captured_at))
+      || item.same_recorded_billing_aggregates !== (stable(aggregateTerms(o)) === stable(aggregateTerms(baseline)))) return false;
+    if (reason) { if (item.difference_from_baseline_minor !== null) return false; }
+    else {
+      const x = o.projected_gross_minor!, y = baseline.projected_gross_minor!, n = BigInt(x.numerator)*BigInt(y.denominator)-BigInt(y.numerator)*BigInt(x.denominator), d = BigInt(x.denominator)*BigInt(y.denominator), divisor = gcd(n < 0n ? -n : n, d);
+      if (!keys(item.difference_from_baseline_minor, "numerator denominator") || item.difference_from_baseline_minor.numerator !== String(n/divisor) || item.difference_from_baseline_minor.denominator !== String(d/divisor)) return false;
+    }
+    const group = groups.get(a.currency) || { currency: a.currency, selected_count: 0, valued_count: 0, unavailable_count: 0, summed_projected_gross_minor: null };
+    group.selected_count++; if (o.projected_gross_minor) group.valued_count++; else group.unavailable_count++; groups.set(a.currency, group);
+  }
+  return stable(v.currencies) === stable([...groups.values()].sort((a, b) => a.currency.localeCompare(b.currency)));
+}
 export async function validRevenueScenarioEnvelope(v: unknown, institute: string): Promise<boolean> {
   if (!keys(v, "original fingerprint") || typeof v.fingerprint !== "string" || !/^[a-f0-9]{64}$/.test(v.fingerprint)
     || !keys(v.original, "institute_id actor_id assumptions evidence basis projected_gross_minor confidence unavailable_reason validated_prediction action_executed id reason idempotency_key created_at retained")) return false;
