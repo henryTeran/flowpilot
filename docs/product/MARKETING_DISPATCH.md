@@ -314,3 +314,43 @@ The gate's Alembic stamp is a fixture on metadata-created test tables, not evide
 of a deployed migration. Actual production schema/backup/secret ownership/provider
 acceptance remain unverified. Provider evidence/operator uncertainty resolution and
 retained conversion attribution still require implementation and acceptance.
+
+## Explicit billing attribution contracts (13AW)
+
+`conversions.py` adds a pure source-backed manager-link contract and exact summary,
+not an attribution API or persisted conversion ledger. A typed link includes the
+complete retained intent and matching SHA-256 submission, exact unchanged SEND
+successor of its approval, accepted outcome bound to the same account/key/fingerprint,
+a scoped recorded closed-ticket fact, an explicit observed post-acceptance billing
+window and manager actor/reason/operation key. Provider acceptance does not establish
+delivery; an explicit manager link does not establish causal effect. Those flags
+remain strictly false, including refusal of numeric/string boolean substitutes.
+
+The billing ticket must belong to the exact institute/customer and fall inside
+[start,end); the window starts no earlier than the observed acceptance and ends
+no later than one shared billing capture. Outcome retention must be no later than
+that capture. Both preparation-before-SEND and preparation-after-SEND are permitted
+when authorization/preparation precede the provider observation and SEND follows
+the retained approval. Historical link validation does not depend on current grant
+or account configuration; it confers no execution authority. Shapes/fingerprints
+do not authenticate callers, verify database originals or prove paid/provider facts.
+The future retention service must independently fetch authoritative sources.
+
+Summaries accept only links in an explicit owned campaign/time window, reject
+duplicate ticket IDs and operation keys across included approvals, retain missing/
+invalid amount diagnostics and separate test/live and CHF/EUR groups. Gross sums
+are canonical integer minor-unit strings; unknown currency is counted separately
+and never mixed or converted. These are linked recorded billing totals, not net
+profit, causal incremental revenue or forecast. No conversion rate is invented
+without a valid denominator and no ROAS without authoritative campaign spend; both
+remain null. Summary completeness is strictly false: bounded/submitted cohorts
+cannot represent complete campaign history.
+
+Checked-in backend fixture projects exact intent/accepted outcome terms from the
+13AR three-channel retained-service vectors, so backend collection is independent
+of the frontend mount. SEND and closed-ticket/window facts are synthetic, and a
+separate synthetic live-mode rehash verifies test/live separation. No actual sales
+are attributed, no source records are updated and no provider I/O occurs. Durable
+owned attribution originals/replay/correction/audit, independent paid-ticket source
+capture, signed API/native tracking and authenticated provider evidence/operator
+resolution remain required; Phase13 and production/physical gates remain OPEN.
