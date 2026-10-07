@@ -239,6 +239,25 @@ owned DB cleaned; existing Starlette/httpx and bcrypt-version warnings only.
 Final TypeScript/Vite build passes (129 modules), terminal exit 0.
 No signed native UI/browser/provider/production acceptance inferred; gates OPEN.
 
+## 13M: native campaign digests and receipts
+
+Native campaign content/action/original/catalog guards now enforce source scope,
+unique explicit recipient IDs, monotonic audience capture, exact request/receipt
+root/predecessor/reason/content and DRAFT/REVIEW/APPROVE state. Review/approval use
+WebCrypto SHA-256 over Python-compatible sorted compact ASCII JSON with normalized
+UTC microseconds; recipient order, Unicode/literal text and template ID remain
+pinned. Delivery/sent authority and SEND action refused. Actor/full-term matching
+and independent original comparison support forthcoming protected recovery.
+
+Three focused tests pass. Full frontend: 292 passed in 48.47s, zero failures/skips,
+terminal exit 0. TypeScript/Vite build passes (129 modules). Three independently
+computed Python Unicode/DEL/UTC/microsecond vectors, including before epoch, agree.
+Initial PowerShell Unicode vector corruption was corrected with explicit Python
+escapes. Five actual SQLite original-service receipts (draft/review/approve/edit
+reset/template-bound) pass native validation/comparison; reviewed digests agree.
+Fixture owned DB cleaned; existing Starlette/httpx/bcrypt-version warnings only.
+Audit guards/editor/browser/delivery/conversion remain pending; all gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
