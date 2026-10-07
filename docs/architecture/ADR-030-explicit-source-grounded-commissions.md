@@ -259,7 +259,7 @@ rounding modes, explicit zero/max rates at the retained source bound, numeric/
 boolean/coerced terms, original UTC/microsecond preservation, unknown entitlement,
 forged complete/partial day totals and clock diagnostics/cancellation transitions.
 Full frontend compatibility and production TypeScript/Vite build pass. Original
-source-linked accrual/cancellation and profile lifecycle remain open.
+Native source-linked accrual/cancellation lifecycle remains open.
 
 ### Frontend closed-source choices
 
@@ -308,3 +308,27 @@ Pending guards, token/institute/timezone remounts, employee scope and read seque
 checks isolate late replies. Reception has no rule authoring/history surface.
 Rule cancellation prevents future accruals with that rule and conserves already
 recorded commissions; it does not silently retract them or create a payout.
+
+### Native employee recorded-day profile
+
+The manager's individual calendar binds commission reading to its verified owned
+employee, institute civil day, timezone and UTC bounds. A one-action shortcut
+opens the commission section. The day is the original commission recording day,
+independent of source closing or cancellation day. Global counts and exact minor
+amounts are retained separately by currency and recorded/cancelled/future-recording/
+future-cancellation state. Paging changes only the visible original cards, not
+the full journal totals. Empty days do not establish an absence of entitlement;
+complete rights and payable total remain explicitly unknown.
+
+Minor amounts are formatted directly with BigInt division/remainder, retaining
+cents above safe Number precision. Original cards show the pinned rule, gross
+line amount and already included quantity, with expandable actor/reason, full
+microsecond recording/source/cancellation timestamps, original period and exact
+calculation provenance. This is a read-only surface and introduces no currency
+conversion, automatic commission declaration, payout or silent recalculation.
+
+Read guards independently verify exact amounts, counts, state clocks and scope.
+Refresh/paging hide prior facts until a valid response arrives. Remounting by
+employee/day/bounds/timezone/token and disposed-request checks isolate old replies;
+reception cannot trigger these protected reads. Parent-calendar verification
+must succeed before the commission profile is mounted.
