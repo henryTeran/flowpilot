@@ -139,16 +139,51 @@ fixture had a mismatched signed actor; its refusal was correct, the fixture was
 aligned and the final combined run passes. This unit does not implement segment
 reads, native configuration UI, production thresholds or automation delivery.
 
+## 12E: scoped current-policy segment snapshot
+
+`backend/app/modules/crm/profile.py` and
+`GET /api/v1/crm/institutes/{institute_id}/customers/{customer_id}/segment`
+bind the signed own-institute manager to a registered owned customer. A single
+institute-locked transaction reads the fresh selected policy original, captures
+one server instant, counts owned paid tickets with undated/future closing times,
+and streams the entire current-horizon billing cohort using the existing exact
+capture authority. No client clock, chosen historical period or alternate policy
+can replace this current selection. Normal configured reads use six SQL statements
+independent of ticket count; the prior explicit-period billing read still uses
+three statements after factoring out its shared capture.
+
+The response retains customer registration, complete selected original provenance,
+capture instant, undated/future counts and observed segment explanation. Absent or
+future policy, future registration/closings, and an unrepresentable calendar horizon
+produce an explicit unavailable reason with no invented segment or fallback.
+Undated closings preserve available recorded metrics but keep classification
+indeterminate through the existing classifier. Diagnostics cannot be assigned a
+guessed period: undated counts cover owned paid records, not an inferred date.
+Complete customer history remains false.
+
+Controlled all-CRM regression: six test files, 52 passed in 31.57s, zero
+failures/skips, actual PostgreSQL enabled; existing passlib crypt warning only.
+New SQLite/PostgreSQL integration covers absent/current/corrected/future policy,
+registration and source diagnostics, exact six-query budget, 109-ticket full
+cohort, original pins, server-derived horizon, unknown currency/gross, invalid
+calendar extent and foreign/opaque identities. Signed HTTP tests cover roles and
+tenant scope. Actual PostgreSQL concurrency pauses the reader at source diagnosis,
+proves a correction writer waits, then verifies old-policy VIP and subsequent
+corrected-policy indeterminate results independently. Initial fixtures inherited
+microsecond recency thresholds despite hour-old tickets; their correct DORMANT
+results exposed the fixture inconsistency. Explicit hour-based test thresholds
+were supplied without changing production classification, then all tests passed.
+No new schema migration, native browser/UI or production acceptance is claimed.
+
 ## Remaining acceptance
 
 - Integrate the delivered signed billing read into native customer profiles;
   add any bounded source-history views without changing complete aggregate
   coverage or inferring identity from name/phone.
-- Capture undated paid-ticket diagnostics and the explicitly selected current
-  policy horizon under the shared lock; expose scoped segmentation reads and
-  native configuration/profile workflows, including original-key recovery.
-  Handle absent/future policy evidence explicitly. No production threshold is
-  configured by 12D, and no lifecycle transition/event is claimed yet.
+- Integrate delivered current-horizon segmentation and diagnostics into native
+  configuration/profile workflows, including guarded original-key recovery and
+  explicit absent/future policy presentation. No production threshold is configured
+  by 12E, and no lifecycle transition/event is claimed yet.
 - Implement source-supported CLV and customer rebooking-cycle semantics,
   distinguishing recorded gross from prediction and employee rebooking credit.
 - Implement explicit birthday/communication declarations and lifecycle events

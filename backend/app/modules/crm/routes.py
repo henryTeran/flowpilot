@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.crm import policies
+from app.modules.crm import profile
 
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
 
@@ -11,6 +12,11 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.get("/customers/{customer_id}/segment", response_model=profile.SegmentProfile)
+def segment(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return profile.read(db, institute_id, customer_id)
 
 
 @router.post("/segment-policies", response_model=policies.PolicyRead)

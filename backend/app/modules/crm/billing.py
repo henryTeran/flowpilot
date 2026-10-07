@@ -46,6 +46,12 @@ def read(db, institute, customer, start, end):
             start=start, end=end, captured_at=utcnow())
     except ValidationError as error:
         raise business_error("An explicit positive observed billing window is required") from error
+    return capture(db, window)
+
+
+def capture(db, window: BillingWindow):
+    """Caller holds the shared lock and pins owner, horizon and capture clock."""
+    institute, customer = window.institute_id, window.customer_id
     # No line join: a basket is the retained ticket total, already including
     # quantities and invoice corrections. Unknown paid times cannot be dated.
     rows = db.execute(select(QueueTicket.id, QueueTicket.paid_at,
