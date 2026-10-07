@@ -16,12 +16,12 @@ authorized Workforce scope progresses.
 | Requirement | Current authoritative evidence | Remaining work |
 | --- | --- | --- |
 | Skill Matrix | Workforce signed scoped endpoint, native Équipe matrix, bounded independent axes, explicit missing/unconfigured requirements; `test_workforce_matrix_11a.py`, `workforce.test.tsx`, `workforce.spec.ts` | Physical-device and production acceptance |
-| Compétences | Existing `Employee.skills` / `EmployeeSkill` union and `ServiceRequirement`; protected audited resource configuration and shared assignment/matrix predicate; native original-key manager changes compare the reviewed expected set and recover without overwriting later configuration | Certification matching policy, complete workforce integration and acceptance |
+| Compétences | Existing `Employee.skills` / `EmployeeSkill` union and `ServiceRequirement`; protected audited resource configuration and shared assignment/matrix predicate; native original-key manager changes compare the reviewed expected set and recover without overwriting later configuration | Complete workforce integration and physical/production acceptance |
 | Disponibilité | Existing availability engine and live board consume recorded absences; native employee profile exposes the same current reading at an explicit timestamp independent of selected calendar day | Complete Employee 360 integration and acceptance |
 | Planning | Institute-day planning plus native employee/day calendar integrates booked appointments, execution facts and original/cancelled absences; overnight, DST and skipped days retain explicit UTC boundaries | Recorded workforce shifts/hours integration and acceptance |
-| Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Configured matching policy and final acceptance; never infer credentials from skill codes or automatically grant a skill |
+| Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Final acceptance; never infer credentials from skill codes or automatically grant a skill. New credential matching rules require explicit configuration and are optional future scope |
 | Objectifs | No workforce objective authority has been delivered | Explicit manager-configured targets, periods/units and source-grounded progress |
-| CA | Recorded performed employee attribution and internally closed invoice facts exist in Commerce; matrix does not calculate revenue | Employee-specific exact read preserving original invoice currency, corrections and unresolved external settlement |
+| CA | Bounded manager employee/day API reads performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL checks pass | Native employee profile integration and acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Native employee calendar exposes explicit actual session/appointment starts and recorded ends or missing end; planned duration is separate | Source-grounded occupancy measure; a ratio needs a known workforce hours denominator |
 | Rebooking | Original execution/customer links and future appointment facts exist; no employee rebooking measure is delivered | Explicit definition and scoped recorded-event read; no inferred customer identity or predicted result |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
@@ -34,15 +34,19 @@ Gates remain:
 - `EMPLOYEE_360`: OPEN — availability/skills/calendar profile foundations delivered;
   declared certifications added; objectives, monetary/activity measures, hours and commissions pending.
 - `SKILLS`: PARTIAL — recorded matrix and existing matching/configuration are
-  verified with native original skill authoring/recovery; configured certification matching and remaining acceptance are pending.
+  verified with native original skill authoring/recovery; remaining workforce and physical/production acceptance is pending.
 - `ABSENCES`: PARTIAL — scheduled original facts and capacity integration are
   implemented with native lifecycle/recovery and employee calendar; final acceptance remains pending.
 - `COMMISSIONS`: OPEN — configured rules and source-linked calculations pending.
 
-Next independent unit: explicit certification requirement/matching policy,
-then remaining Employee 360 measures and authorities.
+Section 32 requires certification facts and a Skill Matrix. A new credential
+qualification policy is not an additional canonical gate. Existing explicit
+skill requirements remain authoritative; new credential rules would require
+explicit configuration and must not grant skills implicitly.
+Next independent unit: native attributed revenue reading, then remaining
+Employee 360 measures and authorities.
 Do not create a second scheduler or derive a future absence from today's status.
-Then finish the Employee 360 read/profile and explicit certification matching, objective,
+Then finish the Employee 360 read/profile and explicit objective,
 hours and commission authorities. Existing payment settlement and physical
 tablet/production blockers do not prevent these implementations.
 
@@ -51,4 +55,5 @@ ADR-021 explains original interval/cancellation facts and capacity arbitration.
 ADR-022 explains scoped employee calendar sources, actual/planned distinction and snapshot paging.
 ADR-023 explains original declared certifications, separate revocations and recovery.
 ADR-024 explains original skill changes, expected-set protection and native recovery.
+ADR-025 explains performer-attributed internally closed revenue and missing monetary facts.
 PROJECT_STATUS.md records final verification counts and current checkpoint.

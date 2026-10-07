@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11F_ORIGINAL_SKILL_CHANGES
+CURRENT_CHECKPOINT = PHASE11G_EMPLOYEE_REVENUE_API
 STATUS = ACTIVE
+
+PHASE11G_EMPLOYEE_REVENUE_API:
+- Manager-only employee/institute-day read exposes recorded performer-attributed retained invoice lines on internally paid tickets. Source IDs, original amount/category/quantity/currency and paid instant remain explicit. Half-open institute dates preserve DST and exclude the next-day boundary. Counts, currency aggregates and stable bounded paging share the institute lock.
+- Exact Decimal values serialize as strings, currencies stay separate, missing amounts leave full totals unknown, and unknown units are never aggregated. Missing performers are reported as institute-wide unattributed line context; cashier/checkout identities are never substituted. This is gross internally closed line attribution, not external settlement or allocated refund/net revenue.
+- Initial owned SQLite/PostgreSQL API checks: 2 passed in 3.65s. Final revenue/currency/calendar bundle after adding removed-line coverage: 11 passed in 14.62s with PostgreSQL enabled. Tests cover 25-hour bounds, exact upper boundary exclusion, retained/removed/unpaid lines, explicit performer versus cashier, separate CHF/EUR/unknown units, partial missing amounts, low Decimal context precision, limits and ownership. No schema change, application migration, native profile completion or new full regression is claimed. ADR-025 describes the basis. CHECKPOINT_STATUS = PARTIAL until native profile integration and verification.
+- Canonical section 32 requires certification facts and a Skill Matrix, not an additional credential matching policy. The audit now retains the existing explicit skill authority and treats new credential rules as optional future configured scope instead of an invented mandatory gate. Next: native attributed revenue reading, then objectives, occupancy/rebooking, workforce hours and commissions.
 
 PHASE11F_ORIGINAL_SKILL_CHANGES:
 - Signed manager-only original skill changes compare the exact reviewed authoritative skill set before a new write. Original key recovery precedes comparison and returns the first conditions without reapplying them after a later configuration. Existing legacy/structured synchronization, commitment protection and configuration audit share the original fact's transaction; ordinary resource PATCH behavior remains compatible.

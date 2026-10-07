@@ -11,6 +11,7 @@ from app.modules.workforce.absence_schemas import AbsenceCreate, AbsenceCancel, 
 from app.modules.workforce.calendar_schemas import EmployeeDayRead
 from app.modules.workforce.certification_schemas import CertificationCreate, CertificationRevoke, CertificationRead, RevocationRead, CertificationPage
 from app.modules.workforce.skill_changes import SkillChangeCreate, SkillChangeRead
+from app.modules.workforce.revenue import EmployeeRevenue
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -40,6 +41,14 @@ def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manag
 def create_skill_change(institute_id: str, payload: SkillChangeCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.skill_changes import create
     return create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/revenue", response_model=EmployeeRevenue)
+def employee_revenue(institute_id: str, employee_id: str, day: date,
+                     limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0, le=2147483647),
+                     user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.revenue import read
+    return read(db, institute_id, employee_id, day, limit, offset)
 
 
 @router.get("/skill-changes/original/{key}", response_model=SkillChangeRead | None)

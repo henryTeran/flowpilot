@@ -39,8 +39,10 @@ supported; an online downgrade refuses any original or revocation history before
 DDL. SQLite and PostgreSQL fixtures verify metadata parity and preserved facts.
 No application database is migrated by these tests.
 
-Configured certification requirements, expiry-aware assignment policy and native
-skill authoring remain separate work. Neither the SKILLS nor EMPLOYEE_360 gate is
+New configured certification requirements and expiry-aware assignment policy
+would be separate explicitly configured scope, not an additional section 32 gate
+(ADR-025). Native skill authoring/recovery is delivered in ADR-024.
+Neither the SKILLS nor EMPLOYEE_360 gate is
 closed by this unit. Workforce objectives, employee monetary/activity measures,
 hours and commissions, plus physical-device and production acceptance, remain
 explicitly open in WORKFORCE_GATE_AUDIT.md.

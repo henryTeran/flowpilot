@@ -40,6 +40,8 @@ and any original history prevents removal before DDL. Owned SQLite/PostgreSQL
 fixtures verify metadata parity and history preservation. Application databases
 are not migrated by verification.
 
-Physical-device and production acceptance remain open. Explicit certification
-matching policy, objectives, employee revenue/occupancy/rebooking, hours and
+Physical-device and production acceptance remain open. Objectives, employee
+revenue/occupancy/rebooking, hours and
 commissions remain separate Workforce work; this unit does not close Phase 11.
+ADR-025 clarifies that new certification matching rules are optional future
+configured scope, not an additional canonical section 32 gate.
