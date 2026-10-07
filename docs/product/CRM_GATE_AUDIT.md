@@ -766,6 +766,26 @@ application database migration, production policy or physical/production receipt
 claimed. Customer lifecycle declaration/observation and all six durable event
 triggers remain required; canonical CRM gates stay open.
 
+## Phase 12W: customer lifecycle editor and guarded birthday observation
+
+Native manager declaration/correction retains explicit known/unknown birthday,
+evidenced month/day, four independent channel/purpose permission/evidence pairs
+and exact original order. Protected institute/customer/actor recovery verifies
+full receipt, independent original reread and current selection before clearing.
+Lost reply/remount, failed current and altered original clock preserve intent.
+
+Guarded birthday observation retains declared local calendar, UTC civil-day
+bounds, selected original provenance, registered source and separate capture.
+Refresh hides old facts; obsolete actor/customer responses are disposed. Fully
+verified declaration invalidates observation. Unknown/absent/future facts remain
+explicit; no delivery authorization, event scheduling or external message claimed.
+
+Focused editor/observation/profile/guard regression: 11 passed in 4.13s. Full
+frontend: 266 passed in 46.47s, zero failures/skips. Final TypeScript/Vite build passes, 125 modules, lazy CRM 62.11kB. No backend/schema or new backend/browser/physical/production
+receipt claimed. Signed desktop/tablet lifecycle recovery/correction/observation
+and visual acceptance remain required, followed by all six durable lifecycle
+triggers; canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

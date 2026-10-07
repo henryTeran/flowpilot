@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12V_NATIVE_BIRTHDAY_CALENDAR
+CURRENT_CHECKPOINT = PHASE12W_NATIVE_CUSTOMER_LIFECYCLE
 STATUS = ACTIVE
+
+PHASE12W_NATIVE_CUSTOMER_LIFECYCLE:
+- Added own-customer manager lifecycle declaration/correction editor: explicit known/unknown birthday, evidenced month/day without birth year, four independent email/SMS follow-up/marketing permissions and evidence. Initial birthday choice is blank; unevidenced permissions remain unknown. Correction copies exact source dimensions/order/evidence and pins predecessor. Protected institute/customer/actor request recovery verifies original-key receipt and independent original/current rereads before clearance; lost reply, failed current and altered microsecond original retain intent.
+- Added scoped native birthday observation with independently guarded declared local calendar, selected originals, registered source and capture. Refresh hides old facts; customer/actor changes dispose obsolete reads. Successful fully verified declaration invalidates observation. Unknown/absent/future sources stay explicit. Civil-day UTC bounds, original IDs/actors/reasons and permissions/evidence remain inspectable. No delivery authorization, scheduling or message sent claimed.
+- Controlled editor/observation/profile/guard focus: 11 passed in 4.13s, zero failures/skips; verifies committed lost reply/remount with one POST, failed-current retention, correction, altered original clock, forged due flag, fresh recovery and obsolete actor/customer response refusal. Full frontend regression: 266 passed in 46.47s, zero failures/skips. Final TypeScript/Vite build passes, 125 modules, lazy CRM 62.11kB. Shared lifecycle fixture extracted preserving existing guard assertions. No backend/schema or new backend/browser/physical/production receipt claimed.
+- CHECKPOINT_STATUS = PARTIAL. Signed desktop/tablet lifecycle workflow and visual validation remain required before native acceptance; all four canonical CRM and physical/production gates remain OPEN. NEXT: signed lifecycle recovery/correction/observation browser evidence, then durable source-grounded ledger for all six lifecycle triggers and complete Phase 12 acceptance. Full canonical goal remains active.
 
 PHASE12V_NATIVE_BIRTHDAY_CALENDAR:
 - Added native manager institute birthday-calendar declaration/correction. Initial timezone and leap-day rule are blank; explicit preparation pins the verified predecessor. Correction copies the exact selected timezone/rule. Original ID, actor, reason and human-readable leap-day behavior remain visible; no calendar or commercial defaults inferred.
