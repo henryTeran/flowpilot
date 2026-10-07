@@ -5,11 +5,12 @@ import { certificationInstant } from "../certification-utils";
 import { instituteMidnight } from "../outlook-utils";
 import { revenueAverage, revenueMoney, validRevenueBilling, type RevenueBilling, type RevenueAmounts } from "../revenue-utils";
 import { RevenueCapacityReport } from "./RevenueCapacityReport";
+import { RevenueScenarioHistory } from "./RevenueScenarioHistory";
 
 export function RevenueGuardianPanel({ institute, timezone }: { institute: string; timezone?: string }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
   return <><Reader key={JSON.stringify([institute, timezone, getAccessToken()])} institute={institute} timezone={timezone} />
-    <RevenueCapacityReport institute={institute} timezone={timezone} /></>;
+    <RevenueCapacityReport institute={institute} timezone={timezone} /><RevenueScenarioHistory institute={institute} /></>;
 }
 function Amounts({ value }: { value: RevenueAmounts }) {
   return <>

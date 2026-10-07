@@ -655,3 +655,62 @@ duplicate/injected actor-amount-evidence controls and read-only record counts.
 No new schema, frontend/native or production acceptance is claimed. Native retained
 scenario declaration/recovery/audit/selection/comparison and retained opportunity/
 closure-valuation review remain to implement. All three Phase14 gates OPEN.
+
+## Phase14O — native retained-scenario history and original verification
+
+Pilotage/Chiffres now includes a manager-only explicit history reader, with no
+mount I/O. Each20-row page is a fresh audit read, not a retained cross-page snapshot.
+Cards preserve author/reason/original identity/capture, exact conditional projection
+ratio or its unavailable reason. Source details show constant recorded-gross model,
+selected currency, observed/projected half-open periods, explicit activity fraction,
+paid-source count/capture and separated known monetary amounts/uncertainty. Unknown
+currencies and absent known amounts receive no monetary zero. Key/full original
+fingerprint are visible for later recovery/selection. No declaration, key-recovery
+action or comparison selector is implemented at this checkpoint.
+
+Browser validation checks the entire original shape, own scope, strict retention/
+no-claim flags, aware assumption chronology, exact source capture and existing Billing
+contract. BigInt rational recalculation validates the captured result and unavailable
+reason; it never overrides the authoritative backend or produces a new declaration.
+Python ensure_ascii canonical JSON/SHA preserves raw original datetime spelling and
+literal reason text, including Unicode/multiline/date-looking strings. A Python-produced
+pure billing/scenario/original vector in frontend/tests/fixtures/revenue-scenario-14o.json
+provides101/2 minor-unit cross-language projection/hash evidence; this vector is not
+claimed as native SQL-source acceptance.
+
+The audit response additionally verifies exactpage/count/order/unique original and
+key/capture, strict backend cohort flags and every returned original fingerprint.
+Off-page cohort completeness remains the signed backend14M audit claim; the browser
+does not independently prove unreturned SQL records or administrator authenticity.
+Invalid reread clears all previous cards; signed session/context changes and unmount
+discard late responses. Multiline reasons remain legal as in the backend contract.
+No complete sales, bank settlement, validated prediction or action is asserted.
+
+Initial9 focused tests passed3.38s. Full376 passed71.08s before final audit key/page
+guards; full377 passed69.57s after these guards and asynchronousCrypto test waiting,
+zero failures/skips, terminal exit0. One focused test initially inspected a still
+pending hash; the test now waits for actual loading completion. Final6 focused
+tests after multiline contract correction passed2.65s, zero failures/skips, exit0.
+TypeScript/Vite builds passed. Initial native empty-source history2 passed2.0m;
+mixed actual-source history2 passed1.8m. Backend API creates fixture originals;
+this proves native reading, not a native declaration writer. Actual historical six
+paid tickets retain knownCHF370.35, unknown currency and missing/invalidEUR amounts,
+plus one institute-wide undated-paid diagnostic; conditional projection is unavailable.
+No external provider delivery, schema or persistent application migration occurs.
+Final6 focused after multiline/model/currency detail changes passed2.82s, zero
+failures/skips, exit0. Fresh final harness rebuild passed; native actual-backend
+desktop1440x900 and touch tablet1024x768 **2 passed1.1m**, zero failures/skips,
+terminal exit0. Both final captures were visually inspected with model/selected
+currency/half-open periods and multiline Unicode/date-looking motif intact; full
+rawSHA and source uncertainty remained readable. Section width>=600px,44px
+controls and no horizontal overflow passed. Corrupt cohort claim hides prior cards;
+retry restores actual originals. Actual native history contains1 then2 originals;
+20/5 paging remains contract-fixture evidence, not claimed native navigation.
+Owned temporary database was removed. Existing passlib-bcrypt/Starlette/color
+warnings did not fail the run. No native declaration/recovery/selection acceptance
+is claimed; native known-valued projection remains pure-vector/React coverage,
+while actual mixed-source native projection is explicitly unavailable.
+
+All three Phase14 gates remain OPEN. Protected declaration/key recovery, explicit
+retained comparison selection, retained opportunity/closure-value decisions and native
+closure/rebooking/opportunity review remain required before full Phase14 acceptance.
