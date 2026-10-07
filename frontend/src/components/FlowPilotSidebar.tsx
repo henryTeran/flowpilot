@@ -11,6 +11,7 @@ const menuItems: MenuItem[] = [
   { id: "workforce", label: "Équipe", icon: <GridIcon /> },
   { id: "tickets", label: "Flux tickets", icon: <TicketIcon /> },
   { id: "dashboard", label: "Pilotage", icon: <GridIcon /> },
+  { id: "marketing", label: "Marketing", icon: <CardIcon /> },
   { id: "clients", label: "Clientes", icon: <CardIcon /> },
   { id: "inventory", label: "Inventaire", icon: <GridIcon /> },
   { id: "offres", label: "Offres", icon: <TagIcon /> },
@@ -27,6 +28,7 @@ interface FlowPilotSidebarProps {
   onOpenDashboard: () => void;
   onOpenInventory?: () => void;
   onOpenWorkforce?: () => void;
+  onOpenMarketing?: () => void;
   onOpenCustomers?: () => void;
   onOpenOffers?: () => void;
   onLogout?: () => void;
@@ -39,6 +41,7 @@ export function FlowPilotSidebar({
   onOpenDashboard,
   onOpenInventory,
   onOpenWorkforce,
+  onOpenMarketing,
   onOpenCustomers,
   onOpenOffers,
   onLogout,
@@ -49,6 +52,7 @@ export function FlowPilotSidebar({
     if (itemId === "dashboard") onOpenDashboard();
     if (itemId === "inventory") onOpenInventory?.();
     if (itemId === "workforce") onOpenWorkforce?.();
+    if (itemId === "marketing") onOpenMarketing?.();
     if (itemId === "clients") onOpenCustomers?.();
     if (itemId === "offres") onOpenOffers?.();
   }
@@ -63,7 +67,7 @@ export function FlowPilotSidebar({
       </div>
 
       <nav className="bm-nav" aria-label="Navigation principale">
-        {menuItems.filter(item => (item.id !== "inventory" || !!onOpenInventory) && (item.id !== "workforce" || !!onOpenWorkforce) && (item.id !== "clients" || !!onOpenCustomers)).map((item) => (
+        {menuItems.filter(item => (item.id !== "inventory" || !!onOpenInventory) && (item.id !== "workforce" || !!onOpenWorkforce) && (item.id !== "clients" || !!onOpenCustomers) && (item.id !== "marketing" || !!onOpenMarketing)).map((item) => (
           <button
             key={item.id}
             type="button"

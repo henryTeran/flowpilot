@@ -258,6 +258,25 @@ reset/template-bound) pass native validation/comparison; reviewed digests agree.
 Fixture owned DB cleaned; existing Starlette/httpx/bcrypt-version warnings only.
 Audit guards/editor/browser/delivery/conversion remain pending; all gates OPEN.
 
+## 13N: native campaign catalog and bounded history
+
+Manager-only lazy Marketing navigation now exposes paginated current campaigns,
+literal retained content, source audience count and revision evidence. Selected
+current receipt must agree with independent original-ID read before display.
+Audit guards pin scope/bounds/total-derived count, original digests and ascending
+clock/ID ordering. Present explicit predecessors verify stage/content continuity;
+equal-clock ID ordering is display order, not causal order. Bounded pages can omit
+predecessors and do not claim complete-chain verification. Fresh reads clear old
+facts; failure hides history/content; late old session/institute/selection responses
+cannot publish. No editor or review/approval/send controls implemented here.
+
+Six focused tests pass. Full frontend: 295 passed in 50.77s, zero failures/skips,
+terminal exit 0. Final two native tests pass after wrapping/control style refinement;
+TypeScript/Vite build passes (132 modules). Signed headers, independent reads,
+corrupt total hides facts then clean retry restores, literal script escaping, role
+and late-scope isolation plus audit ordering/duplicates/predecessors tested.
+Browser geometry and signed Edge acceptance remain pending; all gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

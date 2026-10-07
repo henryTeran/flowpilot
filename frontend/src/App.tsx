@@ -39,6 +39,7 @@ import type {
   ServiceSession,
 } from "./types";
 
+const MarketingPanel = lazy(() => import("./components/MarketingPanel").then(module => ({ default: module.MarketingPanel })));
 const CustomerCrmPanel = lazy(() => import("./components/CustomerCrmPanel").then(module => ({ default: module.CustomerCrmPanel })));
 const WorkforcePanel = lazy(() => import("./components/WorkforcePanel").then(module => ({ default: module.WorkforcePanel })));
 
@@ -74,7 +75,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
-  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients">("planning");
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients" | "marketing">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -739,6 +740,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
         onOpenInventory={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("inventory"); } : undefined}
         onOpenWorkforce={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("workforce"); } : undefined}
+        onOpenMarketing={getOperatorRole() === "responsable_institut" ? () => { setActiveDrawer(null); setMainView("marketing"); } : undefined}
         onOpenCustomers={getOperatorRole() === "responsable_institut" ? () => { setActiveDrawer(null); setMainView("clients"); } : undefined}
         onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
         onLogout={onLogout}
@@ -777,6 +779,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
+        {mainView === "marketing" && <Suspense fallback={<div role="status">Chargement...</div>}><MarketingPanel institute={selectedInstituteId} /></Suspense>}
         {mainView === "clients" && <Suspense fallback={<div role="status">Chargement...</div>}><CustomerCrmPanel institute={selectedInstituteId} /></Suspense>}
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
         {mainView === "workforce" && <Suspense fallback={<div className="bm-banner loading" role="status">Chargement de l’équipe…</div>}>
@@ -1091,7 +1094,8 @@ function isCheckoutTicket(status: string) {
   return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
 }
 
-function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients") {
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients" | "marketing") {
+  if (view === "marketing") return "Marketing";
   if (view === "clients") return "Clientes";
   if (view === "workforce") return "Accueil / Équipe";
   if (view === "inventory") return "Accueil / Inventaire";
@@ -1101,7 +1105,8 @@ function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" |
   return "Accueil / Planning";
 }
 
-function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients") {
+function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients" | "marketing") {
+  if (view === "marketing") return "Marketing";
   if (view === "clients") return "Clientes";
   if (view === "workforce") return "Équipe";
   if (view === "inventory") return "Inventaire";

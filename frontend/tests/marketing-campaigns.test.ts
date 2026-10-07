@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { campaignDigest, validCampaignOriginal, validCampaignRequest, matchesCampaignReceipt, sameCampaignOriginal,
-  validCampaignCatalog, type CampaignContent, type CampaignOriginal } from "../src/marketing-campaign-utils";
+  validCampaignCatalog, validCampaignAuditPage, type CampaignContent, type CampaignOriginal } from "../src/marketing-campaign-utils";
 function content(clock = "2026-10-07T02:00:00.123456+02:00"): CampaignContent {
   return { institute_id: "i", channel: "email", origin: "ai", subject: "Bonjour é", body: "Bonjour {customer_name}\n🙂\x7f",
     template_original_id: null, audience: { id: "audience", institute_id: "i", captured_at: clock, customer_ids: ["customer_b", "customer_a"] } };
@@ -19,6 +19,24 @@ test("campaign SHA-256 matches backend Python Unicode/UTC/microsecond vectors", 
     ["1969-12-31T23:59:59.999999Z", "969151d2a2c8940021f537cb4698a55d0625f50af57928d10737376f32c99f28"],
     ["2026-10-07T00:00:00Z", "fae1c49e7a9606519efbaa75ea3efbae5d749e6337368d644c0335fbefecd11b"]]) assert.equal(await campaignDigest(content(clock)), digest);
   const c = content(); assert.notEqual(await campaignDigest(c), await campaignDigest({ ...c, audience: { ...c.audience, customer_ids: [...c.audience.customer_ids].reverse() } }));
+});
+test("audit pages pin exact bounds/scope/order and check present explicit predecessors", async () => {
+  const draft = original(); draft.revision.id = "z-draft";
+  const digest = await campaignDigest(draft.revision.content);
+  const review: CampaignOriginal = { request: { ...draft.request, action: "review", campaign_id: "campaign-a", expected_revision_id: "z-draft", content: null },
+    revision: { ...draft.revision, id: "a-review", previous_id: "z-draft", state: "REVIEW", reviewed_digest: digest } };
+  // Equal-clock ID order places this review before its predecessor; this is legitimate.
+  const p = { institute_id: "i", campaign_id: "campaign-a", total: 2, offset: 0, limit: 20, originals: [review, draft] };
+  assert.equal(await validCampaignAuditPage(p, "i", "campaign-a", 0, 20), true);
+  for (const patch of [{ total: 3 }, { offset: 1 }, { limit: 50 }, { campaign_id: "foreign" },
+    { originals: [draft, review] }, { originals: [review, review] }]) assert.equal(await validCampaignAuditPage({ ...p, ...patch }, "i", "campaign-a", 0, 20), false);
+  assert.equal(await validCampaignAuditPage({ ...p, total: 2, offset: 1, limit: 1, originals: [draft] }, "i", "campaign-a", 1, 1), true);
+  assert.equal(await validCampaignAuditPage({ ...p, offset: 2, originals: [] }, "i", "campaign-a", 2, 20), true);
+  const changed = structuredClone(draft); changed.request.content!.body = changed.revision.content.body = "Different retained draft";
+  assert.equal(await validCampaignAuditPage({ ...p, originals: [review, changed] }, "i", "campaign-a", 0, 20), false);
+  const cycle = { ...review, revision: { ...review.revision, id: "b-review", previous_id: review.revision.id },
+    request: { ...review.request, expected_revision_id: review.revision.id } };
+  assert.equal(await validCampaignAuditPage({ ...p, originals: [review, cycle] }, "i", "campaign-a", 0, 20), false);
 });
 test("native original enforces action/stage/source and exact review/approval digest", async () => {
   const a = original(); assert.equal(await validCampaignOriginal(a, "i"), true);

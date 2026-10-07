@@ -10,6 +10,8 @@ export type CampaignRevision = { id: string; campaign_id: string; institute_id: 
   state: "DRAFT" | "REVIEW" | "APPROVE"; content: CampaignContent; actor_id: string; reason: string; created_at: string;
   reviewed_digest: string | null; approved_digest: string | null; external_message_sent: false; delivery_authorized: false };
 export type CampaignOriginal = { request: CampaignRequest; revision: CampaignRevision };
+export type CampaignAuditPage = { institute_id: string; campaign_id: string; total: number; offset: number;
+  limit: number; originals: CampaignOriginal[] };
 const text = (v: unknown, max = 80): v is string => typeof v === "string" && !!v.trim() && v.trim() === v && Array.from(v).length <= max;
 const keys = (v: unknown, expected: string[]) => !!v && typeof v === "object" && !Array.isArray(v)
   && Object.keys(v).length === expected.length && expected.every(k => Object.prototype.hasOwnProperty.call(v, k));
@@ -91,6 +93,33 @@ export async function validCampaignCatalog(v: unknown, institute: string, offset
   for (let i = 0; i < p.items.length; i++) {
     if (!await validCampaignOriginal(p.items[i], institute)
       || i > 0 && p.items[i - 1].revision.campaign_id >= p.items[i].revision.campaign_id) return false;
+  }
+  return true;
+}
+export async function validCampaignAuditPage(v: unknown, institute: string, campaign: string, offset: number, limit: number): Promise<boolean> {
+  const p = v as CampaignAuditPage;
+  if (!keys(p, ["institute_id", "campaign_id", "total", "offset", "limit", "originals"])
+    || p.institute_id !== institute || p.campaign_id !== campaign || !text(campaign)
+    || !Number.isSafeInteger(p.total) || p.total < 1 || !Number.isSafeInteger(offset) || offset < 0
+    || !Number.isSafeInteger(limit) || limit < 1 || limit > 50 || p.offset !== offset || p.limit !== limit
+    || !Array.isArray(p.originals) || p.originals.length !== Math.min(limit, Math.max(0, p.total - offset))) return false;
+  const originals = new Map<string, CampaignOriginal>();
+  for (let i = 0; i < p.originals.length; i++) {
+    const o = p.originals[i], prior = p.originals[i - 1]?.revision;
+    if (!await validCampaignOriginal(o, institute) || o.revision.campaign_id !== campaign || originals.has(o.revision.id)) return false;
+    if (prior && (instant(prior.created_at)! > instant(o.revision.created_at)!
+      || instant(prior.created_at) === instant(o.revision.created_at) && prior.id >= o.revision.id)) return false;
+    originals.set(o.revision.id, o);
+  }
+  // Equal-clock ID order is display order; only explicit predecessor IDs convey causality.
+  for (const o of p.originals) {
+    const previous = o.revision.previous_id === null ? undefined : originals.get(o.revision.previous_id);
+    if (!previous) continue; // A bounded page need not contain its predecessor.
+    if (instant(previous.revision.created_at)! > instant(o.revision.created_at)!) return false;
+    if (o.request.action === "review" || o.request.action === "approve") {
+      if (previous.revision.state !== (o.request.action === "review" ? "DRAFT" : "REVIEW")
+        || await campaignDigest(previous.revision.content) !== await campaignDigest(o.revision.content)) return false;
+    }
   }
   return true;
 }
