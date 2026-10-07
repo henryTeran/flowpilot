@@ -7,11 +7,22 @@ from app.modules.marketing import audiences, audience_originals, templates, camp
 from app.modules.marketing import conversion_sources
 from app.modules.marketing import conversion_originals
 from app.modules.marketing import conversion_catalogs
+from app.modules.marketing import conversion_tickets
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
     if user.get("institute_id")!=institute_id or user.get("role")!="responsable_institut":raise HTTPException(403,"Permission insuffisante")
     return user
+
+@router.get("/dispatch-intents/{intent_id}/conversion-tickets", response_model=conversion_tickets.Read)
+def selectable_conversion_tickets(institute_id: str, intent_id: str, expected_fingerprint: str, accepted_outcome_id: str,
+        start: str, end: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50),
+        user=Depends(manager), db: Session=Depends(get_db)):
+    try:
+        payload = conversion_tickets.Request(intent_id=intent_id, expected_fingerprint=expected_fingerprint,
+            accepted_outcome_id=accepted_outcome_id, start=start, end=end)
+    except ValueError: raise HTTPException(422, "Explicit accepted source and window required") from None
+    return conversion_tickets.read(db, institute_id, payload, offset, limit)
 
 @router.post("/conversions/validate", response_model=conversion_sources.Preview)
 def validate_conversion(institute_id: str, payload: conversion_sources.Request, user=Depends(manager), db: Session=Depends(get_db)):

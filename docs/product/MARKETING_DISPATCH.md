@@ -496,4 +496,29 @@ An ancestor outside the bounded page remains unproven in the native page alone.
 Future UI must reread original keys/IDs and selected sources independently, guard
 actor/context changes, preserve protected terms across lost acknowledgements and
 avoid comparing separate report/page captures as if they were atomic. These are
-contracts only; conversion selection/writer/history/report screens are not wired.
+contracts for source selection/writer/history, which remain unwired. The campaign
+summary is now integrated: explicit institute civil-date pickers resolve local
+midnights with the selected institute timezone, refusing ambiguous/skipped dates
+and missing timezone. It displays exact known gross by live/test currency and
+unknown diagnostics after strict report validation, invalidating reads on period
+or session changes. Desktop/tablet actual backend empty-report/refusal/retry paths
+are verified; populated retained conversion browser coverage remains open.
+
+### Phase13BE selectable recorded paid tickets
+
+Manager GET `dispatch-intents/{id}/conversion-tickets` requires the complete intent
+fingerprint, selected accepted outcome ID, explicit aware start/end and bounded
+offset/limit20/max50. Under institute lock, the service independently verifies
+intent/outcome originals, exact result binding and accepted status, then an observed
+post-acceptance billing window. Only paid, explicitly dated tickets of the owned
+recipient inside the half-open window appear, ordered by paid date then ticket ID.
+The exact total and requested slice share the lock and one server capture. UTC SQL
+boundaries preserve alternate offset equivalence in SQLite and PostgreSQL.
+
+Facts retain known/missing/invalid minor amounts and CHF/EUR or unknown currency.
+This read is current recorded billing, not a retained conversion link, delivery,
+settlement or sending permission. Existing ticket attribution does not remove a
+ticket from choices; the eventual writer must explicitly read its current head and
+retain exact expected predecessor terms. Ticket correction after selection requires
+fresh authoritative validation before a new link. No automatic linking, provider
+I/O or billing mutation is performed. Native source selection/writer remains next.
