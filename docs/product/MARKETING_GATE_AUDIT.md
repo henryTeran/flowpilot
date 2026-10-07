@@ -29,6 +29,28 @@ foreign ownership, future audience, stale/self predecessor, backward clock,
 duplicate/whitespace members. Existing Starlette/httpx deprecation only. No
 PostgreSQL/migration/frontend/browser/provider acceptance inferred.
 
+## 13B: owned segmentation and marketing permission observations
+
+Readonly signed manager POST audience-observations requires explicit segment set,
+channel and nullable exact cursor. Keyset scan returns <=50 own registered customer
+IDs plus next cursor; page is not an immutable complete institute audience. One
+institute lock/clock pins each member profile, selected state and scoped lifecycle
+declaration. Internal profile capture-clock injection preserves existing defaults
+and six-query profile budget. Permission is purpose/channel-specific: follow-up
+never implies marketing; missing/refused/future declarations cannot qualify, push
+is unsupported until a declared source exists. Granted recorded permission and
+selected segment do not prove reachable contact/provider authority; delivery
+remains false. No raw destination contact list or external communication produced.
+
+Initial adjacent focus: 15 passed in 13.87s. Final new audience/campaign/profile/
+lifecycle regression: 20 passed in 23.37s, zero failures/skips, actual PostgreSQL
+enabled. SQLite/PostgreSQL cases scan 55 owned members in 50/5 pages, exclude
+foreign same-name member, verify shared clock/missing policy, marketing grant/
+refusal/unknown versus follow-up-only and future declaration, SMS/push separation,
+signed roles/owner/unauthenticated and invalid selections. Existing passlib crypt
+warning only. No migration/native/browser/production acceptance inferred. All
+four Phase 13 gates remain OPEN pending retained audience/campaign workflows.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -13,6 +13,7 @@ from app.database.session import engine
 from app.modules.appointments.routes import router as appointments_router
 from app.modules.commerce.routes import router as commerce_router
 from app.modules.customers.routes import router as customers_router
+from app.modules.marketing.routes import router as marketing_router
 from app.modules.crm.routes import router as crm_router
 from app.modules.memberships.routes import router as memberships_router
 from app.modules.gift_cards.routes import router as gift_cards_router
@@ -99,6 +100,7 @@ def create_app(payment_bindings=()) -> FastAPI:
     app.include_router(commerce_router, prefix=prefix)
     app.include_router(customers_router, prefix=prefix)
     app.include_router(crm_router, prefix=prefix)
+    app.include_router(marketing_router, prefix=prefix)
     app.include_router(memberships_router, prefix=prefix)
     app.include_router(gift_cards_router, prefix=prefix)
     app.include_router(loyalty_router, prefix=prefix)

@@ -26,14 +26,14 @@ class SegmentProfile(Fact):
     complete_customer_history: Literal[False] = False
 
 
-def read(db, institute, customer):
+def read(db, institute, customer, *, _captured_at=None):
     lock_institute(db, institute)
     registered = require_customer(db, institute, customer)
     registration = RegisteredCustomerFact(institute_id=institute, customer_id=customer,
         created_at=explicit_utc_instant(registered.created_at))
     head = policies.read_head(db, institute)
     original = policies.require(db, institute, head.policy_id) if head else None
-    now = utcnow()
+    now = explicit_utc_instant(_captured_at) if _captured_at is not None else utcnow()
     undated, future = db.execute(select(
         func.sum(case((QueueTicket.paid_at.is_(None), 1), else_=0)),
         func.sum(case((QueueTicket.paid_at > now.astimezone(timezone.utc), 1), else_=0)))
