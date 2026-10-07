@@ -54,7 +54,7 @@ future-period and unsupported-write refusal.
 | Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
 | Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
-| Cancelled revenue | 14C verifies booking events but has no historical quote.14G retains new walk-in commercial conditions atomically at cancellation; bounded source verification and value aggregation remain to integrate. Historical snapshots are not backfilled. |
+| Cancelled revenue | 14C verifies booking events but has no historical quote.14G/H retain and verify walk-in cancellation conditions and full-period currency values; legacy unpriced and source diagnostics remain explicit. No causal revenue loss is claimed. |
 | No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
@@ -325,3 +325,47 @@ Compatibility evidence for the previous marketing conversion migration and
 trusted invocation head checks is recorded in PROJECT_STATUS.md. No new native
 UI or financial-loss aggregate acceptance is claimed; Revenue Guardian reader,
 booking historical quote and retained scenario/opportunity audit remain open.
+
+## 14H: verified walk-in cancellation value
+
+Manager-only `GET /api/v1/revenue/institutes/{institute_id}/walk-in-cancellations`
+requires an explicit observed half-open event-time period and offset/limit20/max50.
+One locked capture streams the entire selected cancellation cohort; all original
+proof and currency aggregation complete before publication, independently of the
+returned page. Current event/ticket state must be owned and terminal with one
+supported cancellation event, including a duplicate check outside the period.
+Current ticket/line prices are never compared to or substituted for original money.
+
+Retained envelopes require the exact whole stored JSON fingerprint, typed complete
+terms, owned institute/ticket/previous-state/event-time binding, coherent known/
+missing/invalid amounts, unique ordered lines, positive quantity, valid duration
+and nonfuture removed-line clocks. Full original JSON is preserved in responses;
+typed datetime rendering would otherwise change `+00:00` into `Z` and invalidate
+the returned original digest. Typed validation is applied separately without
+changing those original term spellings. Extra or malformed stored fields, changed
+fingerprint or substituted source anywhere in the cohort refuse the entire read.
+This is consistency/source binding, not authentication against administrator SQL.
+
+The summary separates retained terms from legacy events lacking a snapshot and
+groups recorded cancelled commercial values by CHF/EUR/unknown currency, with
+exact integer minor units and missing/invalid amount diagnostics. Per-currency
+complete values describe only that retained cohort; legacy currency is unknown
+and cannot enter a guessed group or complete all-cancellation amount. No FX or
+quantity multiplication occurs. An opportunity has a monetary estimated_value
+only for known amount plus known currency, explicitly based on recorded cancelled
+commercial value. Otherwise it remains null. Confidence distinguishes retained
+terms from legacy unpriced events. Human source review is recommended; no recovery
+action executes. cancelled_revenue remains null and causal_loss_proven false.
+
+Initial new reader plus ticket snapshot and billing regressions: **16 passed11.73s**,
+SQLite and actual isolated PostgreSQL, zero failures/skips, terminal exit0. Final
+focused tests after strict no-action and fresh ORM read guards are recorded in
+PROJECT_STATUS.md. Tests create25 actual service cancellations plus one legacy
+event,20/6 returned pages, full26 count/currency diagnostics, known/missing/invalid/
+unknown/EUR cases, intact response original fingerprint, current-price mutation
+stability, end-boundary exclusion, corrupt off-page frame, malformed/foreign typed
+terms even with recomputed hash, outside-period duplicate and signed role/institute/
+anonymous/date-only/bounds/write refusal. Existing crypt deprecation only. No
+new schema, native UI, paid-loss or production acceptance is claimed. Booking
+quoted-price evidence, scenario/opportunity audit and desktop/tablet review remain
+open.
