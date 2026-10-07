@@ -8,6 +8,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { id: "planning", label: "Planning", icon: <HomeIcon /> },
+  { id: "workforce", label: "Équipe", icon: <GridIcon /> },
   { id: "tickets", label: "Flux tickets", icon: <TicketIcon /> },
   { id: "dashboard", label: "Pilotage", icon: <GridIcon /> },
   { id: "clients", label: "Clientes", icon: <CardIcon /> },
@@ -25,6 +26,7 @@ interface FlowPilotSidebarProps {
   onOpenTickets: () => void;
   onOpenDashboard: () => void;
   onOpenInventory?: () => void;
+  onOpenWorkforce?: () => void;
   onOpenOffers?: () => void;
   onLogout?: () => void;
 }
@@ -35,6 +37,7 @@ export function FlowPilotSidebar({
   onOpenTickets,
   onOpenDashboard,
   onOpenInventory,
+  onOpenWorkforce,
   onOpenOffers,
   onLogout,
 }: FlowPilotSidebarProps) {
@@ -43,6 +46,7 @@ export function FlowPilotSidebar({
     if (itemId === "tickets") onOpenTickets();
     if (itemId === "dashboard") onOpenDashboard();
     if (itemId === "inventory") onOpenInventory?.();
+    if (itemId === "workforce") onOpenWorkforce?.();
     if (itemId === "offres") onOpenOffers?.();
   }
 
@@ -56,7 +60,7 @@ export function FlowPilotSidebar({
       </div>
 
       <nav className="bm-nav" aria-label="Navigation principale">
-        {menuItems.filter(item => item.id !== "inventory" || !!onOpenInventory).map((item) => (
+        {menuItems.filter(item => (item.id !== "inventory" || !!onOpenInventory) && (item.id !== "workforce" || !!onOpenWorkforce)).map((item) => (
           <button
             key={item.id}
             type="button"

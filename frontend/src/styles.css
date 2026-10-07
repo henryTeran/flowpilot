@@ -1543,6 +1543,22 @@ select {
 
 .appointment-search-wrapper input { min-height: 44px; }
 
+.workforce-panel { min-width: 0; padding: 24px; margin: 16px; border-radius: 20px; background: #fff; color: #352c46; }
+.workforce-panel header, .workforce-pages { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
+.workforce-panel h2 { margin: 0; flex: 1; }
+.workforce-panel button { min-height: 44px; padding: 10px 14px; border: 1px solid #d9cee8; border-radius: 12px; background: #f6f1ff; color: #503879; font: inherit; }
+.workforce-panel button:disabled { opacity: .55; }
+.workforce-panel p { line-height: 1.5; }
+.workforce-table-scroll { width: 100%; max-width: 100%; overflow-x: auto; border: 1px solid #e7e0ed; border-radius: 12px; }
+.workforce-table-scroll table { width: 100%; min-width: 780px; border-collapse: collapse; table-layout: fixed; }
+.workforce-table-scroll caption { text-align: left; padding: 14px; font-weight: 700; }
+.workforce-table-scroll th, .workforce-table-scroll td { padding: 14px; border-top: 1px solid #e7e0ed; vertical-align: top; text-align: left; overflow-wrap: anywhere; }
+.workforce-table-scroll thead th { background: #f7f3fc; }
+.workforce-table-scroll td { font-size: 14px; line-height: 1.5; }
+.workforce-table-scroll small { display: block; margin-top: 8px; font-weight: 400; line-height: 1.5; }
+.skill-covered { color: #186349; }.skill-missing { color: #96343c; }.skill-unspecified { color: #635d6d; }
+@media (max-width: 1100px) { .workforce-panel { padding: 16px; margin: 12px; } }
+
 .appointment-search::placeholder {
   color: #9a7d8d;
 }
@@ -6738,3 +6754,9 @@ body {
 .bm-stock-suppliers .bm-stock-form label { display: grid; gap: 6px; min-width: 0; }
 .bm-stock-suppliers .bm-stock-form input { width: 100%; box-sizing: border-box; }
 .bm-stock-suppliers .bm-stock-form fieldset > button { grid-column: 1 / -1; justify-self: start; }
+
+/* Keep the expanded navigation reachable within the fixed-height sidebar. */
+.bm-sidebar .bm-nav { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.bm-sidebar .bm-nav::-webkit-scrollbar { display: none; }
+.bm-sidebar .bm-nav-item, .bm-sidebar .bm-brand-panel, .bm-sidebar .bm-logout-button { flex-shrink: 0; }
+.bm-sidebar .bm-logout-button { margin-top: 12px; }

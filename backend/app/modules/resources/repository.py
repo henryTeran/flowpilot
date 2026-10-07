@@ -7,23 +7,32 @@ from app.modules.resources.domain import has_required_skills
 from app.modules.tickets.models import QueueTicket, TicketLine
 
 
-def skill_facts(db: Session, institute_id: str) -> dict[str, set[str]]:
+def skill_facts(db: Session, institute_id: str, employee_ids: list[str] | None = None) -> dict[str, set[str]]:
     # Legacy JSON stays readable while existing callers progressively migrate.
     # Configuration writes synchronize both representations transactionally.
+    if employee_ids == []:
+        return {}
+    employees = select(Employee).where(Employee.institute_id == institute_id)
+    structured = select(EmployeeSkill.employee_id, EmployeeSkill.skill_code).where(EmployeeSkill.institute_id == institute_id)
+    if employee_ids is not None:
+        employees = employees.where(Employee.id.in_(employee_ids))
+        structured = structured.where(EmployeeSkill.employee_id.in_(employee_ids))
     facts = {employee.id: {code for code in employee.skills if isinstance(code, str)}
-             for employee in db.scalars(select(Employee).where(
-                 Employee.institute_id == institute_id).execution_options(populate_existing=True)).all()}
-    for employee_id, code in db.execute(select(EmployeeSkill.employee_id, EmployeeSkill.skill_code).where(
-            EmployeeSkill.institute_id == institute_id)):
+             for employee in db.scalars(employees.execution_options(populate_existing=True)).all()}
+    for employee_id, code in db.execute(structured):
         if employee_id in facts:
             facts[employee_id].add(code)
     return facts
 
 
-def requirement_facts(db: Session, institute_id: str) -> dict[str, set[str]]:
+def requirement_facts(db: Session, institute_id: str, service_ids: list[str] | None = None) -> dict[str, set[str]]:
+    if service_ids == []:
+        return {}
     requirements: dict[str, set[str]] = {}
-    for service_id, code in db.execute(select(ServiceRequirement.service_id, ServiceRequirement.skill_code).where(
-            ServiceRequirement.institute_id == institute_id)):
+    statement = select(ServiceRequirement.service_id, ServiceRequirement.skill_code).where(ServiceRequirement.institute_id == institute_id)
+    if service_ids is not None:
+        statement = statement.where(ServiceRequirement.service_id.in_(service_ids))
+    for service_id, code in db.execute(statement):
         requirements.setdefault(service_id, set()).add(code)
     return requirements
 

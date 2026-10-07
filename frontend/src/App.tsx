@@ -8,6 +8,7 @@ import { AppointmentPanel } from "./components/AppointmentPanel";
 import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
 import { InventoryPanel } from "./components/InventoryPanel";
+import { SkillMatrixPanel } from "./components/SkillMatrixPanel";
 import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
 import { PaymentCashflows } from "./components/PaymentCashflows";
@@ -71,7 +72,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
-  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory">("planning");
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -735,6 +736,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         onOpenTickets={() => { setActiveDrawer(null); setMainView("tickets"); }}
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
         onOpenInventory={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("inventory"); } : undefined}
+        onOpenWorkforce={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("workforce"); } : undefined}
         onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
         onLogout={onLogout}
       />
@@ -773,6 +775,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
+        {mainView === "workforce" && <SkillMatrixPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} />}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (
@@ -1082,7 +1085,8 @@ function isCheckoutTicket(status: string) {
   return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
 }
 
-function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory") {
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce") {
+  if (view === "workforce") return "Accueil / Équipe";
   if (view === "inventory") return "Accueil / Inventaire";
   if (view === "offres") return "Accueil / Offres";
   if (view === "tickets") return "Accueil / Tickets";
@@ -1090,7 +1094,8 @@ function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" |
   return "Accueil / Planning";
 }
 
-function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory") {
+function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce") {
+  if (view === "workforce") return "Équipe";
   if (view === "inventory") return "Inventaire";
   if (view === "offres") return "Offres";
   if (view === "tickets") return "Tickets";

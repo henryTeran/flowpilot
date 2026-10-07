@@ -27,6 +27,7 @@ from app.modules.inventory.routes import router as inventory_router
 from app.modules.planning.routes import router as planning_router
 from app.modules.realtime.routes import router as realtime_router
 from app.modules.resources.routes import router as resources_router
+from app.modules.workforce.routes import router as workforce_router
 from app.modules.services.routes import router as services_router
 from app.modules.scheduling.routes import router as scheduling_router
 from app.modules.tickets.routes import router as tickets_router
@@ -108,6 +109,7 @@ def create_app(payment_bindings=()) -> FastAPI:
     app.include_router(planning_router, prefix=prefix)
     app.include_router(scheduling_router, prefix=prefix)
     app.include_router(resources_router, prefix=prefix)
+    app.include_router(workforce_router, prefix=prefix)
     app.include_router(dashboard_router, prefix=prefix)
     app.include_router(dev_router, prefix=prefix)
     app.include_router(realtime_router)
