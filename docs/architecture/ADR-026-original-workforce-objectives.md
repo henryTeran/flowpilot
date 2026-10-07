@@ -1,7 +1,7 @@
 # ADR-026: Explicit original Workforce objectives and recorded progress
 
-Status: API/migration foundation and native readonly profile implemented;
-manager authoring/cancellation/recovery remains open.
+Status: API/migration foundation, native manager lifecycle/recovery and readonly
+profile verified at controlled scope; physical/production acceptance remains open.
 
 A signed institute manager declares an objective's employee, title, measure,
 positive target, first and last included civil days, explicit currency or no
@@ -67,7 +67,20 @@ employee and signed-session changes isolate late responses. Original identifiers
 actors/reasons and UTC bounds remain in a 44px provenance disclosure. Direct
 profile navigation avoids scrolling through long calendar histories.
 
-Native manager authoring/recovery and physical/production acceptance remain
-open. Objectives do not define payroll, commissions,
+Native manager declaration uses exact decimal text (a comma is accepted as the
+decimal separator), an explicit measure/unit and included civil dates. A separate
+motivated cancellation retains the validated original. Actor/institute-scoped
+session storage saves the complete request before original-key recovery or POST.
+Recovery reads the original first and never repeats a POST when it exists.
+Declaration recovery verifies the original again, including immutable target,
+zone, UTC bounds and recording instant. Cancellation recovery verifies both the
+separate cancellation and unchanged original. A valid fresh progress page is
+required before clearing the saved request. Failed reads keep the request;
+refresh remains available so recovery cannot dead-end. Late old-actor reads
+cannot POST or clear storage. Invalid saved requests stay protected. Definitive
+400/422 POST refusals alone expose correction. No scheduler/availability change
+or automatic skill grant is introduced.
+
+Physical/production acceptance remains open. Objectives do not define payroll, commissions,
 external settlement, refund attribution, net revenue or workforce hours. Those
 remaining Employee 360 authorities stay separate in WORKFORCE_GATE_AUDIT.md.

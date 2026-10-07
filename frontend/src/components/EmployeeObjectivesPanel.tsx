@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
-import { validObjectivePage, type ObjectivePage } from "../objective-utils";
-type Props = { institute: string; employee: string };
+import { validObjectivePage, type ObjectivePage, type Objective } from "../objective-utils";
+type Props = { institute: string; employee: string; blocked?: boolean; onCancel?: (row: Objective) => void; onRead?: (ready: boolean) => void };
 export function EmployeeObjectivesPanel(props: Props) {
   if (getOperatorRole() !== "responsable_institut") return null;
   return <Objectives key={JSON.stringify([props.institute, props.employee, getAccessToken()])} {...props} />;
 }
-function Objectives({ institute, employee }: Props) {
+function Objectives({ institute, employee, blocked, onCancel, onRead }: Props) {
   const token = getAccessToken(), [offset, page] = useState(0), [revision, refresh] = useState(0);
   const [result, setResult] = useState<ObjectivePage>(), [loading, setLoading] = useState(true), [error, setError] = useState<string>();
   useEffect(() => {
     let disposed = false; const current = () => !disposed && token === getAccessToken();
     setResult(undefined); setError(undefined); setLoading(true);
+    onRead?.(false);
     void apiGet<ObjectivePage>(`/workforce/institutes/${encodeURIComponent(institute)}/employees/${encodeURIComponent(employee)}/objectives?limit=20&offset=${offset}`)
-      .then(value => { if (!current()) return; if (!validObjectivePage(value, institute, employee, offset)) throw new Error("Lecture des objectifs à vérifier."); setResult(value); })
+      .then(value => { if (!current()) return; if (!validObjectivePage(value, institute, employee, offset)) throw new Error("Lecture des objectifs à vérifier."); setResult(value); onRead?.(true); })
       .catch(error => { if (current()) setError(error instanceof Error ? error.message : "Objectifs indisponibles."); })
       .finally(() => { if (current()) setLoading(false); });
     return () => { disposed = true; };
@@ -32,6 +33,7 @@ function Objectives({ institute, employee }: Props) {
         return <li key={o.id}><strong>{o.title}</strong><p>{states[p.period_state]} · cible : {amount(o.target)}</p>
           <p>Du {o.first_day} au {o.last_day} inclus · fuseau déclaré : {o.timezone}</p>
           <p>{o.metric === "closed_attributed_gross" ? "CA brut attribué clôturé en interne" : "Prestations avec fin effective enregistrée"}</p>
+          {onCancel && !o.cancellation && <button disabled={blocked || loading} onClick={() => onCancel(o)}>Annuler cet objectif</button>}
           {o.cancellation ? <p>Annulation : {o.cancellation.reason} · aucun progrès recalculé.</p> : <>
             <p>{p.value === null ? "Progrès non déterminable" : `Progrès enregistré : ${amount(p.value)}`} · {p.achieved === null ? "Atteinte indéterminée" : p.achieved ? "Cible atteinte à la lecture" : "Cible non atteinte à la lecture"}</p>
             {p.value === null && <p>Sous-total connu : {amount(p.known_value!)}</p>}
@@ -41,7 +43,7 @@ function Objectives({ institute, employee }: Props) {
             {o.cancellation && <p>Annulation {o.cancellation.id} · acteur {o.cancellation.actor_id} · enregistrée : {o.cancellation.created_at}</p>}</details></li>;
       })}</ul>
       <div className="workforce-pages"><span>Objectifs : {visible.rows.length ? offset+1 : 0}–{offset+visible.rows.length} / {visible.page.total}</span>
-        <button disabled={loading || !offset} onClick={() => page(offset-20)}>Objectifs précédents</button>
-        <button disabled={loading || offset+20 >= visible.page.total} onClick={() => page(offset+20)}>Objectifs suivants</button></div></>}
+        <button disabled={blocked || loading || !offset} onClick={() => page(offset-20)}>Objectifs précédents</button>
+        <button disabled={blocked || loading || offset+20 >= visible.page.total} onClick={() => page(offset+20)}>Objectifs suivants</button></div></>}
   </section>;
 }

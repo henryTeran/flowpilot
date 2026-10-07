@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validObjectivePage, matchesObjective, type ObjectivePage } from "../src/objective-utils";
+import { validObjectivePage, matchesObjective, sameObjectiveOriginal, validObjectiveIntent, type ObjectivePage } from "../src/objective-utils";
 export function snapshot(): ObjectivePage {
   return { institute_id: "inst", employee_id: "emp", generated_at: "2026-10-26T12:00:00Z", page: { offset: 0, limit: 20, total: 1 }, rows: [{
     objective: { id: "obj", institute_id: "inst", employee_id: "emp", actor_id: "manager", title: "Original target", metric: "closed_attributed_gross",
@@ -42,4 +42,13 @@ test("pinned objective boundaries retain skipped adjacent days and never use the
   assert.equal(valid(r), true);
   Object.assign(o, { first_day: "2011-12-30", last_day: "2011-12-31", period_start: "2011-12-30T10:00:00Z", period_end: "2011-12-31T10:00:00Z" });
   assert.equal(valid(r), true);
+});
+test("objective cancellation intent retains owned original conditions and exact target", () => {
+  const o = snapshot().rows[0].objective, terms = { reason: "Revised", idempotency_key: "cancel" };
+  assert.equal(validObjectiveIntent({ type: "cancel", original: o, terms }, "inst"), true);
+  assert.equal(validObjectiveIntent({ type: "cancel", original: { ...o, institute_id: "foreign" }, terms }, "inst"), false);
+  assert.equal(validObjectiveIntent({ type: "create", terms: { ...o, metric: "completed_sessions", currency: null, target: "1.5" } }, "inst"), false);
+  assert.equal(sameObjectiveOriginal(o, { ...o, target: "90071992547409.94" }), false);
+  assert.equal(sameObjectiveOriginal(o, { ...o, actor_id: "other" }), false);
+  assert.equal(sameObjectiveOriginal(o, { ...o, period_end: "2026-10-26T00:00:00Z" }), false);
 });

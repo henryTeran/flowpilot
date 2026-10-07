@@ -11,6 +11,7 @@ export type ObjectiveProgress = { objective: Objective; period_state: "upcoming"
   missing_amount_sources: number | null; unknown_currency_sources: number | null; other_currency_sources: number | null };
 export type ObjectivePage = { institute_id: string; employee_id: string; generated_at: string;
   page: { offset: number; limit: number; total: number }; rows: ObjectiveProgress[] };
+export type ObjectiveIntent = { type: "create"; terms: ObjectiveTerms } | { type: "cancel"; original: Objective; terms: RevokeTerms };
 const text = (v: unknown, max: number): v is string => typeof v === "string" && !!v && v.trim() === v && v.length <= max;
 const count = (v: unknown): v is number => Number.isSafeInteger(v) && (v as number) >= 0;
 export function objectiveCents(value: unknown) {
@@ -53,6 +54,16 @@ export const matchesObjective = (r: Objective, t: ObjectiveTerms, actor: string)
   && r.employee_id === t.employee_id && r.title === t.title && r.metric === t.metric && r.currency === t.currency
   && objectiveCents(r.target) === objectiveCents(t.target) && r.first_day === t.first_day && r.last_day === t.last_day
   && r.reason === t.reason && r.idempotency_key === t.idempotency_key;
+export function validObjectiveIntent(value: unknown, institute: string): value is ObjectiveIntent {
+  const r = value as ObjectiveIntent;
+  return !!r && (r.type === "create" ? validObjectiveTerms(r.terms) : r.type === "cancel"
+    && validObjective(r.original, institute) && r.original.cancellation === null && validRevokeTerms(r.terms));
+}
+export const sameObjectiveOriginal = (a: Objective, b: Objective) => a.id === b.id && a.institute_id === b.institute_id
+  && matchesObjective(a, b, b.actor_id) && a.timezone === b.timezone
+  && certificationInstant(a.period_start) === certificationInstant(b.period_start)
+  && certificationInstant(a.period_end) === certificationInstant(b.period_end)
+  && certificationInstant(a.created_at) === certificationInstant(b.created_at);
 export function validObjectivePage(value: unknown, institute: string, employee: string, offset: number): value is ObjectivePage {
   const r = value as ObjectivePage, now = certificationInstant(r?.generated_at);
   if (!r || r.institute_id !== institute || r.employee_id !== employee || now === undefined || !r.page || r.page.offset !== offset
