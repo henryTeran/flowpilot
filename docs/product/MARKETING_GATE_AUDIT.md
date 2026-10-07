@@ -513,6 +513,32 @@ head assertions updated only to new revision. Existing SQLite datetime deprecati
 also observed. No production migration/provider operation performed. Signed persistence/API/audience integration/native contacts
 and delivery/conversion still required. All gates OPEN; full goal ACTIVE.
 
+## 13Y: signed contact original service and protected replay
+
+Manager-only contact POST and independent key/ID/current GETs require own registered
+customer. Institute-scoped keys cannot expose another customer's declaration. Replay
+requires original signed actor/full terms and occurs before head/clock reads, even
+after a later correction. New correction pins current predecessor and monotonic
+registration/predecessor clock. Original/head flush and validated receipt precede
+one commit; write failure rolls back both. No update/delete route or provider call.
+Retained reads reject incoherent JSON ownership and stored reason/key normalization
+mismatch. Signed role/owner guards and strict injected actor rejection tested.
+OpenAPI POST/three GETs and strict Request schema verified.
+
+Initial service/pure: 11 passed in 10.97s. Full eight non-migration marketing files:
+39 passed in 166.27s, terminal exit 0, actual PostgreSQL. Final stored-term coherence
+refinement followed by all five service tests: 5 passed in 10.63s, terminal exit 0.
+Same-key concurrent correction one identical receipt, competing predecessor one
+winner, injected head failure rollback, historical replay before head/clock, altered
+actor/terms/customer/stale/foreign/opaque and corrupt scope/terms refusal covered.
+Existing crypt warning only; no new schema/native/provider/full-backend claim.
+
+Three-channel declarations are not yet audience-capture evidence or fresh-send
+reads. Next: coherent audience integration with legacy retained-page compatibility,
+owned current declaration evaluation, native contact editing/recovery, provider
+transport/send and conversion. All marketing/physical/production gates OPEN;
+full canonical goal ACTIVE. No external message or production configuration.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

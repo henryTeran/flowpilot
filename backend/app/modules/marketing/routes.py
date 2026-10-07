@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.marketing import models as marketing_models  # noqa: F401
-from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs
+from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
     if user.get("institute_id")!=institute_id or user.get("role")!="responsable_institut":raise HTTPException(403,"Permission insuffisante")
@@ -64,3 +64,19 @@ def template_catalog(institute_id:str,offset:int=Query(0,ge=0),limit:int=Query(2
 @router.get("/campaigns",response_model=catalogs.Page[campaign_originals.Original])
 def campaign_catalog(institute_id:str,offset:int=Query(0,ge=0),limit:int=Query(20,ge=1,le=50),user=Depends(manager),db:Session=Depends(get_db)):
     return catalogs.campaigns_current(db,institute_id,offset,limit)
+
+@router.post("/customers/{customer_id}/contact-declarations", response_model=contacts.Original)
+def contact_create(institute_id: str, customer_id: str, payload: contacts.Request, user=Depends(manager), db: Session=Depends(get_db)):
+    return contact_originals.create(db, institute_id, customer_id, payload, user.get("sub"))
+
+@router.get("/customers/{customer_id}/contact-declarations/original/{key}", response_model=contacts.Original | None)
+def contact_original(institute_id: str, customer_id: str, key: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return contact_originals.original(db, institute_id, customer_id, key)
+
+@router.get("/customers/{customer_id}/contact-declarations/current", response_model=contacts.Original | None)
+def contact_current(institute_id: str, customer_id: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return contact_originals.current(db, institute_id, customer_id)
+
+@router.get("/customers/{customer_id}/contact-declarations/{identifier}", response_model=contacts.Original)
+def contact_by_id(institute_id: str, customer_id: str, identifier: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return contact_originals.require(db, institute_id, customer_id, identifier)
