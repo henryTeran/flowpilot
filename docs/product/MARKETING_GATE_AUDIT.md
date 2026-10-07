@@ -460,6 +460,34 @@ Next: explicit immutable contact/permission support across all three channels,
 provider/send/conversion integration and remaining source-catalog acceptance.
 All marketing gates OPEN; physical/production gates OPEN; full canonical goal ACTIVE.
 
+## 13W: explicit three-channel marketing contact declarations
+
+Pure contact facts explicitly declare email/SMS/push permissions exactly once,
+including unknowns, with independent destination/permission evidence. EmailStr
+validates/normalizes email; SMS requires explicit international numeric format;
+push binds application/token. Mixed/missing channel-specific fields refused.
+Addresses/tokens excluded from repr, not from explicit serializable declarations.
+No inferred customer phone endpoint, cross-channel permission or legacy lifecycle
+migration. Existing four-dimensional CRM lifecycle facts remain unchanged.
+
+Pure append validates supplied owned registered customer/current predecessor and
+aware monotonic clocks; correction preserves predecessor. Pure evaluation checks
+approved campaign, retained membership, own registration/declaration, observation
+clock, declared grant and destination. Missing/unknown/refused/future sources refuse.
+Nested model_copy values revalidated at entry. This does not establish that a caller
+supplied the current database head, verified destination ownership/reachability or
+provider authority; delivery/sent remain false. Persistence must supply owned current
+originals under the transaction boundary before this can support actual sending.
+
+Initial contacts/campaign: 14 passed in 0.32s. Final contacts/campaign/legacy lifecycle:
+31 passed in 0.56s, terminal exit 0. Intermediate wrong test filename collected none;
+corrected actual 12s file used for final verification. All channels, withdrawals,
+owned/stale/predecessor/self/clock refusal, complete fields, destination mismatches,
+forged nested sources/results and authority flags tested. Starlette/httpx deprecation
+only. No schema/API/native/provider/full-suite acceptance claimed. Next: append-only
+owned contact originals/heads and signed protected replay, coherent audience/fresh
+send evaluation, provider transport and conversion. All gates OPEN; goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
