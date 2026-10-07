@@ -1,8 +1,25 @@
 from datetime import datetime
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKeyConstraint, Index, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKeyConstraint, Index, JSON, String, UniqueConstraint
 from datetime import date
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
+
+
+class EmployeeSkillChange(Base):
+    __tablename__ = "employee_skill_changes"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_skill_change_employee_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_skill_change_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    expected_skills: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    skills: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class EmployeeAbsence(Base):

@@ -10,6 +10,7 @@ from app.modules.workforce import absences
 from app.modules.workforce.absence_schemas import AbsenceCreate, AbsenceCancel, AbsenceRead, CancellationRead
 from app.modules.workforce.calendar_schemas import EmployeeDayRead
 from app.modules.workforce.certification_schemas import CertificationCreate, CertificationRevoke, CertificationRead, RevocationRead, CertificationPage
+from app.modules.workforce.skill_changes import SkillChangeCreate, SkillChangeRead
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -33,6 +34,20 @@ def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manag
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut" or not str(user.get("sub") or "").strip():
         raise HTTPException(status_code=403, detail="Gestion de l'equipe reservee a la responsable signee de cet institut")
     return user
+
+
+@router.post("/skill-changes", response_model=SkillChangeRead)
+def create_skill_change(institute_id: str, payload: SkillChangeCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.skill_changes import create
+    return create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/skill-changes/original/{key}", response_model=SkillChangeRead | None)
+def original_skill_change(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    from app.modules.workforce.models import EmployeeSkillChange
+    return db.scalar(select(EmployeeSkillChange).where(EmployeeSkillChange.institute_id == institute_id,
+                      EmployeeSkillChange.idempotency_key == key))
 
 
 @router.post("/absences", response_model=AbsenceRead)

@@ -8,13 +8,15 @@ Phase 11D adds the employee profile/calendar foundations with current skills and
 availability, bounded original interval history and separate actual instants.
 Phase 11E adds original declared certifications, signed separate revocations,
 explicit validity states and native manager recovery/readonly profile integration.
+Phase 11F adds original signed skill changes, expected-set comparison and native
+manager editing/recovery while preserving existing commitment protection.
 Inventory's physical and production gates remain open while this independent
 authorized Workforce scope progresses.
 
 | Requirement | Current authoritative evidence | Remaining work |
 | --- | --- | --- |
 | Skill Matrix | Workforce signed scoped endpoint, native Équipe matrix, bounded independent axes, explicit missing/unconfigured requirements; `test_workforce_matrix_11a.py`, `workforce.test.tsx`, `workforce.spec.ts` | Physical-device and production acceptance |
-| Compétences | Existing `Employee.skills` / `EmployeeSkill` union and `ServiceRequirement`; protected audited resource configuration and the same predicate used by assignment and matrix | Native manager authoring/recovery and complete workforce integration |
+| Compétences | Existing `Employee.skills` / `EmployeeSkill` union and `ServiceRequirement`; protected audited resource configuration and shared assignment/matrix predicate; native original-key manager changes compare the reviewed expected set and recover without overwriting later configuration | Certification matching policy, complete workforce integration and acceptance |
 | Disponibilité | Existing availability engine and live board consume recorded absences; native employee profile exposes the same current reading at an explicit timestamp independent of selected calendar day | Complete Employee 360 integration and acceptance |
 | Planning | Institute-day planning plus native employee/day calendar integrates booked appointments, execution facts and original/cancelled absences; overnight, DST and skipped days retain explicit UTC boundaries | Recorded workforce shifts/hours integration and acceptance |
 | Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Configured matching policy and final acceptance; never infer credentials from skill codes or automatically grant a skill |
@@ -32,13 +34,13 @@ Gates remain:
 - `EMPLOYEE_360`: OPEN — availability/skills/calendar profile foundations delivered;
   declared certifications added; objectives, monetary/activity measures, hours and commissions pending.
 - `SKILLS`: PARTIAL — recorded matrix and existing matching/configuration are
-  verified; configured certification matching, native skill authoring and remaining acceptance are pending.
+  verified with native original skill authoring/recovery; configured certification matching and remaining acceptance are pending.
 - `ABSENCES`: PARTIAL — scheduled original facts and capacity integration are
   implemented with native lifecycle/recovery and employee calendar; final acceptance remains pending.
 - `COMMISSIONS`: OPEN — configured rules and source-linked calculations pending.
 
-Next independent unit: explicit certification requirement/matching policy and
-native skill authoring/recovery, then remaining Employee 360 measures and authorities.
+Next independent unit: explicit certification requirement/matching policy,
+then remaining Employee 360 measures and authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and explicit certification matching, objective,
 hours and commission authorities. Existing payment settlement and physical
@@ -48,4 +50,5 @@ ADR-020 explains bounded shared-source reads and their institute-lock tradeoff.
 ADR-021 explains original interval/cancellation facts and capacity arbitration.
 ADR-022 explains scoped employee calendar sources, actual/planned distinction and snapshot paging.
 ADR-023 explains original declared certifications, separate revocations and recovery.
+ADR-024 explains original skill changes, expected-set protection and native recovery.
 PROJECT_STATUS.md records final verification counts and current checkpoint.

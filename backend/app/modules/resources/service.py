@@ -39,7 +39,7 @@ def _employee(db, institute_id, employee_id):
     return employee
 
 
-def update_employee_skills(db: Session, institute_id: str, employee_id: str, payload: SkillUpdate, actor_id=None):
+def update_employee_skills(db: Session, institute_id: str, employee_id: str, payload: SkillUpdate, actor_id=None, *, commit=True):
     lock_institute(db, institute_id)
     employee = _employee(db, institute_id, employee_id)
     codes = sorted(payload.skills)
@@ -61,7 +61,8 @@ def update_employee_skills(db: Session, institute_id: str, employee_id: str, pay
     employee.skills = codes
     sync_employee_skills(db, employee)
     _event(db, institute_id, "employee.skills_updated", employee_id, actor_id)
-    db.commit()
+    if commit:
+        db.commit()
     return codes
 
 
