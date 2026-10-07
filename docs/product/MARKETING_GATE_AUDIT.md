@@ -300,6 +300,30 @@ wrong actor/forged head preserve intent, invalid SEND storage/reception deny wri
 Native draft/edit and audience/template editors plus signed Edge acceptance remain
 pending; all gates OPEN. No production or external delivery acceptance inferred.
 
+## 13P: native audience capture and signed recovery
+
+Marketing now includes explicit six-segment/channel/reason capture form without
+implicit selections. Full request/key is stored per institute/signed actor before
+original lookup/POST. Exact returned actor/terms/manifest plus independent key/ID
+originals must agree before stored intent clears. Invalid/changed/corrupt reads
+retain intent and freeze writes; only definitive POST business refusal permits
+explicit correction. Retained capture is immutable, no delivery authority inferred.
+Push unsupported permission is explicit. Counts distinguish observed/selected/
+recorded-permission eligible clients; no current-send permission claim.
+
+Four focused audience/history tests pass, including actor/independent summary
+mismatch, invalid storage, exact closure, late actor response and role denial.
+Full frontend: 300 passed in 58.73s, zero failures/skips, terminal exit 0.
+Initial actual signed Edge desktop/touch-tablet: two passed in 52.2s. After visual
+inspection improved the narrow fieldset into a responsive grid, final two passed
+in 44.5s; fixture cleaned and both final screenshots inspected. Signed source CRM
+policy/permission creation, explicit selection, committed/lost reply/reload/key
+recovery with one POST, unchanged original-ID receipt, retained eligible client,
+>=44px controls/no overflow verified. TypeScript/Vite build passes (135 modules);
+launcher rebuilt final styling. Existing bcrypt-version/NO_COLOR warnings only.
+Catalog/page selection, templates/campaign editors and full campaign desktop/tablet
+acceptance remain pending; all marketing gates OPEN. Physical/production gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { MarketingCampaignActions } from "./MarketingCampaignActions";
+import { MarketingAudiencePanel } from "./MarketingAudiencePanel";
 import { validCampaignCatalog, validCampaignOriginal, validCampaignAuditPage, sameCampaignOriginal,
   type CampaignOriginal, type CampaignAuditPage } from "../marketing-campaign-utils";
 
@@ -29,6 +30,7 @@ function CampaignDirectory({ institute }: { institute: string }) {
   useEffect(() => { void load(); return () => { sequence.current++; }; }, []);
   return <section className="customer-crm" aria-label="Marketing">
     <h2>Campagnes marketing</h2>
+    <MarketingAudiencePanel institute={institute} />
     <p>Consultez le contenu retenu, son audience et l’historique de revue et d’approbation.</p>
     <button onClick={() => void load(page?.offset || 0)} disabled={loading}>Actualiser les campagnes</button>
     {loading && <p role="status">Chargement des campagnes…</p>}{error && <p role="alert">{error}</p>}

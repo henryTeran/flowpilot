@@ -6819,3 +6819,5 @@ body {
 .customer-crm p { overflow-wrap: anywhere; }
 .customer-crm ol li { overflow-wrap: anywhere; margin-block: 12px; }
 .customer-crm [aria-label="Profil CRM"] { border-top: 1px solid #ddd; padding-top: 16px; }
+.customer-crm .marketing-audience-fields { flex: 1 1 100%; }
+.customer-crm .marketing-segment-option { display: flex; align-items: center; gap: 8px; }
