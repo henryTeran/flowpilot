@@ -4,11 +4,11 @@ import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/sess
 import { marketingSegments, validAudienceRequest, validAudienceOriginal, matchesAudienceReceipt, sameAudienceOriginal,
   type MarketingSegment, type AudienceRequest, type AudienceOriginal } from "../marketing-audience-utils";
 const labels: Record<MarketingSegment, string> = { NEW: "Nouvelles", ACTIVE: "Actives", LOYAL: "Fidèles", VIP: "VIP", AT_RISK: "À risque", DORMANT: "Inactives" };
-export function MarketingAudiencePanel({ institute }: { institute: string }) {
+export function MarketingAudiencePanel({ institute, onCaptured }: { institute: string; onCaptured?: () => void }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
-  return <Capture key={JSON.stringify([institute, getAccessToken()])} institute={institute} />;
+  return <Capture key={JSON.stringify([institute, getAccessToken()])} institute={institute} onCaptured={onCaptured} />;
 }
-function Capture({ institute }: { institute: string }) {
+function Capture({ institute, onCaptured }: { institute: string; onCaptured?: () => void }) {
   const actor = getOperatorSubject(), token = getAccessToken(), mounted = useRef(false), pending = useRef(false);
   const storage = `flowpilot.marketing-audience-request:${JSON.stringify([institute, actor])}`;
   const base = `/marketing/institutes/${encodeURIComponent(institute)}/audience-captures`;
@@ -39,6 +39,7 @@ function Capture({ institute }: { institute: string }) {
         || !sameAudienceOriginal(receipt, byKey) || !sameAudienceOriginal(receipt, byId)) throw new Error("Original relu à vérifier.");
       if (sessionStorage.getItem(storage) !== raw) throw new Error("Demande conservée à vérifier.");
       sessionStorage.removeItem(storage); save({}); setOriginal(receipt); setReason("");
+      onCaptured?.();
     } catch (e) { if (current()) { setError(e instanceof Error ? e.message : "Capture à reprendre.");
       setRejected(posting && !returned && e instanceof ApiError && [400, 422].includes(e.status)); }
     } finally { pending.current = false; if (current()) setBusy(false); }

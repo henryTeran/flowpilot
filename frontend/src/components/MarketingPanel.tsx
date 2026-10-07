@@ -3,6 +3,7 @@ import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { MarketingCampaignActions } from "./MarketingCampaignActions";
 import { MarketingAudiencePanel } from "./MarketingAudiencePanel";
+import { MarketingAudienceCatalog } from "./MarketingAudienceCatalog";
 import { validCampaignCatalog, validCampaignOriginal, validCampaignAuditPage, sameCampaignOriginal,
   type CampaignOriginal, type CampaignAuditPage } from "../marketing-campaign-utils";
 
@@ -13,6 +14,7 @@ export function MarketingPanel({ institute }: { institute: string }) {
   return <CampaignDirectory key={JSON.stringify([institute, getAccessToken()])} institute={institute} />;
 }
 function CampaignDirectory({ institute }: { institute: string }) {
+  const [audienceVersion, refreshAudiences] = useState(0);
   const token = getAccessToken(), sequence = useRef(0);
   const [page, setPage] = useState<Catalog>(), [selected, select] = useState<CampaignOriginal>();
   const [loading, setLoading] = useState(false), [error, setError] = useState<string>();
@@ -30,7 +32,8 @@ function CampaignDirectory({ institute }: { institute: string }) {
   useEffect(() => { void load(); return () => { sequence.current++; }; }, []);
   return <section className="customer-crm" aria-label="Marketing">
     <h2>Campagnes marketing</h2>
-    <MarketingAudiencePanel institute={institute} />
+    <MarketingAudiencePanel institute={institute} onCaptured={() => refreshAudiences(v => v + 1)} />
+    <MarketingAudienceCatalog key={audienceVersion} institute={institute} />
     <p>Consultez le contenu retenu, son audience et l’historique de revue et d’approbation.</p>
     <button onClick={() => void load(page?.offset || 0)} disabled={loading}>Actualiser les campagnes</button>
     {loading && <p role="status">Chargement des campagnes…</p>}{error && <p role="alert">{error}</p>}

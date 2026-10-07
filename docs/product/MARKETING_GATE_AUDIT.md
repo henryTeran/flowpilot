@@ -324,6 +324,26 @@ launcher rebuilt final styling. Existing bcrypt-version/NO_COLOR warnings only.
 Catalog/page selection, templates/campaign editors and full campaign desktop/tablet
 acceptance remain pending; all marketing gates OPEN. Physical/production gates OPEN.
 
+## 13Q: native retained-audience catalog and pages
+
+Marketing now exposes owned bounded 20-member capture catalogs and historical
+client pages. Each selected page rereads original ID/key independently and compares
+immutable receipt before retained source/filter/clock/index/count/eligibility guard.
+Next cursors come from verified page; prior pages use already verified cursor map.
+Fresh loads clear client articles; failed validation hides them, clean retry restores.
+Successful capture resets stale catalog selection; late old session/selection reads
+cannot publish. Historical permission is labeled and does not authorize delivery.
+
+Six focused native catalog/capture/history tests: passed in 4.87s. Full frontend:
+302 passed in 57.46s, zero failures/skips, terminal exit 0. TypeScript/Vite build
+passes (136 modules). Actual signed Edge desktop/touch-tablet expanded scenarios:
+2 passed in 43.8s, fixture cleaned. Real registered 55/56 cohorts yield retained
+50/5 and 50/6 pages, independent original read, lost reply/key recovery one POST,
+catalog selection, backward/forward cursors. Forged selected-segment page hides
+all old articles, clean reread restores exact remainder. Final screenshots inspected;
+existing bcrypt-version/NO_COLOR warnings only. Template/campaign editors and
+complete signed approval/audit acceptance pending; all marketing gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

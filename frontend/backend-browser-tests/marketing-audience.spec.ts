@@ -8,6 +8,10 @@ test("signed native audience capture recovers lost POST and retains explicit mar
   const headers = { Authorization: `Bearer ${token}` }, base = "http://127.0.0.1:4198/api/v1", institute = "demo-institute-geneve";
   const created = await request.post(`${base}/customers/institutes/${institute}`, { headers, data: { display_name: `Audience ${info.project.name}`, idempotency_key: `audience-${info.project.name}` } });
   expect(created.status()).toBe(200); const customer = await created.json();
+  if (info.project.name === "desktop") for (let index = 0; index < 54; index++) {
+    const extra = await request.post(`${base}/customers/institutes/${institute}`, { headers, data: { display_name: `Audience cohort ${index}`, idempotency_key: `audience-cohort-${index}` } });
+    expect(extra.status()).toBe(200);
+  }
   const policies = `${base}/crm/institutes/${institute}/segment-policies`;
   const previousReply = await request.get(policies + "/current", { headers }); expect(previousReply.status()).toBe(200); const previous = await previousReply.json();
   const policy = await request.post(policies, { headers, data: { policy: { institute_id: institute, observation_us: 1209600000000,
@@ -43,7 +47,27 @@ test("signed native audience capture recovers lost POST and retains explicit mar
     const data = await reply.json(); member ||= data.observation.items.find((item: any) => item.customer_id === customer.id);
   }
   expect(member.selected_segment).toBe(true); expect(member.marketing_permission).toBe("granted"); expect(member.eligible_by_recorded_permission).toBe(true); expect(member.delivery_authorized).toBe(false);
+  await page.getByRole("button", { name: "Consulter les audiences retenues", exact: true }).click();
+  const catalog = page.getByRole("region", { name: "Audiences retenues", exact: true });
+  await catalog.getByRole("button", { name: /Explicit native retained audience/ }).first().click();
+  const retainedPanel = page.getByRole("region", { name: "Détail de l’audience retenue", exact: true });
+  await expect(retainedPanel.locator("article")).toHaveCount(50); await expect(retainedPanel).toContainText(first.id);
+  await retainedPanel.getByRole("button", { name: "Clientes suivantes", exact: true }).click();
+  await expect(retainedPanel.locator("article")).toHaveCount(first.summary.customer_count - 50); await expect(retainedPanel).toContainText("Page 2 sur 2");
+  await page.route("**/audience-captures/*/pages/1", async route => {
+    const response = await route.fetch(); const data = await response.json();
+    data.observation.items[0].selected_segment = !data.observation.items[0].selected_segment;
+    await route.fulfill({ response, json: data });
+  });
+  await retainedPanel.getByRole("button", { name: "Actualiser la page retenue", exact: true }).click();
+  await expect(retainedPanel).toContainText("Page retenue à vérifier"); await expect(retainedPanel.locator("article")).toHaveCount(0);
+  await page.unroute("**/audience-captures/*/pages/1");
+  await retainedPanel.getByRole("button", { name: "Actualiser la page retenue", exact: true }).click();
+  await expect(retainedPanel.locator("article")).toHaveCount(first.summary.customer_count - 50);
+  await retainedPanel.getByRole("button", { name: "Clientes précédentes", exact: true }).click(); await expect(retainedPanel.locator("article")).toHaveCount(50);
+  await retainedPanel.getByRole("button", { name: "Clientes suivantes", exact: true }).click(); await expect(retainedPanel.locator("article")).toHaveCount(first.summary.customer_count - 50);
   for (const control of await panel.locator("button,input,select").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await panel.screenshot({ path: info.outputPath("native-audience.png") });
+  await retainedPanel.screenshot({ path: info.outputPath("native-retained-audience.png") });
 });
