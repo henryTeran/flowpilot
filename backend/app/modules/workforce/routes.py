@@ -24,6 +24,8 @@ from app.modules.workforce.rebooking_options import SourceOptions, TargetOptions
 from app.modules.workforce import commission_rules, commissions
 from app.modules.workforce.commission_rule_schemas import CommissionRuleCreate, CommissionRuleCancel, CommissionRulePage, CancellationRead as CommissionRuleCancellationRead
 
+from app.modules.workforce.commission_day import CommissionDay
+
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
 
@@ -372,3 +374,10 @@ def cancel_commission(institute_id: str, identifier: str, payload: AbsenceCancel
 def employee_commissions(institute_id: str, employee_id: str, limit: int = Query(20, ge=1, le=50),
                        offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     return commissions.list_records(db, institute_id, employee_id, limit, offset)
+
+
+@router.get("/employees/{employee_id}/commission-day", response_model=CommissionDay)
+def employee_commission_day(institute_id: str, employee_id: str, day: date, limit: int = Query(20, ge=1, le=50),
+    offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.commission_day import read
+    return read(db, institute_id, employee_id, day, limit, offset)

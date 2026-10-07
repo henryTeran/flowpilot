@@ -2,7 +2,8 @@
 
 Status: internal source/terms/calculation contract implemented and checked on
 SQLite and actual PostgreSQL. Signed original configured rules and separate
-rule cancellations and source-linked accrual/cancellation ledger are implemented;
+rule cancellations, source-linked accrual/cancellation ledger and recorded-day
+exact read are implemented;
 bounded source choices, native manager lifecycle and employee commission profile
 remain open.
 This decision does not close the canonical COMMISSIONS or EMPLOYEE_360 gates.
@@ -143,3 +144,39 @@ roundtrip/metadata parity and actual foreign/malformed-money/duplicate-cancellat
 constraint checks pass on owned SQLite and PostgreSQL fixtures. Nonempty history
 refuses downgrade before any DDL. No application database is migrated or external
 settlement, refund allocation, payroll or production acceptance asserted.
+
+The employee `commission-day` manager read now selects originals by half-open
+institute civil bounds on commission recording time (`commission_recorded_at`).
+That cohort is explicitly distinct from source ticket closing day, rule period
+or cancellation day. Current institute zone resolves the requested day once;
+original pinned rule periods are not rebased. Rows retain complete original
+provenance plus current separate cancellation; no mutable invoice/rule joins
+rewrite the captured gross, currency, rate or result.
+
+Global counts partition the cohort into `recorded`, `cancelled`,
+`future_recording` and `future_cancellation`. An original after the captured read
+clock is a future recording; otherwise an existing cancellation after that clock
+is a distinct future-cancellation diagnostic. These clock diagnostics are not a
+historical-state reconstruction or silently credited/payable amounts. Later known
+cancellation moves the original to cancelled even if cancellation occurred on a
+different day. Each state preserves its exact original minor-unit sum separately
+per CHF/EUR currency. There is no mixed-currency sum, floating SUM, complete
+entitlement or payment inference; `complete_entitlement=false` and
+`payable_total=null`, including empty journals.
+
+The shared institute transaction lock covers bounds, generation clock, global
+aggregate and page. A bounded-memory streamed joined original/cancellation read
+validates each captured authority before adding Python integer amounts; a
+separate stable recorded-time/id page retains global totals across pagination.
+There are no per-row source/rule/cancellation queries. Actual PostgreSQL tests
+pause the aggregate after locking, observe a concurrent writer attempting its
+real institute FOR UPDATE, prove it stays blocked, then verify an entirely empty
+first snapshot and the new original in the next read.
+
+Controlled SQLite/PostgreSQL cases verify mutated-source independence,
+recorded/cancelled/future-original/future-cancellation states, separate currencies,
+23-row 20+3 paging and exact global cancelled sums, Zurich 23/25-hour days,
+skipped Apia day, real writes at exactly included start/excluded end boundaries,
+unknown entitlement on empty rows and signed scope/limit/date refusals. Full
+production-cohort performance and native/profile/source-choice acceptance remain
+open. No schema or application database change is made by this read addition.
