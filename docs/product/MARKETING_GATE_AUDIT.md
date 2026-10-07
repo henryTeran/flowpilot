@@ -277,6 +277,29 @@ corrupt total hides facts then clean retry restores, literal script escaping, ro
 and late-scope isolation plus audit ordering/duplicates/predecessors tested.
 Browser geometry and signed Edge acceptance remain pending; all gates OPEN.
 
+## 13O: native review/approval and protected recovery
+
+Selected verified campaign now exposes review from DRAFT and approval from REVIEW,
+with explicit reason and exact current revision. Requests retain null content and
+cannot change audience/text during validation. Full request is stored per institute/
+signed actor/campaign before key lookup or POST. Resume uses the retained key;
+receipt actor/terms/digests, independent key/ID originals and owned current head
+must verify before exact stored intent clears. Advanced current head is allowed;
+immutable receipt remains pinned. Invalid storage or corrupt/wrong-actor reads keep
+the intent and block new writes. Only a definitive POST business refusal exposes
+explicit correction reset. No SEND/provider action. Session checked after async
+receipt digest before further reads; selected-history head has the same guard.
+
+Five focused action/history tests pass; final three action tests pass after replacing
+a fixed 40ms test wait with a bounded wait for the action to settle. Initial full
+frontend run had 297 passes/one failure from the premature recovery assertion;
+final full frontend: 298 passed in 82.05s, zero failures/skips, terminal exit 0.
+Final TypeScript/Vite build passes (133 modules).
+Lost committed reply survives remount with one POST; independent key/ID/current,
+wrong actor/forged head preserve intent, invalid SEND storage/reception deny writes.
+Native draft/edit and audience/template editors plus signed Edge acceptance remain
+pending; all gates OPEN. No production or external delivery acceptance inferred.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
+import { MarketingCampaignActions } from "./MarketingCampaignActions";
 import { validCampaignCatalog, validCampaignOriginal, validCampaignAuditPage, sameCampaignOriginal,
   type CampaignOriginal, type CampaignAuditPage } from "../marketing-campaign-utils";
 
@@ -51,6 +52,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
     try {
       const head = await apiGet<CampaignOriginal>(`${base}/${encodeURIComponent(root)}/current`);
       if (!await validCampaignOriginal(head, institute) || head.revision.campaign_id !== root) throw new Error("Invalid head");
+      if (!current()) return;
       const [byId, audit] = await Promise.all([
         apiGet<CampaignOriginal>(`${base}/${encodeURIComponent(head.revision.id)}`),
         apiGet<CampaignAuditPage>(`${base}/${encodeURIComponent(root)}/audit?offset=${offset}&limit=20`),
@@ -69,6 +71,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
       <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{original.revision.content.body}</p>
       <p>{original.revision.content.audience.customer_ids.length} destinataires retenus · audience {original.revision.content.audience.id}</p>
       <p>Aucun envoi enregistré. Les permissions retenues ne constituent pas une autorisation d’envoi actuelle.</p></>}
+    <MarketingCampaignActions institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     {page && <><p>{page.originals.length ? `${page.offset + 1}–${page.offset + page.originals.length}` : "0"} sur {page.total} révisions</p>
       {page.originals.map(o => <article key={o.revision.id} style={{ overflowWrap: "anywhere" }}><h4>{stages[o.revision.state]}</h4>
         <p>{o.revision.actor_id} · {o.revision.created_at} · {o.revision.reason}</p>
