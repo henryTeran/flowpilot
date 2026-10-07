@@ -4,7 +4,7 @@ from pydantic import AwareDatetime
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.revenue import billing, sources, capacity
+from app.modules.revenue import billing, sources, capacity, closures
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -25,3 +25,10 @@ def recorded_billing(institute_id: str, start: AwareDatetime, end: AwareDatetime
 def recorded_capacity(institute_id: str, day: date, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
     user=Depends(manager), db: Session = Depends(get_db)):
     return capacity.read(db, institute_id, day, offset, limit)
+
+
+@router.get("/booking-closures", response_model=closures.Closures)
+def booking_closures(institute_id: str, start: AwareDatetime, end: AwareDatetime,
+    offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return closures.read(db, institute_id, start, end, offset, limit)

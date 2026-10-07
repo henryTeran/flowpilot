@@ -54,11 +54,11 @@ future-period and unsupported-write refusal.
 | Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
 | Employee capacity | 14B exposes bounded owned employee occupation evidence; resource/skill constraints and core booking authority remain to integrate. |
-| Cancelled revenue | Capture owned cancellation events/retained invoice or booking terms; distinguish declared opportunity value from actual lost revenue. |
-| No-show revenue | Capture source-backed no-show status and original price basis; do not invent prices or settlement loss. |
+| Cancelled revenue | 14C verifies owned booking cancellation events and unchanged original slot terms. Historical quote/price evidence still missing; revenue remains null. Walk-in cancellation valuation remains to integrate. |
+| No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
 | Rebooking opportunities | Reuse CRM/workforce source-backed return/rebooking rules, preserve eligibility and contact permission boundaries. |
 | Projected revenue | Explicit deterministic scenario inputs, coverage and confidence; separate estimates from recorded billing. |
-| Opportunities | Each must contain type, evidence, estimated_value, confidence and recommended_action; no automatic booking/contact or official LLM calculation. |
+| Opportunities | 14C adds two source-backed unpriced closure follow-ups with all five required fields. Rebooking/scenario/feasible-capacity opportunities and historical price basis remain to integrate. No automatic contact/booking. |
 | Product acceptance | Integrate manager desktop/tablet Revenue Guardian view, source navigation, uncertainty/refusal/retry and actual backend native verification. |
 
 Large-cohort memory/load behavior and report-wide evidence navigation remain
@@ -109,3 +109,44 @@ whole-cohort aggregates across pages, one pinned clock despite a different defau
 work-hours clock,25-hour DST day, unfinalized off-page activity refusal, empty/missing
 hours, future/calendar/bounds and strict nonliteral flags; signed API role/scope,
 anonymous and unsupported writes refused. Existing crypt deprecation only.
+
+## 14C: booking closure evidence and unpriced opportunities
+
+Signed manager-only `GET /api/v1/revenue/institutes/{institute_id}/booking-closures`
+requires an explicit observed half-open start/end period and offset/limit20/max50.
+It pins one locked capture and streams the entire selected event-time cohort,
+returning bounded follow-up opportunities and full-period cancellation/no-show
+counts. The basis is **when the closure was recorded**, not the scheduled slot day.
+
+Each event must have one owned appointment and employee, a supported original
+scheduled/confirmed/arrived status, matching terminal current snapshot and exactly
+unchanged service/employee/customer/slot/booking terms. Actual execution/invoice
+linkage, substituted snapshots, duplicate terminal events (even outside the
+requested period) or malformed/off-page selected sources refuse the entire read.
+Original event ID, actor (possibly absent for legacy data), appointment ID,
+before/after terms and clocks remain explicit. No customer name/phone/free text
+is projected. These checks authenticate neither arbitrary administrator SQL nor
+a complete predecessor history. Complete booking history and causal loss remain
+false. Current terminal appointments with no event receive a separate institute-wide
+diagnostic, because a closure recording time is unknown; they are not assigned
+silently to this period.
+
+Existing BookingEvent snapshots retain no original quoted price. Consequently
+both cancelled/no-show revenue and each estimated_value remain null. Current
+catalog prices, which can change, never substitute for historical agreed terms.
+The two opportunity types recommend reviewing booking and contact permission
+before follow-up, with confidence `recorded_closure_only_unpriced`. Reads execute
+no contact, reservation or lifecycle mutation. Future valuation must add an
+explicit source-backed price basis or clearly separate scenario assumptions;
+this checkpoint does not complete the financial opportunity engine.
+
+Initial all four revenue modules: **18 passed19.00s**, SQLite and actual isolated
+PostgreSQL, zero failures/skips, exit0. Expanded pure refusal and deterministic
+off-page selection tests:8 passed5.68s before final employee-ownership join.
+Final focused result after that join is recorded in PROJECT_STATUS.md. Source
+tests create25 actual service cancellations/no-shows, prove20/5 pages/full counts,
+legacy undated closure diagnostics, catalog-price independence, event-time end
+exclusion, corrupted off-page original and duplicate outside-period refusal,
+scope/clock/snapshot/execution/current-source substitutions, strict no-action
+flags and signed role/institute/anonymous/date-only/bounds/write refusal. No
+schema migration, new message, forecast or native UI acceptance is claimed.
