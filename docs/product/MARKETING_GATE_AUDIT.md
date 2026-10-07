@@ -435,6 +435,31 @@ corrected before the passing run. Both audit screenshots inspected. Marketing ga
 remain OPEN; all-channel/source replacement, contacts/delivery/conversion acceptance
 still pending. Physical/production gates OPEN; full canonical goal ACTIVE.
 
+## 13V: signed native email-to-SMS source replacement
+
+Actual signed native workflow now proves email/AI template draft, review, approval,
+then exact-predecessor correction to independently verified SMS audience/template,
+reset DRAFT and renewed review/approval. Channel change invalidates prior source
+selection and removes email subject. Wrong-channel choices disabled. Internally
+coherent forged template request/content disagrees with retained catalog original,
+refuses selection and writes; clean reread restores exact locked SMS content. Later
+template correction cannot replace the campaign's pinned original. Old email approval
+unchanged; six native campaign POSTs/six audit revisions, distinct approved digests,
+sent/delivery flags false.
+
+Edge desktop/touch-tablet: 2 passed in 46.5s, terminal exit 0; owned fixture cleaned.
+Final TypeScript/Vite source rebuilt. Editor controls >=44px/no horizontal overflow;
+four source/approval screenshots inspected. Push capture zero eligible recipients:
+current lifecycle declarations do not support push permissions. Native selection
+refuses; direct attempted draft returns 400 with no retained replay original. This
+is refusal acceptance only; canonical push integration remains incomplete. Existing
+bcrypt-version/NO_COLOR warnings only. Test/docs-only change; latest full frontend
+309 passed in 60.91s at 13U, no new full frontend/backend/provider claim.
+
+Next: explicit immutable contact/permission support across all three channels,
+provider/send/conversion integration and remaining source-catalog acceptance.
+All marketing gates OPEN; physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

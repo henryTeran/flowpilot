@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13U_NATIVE_CAMPAIGN_PAGINATION_RETRY
+CURRENT_CHECKPOINT = PHASE13V_NATIVE_EMAIL_SMS_SOURCE_REPLACEMENT
 STATUS = ACTIVE
+
+PHASE13V_NATIVE_EMAIL_SMS_SOURCE_REPLACEMENT:
+- Added actual signed native acceptance of email/AI template draft -> review -> approval -> exact-predecessor SMS audience/template replacement -> reset DRAFT -> renewed review/approval. Changing channel removes subject and invalidates old source selections; wrong-channel sources disabled. Independently forged SMS template content (internally coherent request/content) refuses selection and writes, clean independent original restores exact locked content. Later template correction does not replace the approved campaign's pinned original/content. Old email approval remains unchanged; six campaign POSTs/six immutable audit revisions, distinct content digests, sent/delivery false.
+- Actual Edge desktop/touch-tablet: 2 passed in 46.5s, terminal exit 0, owned fixture cleaned. Final TypeScript/Vite source rebuilt by signed launcher. SMS editor controls >=44px/no overflow; four source/approved screenshots inspected. Push captures have zero eligible recipients because current lifecycle declarations do not support push; native selection disabled, direct attempted draft refuses 400 and creates no replay original. This proves refusal, not implemented push delivery. Existing bcrypt-version/NO_COLOR warnings only.
+- Test/documentation-only checkpoint; product source unchanged. Latest full frontend remains 309 passed in 60.91s at 13U; no new full frontend/backend/provider acceptance claimed. CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. NEXT: explicit immutable contact/permission support for email/SMS/push and provider/send/conversion integration; deeper source catalogs where needed. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13U_NATIVE_CAMPAIGN_PAGINATION_RETRY:
 - Preserved requested catalog/audit offset separately from accepted page data. A refused fresh read still clears stale facts, while explicit refresh retries the same page rather than silently returning to page zero. Audit guard rejects predecessor cycles among originals present in the bounded page; no complete-chain claim outside that page.
