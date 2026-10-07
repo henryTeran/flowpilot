@@ -51,6 +51,20 @@ signed roles/owner/unauthenticated and invalid selections. Existing passlib cryp
 warning only. No migration/native/browser/production acceptance inferred. All
 four Phase 13 gates remain OPEN pending retained audience/campaign workflows.
 
+## 13C: replayable audience coherence
+
+Audience page validation now independently recomputes selected segment from retained
+policy/customer/billing/diagnostics and eligibility from exact channel/marketing
+permission original. Strict booleans, owned nested dimensions, shared microsecond
+clock, <=50 ordered unique members, cursor bounds and full-page next cursor pin
+are enforced. JSON roundtrip succeeds; forged VIP, eligibility/permission/selection,
+foreign nested customer, reversed members, forged cursor and microsecond capture
+change fail on both SQLite/PostgreSQL source fixtures. Adjacent audience/campaign/
+profile regression: 15 passed in 14.61s, zero failures/skips, actual PostgreSQL.
+Existing passlib crypt warning only. This establishes coherent replay contracts,
+not database completeness, persisted original authority or permission to send.
+Immutable audience schema/service is still pending; all marketing gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

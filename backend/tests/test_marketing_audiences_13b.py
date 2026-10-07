@@ -1,3 +1,5 @@
+import pytest
+from pydantic import ValidationError
 from datetime import timedelta
 from sqlalchemy.orm import Session
 from app.modules.marketing import audiences
@@ -30,6 +32,20 @@ def exercise(engine,institute,monkeypatch):
   assert all(i.selected_segment and i.profile.captured_at==first.captured_at for i in first.items)
   assert first.items[0].eligible_by_recorded_permission and first.items[1].marketing_permission=="refused" and not first.items[1].eligible_by_recorded_permission
   assert not first.items[2].eligible_by_recorded_permission and first.items[2].marketing_permission=="unknown"
+  assert audiences.Page.model_validate_json(first.model_dump_json())==first
+  for field,value in [("selected_segment",False),("marketing_permission","refused"),("eligible_by_recorded_permission",False),("customer_id","foreign")]:
+   raw=first.model_dump();raw["items"][0][field]=value
+   with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
+  raw=first.model_dump();raw["next_after"]="forged"
+  with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
+  raw=first.model_dump();raw["items"]=tuple(reversed(raw["items"]))
+  with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
+  raw=first.model_dump();raw["items"][0]["profile"]["captured_at"]=NOW+timedelta(microseconds=1)
+  with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
+  raw=first.model_dump();raw["items"][0]["declaration"]["declaration"]["customer_id"]="foreign"
+  with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
+  raw=first.model_dump();raw["items"][0]["profile"]["segment"]["state"]="VIP"
+  with pytest.raises(ValidationError):audiences.Page.model_validate(raw)
   assert not first.delivery_authorized and not first.complete_institute_audience
   second=audiences.read(db,institute,selection.model_copy(update={"after":first.next_after}));assert len(second.items)==5 and second.next_after is None
   assert [i.customer_id for i in first.items+second.items]==[f"aud_{i:03}" for i in range(55)]

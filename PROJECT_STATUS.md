@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13B_OWNED_SEGMENT_PERMISSION_OBSERVATIONS
+CURRENT_CHECKPOINT = PHASE13C_REPLAYABLE_AUDIENCE_COHERENCE
 STATUS = ACTIVE
+
+PHASE13C_REPLAYABLE_AUDIENCE_COHERENCE:
+- Strengthened typed audience page for future immutable stored replay: strict booleans, <=50 unique ordered exact own customer IDs after cursor, shared page/profile clock, owned registered/policy/declaration dimensions, segment reclassification from retained policy/customer/billing/diagnostics, and exact selected-segment/marketing-permission/eligibility recomputation. Next cursor must match full page's final scanned member. Marketing purpose/channel/future-declaration logic shared by source read and replay validator, preventing drift.
+- Snapshot JSON roundtrip and independent tampering tests reject modified selected/permission/eligibility/customer, forged cursor, reversed order, one-microsecond profile clock, foreign nested permission customer and fabricated VIP. Existing 55-member SQLite/PostgreSQL real-source page, signed access/role, future declarations and permission separation tests remain unchanged and pass. These are coherent retained-data contracts, not raw DB completeness proof, signed persisted original service or provider authority.
+- Audience/campaign/profile regression: 15 passed in 14.61s, zero failures/skips, actual PostgreSQL enabled; existing passlib crypt deprecation only. No schema/API shape change, frontend/browser/production receipt claimed. Immutable audience persistence remains pending.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: scoped immutable audience originals/schema and key-first recovery, then campaign/template revision persistence and signed review/approval audit. Full canonical goal remains active.
 
 PHASE13B_OWNED_SEGMENT_PERMISSION_OBSERVATIONS:
 - Added manager-only POST /marketing/institutes/{institute_id}/audience-observations (readonly) with required explicit unique CRM segment selection, channel and exact nullable customer cursor. Own registered IDs scanned in bounded 50+lookahead keyset pages; foreign customers/name/phone/opaque billing references never establish membership. One institute lock and server clock retained throughout page; profile.read now accepts an internal optional capture clock without changing HTTP defaults or six-query profile budget.
