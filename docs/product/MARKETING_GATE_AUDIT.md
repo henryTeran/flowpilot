@@ -567,6 +567,34 @@ schema/native/provider acceptance. Coherent three-channel audiences with legacy
 retained-page compatibility, native contacts/observations, provider/send/conversion
 still pending. All gates OPEN; full canonical goal ACTIVE.
 
+## 13AA: explicit contact-based audience captures across three channels
+
+Added an explicit marketing_contact permission basis to new request/selection/page
+variants. Existing request/page shapes and legacy lifecycle semantics remain intact;
+no retained original or page is rewritten. New variants read current own marketing
+contact originals under the same registered-cohort lock/clock and retain them per
+customer. All three channels use their independently declared marketing permission;
+missing original is unknown, future original unavailable, refusal ineligible. No
+fallback to legacy or another channel, no inferred destination/provider authority.
+Grant alone is historical audience eligibility; fresh recipient evaluation additionally
+requires declared destination and current approval, and still grants no delivery.
+
+New page guard reuses full owned coherent segmentation/profile/cursor checks then
+validates exact contact scope/clock/permission/eligibility. Capture and predecessor
+pages must agree with original permission basis. Original replay pins basis along
+with all other terms; campaign constructor verifies all retained pages/counts as
+before. Signed observation/capture routes accept either explicit variant. Two focused
+SQLite/actual PostgreSQL tests: 2 passed in 16.08s. Registered 55-customer 50/5 pages,
+two retained eligible members, all email/SMS/push DRAFT/REVIEW/APPROVE chains, no
+legacy fallback, withdrawal/future new captures, original replay/history unchanged,
+forged source scope/permission/basis refusal and signed routes covered.
+
+Full ten non-migration marketing files: 44 passed in 115.78s, terminal exit 0;
+existing crypt deprecation only. Native guards/editors do not yet accept/select
+new contact-based capture variants; that integration remains required. Legacy native
+request shape unchanged. No schema migration, provider call, send receipt or native
+acceptance claimed here. All marketing/physical/production gates OPEN; goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -4,6 +4,7 @@ from pydantic import AwareDatetime, Field, model_validator
 from sqlalchemy import select
 from app.modules.crm.metrics import Fact, Identifier
 from app.modules.crm import profile, lifecycle_originals
+from app.modules.marketing import contacts, contact_originals
 from app.modules.crm.segments import classify
 from app.modules.customers.models import Customer
 from app.modules.tickets.repository import lock_institute
@@ -96,3 +97,69 @@ def read(db,institute,selection,*,_captured_at=None):
         selected=observed.segment is not None and observed.segment.state in selection.segments
         items.append(Item(customer_id=customer,profile=observed,declaration=declaration,selected_segment=selected,marketing_permission=permission,eligible_by_recorded_permission=selected and permission=="granted"))
     return Page(institute_id=institute,captured_at=now,selection=selection,next_after=ids[49] if len(ids)>50 else None,items=tuple(items))
+
+
+class ContactSelection(Selection):
+    permission_basis: Literal["marketing_contact"]
+
+
+class ContactItem(Fact):
+    customer_id: Identifier
+    profile: profile.SegmentProfile
+    declaration: contacts.Original | None
+    selected_segment: bool = Field(strict=True)
+    marketing_permission: Literal["granted", "refused", "unknown", "future_declaration"]
+    eligible_by_recorded_permission: bool = Field(strict=True)
+    delivery_authorized: Literal[False] = False
+
+
+class ContactPage(Fact):
+    institute_id: Identifier
+    captured_at: AwareDatetime
+    selection: ContactSelection
+    next_after: Identifier | None
+    items: tuple[ContactItem, ...]
+    complete_institute_audience: Literal[False] = False
+    delivery_authorized: Literal[False] = False
+
+    @model_validator(mode="after")
+    def coherent_contact_snapshot(self):
+        # Reuse the exact registered-cohort/profile/segment/cursor checks, with
+        # explicit unknown legacy permissions, without changing old page semantics.
+        legacy = Selection(segments=self.selection.segments, channel=self.selection.channel, after=self.selection.after)
+        Page(institute_id=self.institute_id, captured_at=self.captured_at, selection=legacy, next_after=self.next_after,
+            items=tuple(Item(customer_id=i.customer_id, profile=i.profile, declaration=None, selected_segment=i.selected_segment,
+                marketing_permission="unsupported_channel" if legacy.channel == "push" else "unknown", eligible_by_recorded_permission=False) for i in self.items))
+        for item in self.items:
+            declared = contacts.Original.model_validate(item.declaration.model_dump()) if item.declaration is not None else None
+            if declared is not None and (declared.declaration.institute_id, declared.declaration.customer_id) != (self.institute_id, item.customer_id):
+                raise ValueError("Marketing contact original must belong to the observed customer")
+            permission = contact_permission(self.selection.channel, declared, self.captured_at)
+            if item.marketing_permission != permission or item.eligible_by_recorded_permission != (item.selected_segment and permission == "granted"):
+                raise ValueError("Audience permission must agree with its retained marketing contact original")
+        return self
+
+
+def contact_permission(channel, declaration, at):
+    if declaration is None: return "unknown"
+    if declaration.created_at > at: return "future_declaration"
+    return next(c.permission for c in declaration.declaration.communications if c.channel == channel)
+
+
+def read_contacts(db, institute, selection, *, _captured_at=None):
+    selection = ContactSelection.model_validate(selection.model_dump())
+    lock_institute(db, institute)
+    now = explicit_utc_instant(_captured_at) if _captured_at is not None else utcnow()
+    query = select(Customer.id).where(Customer.institute_id == institute)
+    if selection.after is not None: query = query.where(Customer.id > selection.after)
+    ids = list(db.scalars(query.order_by(Customer.id).limit(51)))
+    items = []
+    for customer in ids[:50]:
+        observed = profile.read(db, institute, customer, _captured_at=now)
+        declaration = contact_originals.current(db, institute, customer)
+        permission = contact_permission(selection.channel, declaration, now)
+        selected = observed.segment is not None and observed.segment.state in selection.segments
+        items.append(ContactItem(customer_id=customer, profile=observed, declaration=declaration, selected_segment=selected,
+            marketing_permission=permission, eligible_by_recorded_permission=selected and permission == "granted"))
+    return ContactPage(institute_id=institute, captured_at=now, selection=selection,
+        next_after=ids[49] if len(ids) > 50 else None, items=tuple(items))

@@ -32,12 +32,15 @@ class Summary(Fact):
             raise ValueError("Audience summary counts must agree")
         return self
 
+class ContactRequest(Request):
+    permission_basis: Literal["marketing_contact"]
+
 class Original(Fact):
     id: Identifier
     institute_id: Identifier
     actor_id: Annotated[str,StringConstraints(min_length=1,max_length=160)]
     captured_at: AwareDatetime
-    request: Request
+    request: Request | ContactRequest
     summary: Summary
     complete_registered_cohort: Literal[True] = True
     delivery_authorized: Literal[False] = False
@@ -45,7 +48,14 @@ class Original(Fact):
 class RetainedPage(Fact):
     capture_id: Identifier
     page_index: Count
-    observation: audiences.Page
+    observation: audiences.Page | audiences.ContactPage
+
+def observation(value):
+    model = audiences.ContactPage if value.get("selection", {}).get("permission_basis") == "marketing_contact" else audiences.Page
+    return model.model_validate(value)
+
+def basis(value):
+    return getattr(value, "permission_basis", "legacy_lifecycle")
 
 def receipt(row):
     result=Original(id=row.id,institute_id=row.institute_id,actor_id=row.actor_id,captured_at=explicit_utc_instant(row.captured_at),request=row.request,summary=row.summary)
@@ -69,14 +79,16 @@ def page(db,institute,identifier,index):
     if type(index) is not int or index<0 or index>=cap.summary.page_count:raise not_found("Audience page not found")
     row=db.get(AudiencePage,(institute,identifier,index))
     if row is None:raise business_error("Retained audience page is missing")
-    observed=audiences.Page.model_validate(row.observation)
+    observed=observation(row.observation)
+    if basis(observed.selection)!=basis(cap.request):raise business_error("Retained audience permission basis is incoherent")
     if observed.institute_id!=institute or observed.captured_at!=cap.captured_at or observed.selection.segments!=cap.request.segments or observed.selection.channel!=cap.request.channel:
         raise business_error("Retained audience page scope or terms are incoherent")
     previous=None
     if index:
         prior=db.get(AudiencePage,(institute,identifier,index-1))
         if prior is None:raise business_error("Retained audience predecessor page is missing")
-        prior_page=audiences.Page.model_validate(prior.observation)
+        prior_page=observation(prior.observation)
+        if basis(prior_page.selection)!=basis(cap.request):raise business_error("Retained audience predecessor permission basis is incoherent")
         if prior_page.institute_id!=institute or prior_page.captured_at!=cap.captured_at or prior_page.selection.segments!=cap.request.segments or prior_page.selection.channel!=cap.request.channel:raise business_error("Retained audience predecessor scope is incoherent")
         previous=prior_page.next_after
         if previous is None:raise business_error("Retained audience predecessor already ended")
@@ -85,7 +97,8 @@ def page(db,institute,identifier,index):
     return RetainedPage(capture_id=identifier,page_index=index,observation=observed)
 
 def create(db,institute,payload,actor):
-    payload=Request.model_validate(payload.model_dump())
+    model=ContactRequest if basis(payload)=="marketing_contact" else Request
+    payload=model.model_validate(payload.model_dump())
     if not isinstance(actor,str) or not actor.strip() or actor.strip()!=actor or len(actor)>160:raise business_error("Signed audience actor required")
     old=original(db,institute,payload.idempotency_key)
     if old:
@@ -97,7 +110,10 @@ def create(db,institute,payload,actor):
         db.add(row);db.flush()
         after=None;index=0;customers=selected=eligible=0
         while True:
-            observed=audiences.read(db,institute,audiences.Selection(segments=payload.segments,channel=payload.channel,after=after),_captured_at=now)
+            if isinstance(payload,ContactRequest):
+                observed=audiences.read_contacts(db,institute,audiences.ContactSelection(segments=payload.segments,channel=payload.channel,after=after,permission_basis=payload.permission_basis),_captured_at=now)
+            else:
+                observed=audiences.read(db,institute,audiences.Selection(segments=payload.segments,channel=payload.channel,after=after),_captured_at=now)
             db.add(AudiencePage(institute_id=institute,capture_id=row.id,page_index=index,observation=observed.model_dump(mode="json")));db.flush()
             customers+=len(observed.items);selected+=sum(i.selected_segment for i in observed.items);eligible+=sum(i.eligible_by_recorded_permission for i in observed.items);index+=1
             if observed.next_after is None:break
