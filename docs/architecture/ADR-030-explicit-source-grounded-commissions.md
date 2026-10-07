@@ -221,3 +221,42 @@ skipped Apia days, role/institute/limit/date/missing-rule refusals and complete
 rechecked after the shared helper and cancellation-clock refinement. These
 bounded API checks do not close native, complete-cohort performance, physical
 or production acceptance; no schema/application database changes are made.
+
+Frontend original/rule/calculation/day guards are now implemented independently
+of UI binding. Explicit policy validators require complete scope/currency/rate/
+rounding/service-null terms and canonical civil dates. Original rules verify
+pinned timezone/bounds against the established institute calendar resolver,
+including skipped starts, and signed separate cancellation chronology. Original
+commission guards verify rule/source/employee/ticket/line identity, original
+rule state, positive quantity, exact closing/capture/recording chronology and
+policy coverage. BigInt independently recalculates gross-line numerator,
+fractional-cent remainder and each explicit rounding mode; quantity is not
+multiplied again. Monetary strings must be canonical minor units, with bounded
+per-line sources and results.
+
+Original comparators preserve every pinned rule, source and calculation field;
+explicit UTC-offset aliases compare as exact microsecond instants. Separate
+current cancellation can change without changing the original capture. Create/
+cancel intent validators and actor/term comparators prepare protected native
+recovery. Bounded journals verify exact scope/page and visible original identity;
+commission pages refuse duplicate uncancelled source credits, while retained
+cancelled corrections can share a source. These guards do not yet make a native
+write or display a commission profile.
+
+Recorded-day guards require exact requested institute/employee/date/zone/bounds,
+fixed basis and unknown complete entitlement/payable total. They independently
+classify recording/cancellation clocks, conserve global state/currency counts
+and reject duplicate currency/state keys, numeric/invalid money and impossible
+per-source-bound aggregate amounts. Complete pages independently recompute each
+currency/state sum; partial pages retain global totals and verify visible count/
+amount lower bounds without pretending hidden rows are available. Duplicate
+visible active sources or originals are refused. No floats, mixed currency sum
+or presumed payment is introduced.
+
+Controlled frontend tests verify forged math/numerator/remainder, cashier/source
+scope, currency/policy/period/capture mismatches, canonical money, ties in all
+rounding modes, explicit zero/max rates at the retained source bound, numeric/
+boolean/coerced terms, original UTC/microsecond preservation, unknown entitlement,
+forged complete/partial day totals and clock diagnostics/cancellation transitions.
+Full frontend compatibility and production TypeScript/Vite build pass. Original
+choice guards, native/profile lifecycle and signed Edge workflows remain open.
