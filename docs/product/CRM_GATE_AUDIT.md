@@ -1024,6 +1024,34 @@ deprecation warning observed. No schema/migration, new full CRM/backend/frontend
 browser or physical/production acceptance claimed. Recurring worker lifecycle
 and native rule/event recovery remain required; canonical gates stay open.
 
+## Phase 12AH: explicitly enabled recurring worker runtime
+
+Standalone runner requires explicit enable/institute/reason/interval/state. API
+startup does not activate it. Signed own-institute manager credential is read
+from environment and reverified between pages; it is not journaled. Expiry or
+changed owner/actor/terms stops with pending intent retained. CLI migration-revision
+preflight never migrates the application database; partial once-mode exits 2.
+Journal retains cycle/cursor/failures/next due/completion and pinned terms with
+fsync/atomic replacement and Windows/POSIX OS lease. Restart replays pending page
+key; completed cycles get fresh keys after explicit cadence. Stop interrupts wait
+and takes effect between bounded pages. Corrupt journal/forged page is refused.
+No message transport or service installation is supplied.
+
+Initial runner/dispatcher 8 passed in 11.84s; expanded runner 6 passed in 5.39s.
+Final runtime/dispatcher/worker/ledger plus SQLite/PostgreSQL migration preflight:
+18 passed in 44.64s. Final native Windows non-DB journal/lease/expiry/recovery/stop:
+5 passed in 0.47s (four DB tests deselected intentionally); CLI help exits 0.
+Zero failures/skips on final suites. Real signed one-cycle processing tested on
+both databases, response loss/cursor/cycle recovery, failure retention, token
+expiry/role/owner, corrupt/changed journal, exclusive lock and current/stale/
+unmigrated revision boundary. Existing passlib crypt, Alembic path_separator and
+Windows Starlette/httpx deprecations observed. See
+[worker runtime guide](../architecture/CRM_WORKER_RUNTIME.md).
+No application migration, installed/activated production service, new full CRM/
+backend/frontend/browser or physical/production receipt claimed. Native rule/
+event configuration/recovery/processing/cancellation and gate acceptance remain
+required; all canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
