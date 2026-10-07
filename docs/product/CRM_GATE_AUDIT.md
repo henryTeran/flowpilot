@@ -63,14 +63,47 @@ zero failures/skips with the PostgreSQL fixture enabled; existing passlib crypt
 deprecation warning only. Final run includes the UTC-alias correction.
 No new migration, native browser/UI or production acceptance is implied.
 
+## 12C: explicit observed segmentation contract
+
+`backend/app/modules/crm/segments.py` adds an immutable policy contract with no
+commercial defaults: observed horizon, recent-registration age, risk/dormant
+recency thresholds, loyal/VIP ticket-count thresholds, and a VIP gross threshold
+in one explicit CHF/EUR currency. Strict positive integer thresholds refuse
+coercion. Risk precedes dormant and both lie inside the horizon; VIP count exceeds
+loyal count. These are observed retained-billing segments, not inferred physical
+attendance or complete historical labels.
+
+Classification requires an owned registered customer, the exact declared horizon,
+and an explicit undated-paid-ticket diagnostic. A historical period not ending at
+capture or any undated closing produces an indeterminate result (`state: null`)
+with a precise reason. With no observed closing, recent registration can establish
+NEW; an older registration remains indeterminate rather than becoming DORMANT.
+For dated activity the precedence is DORMANT, AT_RISK, VIP, LOYAL, ACTIVE. Recency
+boundaries are inclusive at risk/dormant thresholds, to the microsecond. VIP
+requires the explicit ticket count and currency gross thresholds, without FX.
+Known gross is a valid nonnegative lower bound even with missing amounts; if it
+cannot prove VIP and missing amounts/currencies could change the decision, the
+result stays indeterminate. Otherwise the known count supports LOYAL or ACTIVE.
+Result pins policy, registration fact, metrics and diagnostics for explanation.
+
+Controlled evidence: all three CRM test files pass, 43 tests in 11.60s, zero
+failures/skips with actual PostgreSQL enabled; existing passlib crypt warning
+only. The 22 segmentation cases cover all six states, exact recency/registration/
+gross boundaries, inactivity precedence, missing/unknown evidence, known-gross
+lower bounds, same-currency versus foreign-currency spend, stale/horizon/scope/
+future-registration refusal and strict ordered thresholds. No policy persistence,
+segment API, native UI or production acceptance is delivered by this contract.
+
 ## Remaining acceptance
 
 - Integrate the delivered signed billing read into native customer profiles;
   add any bounded source-history views without changing complete aggregate
   coverage or inferring identity from name/phone.
-- Define explicit lifecycle policy and source-supported segmentation for NEW,
-  ACTIVE, LOYAL, VIP, AT_RISK and DORMANT; retain unknown data where evidence is
-  incomplete. No business thresholds were introduced by 12A.
+- Persist signed explicit lifecycle policies and their original/correction
+  provenance; capture undated paid-ticket diagnostics and current policy horizons
+  under the shared lock, then expose the delivered segmentation through scoped
+  reads and native profiles. No production policy or threshold is configured by
+  12C, and no persisted lifecycle transition/event is claimed yet.
 - Implement source-supported CLV and customer rebooking-cycle semantics,
   distinguishing recorded gross from prediction and employee rebooking credit.
 - Implement explicit birthday/communication declarations and lifecycle events
