@@ -48,7 +48,10 @@ export function validContactOriginal(v: unknown, institute: string, customer: st
 const canonical = (v: unknown): unknown => Array.isArray(v) ? v.map(canonical) : v !== null && typeof v === "object"
   ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)).map(([k, value]) => [k, canonical(value)])) : v;
 export function matchesContactReceipt(r: ContactOriginal, request: ContactRequest, actor: string): boolean {
-  return r.actor_id === actor && JSON.stringify(canonical({ declaration: r.declaration, previous_id: r.previous_id, reason: r.reason, idempotency_key: r.idempotency_key })) === JSON.stringify(canonical(request));
+  return r.actor_id === actor && sameContactRequest({ declaration: r.declaration, previous_id: r.previous_id, reason: r.reason, idempotency_key: r.idempotency_key }, request);
+}
+export function sameContactRequest(a: ContactRequest, b: ContactRequest): boolean {
+  return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 }
 export function sameContactOriginal(a: ContactOriginal, b: ContactOriginal): boolean {
   return a.id === b.id && instant(a.created_at) === instant(b.created_at)

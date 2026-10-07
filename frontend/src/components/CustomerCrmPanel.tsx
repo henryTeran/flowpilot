@@ -8,6 +8,7 @@ import { CrmPolicyPanel } from "./CrmPolicyPanel";
 import { CrmReturnPanel } from "./CrmReturnPanel";
 import { CrmEventPanel } from "./CrmEventPanel";
 import { CrmLifecyclePanel } from "./CrmLifecyclePanel";
+import { MarketingContactEditor } from "./MarketingContactEditor";
 import { CrmLifetimePanel } from "./CrmLifetimePanel";
 import { CrmAutomationPolicyPanel } from "./CrmAutomationPolicyPanel";
 import { CrmBirthdayPolicyPanel } from "./CrmBirthdayPolicyPanel";
@@ -94,5 +95,6 @@ function Profile({ institute, customer }: { institute: string; customer: Custome
       <CrmLifetimePanel institute={institute} customer={customer.id} start={s?.billing.window.start} />
       <details><summary>Période et règle appliquée</summary><p>Lecture : {result.captured_at}</p>{s && <p>Période : {s.billing.window.start} — {s.billing.window.end}</p>}
         {result.policy_original && <p>Règle enregistrée par {result.policy_original.actor_id} · motif : {result.policy_original.reason}</p>}</details></>}
+    <MarketingContactEditor institute={institute} customer={customer.id} />
   </section>;
 }

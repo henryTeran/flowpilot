@@ -69,6 +69,13 @@ def campaign_catalog(institute_id:str,offset:int=Query(0,ge=0),limit:int=Query(2
 def contact_create(institute_id: str, customer_id: str, payload: contacts.Request, user=Depends(manager), db: Session=Depends(get_db)):
     return contact_originals.create(db, institute_id, customer_id, payload, user.get("sub"))
 
+@router.post("/customers/{customer_id}/contact-declarations/validate", response_model=contacts.Request)
+def contact_validate(institute_id: str, customer_id: str, payload: contacts.Request, user=Depends(manager), db: Session=Depends(get_db)):
+    contact_originals.owned(db, institute_id, customer_id)
+    if (payload.declaration.institute_id, payload.declaration.customer_id) != (institute_id, customer_id):
+        raise HTTPException(400, "La déclaration doit correspondre à la cliente sélectionnée")
+    return payload
+
 @router.get("/customers/{customer_id}/contact-declarations/original/{key}", response_model=contacts.Original | None)
 def contact_original(institute_id: str, customer_id: str, key: str, user=Depends(manager), db: Session=Depends(get_db)):
     return contact_originals.original(db, institute_id, customer_id, key)

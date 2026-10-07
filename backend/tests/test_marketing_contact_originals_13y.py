@@ -87,6 +87,15 @@ def test_sqlite_contacts_atomic_recovery_signed_roles_and_scoped_reads(client, m
     assert client.get(path.replace("customer_other", "customer_foreign") + "/current", headers=headers).status_code == 404
     injected_actor = body(institute, "customer_other", "injected").model_dump(mode="json"); injected_actor["actor_id"] = "forged"
     assert client.post(path, json=injected_actor, headers=headers).status_code == 422
+    preview = body(institute, "customer_other", "preview").model_dump(mode="json")
+    preview["declaration"]["communications"][0]["destination"]["email"] = "customer@EXAMPLE.COM"
+    with Session(main_module.engine) as db: before = db.scalar(select(func.count()).select_from(ContactOriginal))
+    validated = client.post(path + "/validate", json=preview, headers=headers)
+    assert validated.status_code == 200 and validated.json()["declaration"]["communications"][0]["destination"]["email"] == "customer@example.com"
+    with Session(main_module.engine) as db: assert db.scalar(select(func.count()).select_from(ContactOriginal)) == before
+    assert client.get(path + "/original/preview", headers=headers).json() is None
+    assert client.post(path + "/validate", json=preview, headers=_auth_headers("accueil", institute)).status_code == 403
+    assert client.post(path + "/validate", json=wrong_scope, headers=headers).status_code == 400
 
 
 def test_postgres_contacts_atomic_recovery(postgres_flow, monkeypatch):

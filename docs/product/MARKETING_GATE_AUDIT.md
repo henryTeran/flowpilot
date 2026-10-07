@@ -645,6 +645,36 @@ API; native contact editor not yet implemented. No provider/send/new backend/sch
 acceptance claimed. Next native contact editor/recovery, observations/provider/send/
 conversion. Marketing/physical/production gates OPEN; full canonical goal ACTIVE.
 
+## 13AD: native contact declaration editor and protected recovery
+
+Trusted selected CRM customer now exposes manager contact editor, independent of
+transient profile facts. Explicit preparation rereads own current/independent ID and
+prefills exact predecessor/terms. Complete three channels/evidence/optional destination
+fields, unknown preserved, no inferred customer phone; push token masked. Read-only
+signed validate POST checks own customer and returns backend-normalized request.
+Canonical email/permissions/destinations shown for explicit confirmation before write;
+other full terms/predecessor/key must agree. Final service checks current predecessor.
+Full canonical intent stored before original-key lookup/POST; exact actor/full terms,
+independent key/ID/current and same stored request precede closure. Advanced head
+allowed for immutable old receipt; corrupt reads preserve pending. Session/mount
+isolation, invalid-storage freeze, definitive business refusal correction reset.
+No original update/delete/provider message.
+
+Five focused editor/contracts tests: 5 passed in 3.23s. Full frontend: 315 passed in
+64.18s, no failures/skips, terminal exit 0, including late old-actor reply. Final
+TypeScript/Vite launcher build passes, 140 modules. Backend contacts service/pure:
+11 passed in 10.32s, actual PostgreSQL cases; preview normalization/no original/key
+write and signed role/scope refusal verified. Initial browser two failures were exact
+wrapping-label test selector; accessible combobox existed. Corrected accessible-role
+selector and bounded action timeout. Final signed desktop/tablet: 2 passed in 40.8s,
+terminal exit 0, fixtures cleaned. Three-channel grants/destinations, canonical email
+review no write, lost confirmation reply/reload recovery, two mutation POSTs/two
+readonly previews per format, exact predecessor withdrawal, email/SMS/old original
+unchanged, storage clear. Controls >=44px/no overflow; six screenshots inspected.
+Existing bcrypt/NO_COLOR only. No new full backend/schema/provider claim. Next full
+native contact/capture/campaign/current-recipient chain, then provider/send/conversion.
+Marketing/physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
