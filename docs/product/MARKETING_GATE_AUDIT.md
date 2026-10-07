@@ -804,6 +804,35 @@ Next durable first-attempt/reconciliation worker with fresh sources/config decis
 configured adapters/native audit/conversion. See MARKETING_DISPATCH.md. All marketing/
 physical/production gates OPEN; canonical goal ACTIVE. No SEND or delivery confirmed.
 
+## Phase 13AK - durable first decision and reconciliation worker
+
+Internal worker resolves exact trusted account/adapter without I/O. First decision
+holds owned institute lock, verifies full current approved campaign/contact/registration
+and fresh permission/destination clock, commits unknown before provider call. I/O never
+holds institute transaction. Existing unknown reconciles only under original key/terms;
+terminal returns without provider call. Lost response, malformed result or persistence
+failure leaves committed uncertainty recoverable. Missing pointer with retained history
+refuses new submit. Latest unknown predecessor retained; conflicting terminal result
+refuses replacement. Worker actors are trusted internal identifiers, not public claims.
+
+Initial 5 worker tests passed/98.80s. Final worker/outcome/intent/provider 24 passed/
+143.64s, zero failures/skips, exit 0. SQLite/actual PostgreSQL independent connection
+sees committed decision before I/O; lost acceptance then withdrawal/reconcile/terminal.
+Actual PostgreSQL two workers one submit/one reconcile, no institute lock during waiting
+adapter; malformed response/retention rollback recovery, absent config/wrong binding/
+failed decision commit no I/O, orphaned history refusal. Crash between committed decision
+and submit remains unknown on reconciliation without resubmit or fabricated rejection.
+Fixtures clean. Crypt deprecation/intentional malformed-bool serializer warning only.
+
+Decision orders concurrent source corrections; a prior withdrawal prevents submit, a
+later correction cannot retract decided bytes or erase uncertain historical acceptance.
+Trusted injected fake adapters only: configured real adapters, bounded network behavior,
+operator uncertainty resolution and deployed invocation remain. No public execution
+route, automatic daemon, live provider, schema/frontend/native/full backend/campaign
+SEND/delivery claim. MARKETING_DISPATCH.md updated. Next real adapter/invocation work,
+canonical SEND/native audit/conversion. All marketing/physical/production gates OPEN;
+full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -2,9 +2,9 @@
 
 The current implementation prepares one durable transport intent for an owned
 customer and approved campaign revision. It performs no provider I/O and does not
-mark the campaign SEND or establish recipient delivery. Trusted-worker outcome
-retention is implemented; execution and delivery-event verification remain to be
-implemented.
+mark the campaign SEND or establish recipient delivery. Internal worker execution
+and trusted outcome retention are implemented with injected adapters. Deployment,
+live adapters and delivery-event verification remain to be implemented.
 
 `MARKETING_ACCOUNTS_JSON` is a server-side account allowlist, empty by default.
 Each entry is an exact `Account` with `institute_id`, `provider`, `account_id`,
@@ -55,3 +55,27 @@ Managers can GET `dispatch-intents/{intent_id}/outcomes` with bounded `offset` a
 and `outcomes/{identifier}`. These routes cannot write provider results. The page
 is an ordered bounded audit, not proof of the full predecessor chain outside the
 page. Present predecessor cycles and incoherent predecessor transitions refuse.
+
+`dispatch_worker.run` is an internal entry point requiring a session factory,
+owned intent, exact worker actor and trusted local account-to-adapter resolver.
+There is no public execution endpoint or automatically activated daemon. For the
+first decision, the worker checks current full campaign/contact/registration and
+current configured account under the institute lock. It commits an unknown outcome
+before any provider call and then releases the database transaction. The adapter
+must bind the exact configured account; resolver lookup must perform no network I/O.
+
+The committed decision is the ordering point for concurrent source corrections.
+Provider I/O runs outside the institute lock so operational mutations can continue.
+A withdrawal before that decision prevents submission; a later withdrawal cannot
+retract an already decided request or erase an uncertain previous attempt. Every
+existing unknown outcome uses reconciliation only, with unchanged original key,
+destination and approved content. Terminal observations return without provider I/O.
+Account removal/change blocks further provider calls; historical receipts remain.
+
+Timeouts and invalid/mismatched responses leave the durable unknown. A persistence
+failure after provider acceptance also leaves the committed decision recoverable.
+A crash after committing the decision but before calling submit likewise resumes
+with reconciliation only: if the provider cannot establish an outcome, the intent
+remains unknown. The worker never fabricates rejection or automatically submits
+again to resolve this ambiguity. Deployed adapters and operator resolution still
+need acceptance. Missing current pointers with retained history refuse submission.
