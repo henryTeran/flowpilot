@@ -221,6 +221,24 @@ Three final focused contract tests pass. Full frontend regression: 285 passed in
 modules after using a compatible own-property check. No editor/browser/backend/
 provider acceptance inferred. Phase 13 gates remain OPEN.
 
+## 13L: native audience receipt and retained-page contracts
+
+Native guards validate explicit selection, actor-bound original terms and exact
+manifest/page arithmetic. Observation guards reuse CRM classification and lifecycle
+source guards, recompute marketing-only permissions and eligibility, enforce owned
+unique ordered customers/shared clock and refuse delivery authority. Retained pages
+pin original/filter/index/clock/predecessor cursor/exact size/end. Catalogs require
+requested bounds, total-derived count and descending clock/ascending ID tie order.
+
+Initial three tests pass; final four focused tests pass with catalog coverage.
+Full frontend regression before catalog addition: 288 passed in 53.11s, zero
+failures/skips, terminal exit 0. A real SQLite backend original-service fixture
+export (55 customers, retained 50/5 pages) passes the native guards with exact
+selected summary, two eligible recipients and terminal null cursor. Temporary
+owned DB cleaned; existing Starlette/httpx and bcrypt-version warnings only.
+Final TypeScript/Vite build passes (129 modules), terminal exit 0.
+No signed native UI/browser/provider/production acceptance inferred; gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

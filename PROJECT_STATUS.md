@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13K_NATIVE_TEMPLATE_RECEIPT_CONTRACTS
+CURRENT_CHECKPOINT = PHASE13L_NATIVE_AUDIENCE_RECEIPT_CONTRACTS
 STATUS = ACTIVE
+
+PHASE13L_NATIVE_AUDIENCE_RECEIPT_CONTRACTS:
+- Added native audience request/original/observation/retained-page/catalog contracts. Receipt comparison pins actor/literal ordered selection/key/reason and independent original clock/summary. Manifest validates count ordering and exact 50-member page arithmetic. Observations reuse exact CRM segment/source and lifecycle-original guards, recompute marketing-only channel permission including future declarations/push unsupported and selected eligibility, and enforce unique ordered customers/shared clock/no delivery authority. Retained reads pin capture/index/filter/clock/predecessor cursor/exact page size/end; catalogs pin total/bounds/unique IDs and descending clock/ascending ID ties.
+- Three initial contract tests pass; final expanded four focused tests pass including catalog ordering. Full frontend regression before final catalog addition: 288 passed in 53.11s, zero failures/skips, terminal exit 0. Actual backend SQLite retained capture exported from existing 55-customer original-service fixture and checked by native guards: manifest plus 50/5 retained pages accepted, summary selected count agrees, exactly two eligible recipients and final null cursor. Owned temporary DB cleaned. Existing Starlette/httpx and bcrypt-version warnings only. Final TypeScript/Vite build passes (129 modules), terminal exit 0. No signed native editor/browser/production acceptance inferred.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: campaign native digest/receipt contracts, guarded marketing editor and signed desktop/tablet audience/template/review/approval/recovery evidence, then explicit delivery/conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13K_NATIVE_TEMPLATE_RECEIPT_CONTRACTS:
 - Added native typed template content/request/original/catalog contracts for the forthcoming editor. Validators pin owned institute/root/predecessor, signed actor, literal request/content equality, explicit email-only subject and channel/origin, bounded Unicode code-point lengths, microsecond-aware clock and exact page bounds/total/unique ordered roots. Exact receipt matching and independent-original comparison support future protected original-key recovery. Unknown fields refused. Literal whitespace/placeholders/body retained; no rendering or provider call.
