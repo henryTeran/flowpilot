@@ -53,7 +53,7 @@ future-period and unsupported-write refusal.
 | Retail attach rate | Explicit line-classification count/coverage kernel implemented; native review still required. |
 | Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
-| Employee capacity | 14B exposes bounded owned employee occupation evidence; resource/skill constraints and core booking authority remain to integrate. |
+| Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
 | Cancelled revenue | 14C verifies owned booking cancellation events and unchanged original slot terms. Historical quote/price evidence still missing; revenue remains null. Walk-in cancellation valuation remains to integrate. |
 | No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
@@ -241,3 +241,42 @@ The source authority still scans care history and performs reads per customer;
 large-customer/load acceptance is unproven. No native Revenue Guardian interface or
 retained opportunity audit is claimed. Scenario/price valuation, core feasible-slot
 authority, source drill-down and desktop/tablet review remain open.
+
+## 14F: core projected additional-arrival opportunity
+
+Manager-only `GET /api/v1/revenue/institutes/{institute_id}/capacity-opportunity`
+accepts an active catalog service and explicit positive future horizon. Under the
+institute lock it pins one clock and obtains duration from that service, then calls
+the existing sovereign `waiting_projections` authority for a new arrival behind
+existing queue commitments. There is no independent availability optimizer or
+caller-provided employee/duration. Skills, active sessions, appointments, absences,
+resource needs/timelines and queue ordering remain the core engine's responsibility.
+Legacy machine-required service without explicit resource needs is unavailable.
+
+An opportunity is returned only when the core projects a positive exact-duration
+slot starting at/after capture and ending inside the horizon. Missing/unknown
+capacity or a slot beyond the horizon is explicit and has no invented time/value.
+Evidence includes service duration, required skills/resources, projected employee
+and start/end, capture/horizon and prior-queue/unprojectable counts. No monetary
+price is inferred from a slot. The five required opportunity fields are present,
+with confidence `conditional_current_queue_projection`, null estimated value and
+human opening-hours/current-capacity review recommended before assignment.
+
+This is a current conditional estimate, not a reserved appointment or resource
+commitment. The core does not certify future attendance, opening hours or an
+unlimited saleable-capacity total. Persisted assignment/booking must rerun its
+existing authoritative guards. Neither capacity_reserved nor action_executed may
+be claimed. Recorded person-time metrics remain separate from this projection;
+the two observations are not summed or presented as interchangeable proof.
+
+Initial new SQLite/PostgreSQL source tests plus existing queue/joint-resource
+regressions: **18 passed20.99s**, zero failures/skips, terminal exit0. Final focused
+source tests additionally isolate missing resource with qualified staff and
+maintenance resource rejection; result is recorded in PROJECT_STATUS.md. Tests
+cover missing machine configuration, skill loss, explicit room need, queue FIFO,
+an appointment that shifts a full-duration fit, horizon refusal, strict no-write
+flags and signed role/institute/anonymous/date-only/unsupported-write controls.
+Existing crypt deprecation only. Fixture data is disposable owned source data;
+no real assignment, provider message, schema migration or native UI acceptance is
+claimed. Retained price/scenario audit and complete Revenue Guardian product
+acceptance remain open.
