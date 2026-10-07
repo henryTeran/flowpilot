@@ -675,6 +675,29 @@ Existing bcrypt/NO_COLOR only. No new full backend/schema/provider claim. Next f
 native contact/capture/campaign/current-recipient chain, then provider/send/conversion.
 Marketing/physical/production gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AE - native current recipient observations
+
+Explicit manager-only reader mounts beneath verified campaign history; revision/session
+change or fresh history clears old observations. Exact page guard recomputes reasons
+and current declared eligibility across email/SMS/push, rejects wrong membership/order,
+count/scope/digest/clocks and strict authorization flags. Independent campaign current/ID
+and per-contact current/ID/key reads must agree before any sampled facts appear.
+Changed/withdrawn contacts require a fresh read; no raw addresses/tokens displayed.
+Requested offset retained after refusal. Sample is bounded, not browser-held atomic
+freshness, complete campaign evaluation, permission to send or provider success.
+
+Initial focused 3 passed in 3.55s. Initial full 317/318 had a test fixed-time assertion
+before async digest settled; changed to bounded settled-state wait. Final full frontend
+318 passed in 65.46s, zero failures/skips, exit 0. Final focused 4 passed in 3.26s after
+21-member last/empty-page boundary coverage. Signed launcher build passes, 142 modules.
+Signed Edge desktop/tablet 2 passed in 37.8s; terminal exit 0, fixtures cleaned. API
+setup of owned contacts/policy/capture/draft/review/approval; native current recipient
+grant then Push withdrawal refusal, corrupt count hides all facts, clean retry.
+Prior contact and approved campaign remain exact. Full native authoring chain not
+claimed. Buttons >=44px/no overflow, four screenshots inspected. Existing bcrypt/
+NO_COLOR diagnostics only. No backend/schema/provider/full-backend acceptance claim.
+All marketing/physical/production gates OPEN; canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

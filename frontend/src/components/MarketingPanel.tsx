@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { MarketingRecipientPanel } from "./MarketingRecipientPanel";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { MarketingCampaignActions } from "./MarketingCampaignActions";
@@ -84,6 +85,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
       <p>Aucun envoi enregistré. Les permissions retenues ne constituent pas une autorisation d’envoi actuelle.</p></>}
     <MarketingCampaignActions institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingCampaignCreator institute={institute} campaign={root} original={original} onChanged={() => void load()} />
+    <MarketingRecipientPanel institute={institute} original={original} />
     {page && <><p>{page.originals.length ? `${page.offset + 1}–${page.offset + page.originals.length}` : "0"} sur {page.total} révisions</p>
       {page.originals.map(o => <article key={o.revision.id} style={{ overflowWrap: "anywhere" }}><h4>{stages[o.revision.state]}</h4>
         <p>{o.revision.actor_id} · {o.revision.created_at} · {o.revision.reason}</p>
