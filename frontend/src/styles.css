@@ -6810,7 +6810,9 @@ body {
 .customer-crm { background: white; border-radius: 16px; padding: 24px; min-width: 0; }
 .customer-crm form, .customer-crm header { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 .customer-crm label { display: grid; gap: 6px; flex: 1 1 220px; }
-.customer-crm input, .customer-crm button, .customer-crm summary { min-height: 44px; }
+.customer-crm input, .customer-crm button, .customer-crm select, .customer-crm summary { min-height: 44px; }
+.customer-crm fieldset { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px; min-width: 0; }
+.customer-crm fieldset p, .customer-crm fieldset button { grid-column: 1 / -1; }
 .customer-crm input { width: 100%; box-sizing: border-box; padding: 10px; }
 .customer-crm button { padding: 10px 16px; cursor: pointer; }
 .customer-crm ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }

@@ -1,0 +1,50 @@
+import { expect, test } from "@playwright/test";
+test("native CRM policy declaration survives a committed lost reply without duplicate POST", async ({ page, request }, info) => {
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const institute = "demo-institute-geneve", base = "http://127.0.0.1:4198/api/v1";
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` };
+  const before = await request.get(`${base}/crm/institutes/${institute}/segment-policies/current`, { headers });
+  expect(before.status()).toBe(200); const previous = await before.json();
+  await expect(page.getByRole("combobox", { name: /Choisir.*institut/ })).toHaveValue(institute);
+  await page.getByRole("button", { name: "Clientes", exact: true }).click();
+  await page.getByText("Configurer la politique CRM", { exact: true }).click();
+  const panel = page.getByRole("region", { name: "Politique CRM", exact: true });
+  await panel.getByRole("button", { name: /Préparer (la configuration|une correction)/ }).click();
+  await panel.getByRole("combobox", { name: /^Unité des durées/ }).selectOption("jours");
+  for (const [label, value] of [["Période observée", "30"], ["Nouvelle cliente pendant", "7"], ["À risque après", "14"], ["Inactive après", "21"],
+    ["Tickets minimum — Fidèle", "2"], ["Tickets minimum — VIP", "3"], ["Montant connu minimum — VIP", "300"]]) {
+    await panel.getByLabel(label, { exact: true }).fill(value);
+  }
+  await panel.getByRole("combobox", { name: /^Devise VIP/ }).selectOption("CHF");
+  await panel.getByLabel("Motif", { exact: true }).fill(`Owned native policy ${info.project.name}`);
+  for (const control of await panel.locator("button,input,select").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
+  await panel.screenshot({ path: info.outputPath("native-crm-policy-form.png") });
+  let posts = 0;
+  const path = `**/crm/institutes/${institute}/segment-policies`;
+  const lost = async (route: any) => { if (route.request().method() !== "POST") return route.continue();
+    posts++; const response = await route.fetch(); expect(response.status()).toBe(200); await route.abort("failed"); };
+  await page.route(path, lost);
+  await panel.getByRole("button", { name: "Enregistrer la politique explicite", exact: true }).click();
+  await expect(panel.getByRole("button", { name: "Reprendre la demande CRM conservée", exact: true })).toBeEnabled();
+  expect(posts).toBe(1);
+  const stored = await page.evaluate(() => { const key = Object.keys(sessionStorage).find(k => k.startsWith("flowpilot.crm-policy-request:"))!; return JSON.parse(sessionStorage.getItem(key)!); });
+  expect(stored.previous_policy_id).toBe(previous?.id || null);
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: /Choisir.*institut/ })).toHaveValue(institute);
+  await page.getByRole("button", { name: "Clientes", exact: true }).click(); await page.getByText("Configurer la politique CRM", { exact: true }).click();
+  const recovered = page.getByRole("region", { name: "Politique CRM", exact: true });
+  await recovered.getByRole("button", { name: "Reprendre la demande CRM conservée", exact: true }).click();
+  await expect(recovered).toContainText("Politique originale vérifiée"); expect(posts).toBe(1);
+  expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.crm-policy-request:")))).toBe(false);
+  const receipt = await request.get(`${base}/crm/institutes/${institute}/segment-policies/original/${stored.idempotency_key}`, { headers });
+  expect(receipt.status()).toBe(200); const original = await receipt.json(); expect(original.policy).toEqual(stored.policy);
+  expect(original.previous_policy_id).toBe(stored.previous_policy_id); expect(original.reason).toBe(stored.reason);
+  for (const control of await recovered.locator("button,input,select").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
+  await recovered.screenshot({ path: info.outputPath("native-crm-policy.png") });
+});

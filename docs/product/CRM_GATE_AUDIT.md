@@ -273,12 +273,52 @@ was corrected without extending timeouts or weakening guards. Only launcher's
 owned temporary fixture was removed, confirmed on completion. No physical-device,
 actual application migration, settlement or production readiness claim.
 
+## 12I: native explicit policy declaration/correction and recovery
+
+`frontend/src/components/CrmPolicyPanel.tsx` integrates manager configuration in
+the customer directory. Initial fields are blank, with no commercial defaults.
+An explicit prepare action pins the current predecessor; correction copies the
+verified original terms exactly into seconds with six decimal places. Operators
+can choose days/hours/seconds, declare ordered recency/count thresholds, explicit
+CHF/EUR VIP gross and a reason. Conversion uses integer arithmetic, preserving
+microseconds and cents without Number rounding; unsafe or invalid values cannot
+be submitted. Changing the duration unit clears durations rather than reinterpreting
+old numbers. Failed/currently unread configuration or a changed predecessor blocks
+new declarations rather than silently rebasing an edit.
+
+An institute/signed-subject envelope persists before any possible POST. Original-key
+GET allows POST only on explicit null. Full receipt actor/terms/key/predecessor and
+an independent original reread, then a fresh selected-policy read, must verify
+before clearing storage. Lost replies/remounts retain the request; failed rereads,
+changed actors and invalid saved data cannot issue a duplicate write or discard
+the original. Refresh remains available during recovery. Only a definitive rejected
+POST permits explicit correction/discard. Successful verification refreshes any
+selected customer profile. Original policy history stays in the backend correction
+chain; no native delete or implicit fallback is introduced.
+
+Controlled evidence: four initial component/conversion tests pass in 2.79s. Full
+frontend 242 passed in 38.83s, zero failures/skips; after the profile-refresh hook,
+final focused policy/profile tests 6 passed in 3.49s and TypeScript/Vite build passes
+(116 modules, lazy CRM about 17.73kB). Tests include committed recovery with a failed
+selected read, lost POST/remount/1us forged reread, late actor/invalid saved data,
+exact duration/overflow handling and successful-only profile refresh callback.
+Final signed Edge policy-write and customer-profile regression: 4 passed in 39.9s,
+zero failures/skips, desktop/touch-tablet. Real owned initial declaration/correction
+commits before its reply is aborted; reload recovery uses exactly one POST, clears
+only verified storage, independently rereads matching original terms/predecessor/
+reason, and preserves customer search/profile forgery rejection. Form and completed
+controls are >=44px with no horizontal overflow; tablet form screenshot inspected.
+Initial write-browser selectors wrongly used exact wrapped-select labels; corrected
+to accessible combobox roles without extending timeouts. Launcher confirms removal
+only of its owned temporary fixture. No new backend/schema or application migration,
+physical-device, external message or production-ready claim.
+
 ## Remaining acceptance
 
-- Implement native explicit policy configuration/correction, guarded original-key
-  recovery and configuration provenance; extend customer profile/source views as
-  needed without changing complete aggregates or guessing name/phone identity.
-  No production policy is configured by 12H, and no lifecycle event is claimed yet.
+- Extend customer profile/source views for remaining lifecycle metrics and events
+  without changing complete aggregates or guessing name/phone identity. Native
+  policy configuration/recovery is delivered; no production policy is configured
+  by controlled browser fixtures and no lifecycle event is claimed yet.
 - Implement source-supported CLV and customer rebooking-cycle semantics,
   distinguishing recorded gross from prediction and employee rebooking credit.
 - Implement explicit birthday/communication declarations and lifecycle events

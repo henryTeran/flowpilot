@@ -4,6 +4,7 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import { certificationInstant } from "../certification-utils";
 import { validSegmentProfile, type SegmentProfile } from "../crm-segment-utils";
 import type { Customer } from "../types";
+import { CrmPolicyPanel } from "./CrmPolicyPanel";
 
 const labels: Record<string, string> = { NEW: "Nouvelle cliente", ACTIVE: "Active", LOYAL: "Fidèle", VIP: "VIP",
   AT_RISK: "À risque", DORMANT: "Inactive", policy_absent: "Politique CRM non configurée", future_policy: "Date de politique à vérifier",
@@ -27,6 +28,7 @@ function Directory({ institute }: { institute: string }) {
   const token = getAccessToken(), sequence = useRef(0);
   const [query, setQuery] = useState(""), [rows, setRows] = useState<Customer[]>([]), [selected, select] = useState<Customer>();
   const [loading, setLoading] = useState(false), [error, setError] = useState<string>();
+  const [profileRevision, refreshProfile] = useState(0);
   useEffect(() => () => { sequence.current++; }, []);
   async function search() {
     const request = ++sequence.current, current = () => request === sequence.current && token === getAccessToken();
@@ -40,13 +42,14 @@ function Directory({ institute }: { institute: string }) {
     finally { if (current()) setLoading(false); }
   }
   return <section className="customer-crm" aria-label="Clientes et CRM"><h2>Clientes</h2>
+    <details><summary>Configurer la politique CRM</summary><CrmPolicyPanel institute={institute} onChanged={() => refreshProfile(v => v+1)} /></details>
     <form onSubmit={e => { e.preventDefault(); if (query.trim().length >= 2 && !loading) void search(); }}>
       <label>Nom ou téléphone<input value={query} maxLength={160} onChange={e => { sequence.current++; setQuery(e.target.value); setRows([]); select(undefined); setError(undefined); setLoading(false); }} /></label>
       <button disabled={loading || query.trim().length < 2}>Rechercher</button>
     </form><p>Choisissez une cliente enregistrée. Jusqu’à 20 résultats ; affinez la recherche si nécessaire.</p>
     {loading && <p role="status">Recherche…</p>}{error && <p role="alert">{error}</p>}
     <ul>{rows.map(c => <li key={c.id}><button onClick={() => select(c)} aria-pressed={selected?.id === c.id}>{c.display_name}{c.phone ? ` · ${c.phone}` : ""}</button></li>)}</ul>
-    {selected && <CustomerCrmProfile institute={institute} customer={selected} />}
+    {selected && <CustomerCrmProfile key={profileRevision} institute={institute} customer={selected} />}
   </section>;
 }
 export function CustomerCrmProfile(props: { institute: string; customer: Customer }) {
