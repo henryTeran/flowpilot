@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11W_GUARDED_REBOOKING_PROFILE_COMPONENT
+CURRENT_CHECKPOINT = PHASE11X_NATIVE_READONLY_REBOOKING_VERIFICATION
 STATUS = ACTIVE
+
+PHASE11X_NATIVE_READONLY_REBOOKING_VERIFICATION:
+- Backend-connected Edge desktop/tablet with LA host clock verify the readonly Employee 360 rebooking profile using signed owned-fixture customer creation, linked ticket, actual session start/finish, later appointment creation and explicit original declaration. Original performer/session/end, booking creation event, same-client provenance and unknown conversion are preserved in the native view.
+- Controlled source workflow verifies fresh corrupt conversion refusal (old source rows hidden), successful retry, target cancellation diagnostic without original mutation, employee switch to empty attribution without implying failure, direct navigation, >=44px buttons/disclosures and no horizontal overflow. Exact UTC instants remain in provenance while main source dates use institute civil time and offsets. Final tablet screenshot inspected.
+- Final Edge result: 2 passed in 37.8s, shell exit 0, production build and owned fixture cleanup. Initial run reached the profile assertions but both cases failed in cleanup because it attempted a second non-idempotent appointment cancellation; the fixture now records successful cancellation and avoids repeating that cleanup call. Original declaration cancellation remains separately signed in finally. No frontend/backend source or schema change and no new full regression is claimed.
+- CHECKPOINT_STATUS = PASS at controlled readonly rebooking API/component/Edge scope. Complete rebooking / Employee 360 / Phase 11 remain OPEN for native original authoring/cancellation/lost-reply recovery, configured commissions and physical/production acceptance. Next: source-friendly native rebooking declaration and protected original recovery, then commissions. Full canonical goal remains active.
 
 PHASE11W_GUARDED_REBOOKING_PROFILE_COMPONENT:
 - Manager selected-day Employee 360 now reads explicitly recorded-day rebooking counts with its own timestamp and unknown complete conversion. Known primary booked/completed counts remain separate from nonzero cancellation/future/unknown/no-show diagnostics. Empty journals explicitly do not establish rebooking failure. Primary source execution/booking creation dates use institute local clocks and UTC offsets; exact pinned originals, both booked slots, actual return state/endpoints, actor/reason and separate cancellation remain in provenance. Direct navigation and >=44px disclosure styles are added; no authoring yet.

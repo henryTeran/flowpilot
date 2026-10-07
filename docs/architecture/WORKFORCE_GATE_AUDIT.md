@@ -23,7 +23,7 @@ authorized Workforce scope progresses.
 | Objectifs | Original signed manager targets, pinned civil/UTC periods, explicit gross-currency or actual-completed-session measure, exact targets, separate cancellations, bounded batched progress API, native manager lifecycle/lost-reply recovery and readonly employee profile | Physical/production acceptance |
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Manager day API and native selected-day profile retain actual source unions, declared denominator, exact covered/outside time, exclusions and floored recorded-time ratio; controlled API/component/Edge desktop/tablet verified | Physical/production acceptance; complete activity/attendance stays unknown |
-| Rebooking | Signed original attribution/cancellation API, bounded declaration-day read and guarded selected-day profile component retain source provenance, exact global counts and actual return diagnostics; institute-locked replay/active uniqueness | Backend-connected Edge profile provenance, native lifecycle/recovery and acceptance; no inferred identity, absent-declaration failure or predicted return |
+| Rebooking | Signed original attribution/cancellation API, bounded declaration-day read and guarded profile retain source provenance and global counts; controlled signed workflows/Edge desktop/tablet verify readonly provenance and changed-target diagnostics | Native authoring/cancellation/lost-reply recovery and physical/production acceptance; no inferred identity, absent-declaration failure or predicted return |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
@@ -43,7 +43,7 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: backend-connected native rebooking profile verification and lifecycle/recovery, then
+Next independent unit: native recorded rebooking authoring/cancellation and lost-reply recovery, then
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and commission authorities.

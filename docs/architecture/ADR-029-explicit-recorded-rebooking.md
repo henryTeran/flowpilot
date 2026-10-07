@@ -2,7 +2,7 @@
 
 Status: original declaration/cancellation API and migration implemented;
 bounded employee declaration-day read and profile component implemented;
-native lifecycle/Edge verification and acceptance remain open.
+readonly profile verified on controlled Edge; native lifecycle and acceptance remain open.
 
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
@@ -105,8 +105,13 @@ Primary execution/creation instants use institute civil time and UTC offsets;
 exact originals remain in provenance. Empty journals do not imply rebooking
 failure. Fresh failures hide previous facts; day/employee/token remounts isolate
 late replies and reception initiates no reads. Controlled component tests and
-production build pass; backend-connected Edge provenance and authoring/recovery
-remain required before native acceptance.
+production build pass. Backend-connected signed workflows and Edge desktop/tablet
+verify explicit customer-linked execution/booking/declaration provenance, corrupt
+fresh-read refusal/retry, original preservation after target cancellation,
+employee switch to empty unknown attribution, direct navigation, 44px controls
+and horizontal fit. Final tablet provenance screenshot is inspected. Native
+authoring/cancellation/lost-reply recovery and physical/production acceptance
+remain required; no actual future attendance is claimed.
 
 Controlled SQLite and real PostgreSQL source tests verify both execution kinds,
 exact microsecond chronology, explicit identity, original creation provenance,
