@@ -72,6 +72,21 @@ class AmountGroup(Fact):
     complete_gross_minor: Unsigned | None
     average_minor: ExactRatio | None
 
+    @model_validator(mode="after")
+    def coherent(self):
+        if not self.source_count or self.known_amount_count+self.missing_amount_count+self.invalid_amount_count != self.source_count:
+            raise ValueError("Amount diagnostics must partition a nonempty source group")
+        gross = int(self.known_gross_minor)
+        if gross > self.known_amount_count*9999999999:
+            raise ValueError("Known gross exceeds its recorded amount bounds")
+        complete = self.currency is not None and self.known_amount_count == self.source_count
+        if self.complete_gross_minor != (self.known_gross_minor if complete else None):
+            raise ValueError("Complete gross cannot substitute for uncertain recorded amounts")
+        expected = ExactRatio(numerator=self.known_gross_minor, denominator=str(self.source_count)) if complete else None
+        if self.average_minor != expected:
+            raise ValueError("Recorded average must use the entire complete source group")
+        return self
+
 
 class MixGroup(Fact):
     service_id: Identifier
@@ -105,6 +120,25 @@ class Billing(Fact):
         if value is not False:
             raise ValueError("Unproven completeness or settlement cannot be asserted")
         return value
+
+    @model_validator(mode="after")
+    def coherent(self):
+        currencies = [group.currency for group in self.ticket_amounts]
+        if len(set(currencies)) != len(currencies) or sum(group.source_count for group in self.ticket_amounts) != self.ticket_count:
+            raise ValueError("Unique currency groups must cover the ticket cohort")
+        if self.care_and_retail_tickets > self.care_tickets or self.care_tickets > self.ticket_count \
+                or self.tickets_without_active_lines > self.ticket_count or self.tickets_with_unknown_category > self.ticket_count:
+            raise ValueError("Invoice category coverage must match the ticket cohort")
+        expected = ExactRatio(numerator=str(self.care_and_retail_tickets), denominator=str(self.care_tickets)) \
+            if self.care_tickets and not self.tickets_without_active_lines and not self.tickets_with_unknown_category else None
+        if self.recorded_retail_attach_ratio != expected:
+            raise ValueError("Attachment ratio must preserve category coverage")
+        if sum(group.line_count for group in self.service_mix) != self.active_line_count:
+            raise ValueError("Service mix must cover the active invoice lines")
+        for group in self.service_mix:
+            if group.currency != group.amounts.currency or group.line_count != group.amounts.source_count or int(group.units) < group.line_count:
+                raise ValueError("Service mix source counts and extended amounts must agree")
+        return self
 
 
 def _add(group, source):
