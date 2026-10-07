@@ -5,6 +5,51 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
 
+class EmployeeCommission(Base):
+    __tablename__ = "employee_commissions"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_commission_employee_owner"),
+        ForeignKeyConstraint(["institute_id", "rule_id"], ["employee_commission_rules.institute_id", "employee_commission_rules.id"], name="fk_commission_rule_owner"),
+        ForeignKeyConstraint(["institute_id", "ticket_id"], ["queue_tickets.institute_id", "queue_tickets.id"], name="fk_commission_ticket_owner"),
+        ForeignKeyConstraint(["ticket_id", "line_id"], ["ticket_lines.ticket_id", "ticket_lines.id"], name="fk_commission_line_owner"),
+        UniqueConstraint("institute_id", "id", name="uq_commission_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_commission_replay"),
+        CheckConstraint("currency IN ('CHF', 'EUR') AND length(amount_minor) BETWEEN 1 AND 10 AND CAST(amount_minor AS BIGINT) >= 0 AND amount_minor = CAST(CAST(amount_minor AS BIGINT) AS VARCHAR)", name="ck_commission_money"),
+        Index("ix_commission_employee_recorded", "institute_id", "employee_id", "created_at", "id"),
+        Index("ix_commission_source", "institute_id", "line_id"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    rule_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    ticket_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    line_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    amount_minor: Mapped[str] = mapped_column(String(30), nullable=False)
+    rule_capture: Mapped[dict] = mapped_column(JSON, nullable=False)
+    calculation: Mapped[dict] = mapped_column(JSON, nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CommissionCancellation(Base):
+    __tablename__ = "commission_cancellations"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "commission_id"], ["employee_commissions.institute_id", "employee_commissions.id"], name="fk_commission_cancel_owner"),
+        UniqueConstraint("institute_id", "commission_id", name="uq_commission_cancel_original"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_commission_cancel_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    commission_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class EmployeeCommissionRule(Base):
     __tablename__ = "employee_commission_rules"
     __table_args__ = (

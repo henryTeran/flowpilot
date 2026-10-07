@@ -2,8 +2,9 @@
 
 Status: internal source/terms/calculation contract implemented and checked on
 SQLite and actual PostgreSQL. Signed original configured rules and separate
-rule cancellations are implemented; accrual/cancellation ledger, native manager
-lifecycle and employee commission profile remain open.
+rule cancellations and source-linked accrual/cancellation ledger are implemented;
+bounded source choices, native manager lifecycle and employee commission profile
+remain open.
 This decision does not close the canonical COMMISSIONS or EMPLOYEE_360 gates.
 
 The first supported basis is `closed_attributed_line_gross`: a retained line
@@ -69,8 +70,8 @@ half-open UTC period once. An empty skipped-day period or calendar overflow is
 refused. The service catalog is global in the established architecture; an
 optional named service must exist, while employee ownership is institute-scoped.
 There are no seeded/default rules. Explicit overlapping originals are allowed;
-future accrual source uniqueness, not implicit rule priority, must prevent double
-credit. Cancelling a rule prevents future new accruals but must not silently
+active accrual source uniqueness under the institute transaction lock prevents
+double credit instead of applying an implicit rule priority. Cancelling a rule prevents future new accruals but must not silently
 rewrite or cancel existing pinned commission originals.
 
 Matching actor/terms replay is resolved before current calendar or clock reads.
@@ -97,3 +98,48 @@ with positive period. Empty upgrade/downgrade roundtrip is verified on owned
 fixtures; any recorded rule or cancellation prevents downgrade before DDL.
 Earlier protected-history migration tests remain compatible with the new head.
 No existing application database is migrated by these controlled tests.
+
+Source-linked originals now use `employee_commissions` and separate
+`commission_cancellations`, migration `ac61f9d028e5` after `9bc52e18d430`.
+A signed manager supplies only original rule ID, retained line ID, reason and
+request key. The server derives employee/ticket/currency, captures the complete
+uncancelled rule and closed-line facts once, and computes exact rounded cents.
+Rules recorded after the capture clock or cancelled rules cannot create new
+accruals. A matching original request resolves before current rule, source or
+clock validation, preserving recovery after changes or later cancellation.
+
+Each accrual retains full rule snapshot, typed source/terms/numerator/remainder/
+rounded-result calculation, explicit derived currency/minor-unit columns and
+actor/reason/key/recorded instant. DTO reads recheck rule/source/employee/ticket/
+line identity, matching captured and recording clocks, original rule chronology,
+exact policy and recomputed integer arithmetic, plus agreement with retained
+money columns. Separate cancellation must reference the same original/institute
+and cannot precede its recording instant. No live rule or invoice re-evaluation
+changes an original receipt; in particular later rule cancellation does not
+retract an existing commission or release its active source credit.
+
+Before a new accrual, a joined original/cancellation read refuses any uncancelled
+commission for the same owned invoice line, across every overlapping rule.
+Creation and correction hold the shared institute lock. Actual PostgreSQL tests
+prove competing different-rule/key requests yield precisely one active original,
+while competing identical requests recover the same original. SQLite checks
+cover domain/constraint behavior; they are not PostgreSQL concurrency evidence.
+Only explicit commission cancellation releases source eligibility. A corrected
+new original can select another eligible rule while preserving all prior facts.
+
+Manager routes provide create, original-key/ID reads, separate cancel and its
+original-key read, and bounded employee journal including retained cancellations.
+Stable recorded-time/id paging counts all originals and joins cancellations in
+one bounded page read, with no per-original rule/source/receipt requests. Empty
+or partial journals are not evidence of complete commission entitlement. Source
+choices, day/profile aggregation and native protected recovery remain required.
+
+The migration retains composite institute/employee, institute/rule,
+institute/ticket and ticket/line ownership, original/replay uniqueness,
+one separate cancellation per original, and source/employee-history indexes.
+Per-line minor-unit columns must be canonical nonnegative integer text within
+the Numeric(10,2) source bound; no binary floating amounts are stored. Empty
+roundtrip/metadata parity and actual foreign/malformed-money/duplicate-cancellation
+constraint checks pass on owned SQLite and PostgreSQL fixtures. Nonempty history
+refuses downgrade before any DDL. No application database is migrated or external
+settlement, refund allocation, payroll or production acceptance asserted.
