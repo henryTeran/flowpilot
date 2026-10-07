@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const simulatePayments = process.argv[2] === "--payment-simulator";
-const marketingFixture = process.argv[2] === "--marketing-fixture";
+const conversionFixture = process.argv[2] === "--conversion-fixture";
+const marketingFixture = process.argv[2] === "--marketing-fixture" || conversionFixture;
 const config = simulatePayments ? "playwright.payments.config.ts" : "playwright.backend.config.ts";
 const temporaryRoot = realpathSync(tmpdir());
 const directory = realpathSync(mkdtempSync(join(temporaryRoot, "flowpilot-browser-")));
@@ -16,7 +17,8 @@ let status = 1;
 try {
   const cli = createRequire(import.meta.url).resolve("@playwright/test/cli");
   const result = spawnSync(process.execPath, [cli, "test", "--config", config, ...process.argv.slice(simulatePayments || marketingFixture ? 3 : 2)], {
-    cwd: root, stdio: "inherit", env: { ...process.env, FLOWPILOT_BROWSER_DIRECTORY: directory, FLOWPILOT_BROWSER_MARKETING_FIXTURE: marketingFixture ? "1" : "0" },
+    cwd: root, stdio: "inherit", env: { ...process.env, FLOWPILOT_BROWSER_DIRECTORY: directory, FLOWPILOT_BROWSER_MARKETING_FIXTURE: marketingFixture ? "1" : "0",
+      FLOWPILOT_BROWSER_CONVERSION_FIXTURE: conversionFixture ? "1" : "0" },
   });
   if (result.error) throw result.error;
   status = result.status ?? 1;

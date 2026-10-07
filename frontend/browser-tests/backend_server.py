@@ -59,6 +59,12 @@ def main():
                         password_hash=hash_password("Browser-test-only-2026"),
                         role=role, institute_id=DEMO_INSTITUTE_ID, status="active"))
         db.commit()
+    if os.environ.get("FLOWPILOT_BROWSER_CONVERSION_FIXTURE") == "1":
+        from conversion_fixture import seed_conversion
+        manifest = seed_conversion(engine, DEMO_INSTITUTE_ID)
+        @app.get("/_fixture/conversion")
+        def conversion_manifest():
+            return manifest
     if options.simulate_payments:
         from payment_simulator import PaymentSimulator
         from app.modules.payments.dispatch import ProviderBinding

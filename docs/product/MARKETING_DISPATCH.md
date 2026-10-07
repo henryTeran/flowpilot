@@ -590,3 +590,21 @@ successful receipt and requires a new current-head read; uncertain protected ter
 have no such reset. Mock native link/lost-ack/reload/recover then distinct retraction
 and changed-head/corrupt-source history paths are verified. Populated actual backend
 desktop/tablet acceptance and current-linked campaign catalog UI remain required.
+
+### Phase13BI populated actual-backend native acceptance
+
+The opt-in owned loopback `--conversion-fixture` profile seeds authoritative retained
+source services and a fake accepted worker observation with historical dated paid
+tickets. All temporary clocks/account settings restore before UI server startup;
+no production test route, provider credentials or external I/O is enabled. Each
+project owns a distinct ticket head in the same disposable fixture database.
+
+Desktop/tablet signed UI proves paid ticket choice, actual retained link, lost200
+acknowledgement/reload/key-first recovery with one POST, explicit separate retraction
+with exact predecessor/full preserved attribution, two-original audit123.45CHF and
+populated summary becoming empty after retraction. Test mode is explicit. Four
+history/summary screenshots inspected and no horizontal overflow observed. This
+proves the native retained conversion flow against local application services,
+not live provider delivery, real settlement or production deployment. The current
+linked campaign catalog UI, compact presentation of technical references and full
+Phase13 requirement/gate audit remain next.
