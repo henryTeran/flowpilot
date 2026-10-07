@@ -904,6 +904,29 @@ Existing passlib crypt deprecation warning observed. No schema/migration, ledger
 cancellation/worker, new frontend/browser or physical/production receipt claimed.
 Durable reconciliation and worker/native acceptance remain required; gates stay open.
 
+## Phase 12AC: deterministic internal-event reconciliation decisions
+
+Logical identity retains owned scope, trigger/source kind/ID and normalized
+package/membership expiry term. Policy/capture/balance/care-clock correction does
+not duplicate an occurrence; renewed expiry terms are distinct. Immutable decisions
+retain candidate provenance and evaluated clock, validating identity/source owner,
+state/reason coherence and chronology. Repeated capture is repeatable. Disabled,
+exhausted, expired and superseded terms remain distinct; newer latest care
+supersedes old rebooking/inactivity. Explicit unknown birthday can cancel prior
+birthday. Uncertain missing source blocks, without inventing cancellation proof.
+Explicit cancellation and processed internal events are terminal.
+
+Initial reconciliation/candidate/source 14 passed in 7.84s. Final reconciliation/
+candidate/source/rule 29 passed in 8.03s, zero failures/skips, actual PostgreSQL
+source capture enabled. Four new pure groups cover repetition/correction/renewed
+identity, uncertain absence, terminal decisions, distinct suppression/supersession
+and foreign/duplicate/backward refusal. Pure fixtures do not certify a durable
+ledger; separate source tests establish selected originals/capture. Existing
+passlib crypt deprecation warning observed. No ledger persistence, actual manual
+cancellation/processing API, worker/schema/native/browser/full CRM/backend or
+production receipt claimed. Durable scoped ledger/revisions, atomic reconciliation/
+cancellation and worker/native acceptance remain required; canonical gates open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
