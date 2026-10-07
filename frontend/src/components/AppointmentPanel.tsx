@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Appointment, AppointmentAction, AppointmentCreatePayload, AppointmentUpdatePayload, Employee, Service } from "../types";
 import { CustomerPicker } from "./CustomerPicker";
+import { instituteInstants, instituteSlot, nextInstituteSlot } from "../institute-calendar";
+import { instituteTimeZone, formatInstituteTime } from "../institute-time";
+import { getAccessToken } from "../api/session";
 
 interface AppointmentPanelProps {
+  timezone?: string;
   instituteId: string;
   employees: Employee[];
   services: Service[];
@@ -15,7 +19,13 @@ interface AppointmentPanelProps {
 const ACTIVE_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived", "in_progress"]);
 const FINAL_APPOINTMENT_STATUSES = new Set(["completed", "cancelled", "no_show"]);
 
-export function AppointmentPanel({
+export function AppointmentPanel(props: AppointmentPanelProps) {
+  const zone = instituteTimeZone(props.timezone);
+  return <View key={JSON.stringify([props.instituteId, zone, getAccessToken()])} {...props} timezone={zone} />;
+}
+
+function View({
+  timezone = "UTC",
   instituteId,
   employees,
   services,
@@ -26,7 +36,7 @@ export function AppointmentPanel({
 }: AppointmentPanelProps) {
   const appointmentServices = services.filter((service) => service.status === "active");
   const availableEmployees = employees.filter((employee) => !["absent", "offline"].includes(employee.status));
-  const initialSlot = useMemo(() => getNextRoundedSlot(), []);
+  const initialSlot = useMemo(() => nextInstituteSlot(timezone), [timezone]);
 
   const [customerName, setCustomerName] = useState("");
   const [customerId, setCustomerId] = useState<string>();
@@ -35,6 +45,10 @@ export function AppointmentPanel({
   const [employeeId, setEmployeeId] = useState(availableEmployees[0]?.id || "");
   const [date, setDate] = useState(initialSlot.date);
   const [time, setTime] = useState(initialSlot.time);
+  const [occurrence, setOccurrence] = useState(initialSlot.instant);
+  const [original, setOriginal] = useState<{ date: string; time: string; instant: string; fold: string }>();
+  const candidates = useMemo(() => instituteInstants(date, time, timezone), [date, time, timezone]);
+  const selectedInstant = candidates.length === 1 ? candidates[0] : candidates.includes(occurrence) ? occurrence : undefined;
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
@@ -46,7 +60,11 @@ export function AppointmentPanel({
 
   function editAppointment(appointment: Appointment) {
     if (isSubmitting || actionLoadingId) return;
-    const slot = localSlot(new Date(appointment.start_time));
+    const slot = instituteSlot(appointment.start_time, timezone);
+    if (!slot) { setFormError("Horaire du rendez-vous a verifier"); return; }
+    const fold = instituteInstants(slot.date, slot.time, timezone).find(value => Math.abs(Date.parse(value) - Date.parse(appointment.start_time)) < 60000) || "";
+    setOccurrence(fold);
+    setOriginal({ date: slot.date, time: slot.time, instant: appointment.start_time, fold });
     setEditingId(appointment.id);
     setCustomerName(appointment.customer_name);
     setCustomerId(appointment.customer_id || undefined);
@@ -80,16 +98,20 @@ export function AppointmentPanel({
   const availableQuickEmployees = availableEmployees.slice(0, 4);
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const visibleActiveAppointments = normalizedSearch
-    ? activeAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch))
+    ? activeAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch, timezone))
     : activeAppointments;
   const visibleHistoryAppointments = normalizedSearch
-    ? historyAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch))
+    ? historyAppointments.filter((appointment) => matchesAppointmentSearch(appointment, employees, services, normalizedSearch, timezone))
     : historyAppointments;
 
   async function handleSubmit() {
-    if (isSubmitting) return;
+    if (isSubmitting || actionLoadingId) return;
     if (!instituteId || !serviceId || !employeeId || !customerName.trim() || !date || !time) return;
 
+    if (!selectedInstant) {
+      setFormError(candidates.length > 1 ? "Cette heure se repete : choisissez son occurrence." : "Cette date ou heure n'existe pas dans le fuseau de l'institut.");
+      return;
+    }
     setIsSubmitting(true);
     setFormError(null);
     try {
@@ -100,7 +122,8 @@ export function AppointmentPanel({
         customer_name: customerName.trim(),
         customer_id: customerId || null,
         phone: phone.trim() || null,
-        start_time: new Date(`${date}T${time}:00`).toISOString(),
+        start_time: original && original.date === date && original.time === time && original.fold === selectedInstant
+          ? original.instant : selectedInstant,
       };
       if (editingId && onUpdateAppointment) {
         const { institute_id, ...changes } = payload;
@@ -114,6 +137,7 @@ export function AppointmentPanel({
         creationIntent.current = null;
       }
       setEditingId(null);
+      setOriginal(undefined);
       setCustomerName("");
       setCustomerId(undefined);
       setPhone("");
@@ -147,6 +171,8 @@ export function AppointmentPanel({
           <span className="counter-badge">{appointments.length} RDV aujourd’hui</span>
         </div>
 
+        <p className="appointment-zone">Dates et heures de l’institut : {timezone}</p>
+        <fieldset className="appointment-fields" aria-label="Données du rendez-vous" disabled={isSubmitting || Boolean(actionLoadingId)}>
         <CustomerPicker key={`${instituteId}:${editingId || "new"}`} instituteId={instituteId}
           selected={customerId ? { id: customerId, display_name: customerName, phone: phone || null } : undefined}
           clearLabel="Autre cliente" onSelect={customer => {
@@ -213,15 +239,25 @@ export function AppointmentPanel({
 
           <label>
             Date
-            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+            <input type="date" value={date} onChange={(event) => { setDate(event.target.value); setOccurrence(""); setFormError(null); }} />
           </label>
 
           <label>
             Heure
-            <input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
+            <input type="time" value={time} onChange={(event) => { setTime(event.target.value); setOccurrence(""); setFormError(null); }} />
           </label>
         </div>
 
+        {candidates.length > 1 && <label className="appointment-occurrence">
+          Heure du changement d’heure
+          <select aria-label="Occurrence de l’heure" value={selectedInstant || ""} onChange={event => { setOccurrence(event.target.value); setFormError(null); }}>
+            <option value="">Choisir la première ou la seconde occurrence</option>
+            {candidates.map((value, index) => <option key={value} value={value}>
+              {index === 0 ? "Première" : "Seconde"} occurrence ({new Intl.DateTimeFormat("fr-CH", { timeZone: timezone, timeZoneName: "shortOffset" }).formatToParts(new Date(value)).find(part => part.type === "timeZoneName")?.value})
+            </option>)}
+          </select>
+        </label>}
+        </fieldset>
         <div className="appointment-form-footer">
           <div className="selected-summary compact appointment-summary">
             <span>Durée bloquée</span>
@@ -231,12 +267,12 @@ export function AppointmentPanel({
             className="primary-button"
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting || !customerName.trim() || !serviceId || !employeeId}
+            disabled={isSubmitting || Boolean(actionLoadingId) || !customerName.trim() || !serviceId || !employeeId}
           >
             {isSubmitting ? "Enregistrement..." : editingId ? "Enregistrer les modifications" : "Créer RDV"}
           </button>
         </div>
-        {editingId && <button type="button" disabled={isSubmitting} onClick={() => { setEditingId(null); setCustomerId(undefined); setCustomerName(""); setPhone(""); }}>Annuler la modification</button>}
+        {editingId && <button type="button" disabled={isSubmitting || Boolean(actionLoadingId)} onClick={() => { setEditingId(null); setOriginal(undefined); setCustomerId(undefined); setCustomerName(""); setPhone(""); }}>Annuler la modification</button>}
         {formError && <p role="alert">{formError}</p>}
       </div>
 
@@ -269,6 +305,7 @@ export function AppointmentPanel({
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}
+                timezone={timezone}
                 employees={employees}
                 services={services}
                 actionLoadingId={actionLoadingId}
@@ -290,6 +327,7 @@ export function AppointmentPanel({
               <AppointmentCard
                 key={appointment.id}
                 appointment={appointment}
+                timezone={timezone}
                 employees={employees}
                 services={services}
                 actionLoadingId={actionLoadingId}
@@ -309,6 +347,7 @@ function matchesAppointmentSearch(
   employees: Employee[],
   services: Service[],
   searchTerm: string,
+  timezone: string,
 ) {
   const employee = employees.find((item) => item.id === appointment.employee_id);
   const service = services.find((item) => item.id === appointment.service_id);
@@ -317,13 +356,14 @@ function matchesAppointmentSearch(
     appointment.status,
     service?.name ?? "",
     employee?.first_name ?? "",
-    formatTime(appointment.start_time),
+    formatInstituteTime(appointment.start_time, timezone),
   ].join(" ").toLowerCase();
 
   return haystack.includes(searchTerm);
 }
 
 function AppointmentCard({
+  timezone,
   appointment,
   employees,
   services,
@@ -332,6 +372,7 @@ function AppointmentCard({
   onEdit,
   readonly = false,
 }: {
+  timezone: string;
   appointment: Appointment;
   employees: Employee[];
   services: Service[];
@@ -348,10 +389,10 @@ function AppointmentCard({
     <article className={`appointment-card status-${appointment.status} ${readonly ? "readonly" : ""}`}>
       <div className="appointment-card-main">
         <div>
-          <strong>{formatTime(appointment.start_time)} · {appointment.customer_name}</strong>
+          <strong>{formatInstituteTime(appointment.start_time, timezone)} · {appointment.customer_name}</strong>
           <span>{service?.name || "Prestation"} · {employee?.first_name || "Collaboratrice"}</span>
         </div>
-        <small>{formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}</small>
+        <small>{formatInstituteTime(appointment.start_time, timezone)} - {formatInstituteTime(appointment.end_time, timezone)}</small>
       </div>
 
       <span className={`appointment-status-badge ${appointment.status}`}>
@@ -396,24 +437,6 @@ function getAvailableActions(status: string): AppointmentAction[] {
   }
 
   return [];
-}
-
-function getNextRoundedSlot() {
-  const now = new Date();
-  now.setMinutes(Math.ceil((now.getMinutes() + 10) / 15) * 15, 0, 0);
-  return localSlot(now);
-}
-
-function localSlot(value: Date) {
-  const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
-  return { date: local.toISOString().slice(0, 10), time: local.toISOString().slice(11, 16) };
-}
-
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat("fr-CH", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 }
 
 function translateEmployeeStatus(status: string) {

@@ -1,8 +1,12 @@
 import type { CSSProperties } from "react";
-import { timelineBlock, type TimelineRange } from "../planning-timeline";
+import { timelineBlock, instituteTimeline, type TimelineRange } from "../planning-timeline";
 import type { Appointment, Employee, PlanningAvailability, PlanningDay, Service, ServiceSession } from "../types";
 
+import { instituteSlot } from "../institute-calendar";
+import { formatInstituteTime, instituteTimeZone } from "../institute-time";
+
 interface PlanningBoardProps {
+  timezone?: string;
   planning?: PlanningDay;
   employees: Employee[];
   services: Service[];
@@ -22,6 +26,7 @@ const ACTIVE_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived"
 const DISPLAYED_APPOINTMENT_STATUSES = new Set(["scheduled", "confirmed", "arrived", "in_progress", "completed"]);
 
 export function PlanningBoard({
+  timezone,
   planning,
   employees,
   services,
@@ -40,17 +45,18 @@ export function PlanningBoard({
     sessions: [] as ServiceSession[],
   }));
 
+  const zone = instituteTimeZone(timezone);
   const timelineDay = new Date();
-  const timelineRange = getTimelineRange(timelineDay);
-  const nowPosition = getNowPositionPercent(timelineRange);
-  const hourMarks = Array.from(
-    { length: timelineRange.endHour - timelineRange.startHour + 1 },
-    (_, index) => timelineRange.startHour + index,
-  );
-  const isDemoOutOfHours = isOutsideBusinessHours(new Date());
+  const timelineRange = getTimelineRange(timelineDay, zone);
+  const window = instituteTimeline(timelineRange, timelineDay, zone)!;
+  const nowPosition = clamp((timelineDay.getTime() - window.start) / (window.end - window.start) * 100, 0, 100);
+  const hourMarks = window.marks;
+  const isDemoOutOfHours = isOutsideBusinessHours(timelineDay, zone);
+  const formatClock = (value: string) => formatInstituteTime(value, zone);
 
   return (
     <main className="planning-shell">
+      <p className="planning-zone">{timelineDay.toLocaleDateString("fr-CH", { timeZone: zone })} · {zone}</p>
       <div className="kpi-strip">
         <KpiCard label="Collaboratrices actives" value={rows.length} />
         <KpiCard label="Prestations en cours" value={availability?.active_sessions ?? countActiveSessions(rows)} />
@@ -67,11 +73,11 @@ export function PlanningBoard({
         <div className="timeline-header">
           <div className="employee-header">Collaboratrice</div>
           <div className="time-axis">
-            {hourMarks.map((hour) => {
-              const left = ((hour - timelineRange.startHour) / (timelineRange.endHour - timelineRange.startHour)) * 100;
+            {hourMarks.map((mark) => {
+              const left = mark.left;
               return (
-                <span className="time-axis-hour" key={hour} style={{ left: `${left}%` }}>
-                  {String(hour).padStart(2, "0")}:00
+                <span className="time-axis-hour" key={left} style={{ left: `${left}%` }}>
+                  {mark.label}
                 </span>
               );
             })}
@@ -100,7 +106,7 @@ export function PlanningBoard({
                   </div>
 
                   <small className={`employee-availability ${displayStatus === "delayed" ? "warning" : ""}`}>
-                    {formatEmployeeAvailability(availabilityRow)}
+                    {formatEmployeeAvailability(availabilityRow, zone)}
                   </small>
 
                   <div className="employee-actions">
@@ -145,13 +151,13 @@ export function PlanningBoard({
 
                 <div
                   className="slots-cell"
-                  style={{ "--hour-count": timelineRange.endHour - timelineRange.startHour } as CSSProperties}
+                  style={{ "--hour-count": (window.end - window.start) / 3600000 } as CSSProperties}
                 >
                   <div className="row-now-cursor" style={{ left: `${nowPosition}%` }}>
                     {rowIndex === 0 && <span>Maintenant</span>}
                   </div>
 
-                  {Array.from({ length: timelineRange.endHour - timelineRange.startHour }, (_, index) => (
+                  {Array.from({ length: Math.ceil((window.end - window.start) / 3600000) }, (_, index) => (
                     <div className="hour-grid-line" key={index} />
                   ))}
 
@@ -159,7 +165,7 @@ export function PlanningBoard({
 
                   {row.sessions.map((session) => {
                     const service = services.find((item) => item.id === session.service_id);
-                    const block = timelineBlock(session.start_time, session.real_end_time || session.planned_end_time, timelineRange, timelineDay, 1.25);
+                    const block = timelineBlock(session.start_time, session.real_end_time || session.planned_end_time, timelineRange, timelineDay, 1.25, zone, window);
                     if (!block) return null;
 
                     const sessionMeta = getSessionMeta(session);
@@ -243,7 +249,7 @@ export function PlanningBoard({
 
                   {rowAppointments.map((appointment) => {
                     const service = services.find((item) => item.id === appointment.service_id);
-                    const block = timelineBlock(appointment.start_time, appointment.end_time, timelineRange, timelineDay, 1.6);
+                    const block = timelineBlock(appointment.start_time, appointment.end_time, timelineRange, timelineDay, 1.6, zone, window);
                     if (!block) return null;
 
                     const serviceName = service?.name || "Rendez-vous";
@@ -307,31 +313,24 @@ function countActiveSessions(rows: Array<{ sessions: ServiceSession[] }>) {
   return rows.reduce((sum, row) => sum + row.sessions.filter((session) => ACTIVE_STATUSES.has(session.status)).length, 0);
 }
 
-function getTimelineRange(now: Date): TimelineRange {
+function getTimelineRange(now: Date, zone: string): TimelineRange {
 
-  if (!isOutsideBusinessHours(now)) {
+  if (!isOutsideBusinessHours(now, zone)) {
     return { startHour: BUSINESS_START_HOUR, endHour: BUSINESS_END_HOUR };
   }
 
   // En démo hors horaires, on centre la vue autour de l'heure réelle.
   // Exemple à 02:38 : axe 01:00 -> 06:00, curseur réellement à 02:38.
-  const currentHour = now.getHours();
+  const currentHour = instituteSlot(now, zone)!.hour;
   const startHour = Math.max(0, currentHour - 1);
   const endHour = Math.min(24, Math.max(startHour + 5, currentHour + 3));
 
   return { startHour, endHour };
 }
 
-function isOutsideBusinessHours(date: Date) {
-  const hour = date.getHours();
+function isOutsideBusinessHours(date: Date, zone: string) {
+  const hour = instituteSlot(date, zone)!.hour;
   return hour < BUSINESS_START_HOUR || hour >= BUSINESS_END_HOUR;
-}
-
-function formatClock(value: string) {
-  return new Intl.DateTimeFormat("fr-CH", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 }
 
 function getSessionMeta(session: ServiceSession) {
@@ -371,15 +370,6 @@ function getSessionMeta(session: ServiceSession) {
   };
 }
 
-function getNowPositionPercent(range: TimelineRange) {
-  const now = new Date();
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  const rangeStart = range.startHour * 60;
-  const rangeEnd = range.endHour * 60;
-  const percent = ((minutes - rangeStart) / (rangeEnd - rangeStart)) * 100;
-  return clamp(percent, 0, 100);
-}
-
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -390,7 +380,7 @@ function formatNextSlot(availability?: PlanningAvailability) {
   return `${availability.wait_minutes} min`;
 }
 
-function formatEmployeeAvailability(row?: PlanningAvailability["employees"][number]) {
+function formatEmployeeAvailability(row: PlanningAvailability["employees"][number] | undefined, zone: string) {
   if (!row) return "Disponibilité à calculer";
 
   if (row.active_session_id && !row.available_at) {
@@ -398,7 +388,7 @@ function formatEmployeeAvailability(row?: PlanningAvailability["employees"][numb
   }
 
   if (row.active_appointment_id && row.available_at) {
-    return `RDV en cours — dispo à ${formatClock(row.available_at)}`;
+    return `RDV en cours — dispo à ${formatInstituteTime(row.available_at, zone)}`;
   }
 
   if (row.wait_minutes === null || row.wait_minutes === undefined) {

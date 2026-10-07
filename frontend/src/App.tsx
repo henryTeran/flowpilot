@@ -1,3 +1,4 @@
+import { formatInstituteTime } from "./institute-time";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAccessToken, getOperatorRole } from "./api/session";
 import { createArrivalIntent, createExtensionIntents, compareQueueArrival } from "./queue-utils";
@@ -782,7 +783,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
               <div className="bm-toolbar-stat">
                 <span>Prochaine dispo</span>
                 <strong>{formatAvailabilityHeadline(availability)}</strong>
-                <small>{formatAvailabilityDetail(availability)}</small>
+                <small>{formatAvailabilityDetail(availability, selectedInstitute?.timezone)}</small>
               </div>
 
               <div className="bm-toolbar-stat compact">
@@ -827,6 +828,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
                 </div>
 
                 <PlanningBoard
+                  timezone={selectedInstitute?.timezone}
                   planning={planning}
                   employees={employees}
                   services={services}
@@ -986,6 +988,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
           onClose={() => setActiveDrawer(null)}
         >
           <AppointmentPanel
+            timezone={selectedInstitute?.timezone}
             instituteId={selectedInstituteId}
             employees={employees}
             services={services}
@@ -1128,7 +1131,7 @@ function formatAvailabilityHeadline(availability?: PlanningAvailability) {
   return `${availability.wait_minutes} min`;
 }
 
-function formatAvailabilityDetail(availability?: PlanningAvailability) {
+function formatAvailabilityDetail(availability?: PlanningAvailability, timezone?: string) {
   if (!availability) return "Calcul de disponibilité en cours.";
 
   const delayedCount = availability.employees.filter(
@@ -1141,10 +1144,7 @@ function formatAvailabilityDetail(availability?: PlanningAvailability) {
       : "Toutes les collaboratrices sont indisponibles.";
   }
 
-  const time = new Intl.DateTimeFormat("fr-CH", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(availability.next_available_at));
+  const time = formatInstituteTime(availability.next_available_at, timezone);
 
   const delayText = delayedCount > 0 ? ` · ${delayedCount} retard` : "";
   return `${availability.next_employee_name || "Prochain créneau"} à ${time}${delayText}`;

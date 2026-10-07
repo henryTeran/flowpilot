@@ -464,6 +464,35 @@ select {
   display: none;
 }
 
+.planning-zone, .appointment-zone {
+  margin: 8px 0;
+  color: #645466;
+  font-size: 12px;
+}
+.appointment-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.appointment-fields input, .appointment-fields select, .appointment-fields button {
+  min-height: 44px;
+}
+.appointment-occurrence {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.appointment-occurrence select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px;
+  border: 1px solid #d9c8d2;
+  border-radius: 8px;
+  background: white;
+}
+
 .free-label {
   position: absolute;
   left: 18px;
