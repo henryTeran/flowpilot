@@ -6823,3 +6823,6 @@ body {
 .customer-crm .marketing-segment-option { display: flex; align-items: center; gap: 8px; }
 .customer-crm .marketing-template-body { grid-column: 1 / -1; }
 .customer-crm .marketing-template-body textarea { min-height: 120px; width: 100%; box-sizing: border-box; padding: 10px; resize: vertical; }
+.customer-crm .marketing-source-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.customer-crm .marketing-source-options p { flex-basis: 100%; }
+.customer-crm .marketing-source-options button { max-width: 100%; overflow-wrap: anywhere; }

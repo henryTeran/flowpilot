@@ -371,6 +371,29 @@ Existing bcrypt-version/NO_COLOR warnings only; no provider or production claim.
 Campaign draft/edit source selection and complete approval/audit acceptance pending;
 all marketing gates OPEN, physical/production gates OPEN.
 
+## 13S: native source-bound campaign creation and signed approval chain
+
+Native campaign creator explicitly chooses channel/audience/text mode/content/reason.
+Bounded owned source catalogs disable wrong-channel/empty eligible choices. Selected
+audience ID/key and template original ID must independently agree with catalog
+originals. Template mode copies/locks exact literal content/provenance and pins ID;
+literal mode is explicit. Backend resolves recipients across retained audience pages;
+no native raw-recipient input or historical-permission-as-send-authority assumption.
+Full generated-key create intent stored per institute/actor; actor/terms/DRAFT receipt,
+independent key/ID/current-root and exact stored request verify before closure.
+Corrupt reads preserve intent; successful create refreshes catalog; no SEND action.
+
+Five focused creator/history tests pass in 3.87s. Full frontend: 307 passed in
+58.99s, zero failures/skips, terminal exit 0. TypeScript/Vite build passes (138
+modules). Actual signed Edge desktop/touch-tablet: 2 passed in 42.4s; fixture cleaned.
+Signed source policy/permission/capture/template, exact UI source selection, literal
+Unicode body, committed/lost draft reply/reload with one POST, REVIEW -> APPROVE,
+three retained audit originals, old draft unchanged, approval digests equal and
+sent/delivery false, protected keys cleared. Creator controls >=44px/no overflow;
+four draft/approved screenshots inspected. Existing bcrypt-version/NO_COLOR only.
+Native edit/reset and deeper page/all-channel acceptance plus contacts/delivery/
+conversion pending; all marketing gates OPEN, physical/production gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
