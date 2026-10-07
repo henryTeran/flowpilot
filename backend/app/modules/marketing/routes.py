@@ -3,12 +3,20 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.marketing import models as marketing_models  # noqa: F401
-from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents, dispatch_outcomes
+from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents, dispatch_outcomes, dispatch_catalogs, provider
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
     if user.get("institute_id")!=institute_id or user.get("role")!="responsable_institut":raise HTTPException(403,"Permission insuffisante")
     return user
+
+@router.get("/dispatch-accounts", response_model=catalogs.Page[provider.Account])
+def dispatch_accounts(institute_id: str, channel: contacts.Channel, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_catalogs.accounts(db, institute_id, channel, offset, limit)
+
+@router.get("/campaigns/{campaign_id}/dispatch-intents", response_model=catalogs.Page[dispatch_intents.Original])
+def campaign_dispatch_intents(institute_id: str, campaign_id: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_catalogs.intents(db, institute_id, campaign_id, offset, limit)
 
 @router.post("/dispatch-intents", response_model=dispatch_intents.Original)
 def dispatch_prepare(institute_id: str, payload: dispatch_intents.Request, user=Depends(manager), db: Session=Depends(get_db)):

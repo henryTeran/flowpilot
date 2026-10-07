@@ -132,3 +132,25 @@ contact originals. Forged eligibility hides the whole page until a clean reread.
 These observations declare current eligibility only. Whole-campaign evaluation,
 provider submission and delivery flags remain false; native intent preparation,
 provider outcome audit and deployed execution remain separate pending work.
+
+## Owned dispatch selection catalogs
+
+Manager-only GET `dispatch-accounts?channel=email` (or sms/push) returns bounded
+server Account metadata for the signed institute/channel. Offset defaults to zero,
+limit to 20 (maximum 50); total and exact page length agree. Entries are ordered by
+account_id. The same strict complete allowlist parser serves preparation and worker
+lookup: invalid/ambiguous entries refuse, extra inline credential fields refuse,
+and error context is suppressed. No credential-binding environment references or
+provider connection secrets are returned. An account listed here does not prove
+credential availability, provider ownership or deployed execution readiness.
+
+GET `campaigns/{campaign_id}/dispatch-intents` returns bounded historical intent
+originals across all retained approvals of the owned campaign, ordered by retained
+created_at and ID. Every returned original revalidates its submission fingerprint
+and independently retained campaign/contact sources. Changed current campaign or
+account configuration does not rewrite historical originals. A corrupt original
+refuses the page; bounded reads do not validate history outside their page. Existing
+key/ID and outcome current/key/ID/audit reads support subsequent independent native
+verification. These intent originals include declared recipient contact facts and
+remain manager-only, with no provider connection credentials. Neither catalog
+performs submission, reconciliation, outcome mutation or live account acceptance.

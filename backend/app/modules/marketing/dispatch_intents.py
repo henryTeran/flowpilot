@@ -29,18 +29,22 @@ class Original(Fact):
     created_at: AwareDatetime
     request_fingerprint: provider.Fingerprint
 
-def configured(institute, channel, identifier):
+def account_catalog():
     try:
         raw = json.loads(settings.MARKETING_ACCOUNTS_JSON)
         if not isinstance(raw, list): raise ValueError("Expected configured account list")
         accounts = [provider.Account.model_validate(a) for a in raw]
         scopes = [(a.institute_id, a.channel, a.account_id) for a in accounts]
         if len(scopes) != len(set(scopes)): raise ValueError("Ambiguous configured accounts")
-        selected = [a for a in accounts if (a.institute_id, a.channel, a.account_id) == (institute, channel, identifier)]
-        if len(selected) != 1: raise ValueError("No configured channel account")
-        return selected[0]
-    except (ValueError, TypeError) as error:
-        raise business_error("Marketing account is absent or configuration is invalid") from error
+        return accounts
+    except (ValueError, TypeError):
+        raise business_error("Marketing account configuration is invalid") from None
+
+
+def configured(institute, channel, identifier):
+    selected = [a for a in account_catalog() if (a.institute_id, a.channel, a.account_id) == (institute, channel, identifier)]
+    if len(selected) != 1: raise business_error("Marketing account is absent or configuration is invalid")
+    return selected[0]
 
 def receipt(db, row):
     try:

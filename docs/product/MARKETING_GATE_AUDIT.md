@@ -971,6 +971,32 @@ provider evidence/operator uncertainty resolution, conversion and canonical
 requirement acceptance remain. No new migration/full-backend acceptance. All
 Phase 13 gates OPEN; full canonical goal ACTIVE.
 
+## Phase 13AQ - owned dispatch selection catalogs
+
+Manager-only Account metadata GET requires explicit email/sms/push channel and
+filters full signed institute/channel scope, with account_id ordering, total/exact
+slice, default20/max50. Complete strict configuration parser shared with preparation
+and worker; invalid/ambiguous/inline secret entries refuse with suppressed exception
+context. No provider connection secrets or credential-binding environment refs.
+Listing does not prove configured credentials/provider ownership/live readiness.
+
+Owned campaign intent GET spans retained approvals, bounded created_at/ID order.
+Every original validates full submission fingerprint and historical approval/contact
+sources. Changed current campaign/account configuration leaves history intact;
+corrupt original refuses page. Recipients' declared contact facts remain restricted
+to signed manager. Read catalogs do not prepare, dispatch, reconcile or write outcomes.
+
+Catalog/intents/worker/registry 22 passed in 132.13s. Final added fingerprint tamper
+whole-page refusal/restore: catalog 2 passed in 15.97s. SQLite and actual PostgreSQL
+25 metadata records and 25 historical intents, pages20/5/endempty, exact scopes/order/
+originals, zero outcome writes, invalid bounds/config, secret context suppression,
+retained intent reads after account removal, signed role/foreign/anonymous refusal.
+Terminal exit 0; existing crypt deprecation only. No schema/frontend/native/full-
+backend/live provider/physical/production acceptance inferred; native evidence is
+13AP. Native contracts/preparation/recovery/result audit, invocation, authenticated
+evidence/operator uncertainty resolution, conversion and gate audit remain. All
+Phase 13 gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
