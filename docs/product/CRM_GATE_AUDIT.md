@@ -555,6 +555,42 @@ six source unavailability reasons. No new backend/schema, browser, physical-devi
 or production receipt is claimed. Native declaration/recovery/display and signed
 desktop/tablet evidence remain required; all canonical CRM gates stay open.
 
+## Phase 12Q: native lifetime original declaration and recovery
+
+The native own-customer manager profile now exposes explicit lifetime assumptions.
+Initial commercial fields are blank; prepare pins the verified current original.
+Days/hours/seconds convert to exact integer-string microseconds, including values
+above safe JSON integer precision. Unit changes clear the duration. Corrections
+retain every original fraction numerator/denominator, duration and currency/cost
+without approximate percentage conversion. Fractions are explained as retained
+parts out of a positive total. Conditional constant-observed-rate, undiscounted
+and nonvalidated scenario meaning is visible; there are no inferred defaults.
+
+Requests persist before possible POST under institute/customer/signed-subject
+scope. Only original-key null permits POST. Full receipt actor/terms/predecessor,
+independent original reread and fresh verified current selection precede clearing
+the exact persisted intent. Lost reply/remount, failed current read, wrong actor,
+corrupt storage and inconsistent originals retain protected requests. Explicit
+discard is limited to definitive rejected POST; refresh remains usable during
+recovery. Successful-only invalidation callback is available; native scenario
+display is still pending and no future monetary value is shown by this editor.
+
+Controlled focus: 8 editor/profile/lifetime guard tests passed in 3.77s. Full
+frontend regression: 253 passed in 46.58s, zero failures/skips; TypeScript/Vite
+build passes, 120 modules and approximately 33.54kB lazy CRM. Tests verify one-POST
+committed original recovery, failed current selection retaining intent, verified
+callback/clearance, exact large duration/cost and fraction correction, wrong actor,
+corrupt storage and 1us conversion. Signed Edge policy/profile/lifetime regression:
+4 passed in 1.2m, desktop/touch tablet, zero failures/skips. Real lifetime initial
+commit followed by aborted reply, reload/customer reselect and same-subject recovery
+uses one POST. A correction pins the retained predecessor and costs; independent
+current/original-ID reads verify unchanged first original. Previous policy and
+profile/care forgery recovery still pass. Controls >=44px/no horizontal overflow;
+tablet form screenshot inspected and owned fixture directory removal confirmed.
+Existing bcrypt/NO_COLOR warnings only. No new backend/schema/application migration,
+physical-device or production receipt is claimed. Native scenario display and
+remaining lifecycle work are required; canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

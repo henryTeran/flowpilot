@@ -13,7 +13,7 @@ const customer = { id: "customer_a", institute_id: "i", display_name: "Alice", p
 const reply = (v: unknown) => new Response(JSON.stringify(v), { headers: { "Content-Type": "application/json" } });
 test("native CRM profile isolates role/customer/actor and hides forged fresh readings", async () => {
   const fetch = globalThis.fetch, root = createRoot(document.getElementById("root")!), pending: ((v: Response) => void)[] = [];
-  globalThis.fetch = async url => String(url).includes("/return-cycle?") ? reply(crmEmptyReturn()) : new Promise(resolve => pending.push(resolve));
+  globalThis.fetch = async url => String(url).includes("/return-cycle?") ? reply(crmEmptyReturn()) : String(url).includes("/lifetime-assumptions/") ? reply(null) : new Promise(resolve => pending.push(resolve));
   try {
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<CustomerCrmProfile institute="i" customer={customer} />));
     assert.equal(pending.length, 0);
@@ -31,7 +31,7 @@ test("native CRM profile isolates role/customer/actor and hides forged fresh rea
 test("native profile preserves unavailable policy explanation and exact large money", async () => {
   const fetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
   const r = crmProfile(); r.policy_original = null; r.segment = null; r.unavailable_reason = "policy_absent";
-  globalThis.fetch = async () => reply(r);
+  globalThis.fetch = async url => reply(String(url).includes("/lifetime-assumptions/") ? null : r);
   try {
     setAccessToken(token()); await act(async () => root.render(<CustomerCrmProfile institute="i" customer={customer} />));
     assert.match(document.body.textContent!, /non configurée/); assert.match(document.body.textContent!, /valeur future restent inconnus/);
