@@ -4,6 +4,7 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import { validConversionReport, type ConversionReport } from "../marketing-conversion-utils";
 import { certificationInstant } from "../certification-utils";
 import { instituteMidnight } from "../outlook-utils";
+import { MarketingCurrentConversions } from "./MarketingCurrentConversions";
 
 function money(minor: string): string {
   const amount = BigInt(minor);
@@ -59,6 +60,7 @@ function ReportForm({ institute, campaign, timezone }: { institute: string; camp
       </article>)}
       <p>Devise inconnue : {report.summary.unknown_currency_live_tickets} tickets réels et {report.summary.unknown_currency_test_tickets} tickets de test.</p>
       <p>Cette synthèse couvre les liens déclarés courants de la période. Elle ne prouve pas toutes les ventes, la livraison ou l’effet de la campagne. Taux de conversion et retour publicitaire non calculés.</p>
+      <MarketingCurrentConversions institute={institute} campaign={campaign} period={{ start: report.summary.window.start, end: report.summary.window.end }} />
     </>}
   </section>;
 }

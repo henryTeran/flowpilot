@@ -50,13 +50,13 @@ function Reader({ institute, ticket }: { institute: string; ticket: string }) {
       {page.items.map(o => <article key={o.id}>
         <h5>{o.request.action === "linked" ? "Lien déclaré" : "Rétractation"} · {o.attribution.intent.submission.account.mode === "test" ? "Mode test" : "Mode réel"}</h5>
         <p>{o.created_at} · {o.actor_id} · {o.request.reason}</p>
-        <p>Campagne {o.attribution.intent.request.campaign_id} · original {o.id} · précédent {o.request.expected_previous_id || "Aucun"}</p>
+        <details><summary>Références de la décision</summary><p>Campagne {o.attribution.intent.request.campaign_id} · original {o.id} · précédent {o.request.expected_previous_id || "Aucun"}</p></details>
         <p>Montant historique : {o.attribution.ticket.amount_minor === null ? o.attribution.ticket.amount_quality === "missing" ? "manquant" : "invalide"
           : `${BigInt(o.attribution.ticket.amount_minor) / 100n}.${(BigInt(o.attribution.ticket.amount_minor) % 100n).toString().padStart(2, "0")}`} {o.attribution.ticket.currency || "Devise inconnue"}</p>
       </article>)}
       <button disabled={busy || offset === 0} onClick={() => void read(Math.max(0, offset - 20))}>Décisions précédentes</button>
       <button disabled={busy || offset + page.items.length >= page.total} onClick={() => void read(offset + 20)}>Décisions suivantes</button>
-      <p>Les montants de l’historique ne s’additionnent pas. Les versions précédentes et rétractations restent conservées ; les prédécesseurs hors de cette page sont vérifiés par le backend lors des lectures d’originaux.</p>
+      <p>Les versions précédentes et rétractations restent accessibles. Seuls les liens courants actifs comptent dans la synthèse.</p>
     </>}
   </section>;
 }

@@ -608,3 +608,22 @@ proves the native retained conversion flow against local application services,
 not live provider delivery, real settlement or production deployment. The current
 linked campaign catalog UI, compact presentation of technical references and full
 Phase13 requirement/gate audit remain next.
+
+### Phase13BJ current catalog and functional gate review
+
+Verified summaries now expose an explicit current-link catalog for the same
+selected billing period. Each returned original/source ID/key and current ticket
+pointer is reread before publication. Bounded pages show exact totals; selecting
+a row opens the existing protected writer/audit directly. Changed/retracted pointers,
+substituted sources or incomplete pages refuse the whole list. A successful decision
+invalidates prior list/history while keeping the verified receipt visible. Summary
+and catalog are separate observations, not asserted to be an atomic combined read.
+Technical audit references are optional details; only active current links contribute
+to summary amounts, never every historical version.
+
+Fresh combined marketing backend135 tests, frontend364 and actual backend native
+desktop/tablet populated/empty current-catalog flow support the section34 functional
+gates. See `MARKETING_ACCEPTANCE_MATRIX.md` for all eight deliverables and exact
+evidence/limits. SEGMENTATION, CAMPAIGN_DRAFT, CAMPAIGN_APPROVAL and CAMPAIGN_AUDIT
+are now locally PASS. Full-project, physical, load, live-provider and production
+acceptance remain OPEN; the full canonical objective continues to Phase14.

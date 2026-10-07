@@ -49,6 +49,10 @@ test("native retained conversion loses reply recovers once retracts and audits a
   await summary.getByLabel("Date de fin exclue").fill(fixture.end_date);
   await summary.getByRole("button", { name: "Lire la synthèse des conversions", exact: true }).click();
   await expect(summary).toContainText("1 tickets liés courants"); await expect(summary).toContainText("123.45 CHF");
+  const currentLinks = summary.getByRole("region", { name: "Liens de conversion courants", exact: true });
+  await currentLinks.getByRole("button", { name: "Voir les liens courants", exact: true }).click();
+  await expect(currentLinks).toContainText("1 liens courants dans la période");
+  await expect(currentLinks.getByRole("button", { name: `Ticket ${fixture.ticket_id} · Test`, exact: true })).toBeVisible();
   await writer.getByRole("button", { name: "Nouvelle décision pour ce ticket", exact: true }).click();
   await writer.getByRole("button", { name: "Vérifier le lien courant", exact: true }).click();
   await expect(writer).toContainText("Ticket déjà lié");
@@ -57,6 +61,8 @@ test("native retained conversion loses reply recovers once retracts and audits a
   await expect(writer).toContainText("Lien rétracté"); expect(posts).toBe(2);
   await summary.getByRole("button", { name: "Lire la synthèse des conversions", exact: true }).click();
   await expect(summary).toContainText("0 tickets liés courants"); await expect(summary).not.toContainText("123.45 CHF");
+  await currentLinks.getByRole("button", { name: "Voir les liens courants", exact: true }).click();
+  await expect(currentLinks).toContainText("0 sur 0 liens courants dans la période");
   const history = page.getByRole("region", { name: "Historique des conversions", exact: true });
   await history.getByRole("button", { name: "Vérifier l’historique des conversions", exact: true }).click();
   await expect(history).toContainText("Lien courant rétracté"); await expect(history).toContainText("2 décisions conservées");
