@@ -1,16 +1,17 @@
 import { certificationInstant as instant } from "./certification-utils";
 import { validSegmentProfile, type SegmentProfile } from "./crm-segment-utils";
 import { validLifecycleOriginal, type LifecycleOriginal } from "./crm-lifecycle-utils";
+import { validContactOriginal, type ContactOriginal } from "./marketing-contact-utils";
 
 export const marketingSegments = ["NEW", "ACTIVE", "LOYAL", "VIP", "AT_RISK", "DORMANT"] as const;
 export type MarketingSegment = typeof marketingSegments[number];
-export type AudienceRequest = { segments: MarketingSegment[]; channel: "email" | "sms" | "push"; reason: string; idempotency_key: string };
+export type AudienceRequest = { segments: MarketingSegment[]; channel: "email" | "sms" | "push"; reason: string; idempotency_key: string; permission_basis?: "marketing_contact" };
 export type AudienceOriginal = { id: string; institute_id: string; actor_id: string; captured_at: string;
   request: AudienceRequest; summary: { page_count: number; customer_count: number; selected_count: number; eligible_count: number };
   complete_registered_cohort: true; delivery_authorized: false };
 export type AudienceObservation = { institute_id: string; captured_at: string;
-  selection: { segments: MarketingSegment[]; channel: AudienceRequest["channel"]; after: string | null };
-  next_after: string | null; items: { customer_id: string; profile: SegmentProfile; declaration: LifecycleOriginal | null;
+  selection: { segments: MarketingSegment[]; channel: AudienceRequest["channel"]; after: string | null; permission_basis?: "marketing_contact" };
+  next_after: string | null; items: { customer_id: string; profile: SegmentProfile; declaration: LifecycleOriginal | ContactOriginal | null;
     selected_segment: boolean; marketing_permission: "granted" | "refused" | "unknown" | "unsupported_channel" | "future_declaration";
     eligible_by_recorded_permission: boolean; delivery_authorized: false }[];
   complete_institute_audience: false; delivery_authorized: false };
@@ -25,7 +26,7 @@ const segments = (v: unknown): v is MarketingSegment[] => Array.isArray(v) && v.
 const sameSegments = (a: MarketingSegment[], b: MarketingSegment[]) => a.length === b.length && a.every((s, i) => s === b[i]);
 export function validAudienceRequest(v: unknown): v is AudienceRequest {
   const r = v as AudienceRequest;
-  return keys(r, ["segments", "channel", "reason", "idempotency_key"]) && segments(r.segments)
+  return keys(r, ["segments", "channel", "reason", "idempotency_key", ...(r?.permission_basis === "marketing_contact" ? ["permission_basis"] : [])]) && segments(r.segments)
     && ["email", "sms", "push"].includes(r.channel) && text(r.reason, 240) && Array.from(r.reason).length >= 3 && text(r.idempotency_key, 120);
 }
 export function validAudienceOriginal(v: unknown, institute: string): v is AudienceOriginal {
@@ -39,6 +40,7 @@ export function validAudienceOriginal(v: unknown, institute: string): v is Audie
 }
 export function matchesAudienceReceipt(r: AudienceOriginal, request: AudienceRequest, actor: string): boolean {
   return r.actor_id === actor && sameSegments(r.request.segments, request.segments) && r.request.channel === request.channel
+    && r.request.permission_basis === request.permission_basis
     && r.request.reason === request.reason && r.request.idempotency_key === request.idempotency_key;
 }
 export function sameAudienceOriginal(a: AudienceOriginal, b: AudienceOriginal): boolean {
@@ -50,20 +52,21 @@ export function validAudienceObservation(v: unknown, institute: string): v is Au
   const p = v as AudienceObservation;
   if (!keys(p, ["institute_id", "captured_at", "selection", "next_after", "items", "complete_institute_audience", "delivery_authorized"])
     || p.institute_id !== institute || instant(p.captured_at) === undefined || p.delivery_authorized !== false || p.complete_institute_audience !== false
-    || !keys(p.selection, ["segments", "channel", "after"]) || !segments(p.selection.segments) || !["email", "sms", "push"].includes(p.selection.channel)
+    || !keys(p.selection, ["segments", "channel", "after", ...(p.selection?.permission_basis === "marketing_contact" ? ["permission_basis"] : [])]) || !segments(p.selection.segments) || !["email", "sms", "push"].includes(p.selection.channel)
     || !(p.selection.after === null || text(p.selection.after)) || !Array.isArray(p.items) || p.items.length > 50) return false;
   let previous = p.selection.after || "";
   for (const item of p.items) {
     if (!keys(item, ["customer_id", "profile", "declaration", "selected_segment", "marketing_permission", "eligible_by_recorded_permission", "delivery_authorized"])
       || !text(item.customer_id) || item.customer_id <= previous || item.delivery_authorized !== false
       || !validSegmentProfile(item.profile, institute, item.customer_id) || instant(item.profile.captured_at) !== instant(p.captured_at)
-      || item.declaration !== null && !validLifecycleOriginal(item.declaration, institute, item.customer_id)) return false;
+      || item.declaration !== null && !(p.selection.permission_basis === "marketing_contact"
+        ? validContactOriginal(item.declaration, institute, item.customer_id) : validLifecycleOriginal(item.declaration, institute, item.customer_id))) return false;
     previous = item.customer_id;
     const selected = item.profile.segment?.state != null && p.selection.segments.includes(item.profile.segment.state);
     const d = item.declaration;
-    const permission = p.selection.channel === "push" ? "unsupported_channel" : d === null ? "unknown"
+    const permission = p.selection.permission_basis !== "marketing_contact" && p.selection.channel === "push" ? "unsupported_channel" : d === null ? "unknown"
       : instant(d.created_at)! > instant(p.captured_at)! ? "future_declaration"
-      : d.declaration.communications.find(c => c.channel === p.selection.channel && c.purpose === "marketing")!.permission;
+      : d.declaration.communications.find(c => c.channel === p.selection.channel && (p.selection.permission_basis === "marketing_contact" || c.purpose === "marketing"))!.permission;
     if (item.selected_segment !== selected || item.marketing_permission !== permission || item.eligible_by_recorded_permission !== (selected && permission === "granted")) return false;
   }
   return p.next_after === null || p.items.length === 50 && p.next_after === previous;
@@ -75,6 +78,7 @@ export function validRetainedAudiencePage(v: unknown, original: AudienceOriginal
     && instant(p.observation.captured_at) === instant(original.captured_at) && p.observation.selection.after === after
     && (index !== 0 || after === null) && (index === 0 || text(after))
     && sameSegments(p.observation.selection.segments, original.request.segments) && p.observation.selection.channel === original.request.channel
+    && p.observation.selection.permission_basis === original.request.permission_basis
     && p.observation.items.length === (index < original.summary.page_count - 1 ? 50 : original.summary.customer_count - 50 * index)
     && (index === original.summary.page_count - 1 ? p.observation.next_after === null : p.observation.next_after !== null);
 }

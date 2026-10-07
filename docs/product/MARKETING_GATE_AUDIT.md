@@ -595,6 +595,32 @@ new contact-based capture variants; that integration remains required. Legacy na
 request shape unchanged. No schema migration, provider call, send receipt or native
 acceptance claimed here. All marketing/physical/production gates OPEN; goal ACTIVE.
 
+## 13AB: native contact and audience variant contracts
+
+Frontend contact request/original guards pin own scope, marketing purpose, complete
+unique three channels, evidence, channel-specific destination fields, exact actor/
+predecessor/reason/key and aware clock. Email shape/control checks complement backend
+EmailStr authoritative validation; phone explicit international numeric, push explicit
+application/token/length/control. Full terms/actor replay and immutable original
+agreement preserve ordered communications, normalize only observation clock spelling.
+
+Audience manifest/catalog guards now accept explicit contact-source variant while
+preserving old exact shape. Receipt comparison and retained-page checks pin permission
+basis; contact pages validate own original then recompute channel permission and
+selected eligibility. Legacy pages retain lifecycle validation/push unsupported.
+Wrong/absent basis or source swap refuses; existing source/retained-view components
+can consume accepted new variants. Native contact editing and explicit capture-basis
+selection are still missing, and no new signed browser acceptance claimed.
+
+Six focused tests: 6 passed in 1.27s. Full frontend: 311 passed in 68.12s, no failures/
+skips, terminal exit 0. Final TypeScript/Vite build passes, 139 modules. Actual backend
+SQLite fixture export: one legacy plus email/SMS/push captures, four manifests/eight
+50/5 pages accepted by native guards with exact predecessor cursors. First extraction
+failed parsing diagnostic stdout as JSON; explicit payload prefix fixed extraction,
+fixtures cleaned. No new full backend/schema/provider/delivery claim. Next native
+contact editor/recovery, contact-source capture choice and signed desktop/tablet
+views; then observations/provider/send/conversion. All gates OPEN; goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
