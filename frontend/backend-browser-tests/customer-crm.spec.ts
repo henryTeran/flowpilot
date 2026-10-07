@@ -21,10 +21,12 @@ test("signed native customer search reads current CRM and refuses a forged class
       at_risk_us: 7200000000, dormant_us: 14400000000, loyal_min_tickets: 2, vip_min_tickets: 3,
       vip_currency: "CHF", vip_gross_minor: "300" } } });
   expect(configured.status(), await configured.text()).toBe(200);
+  const currencySetting = await request.put(`${base}/gift-cards/institutes/${institute}/settings`, { headers,data: { currency: "CHF" } });
+  expect(currencySetting.status(), await currencySetting.text()).toBe(200);
   const careTickets: string[] = [];
   for (let i=0; i<2; i++) {
     const ticketReply = await request.post(`${base}/tickets`, { headers, data: { institute_id: institute, service_id: "svc-aisselles", customer_id: customer.id } });
-    expect(ticketReply.status(), await ticketReply.text()).toBe(200); const ticket = await ticketReply.json(); careTickets.push(ticket.id);
+    expect(ticketReply.status(), await ticketReply.text()).toBe(200); const ticket = await ticketReply.json(); expect(ticket.currency).toBe("CHF"); careTickets.push(ticket.id);
     const started = await request.post(`${base}/planning/sessions/start`, { headers, data: { ticket_id: ticket.id, employee_id: "emp-angela", service_id: "svc-aisselles" } });
     expect(started.status(), await started.text()).toBe(200); const session = await started.json();
     const finished = await request.patch(`${base}/planning/sessions/${session.id}/finish`, { headers });
@@ -86,6 +88,9 @@ test("signed native customer search reads current CRM and refuses a forged class
   await panel.getByText("Déclarer les hypothèses CLV", { exact: true }).click();
   await lifetime.getByRole("button", { name: "Reprendre la demande CLV conservée", exact: true }).click();
   await expect(lifetime).toContainText("Hypothèses CLV originales vérifiées"); expect(lifetimePosts).toBe(1);
+  const scenario = panel.getByRole("region", { name: "Scénario CLV restante", exact: true });
+  await expect(scenario).toContainText(firstLifetime.id);
+  await expect(scenario).toContainText("Aucun paiement observé dans la devise choisie");
   expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.crm-lifetime-request:")))).toBe(false);
   expect(firstLifetime.assumptions.activity_fraction).toEqual({ numerator: "1", denominator: "2" });
   expect(firstLifetime.assumptions.gross_contribution_margin).toEqual({ numerator: "1", denominator: "3" });
@@ -98,7 +103,22 @@ test("signed native customer search reads current CRM and refuses a forged class
   const selectedLifetime = await request.get(lifetimePath+"/current", { headers }); expect(selectedLifetime.status()).toBe(200);
   const correctedLifetime = await selectedLifetime.json(); expect(correctedLifetime.previous_id).toBe(firstLifetime.id);
   expect(correctedLifetime.assumptions.future_relationship_cost_minor).toBe("200");
+  await expect(scenario).toContainText(correctedLifetime.id);
   const originalLifetime = await request.get(lifetimePath+"/"+firstLifetime.id, { headers }); expect(await originalLifetime.json()).toEqual(firstLifetime);
+  expect((await request.patch(`${base}/tickets/${careTickets[0]}/checkout/start`, { headers, data: { employee_id: "emp-assya" } })).status()).toBe(200);
+  const paid = await request.patch(`${base}/tickets/${careTickets[0]}/checkout/pay`, { headers, data: { employee_id: "emp-assya",payment_method: "especes" } });
+  expect(paid.status(), await paid.text()).toBe(200);
+  await scenario.getByRole("button", { name: "Actualiser le scénario CLV", exact: true }).click();
+  await expect(scenario).toContainText("CLV restante conditionnelle :"); await expect(scenario).toContainText("Tickets payés observés : 1");
+  const scenarioPath = `**/customers/${customer.id}/lifetime-scenario?*`;
+  const corruptScenario = async (route: any) => { const actual = await route.fetch(), value = await actual.json(); value.scenario.remaining_clv_minor.numerator=String(BigInt(value.scenario.remaining_clv_minor.numerator)+1n); await route.fulfill({ response: actual,json: value }); };
+  await page.route(scenarioPath,corruptScenario); await scenario.getByRole("button", { name: "Actualiser le scénario CLV", exact: true }).click();
+  await expect(scenario.getByRole("alert")).toContainText("à vérifier"); await expect(scenario).not.toContainText("CLV restante conditionnelle :");
+  await page.unroute(scenarioPath,corruptScenario); await scenario.getByRole("button", { name: "Actualiser le scénario CLV", exact: true }).click();
+  await expect(scenario).toContainText("CLV restante conditionnelle :");
+  await scenario.getByText("Hypothèses et calcul CLV", { exact: true }).click();
+  await expect(scenario).toContainText("Valeur exacte en centimes"); await expect(scenario).toContainText("Lecture distincte du profil et des soins");
+  await scenario.screenshot({ path: info.outputPath("native-lifetime-scenario.png") });
   for (const control of await directory.locator("button,input,summary").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
   await directory.screenshot({ path: info.outputPath("native-customer-crm.png") });

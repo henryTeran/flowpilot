@@ -591,14 +591,52 @@ Existing bcrypt/NO_COLOR warnings only. No new backend/schema/application migrat
 physical-device or production receipt is claimed. Native scenario display and
 remaining lifecycle work are required; canonical CRM gates stay open.
 
+## Phase 12R: native remaining-lifetime scenario display
+
+The registered customer's manager profile now shows the guarded remaining-value
+scenario beside its explicit declaration. The verified policy period supplies
+start; server end/capture is fresh and visibly distinct from profile/care capture.
+No usable period means no invented scenario request. Customer/institute/token/
+period changes dispose old responses; refresh hides previous values. Successful
+verified declaration/correction invalidates the scenario and rereads selected
+original provenance. Separate requests do not pretend to be one transaction.
+
+Gross projection, projected contribution and conditional remaining CLV are
+labelled separately. Integer half-away-from-zero cent rounding is display-only;
+negative values remain negative and exact signed ratios are inspectable. Original
+ID/actor/reason, observation/capture, active duration/date, activity/margin fractions,
+future costs and formula are visible. Unknown source conditions remain explained
+unknowns; no whole-history, FX, discounted or validated prediction claim is made.
+
+Controlled focus: 10 lifetime editor/scenario/guard/profile tests passed in 4.29s.
+Full frontend regression: 255 passed in 47.81s, zero failures/skips; TypeScript/
+Vite build passes, 121 modules and about 40.41kB lazy CRM. Old actor/client replies,
+fresh forged net, fractional negative and large exact monetary display and no
+scenario request without verified period are covered. Existing guard fixture was
+extracted for reuse without changing its tests. Final signed Edge policy/profile/
+lifetime regression: 4 passed in 51.4s, desktop/touch tablet, zero failures/skips.
+Real signed cash payment supplies an owned closed ticket. Initial declaration and
+correction refresh original provenance; no selected-currency observations remain
+unknown before payment, valid scenario renders after payment, forged net hides
+values and reread recovers. Existing original/policy/profile/care recovery remains
+covered. All controls >=44px/no horizontal overflow; tablet scenario screenshot
+inspected and owned fixture cleanup confirmed. Initial two profile cases failed
+because fixture invoices lacked currency; correctly unknown scenario retained.
+Owned fixture now explicitly configures CHF before ticket creation and asserts
+denomination, without weakening guards/increasing timeouts. Existing bcrypt/
+NO_COLOR warnings only. No new backend/schema/application migration, full-backend,
+physical-device or production receipt is claimed; canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
   without changing complete aggregates or guessing name/phone identity. Native
   policy configuration/recovery is delivered; no production policy is configured
   by controlled browser fixtures and no lifecycle event is claimed yet.
-- Implement source-supported CLV semantics and complete canonical rebooking
-  acceptance, distinguishing recorded gross from prediction and employee credit.
+- Complete source-supported CLV and canonical rebooking acceptance, distinguishing
+  recorded gross from conditional projection and employee credit. Native explicit
+  remaining-lifetime declaration/recovery/scenario are delivered; calibrated or
+  complete historical lifetime value has not been certified.
   Native observed return-cycle reads are delivered; this does not certify visits,
   complete customer history or close the whole rebooking gate.
 - Implement explicit birthday/communication declarations and lifecycle events
