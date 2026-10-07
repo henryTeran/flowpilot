@@ -445,8 +445,32 @@ do not define predecessor order. These page bounds do not bound all source-proof
 reads; large-history performance remains unverified.
 
 There is one current head per owned ticket across campaigns. Retracted events remain
-in audit and never imply deleting history or undoing the sale. Attribution reports
-still require selecting only current linked events, separating test/live and currency
+in audit and never imply deleting history or undoing the sale. Campaign reports
+select only current linked events, separating test/live and currency
 and preserving unknown amounts; no campaign conversion dashboard/native writer yet.
 No statistical causal lift, delivery or bank settlement is proven. Actual provider
 evidence/operator resolution and production/physical acceptance remain OPEN.
+
+### Phase13BA current conversion cohort and summary
+
+Manager-only GET `campaigns/{id}/conversions/current` and `/summary` require
+explicit aware `start`/`end`, a positive half-open recorded billing window fully
+observed at one server capture. The institute lock protects the entire read.
+Every historical ticket candidate for the owned campaign is checked through its
+current original and complete predecessor/source proof before publication, even
+outside the requested page or window. Missing heads, future events and incoherent
+receipts refuse publication. Retracted or reassigned current events are excluded.
+Current pages default20/max50, ordered by ticket ID, with an exact total; the
+requested page is bounded but the verification work scans the entire candidate
+cohort. Large-history performance remains unverified.
+
+The summary consumes all current selected links, not just a page. It reports exact
+minor-unit amounts per known currency and live/test mode, retaining missing/invalid
+amount and unknown-currency diagnostics. A billing correction alone does not
+rewrite an attribution snapshot; a new explicit linked event replaces the current
+amount without double counting its predecessor. `full_retained_current_cohort`
+means all retained current declared links in this window, not all sales, all
+conversions or complete campaign history. Conversion rate and ROAS remain null;
+causal lift and delivery are unproven. Candidate discovery trusts stored campaign
+scope metadata; hashes detect incoherent retained receipts, not authenticated
+provider evidence or arbitrary administrator rewriting of the database.

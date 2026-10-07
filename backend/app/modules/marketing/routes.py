@@ -6,6 +6,7 @@ from app.modules.marketing import models as marketing_models  # noqa: F401
 from app.modules.marketing import audiences, audience_originals, templates, campaign_originals, catalogs, contacts, contact_originals, recipient_observations, dispatch_intents, dispatch_outcomes, dispatch_catalogs, provider
 from app.modules.marketing import conversion_sources
 from app.modules.marketing import conversion_originals
+from app.modules.marketing import conversion_catalogs
 router=APIRouter(prefix="/marketing/institutes/{institute_id}",tags=["marketing"])
 
 def manager(institute_id:str,user=Depends(require_ticket_manager)):
@@ -35,6 +36,18 @@ def conversion_audit(institute_id: str, ticket_id: str, offset: int=Query(0, ge=
 @router.get("/conversions/{identifier}", response_model=conversion_originals.Original)
 def conversion_by_id(institute_id: str, identifier: str, user=Depends(manager), db: Session=Depends(get_db)):
     return conversion_originals.require(db, institute_id, identifier)
+
+@router.get("/campaigns/{campaign_id}/conversions/summary", response_model=conversion_catalogs.Report)
+def campaign_conversion_summary(institute_id: str, campaign_id: str, start: str, end: str, user=Depends(manager), db: Session=Depends(get_db)):
+    try: payload = conversion_catalogs.Request(start=start, end=end)
+    except ValueError: raise HTTPException(422, "Explicit observed conversion window required") from None
+    return conversion_catalogs.report(db, institute_id, campaign_id, payload)
+
+@router.get("/campaigns/{campaign_id}/conversions/current", response_model=catalogs.Page[conversion_originals.Original])
+def campaign_current_conversions(institute_id: str, campaign_id: str, start: str, end: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
+    try: payload = conversion_catalogs.Request(start=start, end=end)
+    except ValueError: raise HTTPException(422, "Explicit observed conversion window required") from None
+    return conversion_catalogs.current_links(db, institute_id, campaign_id, payload, offset, limit)
 
 @router.get("/dispatch-accounts", response_model=catalogs.Page[provider.Account])
 def dispatch_accounts(institute_id: str, channel: contacts.Channel, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
