@@ -271,3 +271,46 @@ Failed discovery hides account choices and allows clean retry; token replacement
 prevents late publication. No mount read, account/provider configuration, submission,
 reconciliation or outcome mutation is added. A concurrent creation after an absent
 read is still resolved by the backend unique approval/customer constraint.
+
+## Opt-in deployment invocation (13AV)
+
+`python -m app.modules.marketing.invoke --institute INSTITUTE --intent INTENT
+--expected-fingerprint SHA256` inspects one retained intention and current outcome.
+All three selection arguments are required. Inspection performs no credential
+resolution/provider I/O and creates no outcome. It does not prove readiness,
+delivery or current permission. The command is not imported or scheduled by startup
+and no public execution endpoint is added.
+
+Execution additionally requires `--execute --receipt NEW_LOCAL_JSON_PATH`, automatic
+schema creation disabled, PostgreSQL with exactly the checked-in Alembic heads and
+a retained explicitly live account. The command never creates/migrates tables or
+installs configuration, tokens, schedulers or credentials. A deployment operator must
+configure the already documented accounts/bindings and apply/verify migrations
+separately. The CLI always uses the trusted built-in transport registry, a fixed
+worker actor and a single intent; it accepts no adapter plugin, credential or actor
+argument. Internal tests inject a fake resolver only.
+
+The expected fingerprint must equal the independently retained complete submission.
+The existing worker still owns fresh first SEND/contact/permission/account checks,
+commits uncertainty before provider I/O and reconciles only on every uncertain
+reentry. Terminal reentry has no provider call. No automatic resend, bulk scan,
+retry loop or daemon is introduced. Invocation is a local trusted server operation,
+not a manager browser action.
+
+The receipt path is reserved exclusively before execution; existing files/symlinks
+are refused. The JSON is flushed and fsynced before stdout publication. It contains
+only institute/intent/fingerprint/mode/operation/status/outcome ID and a strictly
+false delivery flag, no contact destinations, provider credentials or raw errors.
+Exit0 is a completed report (including unobserved inspection or provider rejection),
+exit2 is a report with retained unknown status, exit1 is command failure. Provider
+acceptance remains distinct from delivery. A failed invocation may leave an empty
+or incomplete file and a committed uncertain/terminal DB observation: inspect
+retained originals, never delete history or infer no attempt from a missing receipt.
+A new receipt path permits recovery; durable worker state forbids automatic resend.
+
+Tests use isolated owned PostgreSQL schemas with actual retained services and
+explicitly live-mode fixture metadata plus fake adapters, never external providers.
+The gate's Alembic stamp is a fixture on metadata-created test tables, not evidence
+of a deployed migration. Actual production schema/backup/secret ownership/provider
+acceptance remain unverified. Provider evidence/operator uncertainty resolution and
+retained conversion attribution still require implementation and acceptance.
