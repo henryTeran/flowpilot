@@ -45,8 +45,8 @@ Sources: [Message resource](https://www.twilio.com/docs/messaging/api/message-re
 
 Use provider `fcm`, channel `push`, project ID as account_id and sender_id, plus the
 declared application binding. Credential contains an OAuth access token; acquisition,
-expiry checks and refresh belong to trusted deployment infrastructure outside the
-worker's local resolver. POST messages:send contains the explicit device token and
+refresh belong to trusted deployment infrastructure. The local registry checks the
+cached token expiry before binding an adapter. POST messages:send contains the explicit device token and
 literal approved notification body. Acceptance requires a same-project message name.
 No read-by-operation reconciliation endpoint is implemented: unknown remains unknown,
 and any known reference must retain the exact project. No automatic retry.
@@ -62,3 +62,27 @@ delivery. GET reconciliation uses a reference already authoritatively bound to t
 stored intent by trusted server evidence; matching recipient/body alone cannot create
 that binding. Authenticated callbacks/evidence and operator uncertainty resolution
 remain required, particularly when the initial provider reference was lost.
+
+## Trusted local registry
+
+`transport_registry.resolver(session_factory)` supplies the worker resolver without
+activating execution. `MARKETING_CREDENTIAL_BINDINGS_JSON` defaults to `[]`; entries
+contain institute_id, provider, account_id, mode (`live`), secret_env and
+expires_at_env (null for Resend/Twilio, required for FCM). Account metadata remains
+separately allowlisted through MARKETING_ACCOUNTS_JSON. Full credential scope must
+match exactly and duplicate scopes refuse.
+
+Both environment references must use the dedicated `FLOWPILOT_MARKETING_` prefix.
+Secrets are never accepted inline in the catalog. Resolution rereads environment
+values for rotation; missing/invalid values refuse with generic errors. FCM expiry
+must be aware and later than current time plus configured HTTPS deadline plus five
+seconds. This checks a cached token only; it does not acquire or refresh OAuth.
+Server environment/configuration remains a trusted deployment boundary.
+
+The reconciliation callback opens a fresh session outside the worker's institute
+transaction. It finds the retained intent by institute and operation key, compares
+the full submission and fingerprint, then reads that intent's current outcome.
+Only its retained provider reference permits an adapter GET. It cannot invent a
+reference when the initial response was lost, authenticate an external callback or
+resolve uncertainty by resubmission. Explicit injected transports are preserved
+even when falsy. Tests use simulated responses; no live credentials are installed.

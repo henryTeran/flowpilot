@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13AL_OPT_IN_CHANNEL_API_TRANSPORTS
+CURRENT_CHECKPOINT = PHASE13AM_TRUSTED_TRANSPORT_REGISTRY
 STATUS = ACTIVE
+
+PHASE13AM_TRUSTED_TRANSPORT_REGISTRY:
+- Added empty-by-default MARKETING_CREDENTIAL_BINDINGS_JSON trusted local resolver. Exact institute/provider/account/live-mode scope; duplicate or invalid catalog refuses. Only dedicated FLOWPILOT_MARKETING_ environment references allowed, no inline secrets. Each resolution rereads current secret; cached FCM token needs aware expiry beyond the caller deadline plus 5 seconds. OAuth acquisition/refresh remains external; lookup performs no provider I/O.
+- Reconciliation reference callback uses a fresh session after worker transaction release, requires retained intent with exact full Submission/fingerprint, then reads its current outcome reference. Unretained key or changed actor/terms cannot trigger GET. Explicit falsy injected transport remains injected rather than falling back to network. Generic configuration errors suppress raw exception context.
+- Initial registry six tests passed in 5.73s. Six-file registry/transport/worker/outcome/intent/provider suite: 43 passed in 105.99s, terminal exit 0. After final falsy-client correction and added case, registry/transport/provider: 26 passed in 14.14s, terminal exit 0. Actual PostgreSQL adjacent worker/state coverage; SQLite retained-reference GET pipeline and simulated wires only. Existing crypt deprecation and deliberate malformed-bool serializer warnings. No external provider calls, credentials installed or production acceptance.
+- CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. No schema/frontend/native/full-backend rerun or daemon activation claimed. NEXT: canonical campaign SEND authorization and audit before production invocation, protected invocation wiring, authenticated provider evidence/operator uncertainty resolution and conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13AL_OPT_IN_CHANNEL_API_TRANSPORTS:
 - Added optional Resend email, Twilio SMS and Firebase Cloud Messaging Push adapters with exact configured live account/credential binding. Literal approved subject/body/destination preserved; plain-text email, form SMS, notification Push. Valid scoped provider references required for acceptance; recognized vendor refusal envelopes alone give rejection; ambiguous/malformed/mismatched responses remain unknown. Acceptance never means recipient delivery. No provider SDK/dependency change.

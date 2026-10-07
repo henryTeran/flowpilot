@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # Trusted account bindings only; credentials and adapters remain separate.
     MARKETING_ACCOUNTS_JSON: str = "[]"
+    MARKETING_CREDENTIAL_BINDINGS_JSON: str = "[]"
     APP_NAME: str = "FlowPilot Institut Manager"
     APP_ENV: str = "local"
     APP_DEBUG: bool = True

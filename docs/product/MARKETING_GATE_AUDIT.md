@@ -861,6 +861,29 @@ delivery claim. See MARKETING_TRANSPORTS.md primary sources/config/deployment li
 Next credential/invocation wiring, authenticated evidence/operator resolution, SEND/
 native audit/conversion. Marketing/physical/production gates OPEN; canonical goal ACTIVE.
 
+## Phase 13AM - trusted transport registry
+
+Empty-by-default server credential bindings now connect exact institute/provider/
+account/live-mode metadata to dedicated marketing environment references. Invalid,
+ambiguous or foreign bindings refuse. Secrets are reread locally; cached FCM expiry
+must exceed the call deadline plus five seconds. No OAuth acquisition, network
+lookup, credentials installed or daemon activation. Exception context is suppressed
+for invalid configuration. Explicit falsy injected clients never fall back to HTTPS.
+
+Reconciliation reads a retained intent and exact full submission/fingerprint before
+using its current outcome reference, in a fresh session after worker transaction
+release. Changed actor/terms or unretained keys refuse before simulated GET. This is
+trusted retained evidence, not authentication of external provider callbacks.
+
+Initial registry: 6 passed in 5.73s. Six adjacent files: 43 passed in 105.99s.
+After final client correction/additional test: registry/transport/provider 26 passed
+in 14.14s. All terminal exit 0. Actual PostgreSQL adjacent state/worker tests and
+SQLite reference pipeline; simulated wires only. Existing crypt deprecation and
+intentional malformed-bool serializer warnings. No new migration/frontend/native/
+full-backend or live provider acceptance. All four Phase 13 gates remain OPEN;
+canonical SEND authorization/audit, protected invocation, authenticated evidence,
+operator uncertainty resolution, conversion and physical/production gates remain.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

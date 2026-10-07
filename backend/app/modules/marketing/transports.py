@@ -96,7 +96,9 @@ class Adapter:
     def __init__(self, account, credential, transport=None, reference=None):
         self.account = provider.Account.model_validate(account.model_dump())
         if self.account.mode != "live" or not isinstance(credential, Credential): raise ValueError("Live opt-in binding and typed credential required")
-        self._credential = credential; self._transport = transport or Https(); self._reference = reference or (lambda request: None)
+        self._credential = credential
+        self._transport = Https() if transport is None else transport
+        self._reference = (lambda request: None) if reference is None else reference
     def checked(self, request):
         request = provider.Submission.model_validate(request.model_dump())
         if request.account != self.account: raise ValueError("Exact configured adapter account required")
