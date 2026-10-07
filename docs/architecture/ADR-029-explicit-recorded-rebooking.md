@@ -1,7 +1,8 @@
 # ADR-029: Explicit recorded employee rebooking
 
 Status: original declaration/cancellation API and migration implemented;
-bounded employee declaration-day read implemented; native lifecycle/profile and acceptance remain open.
+bounded employee declaration-day read and profile component implemented;
+native lifecycle/Edge verification and acceptance remain open.
 
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
@@ -87,6 +88,25 @@ counts/page are protected against institute writers; the subsequent reading
 includes writes committed after that snapshot. `complete_attribution=false`
 and null conversion basis points retain unknown full conversion, including an
 empty journal. This read adds no schema or write path.
+
+The selected-day manager profile now uses exact BigInt response guards for
+pinned source/booking chronology, microsecond instants, employee ownership,
+original/cancellation identities and declaration-day bounds. Current target
+classification is independently recomputed against that same capture clock.
+Exact count keys conserve the whole journal; complete pages reproduce counts,
+partial pages require visible counts not to exceed global counts. Duplicate
+active source/target credits on a visible page are refused while cancelled
+history remains readable. Original recovery comparisons include every pinned
+instant and client/service/event identity without float conversion.
+
+The component displays read timestamp, explicitly recorded-day counts and
+unknown complete conversion, with original provenance in a 44px disclosure.
+Primary execution/creation instants use institute civil time and UTC offsets;
+exact originals remain in provenance. Empty journals do not imply rebooking
+failure. Fresh failures hide previous facts; day/employee/token remounts isolate
+late replies and reception initiates no reads. Controlled component tests and
+production build pass; backend-connected Edge provenance and authoring/recovery
+remain required before native acceptance.
 
 Controlled SQLite and real PostgreSQL source tests verify both execution kinds,
 exact microsecond chronology, explicit identity, original creation provenance,

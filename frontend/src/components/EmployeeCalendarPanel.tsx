@@ -10,6 +10,7 @@ import { EmployeeRevenuePanel } from "./EmployeeRevenuePanel";
 import { EmployeeObjectivesPanel } from "./EmployeeObjectivesPanel";
 import { EmployeeWorkHoursPanel } from "./EmployeeWorkHoursPanel";
 import { EmployeeOccupationPanel } from "./EmployeeOccupationPanel";
+import { EmployeeRebookingPanel } from "./EmployeeRebookingPanel";
 
 type Props = { institute: string; timezone?: string; employees: Employee[] };
 const reasons: Record<string, string> = { available_now: "Disponible maintenant", in_progress_session: "Prestation en cours",
@@ -26,6 +27,7 @@ function Profile({ institute, timezone, employees }: Props) {
   const objectiveSection = useRef<HTMLDivElement>(null);
   const hoursSection = useRef<HTMLDivElement>(null);
   const occupationSection = useRef<HTMLDivElement>(null);
+  const rebookingSection = useRef<HTMLDivElement>(null);
   const token = getAccessToken(), staff = employees.filter(employee => employee.institute_id === institute);
   const [employee, select] = useState(""), [day, setDay] = useState(() => instituteSlot(new Date(), timezone)!.date);
   const [offset, page] = useState(0), [revision, refresh] = useState(0), [result, setResult] = useState<EmployeeDay>();
@@ -60,6 +62,7 @@ function Profile({ institute, timezone, employees }: Props) {
       <button onClick={() => objectiveSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter les objectifs</button>
       <button onClick={() => hoursSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter les heures</button>
       <button onClick={() => occupationSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter l’occupation</button>
+      <button onClick={() => rebookingSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter le rebooking</button>
       <p>Compétences enregistrées : {result.employee.skills.join(", ") || "Aucune enregistrée"}</p>
       <p>Disponibilité au {display(result.generated_at)} : {result.availability.available ? "Disponible maintenant" : reasons[result.availability.current_slot?.reason || "capacity_unknown"]}.
         {!result.availability.available && result.availability.current_slot?.available_from && <> Prochaine fenêtre connue : {display(result.availability.current_slot.available_from)}.</>}</p>
@@ -76,6 +79,7 @@ function Profile({ institute, timezone, employees }: Props) {
       <CertificationReadOnly institute={institute} employee={employee} timezone={result.timezone} />
       <div ref={hoursSection}><EmployeeWorkHoursPanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
       <div ref={occupationSection}><EmployeeOccupationPanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
+      <div ref={rebookingSection}><EmployeeRebookingPanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
       <div ref={objectiveSection}><EmployeeObjectivesPanel institute={institute} employee={employee} /></div>
       <div ref={revenueSection}><EmployeeRevenuePanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
     </>}

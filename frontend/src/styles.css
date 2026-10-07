@@ -6794,3 +6794,5 @@ body {
 .work-interval-panel li { overflow-wrap: anywhere; }
 .employee-occupation summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .employee-occupation li { overflow-wrap: anywhere; }
+.employee-rebooking summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.employee-rebooking li { overflow-wrap: anywhere; }
