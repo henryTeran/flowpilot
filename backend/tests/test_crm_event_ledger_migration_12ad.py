@@ -40,6 +40,6 @@ def test_event_ledger_roundtrip_scope_constraints_and_protected_history(tmp_path
                     with db.begin_nested():db.execute(statement)
         with pytest.raises(RuntimeError,match="Recorded event history"):command.downgrade(config,"ea5b7cd43926")
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="1d8eaf762259"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="2e9fb087336a"
             assert connection.scalar(text("SELECT COUNT(*) FROM crm_event_revisions"))==2
             assert compare_metadata(MigrationContext.configure(connection),Base.metadata)==[]

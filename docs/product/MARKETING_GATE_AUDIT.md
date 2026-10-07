@@ -488,6 +488,31 @@ only. No schema/API/native/provider/full-suite acceptance claimed. Next: append-
 owned contact originals/heads and signed protected replay, coherent audience/fresh
 send evaluation, provider transport and conversion. All gates OPEN; goal ACTIVE.
 
+## 13X: contact original/head database schema
+
+Migration 2e9fb087336a adds marketing contact originals and current pointers after
+1d8eaf762259. Own institute/customer/predecessor identifiers, actor/reason/replay key,
+aware creation clock and explicit declaration JSON retained. Composite predecessor/
+head references pin the same institute/customer; per-institute key uniqueness and
+self-predecessor check enforced. Customer FK requires an existing customer; initial
+customer/institute ownership must additionally be checked by the signed service,
+consistent with legacy CRM conventions. Tables do not themselves enforce raw-SQL
+immutability; no mutation API introduced here. Alembic explicitly imports marketing
+metadata rather than depending on unrelated test/runtime imports.
+
+Empty downgrade/re-upgrade and exact metadata parity tested on SQLite/PostgreSQL;
+invalid cross-customer/institute predecessor/head, duplicate key, missing customer
+and self predecessor rejected. Correction preserves older declaration. Populated
+history refuses downgrade without changing version/tables/rows, including originals
+without any selected head. Offline downgrade explicitly refuses, verified separately.
+Focused migration: 2 passed in 12.74s. Seven adjacent marketing test files: 34 passed
+in 93.16s, terminal exit 0, actual PostgreSQL persistence cases. Existing crypt warning
+only. Full 24 migration files: 49 passed in 327.70s, terminal exit 0, including
+SQLite/actual PostgreSQL and prior history downgrade guards. Fourteen older expected
+head assertions updated only to new revision. Existing SQLite datetime deprecation
+also observed. No production migration/provider operation performed. Signed persistence/API/audience integration/native contacts
+and delivery/conversion still required. All gates OPEN; full goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -39,5 +39,5 @@ def test_original_certification_migration_empty_roundtrip_and_revoked_history_gu
             command.downgrade(config, "3da908e5f70c")
         assert records() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "1d8eaf762259"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "2e9fb087336a"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

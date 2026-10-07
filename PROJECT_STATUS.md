@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13W_EXPLICIT_MARKETING_CONTACT_DECLARATIONS
+CURRENT_CHECKPOINT = PHASE13X_MARKETING_CONTACT_SCHEMA
 STATUS = ACTIVE
+
+PHASE13X_MARKETING_CONTACT_SCHEMA:
+- Added ContactOriginal/ContactHead and migration 2e9fb087336a after 1d8eaf762259: existing customer/institute FK, owned composite predecessor/head, unique per-institute replay key, distinct predecessor check, actor/reason/aware clock/declaration JSON. Cross-customer/institute history pointers refused; original correction preserves older rows. Initial customer/institute ownership remains required in future signed service (existing CRM convention); raw-SQL immutability not claimed. Alembic explicitly imports marketing metadata. Fourteen older tests updated only expected latest head assertion.
+- Empty downgrade/re-upgrade and exact metadata parity pass on SQLite/actual PostgreSQL; invalid owned references/replay duplicate/self/missing customer rejected. Recorded contact history blocks downgrade atomically, including originals without a selected head. Offline downgrade explicitly refused. Focused migration: 2 passed in 12.74s. Full 24 migration files: 49 passed in 327.70s, terminal exit 0; adjacent seven marketing files: 34 passed in 93.16s, terminal exit 0. Existing crypt/SQLite datetime deprecations only. No production migration/API/native/provider operation or full backend acceptance inferred.
+- CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. NEXT: signed owned contact original service with actor/full-term key-first recovery, exact head/atomic append and independent ID/current reads; connect three-channel audience/fresh-send evaluation, native contacts, provider/send/conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13W_EXPLICIT_MARKETING_CONTACT_DECLARATIONS:
 - Added pure explicit marketing contact/permission facts covering exactly email/SMS/push once, with separate evidence for destination and each grant/refusal; unknown remains unevidenced. EmailStr validates/normalizes email, SMS requires explicit international numeric destination, push pins explicit application/token. Destination fields must match channel; addresses/tokens excluded from repr. No inference from Customer.phone, legacy lifecycle permissions or another channel. Existing four-dimensional CRM lifecycle originals unchanged; new declarations have marketing purpose only.

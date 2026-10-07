@@ -66,3 +66,34 @@ class CampaignHead(Base):
     institute_id:Mapped[str]=mapped_column(String(80),primary_key=True)
     campaign_id:Mapped[str]=mapped_column(String(80),primary_key=True)
     original_id:Mapped[str]=mapped_column(String(80),nullable=False)
+
+
+class ContactOriginal(Base):
+    __tablename__ = "marketing_contact_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "customer_id", "id", name="uq_marketing_contact_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_marketing_contact_replay"),
+        ForeignKeyConstraint(["institute_id", "customer_id", "previous_id"],
+            ["marketing_contact_originals.institute_id", "marketing_contact_originals.customer_id", "marketing_contact_originals.id"],
+            name="fk_marketing_contact_previous_owner"),
+        CheckConstraint("previous_id IS NULL OR previous_id <> id", name="ck_marketing_contact_previous_distinct"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    customer_id: Mapped[str] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    previous_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    declaration: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ContactHead(Base):
+    __tablename__ = "marketing_contact_heads"
+    __table_args__ = (ForeignKeyConstraint(["institute_id", "customer_id", "original_id"],
+        ["marketing_contact_originals.institute_id", "marketing_contact_originals.customer_id", "marketing_contact_originals.id"],
+        name="fk_marketing_contact_head_owner"),)
+    institute_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    customer_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    original_id: Mapped[str] = mapped_column(String(80), nullable=False)
