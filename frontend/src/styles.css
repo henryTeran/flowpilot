@@ -1541,6 +1541,8 @@ select {
   margin-top: 4px;
 }
 
+.appointment-search-wrapper input { min-height: 44px; }
+
 .appointment-search::placeholder {
   color: #9a7d8d;
 }

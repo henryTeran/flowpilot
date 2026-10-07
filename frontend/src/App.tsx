@@ -39,6 +39,10 @@ import type {
   ServiceSession,
 } from "./types";
 
+const loadAgendaAppointments = (instituteId: string, day: string) => apiGet<Appointment[]>(
+  `/appointments?institute_id=${encodeURIComponent(instituteId)}&day=${encodeURIComponent(day)}`,
+);
+
 export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [institutes, setInstitutes] = useState<Institute[]>([]);
   const [selectedInstituteId, setSelectedInstituteId] = useState("");
@@ -988,6 +992,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
           onClose={() => setActiveDrawer(null)}
         >
           <AppointmentPanel
+            loadAppointments={loadAgendaAppointments}
             timezone={selectedInstitute?.timezone}
             instituteId={selectedInstituteId}
             employees={employees}

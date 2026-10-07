@@ -13,6 +13,56 @@ const employee = { id: "emp", institute_id: "inst", first_name: "Test", status: 
 const booking = { id: "booking", institute_id: "inst", employee_id: "emp", service_id: "svc", customer_name: "Client",
   start_time: "2026-10-25T01:30:12.123456Z", end_time: "2026-10-25T02:00:00Z", status: "scheduled" };
 function button(text: string) { return [...document.querySelectorAll<HTMLButtonElement>("button")].find(item => item.textContent === text)!; }
+
+test("selected-day agenda rejects stale, malformed and failed reads and refreshes after actions", async () => {
+  const root = createRoot(document.getElementById("root")!);
+  const pending: { day: string; resolve: (rows: any) => void; reject: (error: Error) => void }[] = [];
+  const loadAppointments = (_institute: string, day: string) => new Promise<any>((resolve, reject) => pending.push({ day, resolve, reject }));
+  const props = { instituteId: "inst", timezone: "Europe/Zurich", employees: [employee], services: [service], appointments: [],
+    loadAppointments, async onCreateAppointment() {}, async onAppointmentAction() {} };
+  try {
+    await act(async () => root.render(<AppointmentPanel {...props} />));
+    await fill('input[aria-label="Date de l’agenda"]', "2026-10-25");
+    await act(async () => pending[1].resolve([booking]));
+    assert.match(document.querySelector(".appointment-card")!.textContent!, /Client/);
+    await act(async () => pending[0].resolve([]));
+    assert.ok(document.querySelector(".appointment-card"), "late old day cannot replace selected day");
+    await act(async () => button("Confirmer").click());
+    assert.equal(pending[2].day, "2026-10-25");
+    assert.equal(document.querySelector(".appointment-card"), null, "refresh hides cached facts");
+    await act(async () => pending[2].resolve([{ ...booking, institute_id: "other" }]));
+    assert.match(document.querySelector('[role="alert"]')!.textContent!, /invalide/);
+    await act(async () => button("Réessayer").click());
+    await act(async () => pending[3].reject(new Error("Lecture refusée")));
+    assert.match(document.querySelector('[role="alert"]')!.textContent!, /refusée/);
+    assert.equal(document.querySelector(".appointment-card"), null);
+    await act(async () => button("Réessayer").click());
+    await act(async () => pending[4].resolve([{ ...booking, status: "confirmed" }]));
+    assert.ok(document.querySelector(".appointment-card"));
+  } finally { await act(async () => root.unmount()); }
+});
+
+test("selected-day reads cannot publish into a new institute or after disposal", async () => {
+  const root = createRoot(document.getElementById("root")!);
+  const pending: { institute: string; resolve: (rows: any) => void }[] = [];
+  const loadAppointments = (institute: string) => new Promise<any>(resolve => pending.push({ institute, resolve }));
+  const props = { timezone: "Europe/Zurich", employees: [employee], services: [service], appointments: [], loadAppointments,
+    async onCreateAppointment() {}, async onAppointmentAction() {} };
+  await act(async () => root.render(<AppointmentPanel {...props} instituteId="inst" />));
+  await fill('input[aria-label="Date de l’agenda"]', "2026-10-25");
+  await act(async () => root.render(<AppointmentPanel {...props} instituteId="other" />));
+  assert.deepEqual(pending.map(value => value.institute), ["inst", "inst", "other"]);
+  await act(async () => pending[1].resolve([booking]));
+  assert.equal(document.querySelector(".appointment-card"), null);
+  await act(async () => pending[2].resolve([]));
+  assert.equal(document.querySelector(".appointment-card"), null);
+  await fill('input[aria-label="Date de l’agenda"]', "");
+  assert.equal(pending.length, 3, "invalid dates never issue a read");
+  assert.match(document.querySelector('[role="alert"]')!.textContent!, /valide/);
+  await act(async () => root.unmount());
+  await act(async () => pending[0].resolve([booking]));
+  assert.equal(document.querySelector(".appointment-card"), null);
+});
 async function fill(selector: string, value: string) {
   await act(async () => { const element = document.querySelector<HTMLInputElement | HTMLSelectElement>(selector)!;
     const prototype = element.tagName === "SELECT" ? window.HTMLSelectElement.prototype : window.HTMLInputElement.prototype;
@@ -27,6 +77,7 @@ test("editing a repeated institute hour preserves the original precise instant a
   try {
     await act(async () => root.render(<AppointmentPanel {...props} />));
     assert.match(document.querySelector(".appointment-card")!.textContent!, /02:30/);
+    assert.match(document.querySelector(".appointment-card")!.textContent!, /UTC\+1/);
     await act(async () => button("Modifier").click());
     assert.equal(document.querySelector<HTMLInputElement>('input[type="time"]')!.value, "02:30");
     assert.equal(document.querySelector<HTMLSelectElement>(".appointment-occurrence select")!.value, "2026-10-25T01:30:00.000Z");
@@ -83,12 +134,14 @@ test("planning date, cursor, appointment position and labels use the institute o
 test("pending booking confirmation keeps all authoring fields disabled until refresh completes", async () => {
   const root = createRoot(document.getElementById("root")!); let finish!: () => void;
   try {
-    await act(async () => root.render(<AppointmentPanel instituteId="inst" timezone="Europe/Zurich" employees={[employee]} services={[service]} appointments={[]}
-      onCreateAppointment={() => new Promise<void>(resolve => { finish = resolve; })} onAppointmentAction={async () => {}} />));
+    await act(async () => root.render(<AppointmentPanel instituteId="inst" timezone="Europe/Zurich" employees={[employee]} services={[service]} appointments={[booking]}
+      onCreateAppointment={() => new Promise<void>(resolve => { finish = resolve; })} onUpdateAppointment={async () => {}} onAppointmentAction={async () => {}} />));
     await fill('input[placeholder="Ex. Mme Dupont"]', "Client");
     await act(async () => button("Créer RDV").click());
     assert.equal(document.querySelector<HTMLFieldSetElement>("fieldset")!.disabled, true);
     assert.equal(document.querySelector<HTMLInputElement>('input[type="time"]')!.matches(":disabled"), true);
+    assert.equal(button("Annuler").disabled, true);
+    assert.equal(button("Modifier").disabled, true);
     await act(async () => finish());
     assert.equal(document.querySelector<HTMLFieldSetElement>("fieldset")!.disabled, false);
     assert.equal(document.querySelector<HTMLInputElement>('input[placeholder="Ex. Mme Dupont"]')!.value, "");

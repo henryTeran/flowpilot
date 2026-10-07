@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 10
-CURRENT_CHECKPOINT = PHASE10U_NATIVE_INSTITUTE_CALENDAR
+CURRENT_CHECKPOINT = PHASE10V_SELECTED_DAY_NATIVE_AGENDA
 STATUS = ACTIVE
 
 RECOVERY_READ:
@@ -14,7 +14,7 @@ GATES:
 - Historical Phase 0-3 closures preserved.
 - Phase 4 functional scope PASS; browser/tablet remains open.
 - PHASE5 = CLOSED: RESOURCE_SCHEDULING / SKILL_MATCHING / RESOURCE_CONFLICT = PASS.
-- PHASE6 functional server scope = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS. Native institute-clock creation/movement/conflict/cancellation is verified in Phase 10U; native arbitrary-day agenda browsing remains open.
+- PHASE6 functional server scope = CLOSED: HYBRID_BOOKING / BOOKING_CREATE / BOOKING_MOVE / BOOKING_CANCEL / RESOURCE_RESERVATION / COEXISTENCE_WALKIN_BOOKING = PASS. Native institute-clock creation/movement/conflict/cancellation is verified in Phase 10U; native selected-day agenda browsing is implemented in Phase 10V; controlled browser evidence is recorded below.
 - PHASE7 = PARTIAL: LIVE_BOARD / REALTIME_SYNC / LIVE_RECALCULATION PASS at authenticated two-process protocol scope; RECONNECT passes at controlled Edge offline/native-close scope; physical TABLET_UX remains open.
 - PHASE8 = PARTIAL: all four Commerce areas implemented at functional server/component scope; actual browser/tablet and external settlement remain open. Detailed requirement mapping: docs/architecture/COMMERCE_GATE_AUDIT.md.
 - PHASE9 = IN_PROGRESS: internal provider contracts, scoped intents/execution/outcomes, captured checkout, refund budgets and atomic webhook receipts implemented; manager-only cashflow read separates provider accounts/currencies. Signed manager refund loyalty decisions now link bounded deductions or explicit retention to confirmed refunds. Real authentication/transport and comprehensive accounting remain pending; manager refund loyalty mutation/recovery UI is implemented at component scope; ticket payment recovery read and checkout history UI now expose scoped original operations and signed decisions. All Phase 9 gates remain open.
@@ -108,14 +108,15 @@ BLOCKERS:
 - Provider cashflow separates accounts/currencies; Chiffres now separates original invoice currencies and suppresses unknown/mixed monetary totals. Full net sales, bank payouts, fees/taxes and automated refund policy and full accounting remain pending; explicit signed refund loyalty decisions are now available. Internal cashier confirmation does not prove external settlement.
 
 NEXT_STEP:
-- PHASE10V: add an independent selected-day native agenda read using the signed explicit-day API. Future appointments can be authored/moved at the API and native form, but the agenda still receives only operational today rows. Preserve current-day appointments as the live planning/capacity input; selecting an agenda date must not replace them. Then continue independent PHASE11 Workforce with a bounded skill matrix from existing authoritative skills/service requirements. Keep physical/production, payment settlement and Phase 24 gates open.
+- PHASE11 Workforce: implement a bounded skill matrix from existing authoritative employee skills and service requirements. Preserve the existing resource engine and current-day planning inputs; recorded skill coverage is not certification or future availability. Audit Employee 360, absence and commission requirements before declaring their gates closed. Keep physical/production, payment settlement and Phase 24 gates open.
 - Isolated browser provider recovery/capture/application is now verified; preserve real-provider, physical tablet and broader walk-in/appointment coexistence gates. Inventory foundation is in progress independently of Phase 9 external provider/accounting blockers, as authorized by the autonomous instructions. New launcher cleanup is verified for normal completion and a rejected-project failure. Legacy directories flowpilot-browser-5fhb3mr5 and flowpilot-browser-r6qynkm5 remain in OS temp after policy rejected their deletion; no existing application database is opened.
 - PAYMENT_ACCOUNTING_INTEGRATION: continue real adapter, integration and accounting verification; complete broader accounting/integration verification before closing payment gates; persist/recover outcomes, then apply capture/refund/cancel/webhook transactionally with strict replay, unit and reference checks (Master Plan section 30).
 - Numbering follows detailed Master Plan sections 29-47 (Phase 8 Commerce, Phase 12 CRM); condensed Phase 8 Client 360 label is stale.
 - Preserve open browser/tablet gates; do not infer production readiness from protocol/component checks.
 
 LAST_COMMITS:
-- Current checkpoint: native institute-local appointment authoring/editing and elapsed planning display (Phase 10U).
+- Current checkpoint: independent selected-day native appointment agenda (Phase 10V).
+- 72cd120 native institute-local appointment authoring/editing and elapsed planning display (Phase 10U).
 - fd1a38e scoped source indexes, atomic SQLite migrations and institute-day API reads.
 - cab895d native recorded-source and observed-pace forecasts.
 - 56bd672 signed observed-service usage projection API.
@@ -292,3 +293,8 @@ PHASE10U_NATIVE_INSTITUTE_CALENDAR:
 - Final frontend suite: 151 passed (10 new calendar cases), including UTC/Los Angeles/Sydney hosts, Zurich spring/autumn transitions, Lord Howe half-hour transition, original precision/occurrence editing and pending-operation protection. Production TypeScript/Vite builds pass. Native initial booking/walk-in compatibility: 4 passed. Native repeated-hour/resource checks after pending-field fix: 4 passed. Broad signed backend Edge suite: 30 passed (15 desktop, 15 touch-enabled tablet-landscape) with owned cleanup; actual LA workstation booking creation/movement confirms correct institute clock, and two native future repeated-hour bookings are exactly one real hour apart, verified via signed explicit-day reads and cancelled. Final focused native resource/repeated-hour cases after 44px styling and action guard refinement: 4 passed with production rebuild and owned cleanup. Final tablet screenshot reviewed; availability detail and planning clock now agree in institute time.
 - No backend/schema changes. Phase 10T's 489 PostgreSQL-enabled backend cases and final calendar guard checks remain the API baseline. No actual application database migrated, no physical tablet/production/performance/attendance certification claimed. Native future-day browsing remains unfinished and is the next coherent unit. ADR-018 records decisions and scope.
 - CHECKPOINT_STATUS = PASS for native institute-local authoring/editing and elapsed planning at controlled component/Edge scope. Selected-day browsing is still NEXT; no overall production or physical acceptance closure.
+
+PHASE10V_SELECTED_DAY_NATIVE_AGENDA:
+- Independent signed explicit-day reads in the native appointment drawer; institute civil date, disposal/token guards, strict response scope/date/types, failed-read masking and retry. Operational current-day appointments remain the live planning/capacity input. Successful create/move selects the saved form date; actions and operational refreshes invalidate the selected-day read. No daily rows are silently truncated.
+- Native browser reproduced cancellation clicks ignored while creation refresh was still pending; all card actions/edit controls now disable during that mutation. Existing original creation replay keys and server authorization/resource constraints remain authoritative.
+- Frontend regression: 153 passed, no skips/failures. Focused signed backend Edge booking/resource/repeated-hour cases: four passed with build and owned cleanup. Broad signed backend Edge regression: 30 passed with production build and owned cleanup. Final focused resource/repeated-hour scenarios after UTC-offset labels: four passed, including future-day navigation, unchanged operational planning, native cancellation and a 44px agenda date control. Tablet screenshot visually reviewed: readable date/cards and no horizontal overflow. ADR-019 records the scope. No backend/schema or existing application database changes. Repeated-hour cards show actual UTC offsets. The final civil-date validation uses an exact calendar-date round trip, without assuming local noon exists.

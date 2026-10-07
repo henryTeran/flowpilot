@@ -298,6 +298,11 @@ test("finishing a booking opens its linked checkout after cashier identification
   try {
     await act(async () => root.render(<App />));
     await act(async () => button("RDV sous appel").click());
+    await act(async () => {
+      const day = document.querySelector<HTMLInputElement>('input[aria-label="Date de l’agenda"]')!;
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(day, "2026-10-05");
+      day.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
     await act(async () => button("Terminer").click());
     assert.ok(document.querySelector(".bm-identify-screen"));
     await act(async () => document.querySelector<HTMLButtonElement>(".bm-identify-card")!.click());

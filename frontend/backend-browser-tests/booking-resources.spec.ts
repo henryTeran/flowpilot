@@ -130,9 +130,25 @@ test("a repeated institute hour requires a choice and records two distinct actua
   const rows = await request.get(`http://127.0.0.1:4198/api/v1/appointments?institute_id=demo-institute-geneve&day=${day}`, { headers });
   expect(rows.status()).toBe(200);
   const recorded = await rows.json();
+  await expect(panel.getByLabel("Date de l’agenda", { exact: true })).toHaveValue(day);
+  const operationalDay = await page.locator(".planning-zone").textContent();
+  const otherDay = new Date(Date.parse(`${day}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+  await panel.getByLabel("Date de l’agenda", { exact: true }).fill(otherDay);
+  await expect(panel.locator(".appointment-card").filter({ hasText: first.customer_name })).toHaveCount(0);
+  await panel.getByLabel("Date de l’agenda", { exact: true }).fill(day);
+  await expect(panel.locator(".appointment-card").filter({ hasText: first.customer_name })).toBeVisible();
+  expect(await page.locator(".planning-zone").textContent()).toBe(operationalDay);
+  expect((await panel.getByLabel("Date de l’agenda", { exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await page.screenshot({ path: info.outputPath("selected-day-agenda.png"), fullPage: true });
   for (const booking of [first, second]) {
     expect(recorded.find((row: any) => row.id === booking.id).start_time).toBe(booking.start_time);
-    expect((await request.patch(`http://127.0.0.1:4198/api/v1/appointments/${booking.id}/cancel`, { headers })).status()).toBe(200);
+    const card = panel.locator(".appointment-card").filter({ hasText: booking.customer_name });
+    await expect(card).toContainText("02:30");
+    await expect(card).toContainText(booking.id === first.id ? "UTC+2" : "UTC+1");
+    const cancelled = page.waitForResponse(response => response.url().endsWith(`/appointments/${booking.id}/cancel`));
+    await card.getByRole("button", { name: "Annuler", exact: true }).click();
+    expect((await cancelled).status()).toBe(200);
+    await expect(panel.locator(".appointment-list.history").filter({ hasText: booking.customer_name })).toBeVisible();
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
 });

@@ -11,6 +11,7 @@ interface AppointmentPanelProps {
   employees: Employee[];
   services: Service[];
   appointments: Appointment[];
+  loadAppointments?: (instituteId: string, day: string) => Promise<Appointment[]>;
   onCreateAppointment: (payload: AppointmentCreatePayload) => Promise<void>;
   onUpdateAppointment?: (appointmentId: string, payload: AppointmentUpdatePayload) => Promise<void>;
   onAppointmentAction: (appointmentId: string, action: AppointmentAction) => Promise<void>;
@@ -30,6 +31,7 @@ function View({
   employees,
   services,
   appointments,
+  loadAppointments,
   onCreateAppointment,
   onUpdateAppointment,
   onAppointmentAction,
@@ -37,6 +39,39 @@ function View({
   const appointmentServices = services.filter((service) => service.status === "active");
   const availableEmployees = employees.filter((employee) => !["absent", "offline"].includes(employee.status));
   const initialSlot = useMemo(() => nextInstituteSlot(timezone), [timezone]);
+  const [agendaDay, setAgendaDay] = useState(() => instituteSlot(new Date(), timezone)!.date);
+  const [agenda, setAgenda] = useState<{ day: string; rows: Appointment[] }>();
+  const [agendaError, setAgendaError] = useState<string>();
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    if (!loadAppointments) return;
+    let disposed = false;
+    const token = getAccessToken();
+    setAgenda(undefined);
+    setAgendaError(undefined);
+    const civilDate = new Date(`${agendaDay}T12:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(agendaDay) || agendaDay.startsWith("0000")
+      || !Number.isFinite(civilDate.getTime()) || civilDate.toISOString().slice(0, 10) !== agendaDay) {
+      setAgendaError("Choisissez une date valide.");
+      return;
+    }
+    void loadAppointments(instituteId, agendaDay).then(rows => {
+      if (disposed || token !== getAccessToken()) return;
+      if (!Array.isArray(rows) || rows.some(row => !row || row.institute_id !== instituteId
+        || ![row.id, row.service_id, row.employee_id, row.customer_name, row.status].every(value => typeof value === "string")
+        || [row.customer_id, row.checkout_ticket_id, row.phone, row.notes].some(value => value != null && typeof value !== "string")
+        || (!ACTIVE_APPOINTMENT_STATUSES.has(row.status) && !FINAL_APPOINTMENT_STATUSES.has(row.status))
+        || instituteSlot(row.start_time, timezone)?.date !== agendaDay || !instituteSlot(row.end_time, timezone)
+        || Date.parse(row.end_time) <= Date.parse(row.start_time)) || new Set(rows.map(row => row.id)).size !== rows.length) {
+        throw new Error("Réponse de l’agenda invalide.");
+      }
+      setAgenda({ day: agendaDay, rows });
+    }).catch(error => {
+      if (!disposed && token === getAccessToken()) setAgendaError(error instanceof Error ? error.message : "Lecture de l’agenda impossible.");
+    });
+    return () => { disposed = true; };
+  }, [agendaDay, instituteId, timezone, loadAppointments, appointments, revision]);
+  const agendaAppointments = loadAppointments ? agenda?.day === agendaDay ? agenda.rows : [] : appointments;
 
   const [customerName, setCustomerName] = useState("");
   const [customerId, setCustomerId] = useState<string>();
@@ -89,7 +124,7 @@ function View({
   }, [availableEmployees, employeeId]);
 
   const selectedService = services.find((service) => service.id === serviceId);
-  const sortedAppointments = [...appointments].sort(
+  const sortedAppointments = [...agendaAppointments].sort(
     (left, right) => new Date(left.start_time).getTime() - new Date(right.start_time).getTime(),
   );
 
@@ -141,6 +176,8 @@ function View({
       setCustomerName("");
       setCustomerId(undefined);
       setPhone("");
+      setAgendaDay(date);
+      setRevision(value => value + 1);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Impossible d'enregistrer le rendez-vous");
     } finally {
@@ -153,6 +190,7 @@ function View({
     setActionLoadingId(`${appointmentId}:${action}`);
     try {
       await onAppointmentAction(appointmentId, action);
+      setRevision(value => value + 1);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Impossible de modifier le rendez-vous");
     } finally {
@@ -279,11 +317,18 @@ function View({
       <div className="appointment-list-card">
         <div className="section-title-row">
           <div>
-            <p className="eyebrow">Agenda du jour</p>
+            <p className="eyebrow">Agenda · {agendaDay}</p>
             <h2>RDV actifs</h2>
           </div>
           <span className="counter-badge violet">{visibleActiveAppointments.length} actif(s)</span>
         </div>
+
+        {loadAppointments && <label className="appointment-search-wrapper">Date de l’agenda
+          <input className="appointment-search" type="date" aria-label="Date de l’agenda" value={agendaDay}
+            disabled={isSubmitting || Boolean(actionLoadingId)} onChange={event => setAgendaDay(event.target.value)} />
+        </label>}
+        {loadAppointments && !agenda && !agendaError && <p role="status">Lecture de l’agenda…</p>}
+        {agendaError && <div role="alert">{agendaError} <button type="button" onClick={() => setRevision(value => value + 1)}>Réessayer</button></div>}
 
         <label className="appointment-search-wrapper" aria-label="Rechercher un rendez-vous">
           <input
@@ -297,7 +342,7 @@ function View({
 
         {visibleActiveAppointments.length === 0 ? (
           <div className="empty-state">
-            {normalizedSearch ? "Aucun rendez-vous ne correspond à la recherche." : "Aucun rendez-vous actif aujourd’hui."}
+            {normalizedSearch ? "Aucun rendez-vous ne correspond à la recherche." : loadAppointments && !agenda ? "Agenda indisponible." : "Aucun rendez-vous actif à cette date."}
           </div>
         ) : (
           <div className="appointment-list">
@@ -308,7 +353,7 @@ function View({
                 timezone={timezone}
                 employees={employees}
                 services={services}
-                actionLoadingId={actionLoadingId}
+                actionLoadingId={isSubmitting ? "submitting" : actionLoadingId}
                 onAction={handleAction}
                 onEdit={onUpdateAppointment ? editAppointment : undefined}
               />
@@ -330,7 +375,7 @@ function View({
                 timezone={timezone}
                 employees={employees}
                 services={services}
-                actionLoadingId={actionLoadingId}
+                actionLoadingId={isSubmitting ? "submitting" : actionLoadingId}
                 onAction={handleAction}
                 readonly
               />
@@ -362,6 +407,15 @@ function matchesAppointmentSearch(
   return haystack.includes(searchTerm);
 }
 
+function agendaTime(value: string, timezone: string) {
+  const label = formatInstituteTime(value, timezone);
+  const slot = instituteSlot(value, timezone);
+  if (!slot || instituteInstants(slot.date, slot.time, timezone).length < 2) return label;
+  const offset = new Intl.DateTimeFormat("fr-CH", { timeZone: timezone, timeZoneName: "shortOffset" })
+    .formatToParts(new Date(value)).find(part => part.type === "timeZoneName")?.value;
+  return `${label} (${offset})`;
+}
+
 function AppointmentCard({
   timezone,
   appointment,
@@ -389,10 +443,10 @@ function AppointmentCard({
     <article className={`appointment-card status-${appointment.status} ${readonly ? "readonly" : ""}`}>
       <div className="appointment-card-main">
         <div>
-          <strong>{formatInstituteTime(appointment.start_time, timezone)} · {appointment.customer_name}</strong>
+          <strong>{agendaTime(appointment.start_time, timezone)} · {appointment.customer_name}</strong>
           <span>{service?.name || "Prestation"} · {employee?.first_name || "Collaboratrice"}</span>
         </div>
-        <small>{formatInstituteTime(appointment.start_time, timezone)} - {formatInstituteTime(appointment.end_time, timezone)}</small>
+        <small>{agendaTime(appointment.start_time, timezone)} - {agendaTime(appointment.end_time, timezone)}</small>
       </div>
 
       <span className={`appointment-status-badge ${appointment.status}`}>
