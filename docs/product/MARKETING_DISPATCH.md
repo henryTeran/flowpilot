@@ -542,3 +542,31 @@ this screen never sends a message or changes billing. Protected link/retraction,
 original-key recovery and conversion current/audit screens remain required next.
 Native catalog desktop/tablet and populated retained conversion browser acceptance
 remain open; prior empty campaign summary browser evidence covers the summary only.
+
+### Phase13BG protected native conversion writer
+
+Selecting a ticket exposes a manager-only explicit current-head verification,
+reason and link/retract decision. Current original ID/key and full retained sources
+are independently checked. New decisions recheck the exact current predecessor;
+link requires the selected campaign's owned SEND successor and unchanged approval
+content with independently read authorization. The current ticket's campaign is
+shown even if it differs from the selected campaign. Recorded amount is recaptured
+by the authoritative POST, not promised to equal an earlier catalog snapshot.
+
+Complete protected request terms are saved before POST, scoped by institute,
+signed actor and ticket. Existing/cross-campaign/malformed pending terms freeze
+new decisions. Recovery searches original key before current head, SEND, price
+or POST and verifies exact actor/request, full attribution hash, ID/key copies
+and independently retained intent/SEND/outcome source copies. Historical receipt
+is never repriced; retraction retains its linked predecessor's full snapshot.
+Local terms contain identifiers/windows/reason/key, no provider secrets or
+destinations. Receipt clears only exact matching stored request after verification.
+
+Uncertain acknowledgement preserves terms for same-key recovery/retry. Explicit
+400/422 refusal permits deliberate correction only after a fresh key search proves
+no original; an original found instead must be recovered. A new retry revokes the
+previous refusal's correction option until its outcome is known. Role/token/actor,
+in-flight and unmount guards suppress late publication or unauthorized selection.
+Native mocked lost-ack/reload path makes one POST; actual populated backend browser
+acceptance and conversion audit/current screens remain open. No public provider
+outcome mutation, message sending or causal/settlement assertion is added.

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { MarketingConversionWriter } from "./MarketingConversionWriter";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { instituteMidnight } from "../outlook-utils";
@@ -70,6 +71,7 @@ function Selector({ institute, intent, accepted, timezone }: { institute: string
       <button disabled={busy || offset + read.page.items.length >= read.page.total} onClick={() => void load(offset + 20)}>Tickets suivants</button>
     </>}
     {selected && <p>Ticket sélectionné : {selected.ticket_id}. Aucun lien de conversion enregistré.</p>}
+    {selected && read && <MarketingConversionWriter institute={institute} intent={intent} accepted={accepted} ticket={selected.ticket_id} period={read.window} />}
     <p>Ces données décrivent la facturation enregistrée du destinataire. Elles ne prouvent ni livraison, ni règlement bancaire, ni effet de la campagne.</p>
   </section>;
 }
