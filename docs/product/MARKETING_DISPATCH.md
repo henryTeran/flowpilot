@@ -247,3 +247,27 @@ preparation is still independently guarded by the backend's unique approval/cust
 constraint; selecting an existing intent inside the preparation form remains future
 UX work. Deployed protected invocation, authenticated evidence/operator resolution
 and conversion attribution remain incomplete.
+
+## Exact existing recipient intention (13AU)
+
+Manager-only GET `campaigns/{campaign}/dispatch-intents/recipient/{customer}` with
+required `expected_revision_id` selects the unique owned approval/customer intention
+or explicit null. Institute lock, existing owned campaign, owned APPROVE revision
+belonging to that campaign and owned customer are required. Receipt verification
+rechecks full historical submission/fingerprint/sources; neither current recipient
+permission nor current account configuration is consulted. An old retained approval
+can be queried even after later campaign revisions. Null is absence, never permission
+or evidence of no provider activity beyond this exact retained intention selection.
+
+The preparation form offers explicit existing-intention discovery, including after
+withdrawal, and consults the same exact selection before loading account choices.
+Each discovery independently checks intent ID/key, historical approval/contact ID/key
+and current selected campaign. An existing intention freezes new preparation, uses
+no new key/session request and performs no POST. The historical actor may differ
+from the current signed manager; recovery of a protected request still requires
+its original actor/full terms. Existing protected or invalid storage blocks discovery
+to preserve uncertain operations. Absence does not enable a withdrawn recipient.
+Failed discovery hides account choices and allows clean retry; token replacement
+prevents late publication. No mount read, account/provider configuration, submission,
+reconciliation or outcome mutation is added. A concurrent creation after an absent
+read is still resolved by the backend unique approval/customer constraint.

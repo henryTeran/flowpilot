@@ -31,11 +31,59 @@ function Prepare({ institute, campaign, customer, contact, eligible }: Props) {
   const mounted = useRef(false), pending = useRef(false), sequence = useRef(0);
   const current = () => mounted.current && token === getAccessToken();
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; sequence.current++; }; }, []);
+  const [absent, setAbsent] = useState(false);
   const frozen = busy || !!saved.terms || !!saved.invalid;
+  async function verifyOriginal(original: DispatchIntent) {
+    if (!await validDispatchIntent(original, institute) || original.request.campaign_id !== root || original.request.customer_id !== customer) throw new Error("Intention de destinataire à vérifier.");
+    const r = original.request, contacts = `${base}/customers/${encodeURIComponent(customer)}/contact-declarations`;
+    const [byKey, byId, approved, contactId, contactKey, head] = await Promise.all([
+      apiGet<DispatchIntent>(`${base}/dispatch-intents/original/${encodeURIComponent(r.idempotency_key)}`), apiGet<DispatchIntent>(`${base}/dispatch-intents/${encodeURIComponent(original.id)}`),
+      apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(r.expected_revision_id)}`),
+      apiGet<ContactOriginal>(`${contacts}/${encodeURIComponent(r.expected_contact_id)}`),
+      apiGet<ContactOriginal>(`${contacts}/original/${encodeURIComponent(original.submission.eligibility.original.idempotency_key)}`),
+      apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(root)}/current`),
+    ]);
+    if (!current()) return false;
+    if (!await sameDispatchIntent(original, byKey, institute) || !await sameDispatchIntent(original, byId, institute)
+      || !await validCampaignOriginal(approved, institute) || approved.revision.campaign_id !== root
+      || !sameDispatchTerms(approved.revision, original.submission.eligibility.campaign)
+      || ![contactId, contactKey].every(value => validContactOriginal(value, institute, customer) && sameContactOriginal(original!.submission.eligibility.original, value))
+      || !await validCampaignOriginal(head, institute) || head.revision.campaign_id !== root) throw new Error("Originaux de préparation à vérifier.");
+    if (!current()) return false;
+    return current();
+  }
+  const approvalId = campaign.revision.state === "APPROVE" ? campaign.revision.id : campaign.revision.state === "SEND" ? campaign.revision.previous_id : null;
+  async function lookup() {
+    if (!approvalId) throw new Error("Approbation de campagne à vérifier.");
+    const original = await apiGet<DispatchIntent | null>(`${base}/campaigns/${encodeURIComponent(root)}/dispatch-intents/recipient/${encodeURIComponent(customer)}?expected_revision_id=${encodeURIComponent(approvalId)}`);
+    if (!current()) return undefined;
+    const head = await apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(root)}/current`);
+    if (!current()) return undefined;
+    if (!await sameCampaignOriginal(head, campaign, institute)) throw new Error("Campagne courante à relire.");
+    if (original === null) return null;
+    if (!await validDispatchIntent(original, institute) || original.request.expected_revision_id !== approvalId || !await verifyOriginal(original)) throw new Error("Intention conservée à vérifier.");
+    return original;
+  }
+  async function discover() {
+    if (!current() || pending.current || frozen || receipt || !approvalId) return;
+    pending.current = true; sequence.current++; setBusy(true); setError(undefined); setAbsent(false); setAccounts(undefined); select(undefined);
+    try {
+      const original = await lookup();
+      if (!current()) return;
+      if (original) { setReceipt(original); setAccounts(undefined); select(undefined); setReason(""); }
+      else if (original === null) setAbsent(true);
+    } catch { if (current()) setError("Intention conserv\u00e9e \u00e0 v\u00e9rifier. R\u00e9essayez la lecture."); }
+    finally { pending.current = false; if (current()) setBusy(false); }
+  }
+
   async function loadAccounts(target = offset) {
-    if (!current() || pending.current || frozen || !eligible) return;
+    if (!current() || pending.current || frozen || !eligible || receipt) return;
     const request = ++sequence.current; setOffset(target); setBusy(true); setAccounts(undefined); select(undefined); setError(undefined);
     try {
+      const original = await lookup();
+      if (!current() || sequence.current !== request) return;
+      if (original) { setReceipt(original); setReason(""); return; }
+      if (original !== null) return;
       const page = await apiGet<DispatchPage<DispatchAccount>>(`${base}/dispatch-accounts?channel=${channel}&offset=${target}&limit=20`);
       if (!current() || sequence.current !== request) return;
       if (!validDispatchAccountPage(page, institute, channel, target, 20)) throw new Error("Comptes autorisés à vérifier.");
@@ -76,21 +124,7 @@ function Prepare({ institute, campaign, customer, contact, eligible }: Props) {
       }
       if (!current()) return;
       if (!await validDispatchIntent(original, institute) || !original || !matchesDispatchReceipt(original, terms.request, actor, terms.account)) throw new Error("Intention d’origine à vérifier.");
-      const r = original.request, contacts = `${base}/customers/${encodeURIComponent(customer)}/contact-declarations`;
-      const [byKey, byId, approved, contactId, contactKey, head] = await Promise.all([
-        apiGet<DispatchIntent>(path), apiGet<DispatchIntent>(`${base}/dispatch-intents/${encodeURIComponent(original.id)}`),
-        apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(r.expected_revision_id)}`),
-        apiGet<ContactOriginal>(`${contacts}/${encodeURIComponent(r.expected_contact_id)}`),
-        apiGet<ContactOriginal>(`${contacts}/original/${encodeURIComponent(original.submission.eligibility.original.idempotency_key)}`),
-        apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(root)}/current`),
-      ]);
-      if (!current()) return;
-      if (!await sameDispatchIntent(original, byKey, institute) || !await sameDispatchIntent(original, byId, institute)
-        || !await validCampaignOriginal(approved, institute) || approved.revision.campaign_id !== root
-        || !sameDispatchTerms(approved.revision, original.submission.eligibility.campaign)
-        || ![contactId, contactKey].every(value => validContactOriginal(value, institute, customer) && sameContactOriginal(original!.submission.eligibility.original, value))
-        || !await validCampaignOriginal(head, institute) || head.revision.campaign_id !== root) throw new Error("Originaux de préparation à vérifier.");
-      if (!current()) return;
+      if (!await verifyOriginal(original)) return;
       if (sessionStorage.getItem(storage) !== raw) throw new Error("Demande conservée à vérifier.");
       sessionStorage.removeItem(storage); save({}); setReason(""); select(undefined); setAccounts(undefined); setReceipt(original);
     } catch (e) { if (current()) {
@@ -116,6 +150,8 @@ function Prepare({ institute, campaign, customer, contact, eligible }: Props) {
       <button disabled={busy} onClick={() => void run(saved.terms!)}>Reprendre la préparation conservée</button></>}
     {rejected && <button onClick={() => { if (!saved.terms || sessionStorage.getItem(storage) !== JSON.stringify(saved.terms)) return;
       sessionStorage.removeItem(storage); save({}); setRejected(false); }}>Corriger la préparation refusée</button>}
+    <button disabled={frozen || !!receipt || !approvalId} onClick={() => void discover()}>Retrouver l'intention de ce destinataire</button>
+    {absent && !receipt && <p>Aucune intention conservée pour cette approbation.</p>}
     {receipt && <p role="status">Intention originale vérifiée : {receipt.id}. Cette action ne déclenche aucun envoi.</p>}
     <button disabled={frozen || !eligible || !!receipt} onClick={() => void loadAccounts()}>Choisir un compte autorisé</button>
     {accounts && <><p>{accounts.total} comptes · page à partir de {accounts.offset + 1}</p>

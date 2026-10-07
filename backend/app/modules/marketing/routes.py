@@ -22,6 +22,10 @@ def dispatch_account(institute_id: str, identifier: str, channel: contacts.Chann
 def campaign_dispatch_intents(institute_id: str, campaign_id: str, offset: int=Query(0, ge=0), limit: int=Query(20, ge=1, le=50), user=Depends(manager), db: Session=Depends(get_db)):
     return dispatch_catalogs.intents(db, institute_id, campaign_id, offset, limit)
 
+@router.get("/campaigns/{campaign_id}/dispatch-intents/recipient/{customer_id}", response_model=dispatch_intents.Original | None)
+def recipient_dispatch_intent(institute_id: str, campaign_id: str, customer_id: str, expected_revision_id: str, user=Depends(manager), db: Session=Depends(get_db)):
+    return dispatch_catalogs.recipient_intent(db, institute_id, campaign_id, expected_revision_id, customer_id)
+
 @router.post("/dispatch-intents", response_model=dispatch_intents.Original)
 def dispatch_prepare(institute_id: str, payload: dispatch_intents.Request, user=Depends(manager), db: Session=Depends(get_db)):
     return dispatch_intents.prepare(db, institute_id, payload, user.get("sub"))

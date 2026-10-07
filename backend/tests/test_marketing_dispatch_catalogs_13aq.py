@@ -29,6 +29,10 @@ def exercise(engine, institute, monkeypatch):
         contact = contact_originals.create(db, institute, "aud_054", contact_body(institute, "aud_054", "second-contact"), "manager")
         current = campaign_originals.require(db, institute, first.request.expected_revision_id)
         originals = [first]
+        assert dispatch_catalogs.recipient_intent(db, institute, current.revision.campaign_id, current.revision.id, "aud_000") == first
+        assert dispatch_catalogs.recipient_intent(db, institute, current.revision.campaign_id, current.revision.id, "aud_054") is None
+        with pytest.raises(HTTPException): dispatch_catalogs.recipient_intent(db, institute, current.revision.campaign_id, current.revision.previous_id, "aud_000")
+        with pytest.raises(HTTPException): dispatch_catalogs.recipient_intent(db, institute, current.revision.campaign_id, current.revision.id, "foreign-customer")
         for index in range(12):
             audience = current.revision.content.audience.id; root = current.revision.campaign_id
             edited = campaign_originals.execute(db, institute, campaign_body(audience, f"edit-{index}", root, current.revision.id, "edit"), "manager")
@@ -44,6 +48,10 @@ def exercise(engine, institute, monkeypatch):
         assert list(page.items + last.items) == sorted(originals, key=lambda original: (original.created_at, original.id))
         assert dispatch_catalogs.intents(db, institute, root, 25).items == ()
         assert dispatch_intents.require(db, institute, first.id) == first
+        other_root = campaign_originals.execute(db, institute, campaign_body(audience, "other-lookup-root"), "manager")
+        with pytest.raises(HTTPException): dispatch_catalogs.recipient_intent(db, institute, other_root.revision.campaign_id, first.request.expected_revision_id, "aud_000")
+        assert dispatch_catalogs.recipient_intent(db, institute, root, first.request.expected_revision_id, "aud_000") == first
+        assert dispatch_catalogs.recipient_intent(db, institute, root, current.revision.id, "aud_000") == originals[-2]
         assert db.scalar(select(func.count()).select_from(DispatchIntent)) == 25
         assert db.scalar(select(func.count()).select_from(DispatchOutcome)) == 0
         with pytest.raises(HTTPException): dispatch_catalogs.intents(db, "foreign", root)
@@ -60,6 +68,7 @@ def exercise(engine, institute, monkeypatch):
         row = db.get(DispatchIntent, first.id); fingerprint = row.request_fingerprint
         row.request_fingerprint = "0" * 64; db.commit()
         with pytest.raises(HTTPException): dispatch_catalogs.intents(db, institute, root, 0, 50)
+        with pytest.raises(HTTPException): dispatch_catalogs.recipient_intent(db, institute, root, first.request.expected_revision_id, "aud_000")
         row.request_fingerprint = fingerprint; db.commit()
         assert dispatch_intents.require(db, institute, first.id) == first
     return first, account
@@ -69,7 +78,13 @@ def test_sqlite_dispatch_selection_pages_and_signed_scope(client, monkeypatch):
     institute, _, _ = _bootstrap_reference_data(client); first, account = exercise(main_module.engine, institute, monkeypatch)
     base = f"/api/v1/marketing/institutes/{institute}"
     paths = ["/dispatch-accounts?channel=email", f"/campaigns/{first.request.campaign_id}/dispatch-intents"]
+    lookup = f"/campaigns/{first.request.campaign_id}/dispatch-intents/recipient/{first.request.customer_id}?expected_revision_id={first.request.expected_revision_id}"
     headers = _auth_headers("responsable_institut", institute)
+    assert client.get(base + lookup, headers=headers).json() == first.model_dump(mode="json")
+    assert client.get(base + lookup, headers=_auth_headers("accueil", institute)).status_code == 403
+    assert client.get(base + lookup, headers=_auth_headers("responsable_institut", "foreign")).status_code == 403
+    assert client.get(base + lookup).status_code == 403
+    assert client.get(base + lookup.split("?")[0], headers=headers).status_code == 422
     for path in paths:
         response = client.get(base + path, headers=headers)
         assert response.status_code == 200 and response.json()["total"] == 25 and len(response.json()["items"]) == 20
@@ -88,6 +103,7 @@ def test_sqlite_dispatch_selection_pages_and_signed_scope(client, monkeypatch):
     monkeypatch.setattr(dispatch_intents.settings, "MARKETING_ACCOUNTS_JSON", "[]")
     assert client.get(base + "/dispatch-accounts?channel=email", headers=headers).json()["total"] == 0
     assert client.get(base + paths[1], headers=headers).json()["total"] == 25
+    assert client.get(base + lookup, headers=headers).json() == first.model_dump(mode="json")
 
 
 def test_postgres_dispatch_selection_pages(postgres_flow, monkeypatch):

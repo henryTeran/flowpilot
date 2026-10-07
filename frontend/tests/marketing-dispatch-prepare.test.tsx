@@ -122,7 +122,12 @@ test("changed fresh account before a first POST leaves no stuck new request or m
 test("Push account for another application cannot prepare or expose its device token", async () => {
   const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
   const push = JSON.parse(readFileSync(new URL("./fixtures/marketing-dispatch-13ar.json", import.meta.url), "utf8"))[2]; let calls = 0;
-  globalThis.fetch = async () => { calls++; return reply({ ...push.account_page, items: [{ ...push.intent.submission.account, push_application: "other-app" }] }); };
+  globalThis.fetch = async url => {
+    calls++; const path = String(url);
+    if (path.includes("dispatch-intents/recipient/")) return reply(null);
+    if (path.includes("/campaigns/")) return reply(push.approval);
+    return reply({ ...push.account_page, items: [{ ...push.intent.submission.account, push_application: "other-app" }] });
+  };
   try {
     sessionStorage.clear(); setAccessToken(token());
     await act(async () => root.render(<MarketingDispatchPrepare institute={push.institute_id} campaign={push.approval} customer={push.intent.request.customer_id} contact={push.contact} eligible />));
@@ -130,7 +135,74 @@ test("Push account for another application cannot prepare or expose its device t
     const select = document.querySelector("select")!; await act(async () => { select.value = push.intent.submission.account.account_id; select.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
     assert.match(document.body.textContent!, /Ce compte ne correspond pas/);
     const prepare = [...document.querySelectorAll("button")].find(button => button.textContent === "Conserver l’intention"); assert.ok(prepare?.disabled);
-    assert.equal(calls, 1); assert.equal(sessionStorage.length, 1); // Access token only.
+    assert.equal(calls, 3); assert.equal(sessionStorage.length, 1); // Access token only.
     assert.equal(document.body.textContent!.includes("explicit-device-token"), false);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+
+test("existing intent is independently discovered after withdrawal and prevents new account selection", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
+  const original = structuredClone(vector.intent); original.submission.actor_id = "another-manager";
+  original.request_fingerprint = await dispatchFingerprint(original.submission);
+  let corrupt = false; const paths: string[] = [];
+  globalThis.fetch = async (url, options) => {
+    assert.equal(options?.method || "GET", "GET"); const path = String(url); paths.push(path);
+    if (path.includes("dispatch-accounts")) throw new Error("Existing intent needs no current account configuration");
+    if (path.includes("dispatch-intents")) return reply(corrupt && path.endsWith("/" + original.id) ? { ...original, request_fingerprint: "0".repeat(64) } : original);
+    if (path.includes("contact-declarations")) return reply(vector.contact);
+    return reply(vector.approval);
+  };
+  try {
+    sessionStorage.clear(); setAccessToken(token());
+    await act(async () => root.render(<MarketingDispatchPrepare {...props} contact={null} eligible={false} />));
+    assert.equal(paths.length, 0); corrupt = true; await click("Retrouver l'intention de ce destinataire");
+    assert.match(document.body.textContent!, /Intention conservée à vérifier/); assert.doesNotMatch(document.body.textContent!, /Intention originale vérifiée/);
+    corrupt = false; await click("Retrouver l'intention de ce destinataire");
+    assert.match(document.body.textContent!, /Intention originale vérifiée/);
+    assert.equal(document.querySelector("select"), null); assert.equal(sessionStorage.getItem(storage), null);
+    assert.ok(paths.some(path => path.includes("/original/" + original.request.idempotency_key)));
+    assert.equal([...document.querySelectorAll("button")].find(b => b.textContent === "Conserver l’intention")!.disabled, true);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+
+test("choosing a new account first discovers an existing intent and creates no protected request", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
+  const paths: string[] = [];
+  globalThis.fetch = async (url, options) => {
+    assert.equal(options?.method || "GET", "GET"); const path = String(url); paths.push(path);
+    if (path.includes("dispatch-accounts")) throw new Error("No account read expected");
+    if (path.includes("dispatch-intents")) return reply(vector.intent);
+    if (path.includes("contact-declarations")) return reply(vector.contact);
+    return reply(vector.approval);
+  };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); await act(async () => root.render(<MarketingDispatchPrepare {...props} />));
+    await click("Choisir un compte autorisé"); assert.match(document.body.textContent!, /Intention originale vérifiée/);
+    assert.equal(document.querySelector("select"), null); assert.equal(sessionStorage.getItem(storage), null);
+    assert.ok(paths[0].includes("dispatch-intents/recipient/"));
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+
+test("absent recipient intent is explicit and never grants eligibility or creates storage", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let calls = 0;
+  globalThis.fetch = async (url, options) => { calls++; assert.equal(options?.method || "GET", "GET");
+    return reply(String(url).includes("dispatch-intents/recipient/") ? null : vector.approval); };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); await act(async () => root.render(<MarketingDispatchPrepare {...props} eligible={false} />));
+    await click("Retrouver l'intention de ce destinataire"); assert.match(document.body.textContent!, /Aucune intention conservée pour cette approbation/);
+    assert.equal(calls, 2); assert.equal(sessionStorage.getItem(storage), null);
+    assert.equal([...document.querySelectorAll("button")].find(b => b.textContent === "Choisir un compte autorisé")!.disabled, true);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+
+test("late exact discovery cannot publish into a replaced actor", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let resolve!: (r: Response) => void; let calls = 0;
+  globalThis.fetch = async () => { calls++; return new Promise(r => { resolve = r; }); };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); await act(async () => root.render(<MarketingDispatchPrepare {...props} />));
+    const button = [...document.querySelectorAll("button")].find(b => b.textContent === "Retrouver l'intention de ce destinataire")!;
+    await act(async () => button.click()); setAccessToken(token("other")); await act(async () => root.render(<MarketingDispatchPrepare {...props} />));
+    await act(async () => resolve(reply(vector.intent))); assert.equal(calls, 1); assert.doesNotMatch(document.body.textContent!, /Intention originale vérifiée/);
+    assert.equal(sessionStorage.getItem(storage), null);
   } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
 });

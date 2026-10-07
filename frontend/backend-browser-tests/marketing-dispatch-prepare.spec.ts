@@ -152,6 +152,13 @@ test("signed native preparation paginates accounts loses reply and recovers inte
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await history.screenshot({ path: info.outputPath("native-preparation-withdrawn.png") });
 
+  await preparation.getByRole("button", { name: "Retrouver l'intention de ce destinataire", exact: true }).click();
+  await expect(preparation).toContainText("Intention originale vérifiée");
+  await expect(preparation.getByRole("button", { name: "Conserver l’intention", exact: true })).toBeDisabled();
+  expect(intentPosts).toBe(1);
+  expect(await page.evaluate(() => Object.keys(sessionStorage).some(key => key.startsWith("flowpilot.marketing-dispatch-request:")))).toBe(false);
+  await preparation.screenshot({ path: info.outputPath("native-existing-intent.png") });
+
   const retained = history.getByRole("region", { name: "Intentions conservées", exact: true });
   await retained.getByRole("button", { name: "Vérifier les intentions conservées", exact: true }).click();
   await expect(retained).toContainText(intent.id);
