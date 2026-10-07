@@ -3,7 +3,7 @@ from __future__ import annotations
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, event
 
 from app.core.config import settings
 from app.database.base import Base
@@ -58,8 +58,22 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
 
+    sqlite = connectable.dialect.name == "sqlite"
+    if sqlite:
+        # Legacy sqlite3 otherwise autocommits DDL before a later history guard
+        # can fail. Own BEGIN for the entire migration chain, including schema
+        # and alembic_version rollback. This affects only this migration engine.
+        @event.listens_for(connectable, "connect")
+        def sqlite_driver_transactions(dbapi_connection, _record):
+            dbapi_connection.isolation_level = None
+
+        @event.listens_for(connectable, "begin")
+        def sqlite_begin(connection):
+            connection.exec_driver_sql("BEGIN")
+
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
+        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True,
+                          transactional_ddl=True if sqlite else None)
 
         with context.begin_transaction():
             context.run_migrations()

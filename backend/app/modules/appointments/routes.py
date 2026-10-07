@@ -1,9 +1,11 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.appointments.repository import get_appointment
+from app.modules.appointments.repository import get_appointment, list_appointments_for_day
 from app.modules.appointments.schemas import AppointmentCreate, AppointmentRead, AppointmentUpdate
 from app.modules.appointments.service import (
     cancel_appointment,
@@ -38,10 +40,13 @@ def _require_appointment_access(
 @router.get("", response_model=list[AppointmentRead])
 def get_appointments(
     institute_id: str,
+    day: date | None = None,
     current_user: dict[str, str | None] = Depends(require_ticket_manager),
     db: Session = Depends(get_db),
 ) -> list[AppointmentRead]:
     require_same_institute(current_user, institute_id)
+    if day is not None:
+        return list_appointments_for_day(db, institute_id, day)
     return list_today_appointments(db, institute_id)
 
 

@@ -8,7 +8,8 @@ from app.database.base import Base
 
 class ServiceSession(Base):
     __tablename__ = "service_sessions"
-    __table_args__ = (Index("uq_service_session_owner", "institute_id", "id", unique=True),)
+    __table_args__ = (Index("uq_service_session_owner", "institute_id", "id", unique=True),
+                     Index("ix_session_inst_status_real_end", "institute_id", "status", "real_end_time"))
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     ticket_line_id: Mapped[str | None] = mapped_column(ForeignKey("ticket_lines.id"), nullable=True)

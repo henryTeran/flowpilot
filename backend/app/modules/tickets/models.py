@@ -10,6 +10,7 @@ class QueueTicket(Base):
     __tablename__ = "queue_tickets"
     __table_args__ = (
         Index("uq_queue_ticket_owner", "institute_id", "id", unique=True),
+        Index("ix_queue_ticket_inst_status", "institute_id", "status"),
         UniqueConstraint("institute_id", "idempotency_key", name="uq_queue_ticket_institute_idempotency"),
         CheckConstraint("currency IS NULL OR currency IN ('CHF', 'EUR')", name="ck_ticket_currency"),
     )

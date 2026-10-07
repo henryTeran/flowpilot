@@ -10,6 +10,8 @@ class Appointment(Base):
     __tablename__ = "appointments"
     __table_args__ = (UniqueConstraint("institute_id", "idempotency_key", name="uq_appointment_institute_idempotency"),
                       UniqueConstraint("checkout_ticket_id", name="uq_appointment_checkout_ticket"),
+                      Index("ix_appointment_inst_status_actual_end", "institute_id", "status", "actual_end_time"),
+                      Index("ix_appointment_inst_status_slot", "institute_id", "status", "start_time", "end_time"),
                       Index("uq_appointment_owner", "institute_id", "id", unique=True))
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)

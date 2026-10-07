@@ -12,6 +12,7 @@ import sys
 import time
 from datetime import datetime, timedelta
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 from contextlib import contextmanager
 
 import httpx
@@ -216,4 +217,7 @@ def test_live_actions_recalculate_employee_resource_and_checkout_state(postgres_
                 assert checkout not in {ticket["id"] for ticket in tickets()}
                 absent = change("POST", "/appointments", {**booking_payload, "start_time": (utcnow() + timedelta(hours=2)).isoformat()})
                 assert change("PATCH", f"/appointments/{absent['id']}/no-show")["status"] == "no_show"
-                assert next(row for row in read(f"/appointments?institute_id={institute}") if row["id"] == absent["id"])["status"] == "no_show"
+                with Session(engine) as db:
+                    zone = ZoneInfo(db.get(Institute, institute).timezone)
+                civil_day = datetime.fromisoformat(absent["start_time"]).astimezone(zone).date()
+                assert next(row for row in read(f"/appointments?institute_id={institute}&day={civil_day}") if row["id"] == absent["id"])["status"] == "no_show"

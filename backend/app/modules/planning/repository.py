@@ -1,9 +1,10 @@
-from datetime import datetime, time, timezone
+from datetime import datetime
 
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from app.modules.planning.models import ServiceSession
+from app.modules.institutes.calendar import day_bounds
 
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
@@ -18,8 +19,7 @@ def list_sessions_for_day(db: Session, institute_id: str, day: datetime) -> list
     - On inclut aussi les sessions encore actives, même si leur date est décalée
       par un problème d'heure locale/UTC pendant les tests Docker.
     """
-    start = datetime.combine(day.date(), time.min, tzinfo=timezone.utc)
-    end = datetime.combine(day.date(), time.max, tzinfo=timezone.utc)
+    start, end = day_bounds(db, institute_id, day)
 
     return list(
         db.scalars(
@@ -28,8 +28,8 @@ def list_sessions_for_day(db: Session, institute_id: str, day: datetime) -> list
                 ServiceSession.institute_id == institute_id,
                 or_(
                     and_(
-                        ServiceSession.start_time <= end,
-                        ServiceSession.planned_end_time >= start,
+                        ServiceSession.start_time < end,
+                        ServiceSession.planned_end_time > start,
                     ),
                     ServiceSession.status.in_(ACTIVE_SESSION_STATUSES),
                 ),
