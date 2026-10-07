@@ -4,10 +4,10 @@ import { validTemplateContent, type TemplateContent } from "./marketing-template
 export type CampaignContent = Omit<TemplateContent, "name"> & { institute_id: string; template_original_id: string | null;
   audience: { id: string; institute_id: string; captured_at: string; customer_ids: string[] } };
 export type CampaignTermsContent = Omit<CampaignContent, "institute_id" | "audience"> & { audience_id: string };
-export type CampaignRequest = { action: "create" | "edit" | "review" | "approve"; campaign_id: string | null;
+export type CampaignRequest = { action: "create" | "edit" | "review" | "approve" | "send"; campaign_id: string | null;
   expected_revision_id: string | null; content: CampaignTermsContent | null; reason: string; idempotency_key: string };
 export type CampaignRevision = { id: string; campaign_id: string; institute_id: string; previous_id: string | null;
-  state: "DRAFT" | "REVIEW" | "APPROVE"; content: CampaignContent; actor_id: string; reason: string; created_at: string;
+  state: "DRAFT" | "REVIEW" | "APPROVE" | "SEND"; content: CampaignContent; actor_id: string; reason: string; created_at: string;
   reviewed_digest: string | null; approved_digest: string | null; external_message_sent: false; delivery_authorized: false };
 export type CampaignOriginal = { request: CampaignRequest; revision: CampaignRevision };
 export type CampaignAuditPage = { institute_id: string; campaign_id: string; total: number; offset: number;
@@ -34,7 +34,7 @@ export function validCampaignRequest(v: unknown): v is CampaignRequest {
   if (r.content !== null && (!keys(r.content, ["channel", "origin", "subject", "body", "audience_id", "template_original_id"])
     || !message(r.content) || !text(r.content.audience_id))) return false;
   return r.action === "create" ? r.campaign_id === null && r.expected_revision_id === null && r.content !== null
-    : ["edit", "review", "approve"].includes(r.action) && text(r.campaign_id) && text(r.expected_revision_id)
+    : ["edit", "review", "approve", "send"].includes(r.action) && text(r.campaign_id) && text(r.expected_revision_id)
       && (r.action === "edit" ? r.content !== null : r.content === null);
 }
 function utcPython(value: string): string {
@@ -66,7 +66,7 @@ export async function validCampaignOriginal(v: unknown, institute: string): Prom
     || instant(r.content.audience.captured_at)! > instant(r.created_at)! || r.external_message_sent !== false || r.delivery_authorized !== false
     || r.previous_id === r.id || r.previous_id !== o.request.expected_revision_id || r.reason !== o.request.reason
     || o.request.campaign_id !== null && o.request.campaign_id !== r.campaign_id) return false;
-  const state = { create: "DRAFT", edit: "DRAFT", review: "REVIEW", approve: "APPROVE" }[o.request.action];
+  const state = { create: "DRAFT", edit: "DRAFT", review: "REVIEW", approve: "APPROVE", send: "SEND" }[o.request.action];
   if (r.state !== state) return false;
   const c = o.request.content;
   if (c !== null && (c.audience_id !== r.content.audience.id || c.template_original_id !== r.content.template_original_id
@@ -123,8 +123,8 @@ export async function validCampaignAuditPage(v: unknown, institute: string, camp
     const previous = o.revision.previous_id === null ? undefined : originals.get(o.revision.previous_id);
     if (!previous) continue; // A bounded page need not contain its predecessor.
     if (instant(previous.revision.created_at)! > instant(o.revision.created_at)!) return false;
-    if (o.request.action === "review" || o.request.action === "approve") {
-      if (previous.revision.state !== (o.request.action === "review" ? "DRAFT" : "REVIEW")
+    if (o.request.action === "review" || o.request.action === "approve" || o.request.action === "send") {
+      if (previous.revision.state !== (o.request.action === "review" ? "DRAFT" : o.request.action === "approve" ? "REVIEW" : "APPROVE")
         || await campaignDigest(previous.revision.content) !== await campaignDigest(o.revision.content)) return false;
     }
   }

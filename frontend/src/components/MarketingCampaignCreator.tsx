@@ -33,12 +33,12 @@ function Creator({ institute, campaign, original, onChanged }: EditorProps) {
   async function prepare() {
     if (frozen || !current()) return;
     if (!campaign) { setOpen(true); setReceipt(undefined); return; }
-    if (!original) return;
+    if (!original || original.revision.state === "SEND") return;
     setBusy(true); setOpen(false); setReceipt(undefined); setError(undefined); setPredecessor(null);
     try {
       const head = await apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(campaign)}/current`);
       if (!current()) return;
-      if (!await validCampaignOriginal(head, institute) || head.revision.campaign_id !== campaign) throw new Error("Campagne courante à vérifier.");
+      if (!await validCampaignOriginal(head, institute) || head.revision.campaign_id !== campaign || head.revision.state === "SEND") throw new Error("Campagne courante à vérifier.");
       if (!current()) return;
       const [byId, source, selectedTemplate] = await Promise.all([
         apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(head.revision.id)}`),
@@ -131,7 +131,7 @@ function Creator({ institute, campaign, original, onChanged }: EditorProps) {
     {saved.terms && <><p>Brouillon conservé : {saved.terms.reason}</p><button disabled={busy} onClick={() => void run(saved.terms!)}>{campaign ? "Reprendre la correction conservée" : "Reprendre le brouillon conservé"}</button></>}
     {rejected && <button onClick={() => { if (!saved.terms || sessionStorage.getItem(storage) !== JSON.stringify(saved.terms)) return;
       sessionStorage.removeItem(storage); save({}); setRejected(false); }}>Corriger le brouillon refusé</button>}
-    <button disabled={frozen || !!campaign && !original} onClick={() => void prepare()}>{campaign ? "Préparer une correction de campagne" : "Préparer une campagne"}</button>
+    <button disabled={frozen || !!campaign && (!original || original.revision.state === "SEND")} onClick={() => void prepare()}>{campaign ? "Préparer une correction de campagne" : "Préparer une campagne"}</button>
     {open && <form onSubmit={submit}><fieldset className="marketing-audience-fields" disabled={frozen}><legend>Sources et contenu du brouillon</legend>
       <label>Canal de campagne<select required value={channel} onChange={e => { setChannel(e.target.value); selectAudience(undefined); selectTemplate(undefined); setAudiences(undefined); setTemplates(undefined); }}>
         <option value="">Choisir</option><option value="email">Email</option><option value="sms">SMS</option><option value="push">Push</option></select></label>

@@ -48,9 +48,9 @@ test("audit pages pin exact bounds/scope/order and check present explicit predec
 test("native original enforces action/stage/source and exact review/approval digest", async () => {
   const a = original(); assert.equal(await validCampaignOriginal(a, "i"), true);
   const digest = await campaignDigest(a.revision.content);
-  for (const [action, state] of [["review", "REVIEW"], ["approve", "APPROVE"]] as const) {
+  for (const [action, state] of [["review", "REVIEW"], ["approve", "APPROVE"], ["send", "SEND"]] as const) {
     const stage: CampaignOriginal = { request: { ...a.request, action, campaign_id: "campaign-a", expected_revision_id: "previous", content: null },
-      revision: { ...a.revision, previous_id: "previous", state, reviewed_digest: digest, approved_digest: action === "approve" ? digest : null } };
+      revision: { ...a.revision, previous_id: "previous", state, reviewed_digest: digest, approved_digest: action !== "review" ? digest : null } };
     assert.equal(await validCampaignOriginal(stage, "i"), true);
     assert.equal(await validCampaignOriginal({ ...stage, revision: { ...stage.revision, content: { ...stage.revision.content, body: "Changed" } } }, "i"), false);
     assert.equal(await validCampaignOriginal({ ...stage, revision: { ...stage.revision, approved_digest: "forged" } }, "i"), false);
@@ -71,4 +71,20 @@ test("recovery pins actor/full terms and independent originals normalize only in
   assert.equal(await validCampaignCatalog(p, "i", 0, 20), true);
   assert.equal(await validCampaignCatalog({ ...p, total: 2 }, "i", 0, 20), false);
   assert.equal(await validCampaignCatalog({ ...p, total: 2, items: [a, a] }, "i", 0, 20), false);
+});
+
+test("SEND audit requires an unchanged approved predecessor when present", async () => {
+  const base = original(), digest = await campaignDigest(base.revision.content);
+  const approved: CampaignOriginal = { request: { ...base.request, action: "approve", campaign_id: "campaign-a", expected_revision_id: "review", content: null },
+    revision: { ...base.revision, id: "a-approve", state: "APPROVE", previous_id: "review", reviewed_digest: digest, approved_digest: digest } };
+  const sent: CampaignOriginal = { request: { ...approved.request, action: "send", expected_revision_id: "a-approve" },
+    revision: { ...approved.revision, id: "b-send", state: "SEND", previous_id: "a-approve" } };
+  const page = { institute_id: "i", campaign_id: "campaign-a", total: 2, offset: 0, limit: 20, originals: [approved, sent] };
+  assert.equal(await validCampaignAuditPage(page, "i", "campaign-a", 0, 20), true);
+  assert.equal(await validCampaignCatalog({ institute_id: "i", total: 1, offset: 0, limit: 20, items: [sent] }, "i", 0, 20), true);
+  const review = { request: { ...approved.request, action: "review" }, revision: { ...approved.revision, state: "REVIEW", approved_digest: null } };
+  assert.equal(await validCampaignAuditPage({ ...page, originals: [review, sent] }, "i", "campaign-a", 0, 20), false);
+  const altered = structuredClone(sent); altered.revision.content.body = "Different";
+  altered.revision.reviewed_digest = altered.revision.approved_digest = await campaignDigest(altered.revision.content);
+  assert.equal(await validCampaignAuditPage({ ...page, originals: [approved, altered] }, "i", "campaign-a", 0, 20), false);
 });

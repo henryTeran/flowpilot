@@ -1,4 +1,4 @@
-"""Signed retained campaign drafting/review/approval; no provider dispatch."""
+"""Signed retained campaign drafting/review/approval/send declaration; no provider dispatch."""
 from typing import Literal
 from pydantic import model_validator
 from sqlalchemy import select,func
@@ -23,7 +23,7 @@ class Content(Fact):
         templates.Content(name="Campaign content",channel=self.channel,origin=self.origin,subject=self.subject,body=self.body)
         return self
 class Request(Fact):
-    action: Literal["create","edit","review","approve"]
+    action: Literal["create","edit","review","approve","send"]
     campaign_id: Identifier | None
     expected_revision_id: Identifier | None
     content: Content | None
@@ -39,24 +39,34 @@ class Original(Fact):
     request: Request
     revision: campaigns.CampaignRevision
 
-def receipt(row):
+def receipt(row, db):
     request=Request.model_validate(row.request);revision=campaigns.CampaignRevision.model_validate(row.revision)
     if (revision.id,revision.institute_id,revision.campaign_id,revision.previous_id,revision.actor_id,revision.reason,revision.created_at)!=(row.id,row.institute_id,row.campaign_id,row.previous_id,row.actor_id,row.reason,explicit_utc_instant(row.created_at)) or request.reason!=row.reason or request.idempotency_key!=row.idempotency_key or request.expected_revision_id!=row.previous_id or request.campaign_id is not None and request.campaign_id!=row.campaign_id or revision.content.audience.id!=row.audience_id or revision.content.template_original_id!=row.template_original_id:
         raise business_error("Campaign original scope/actor/terms are incoherent")
-    expected={"create":"DRAFT","edit":"DRAFT","review":"REVIEW","approve":"APPROVE"}[request.action]
+    expected={"create":"DRAFT","edit":"DRAFT","review":"REVIEW","approve":"APPROVE","send":"SEND"}[request.action]
     if revision.state!=expected:raise business_error("Campaign original stage is incoherent")
     c=request.content
     if c is not None and (c.channel,c.origin,c.subject,c.body,c.audience_id,c.template_original_id)!=(revision.content.channel,revision.content.origin,revision.content.subject,revision.content.body,revision.content.audience.id,revision.content.template_original_id):raise business_error("Campaign content differs from its literal request")
+    if request.action == "send":
+        prior_row = db.scalar(select(CampaignOriginal).where(CampaignOriginal.institute_id == row.institute_id, CampaignOriginal.id == row.previous_id))
+        # Inspect stage before recursion so corrupted SEND cycles cannot recurse.
+        if prior_row is None or prior_row.revision.get("state") != "APPROVE":
+            raise business_error("SEND must retain an approved predecessor")
+        prior = receipt(prior_row, db).revision
+        if (prior.campaign_id != revision.campaign_id or prior.content != revision.content
+                or prior.reviewed_digest != revision.reviewed_digest or prior.approved_digest != revision.approved_digest
+                or prior.created_at > revision.created_at):
+            raise business_error("SEND differs from its approved original")
     return Original(request=request,revision=revision)
 def original(db,institute,key):
     lock_institute(db,institute)
     row=db.scalar(select(CampaignOriginal).where(CampaignOriginal.institute_id==institute,CampaignOriginal.idempotency_key==key))
-    return receipt(row) if row else None
+    return receipt(row, db) if row else None
 def require(db,institute,identifier):
     lock_institute(db,institute)
     row=db.scalar(select(CampaignOriginal).where(CampaignOriginal.institute_id==institute,CampaignOriginal.id==identifier))
     if row is None:raise not_found("Campaign original not found")
-    return receipt(row)
+    return receipt(row, db)
 def head(db,institute,root):
     return db.scalar(select(CampaignHead).where(CampaignHead.institute_id==institute,CampaignHead.campaign_id==root).execution_options(populate_existing=True))
 def current(db,institute,root):
@@ -98,7 +108,7 @@ def execute(db,institute,payload,actor):
         db.add(row);db.flush()
         if pointer:pointer.original_id=identifier
         else:db.add(CampaignHead(institute_id=institute,campaign_id=root,original_id=identifier))
-        db.flush();result=receipt(row);db.commit();return result
+        db.flush();result=receipt(row, db);db.commit();return result
     except Exception:
         db.rollback();raise
 
@@ -115,4 +125,4 @@ def audit(db,institute,root,offset=0,limit=20):
     scope=(CampaignOriginal.institute_id==institute,CampaignOriginal.campaign_id==root)
     total=db.scalar(select(func.count()).select_from(CampaignOriginal).where(*scope))
     rows=db.scalars(select(CampaignOriginal).where(*scope).order_by(CampaignOriginal.created_at,CampaignOriginal.id).offset(offset).limit(limit))
-    return AuditPage(institute_id=institute,campaign_id=root,total=total,offset=offset,limit=limit,originals=tuple(receipt(row) for row in rows))
+    return AuditPage(institute_id=institute,campaign_id=root,total=total,offset=offset,limit=limit,originals=tuple(receipt(row, db) for row in rows))

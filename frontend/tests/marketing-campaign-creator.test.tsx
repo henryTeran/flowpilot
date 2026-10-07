@@ -91,3 +91,18 @@ test("correction preparation rejects inconsistent retained audience then prepare
     assert.equal([...document.querySelectorAll("select")].find(s => s.closest("label")?.textContent?.startsWith("Source du texte"))!.value, "literal");
   } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
 });
+
+test("SEND disables new correction while retaining protected recovery", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error("Unexpected I/O"); };
+  try {
+    sessionStorage.clear(); setAccessToken(token());
+    const { campaignDigest } = await import("../src/marketing-campaign-utils");
+    const digest = await campaignDigest(original.revision.content);
+    const sent: CampaignOriginal = { request: { ...terms, action: "send", campaign_id: "root", expected_revision_id: "approval", content: null },
+      revision: { ...original.revision, state: "SEND", previous_id: "approval", reviewed_digest: digest, approved_digest: digest } };
+    await act(async () => root.render(<MarketingCampaignCreator institute="i" campaign="root" original={sent} onChanged={() => {}} />));
+    const prepare = [...document.querySelectorAll("button")].find(button => button.textContent?.includes("correction de campagne"));
+    assert.ok(prepare?.disabled); await act(async () => prepare.click()); assert.equal(calls, 0);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});

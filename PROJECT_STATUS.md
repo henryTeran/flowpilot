@@ -1,6 +1,13 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13AM_TRUSTED_TRANSPORT_REGISTRY
+CURRENT_CHECKPOINT = PHASE13AN_SIGNED_SEND_AND_WORKER_GATE
 STATUS = ACTIVE
+
+PHASE13AN_SIGNED_SEND_AND_WORKER_GATE:
+- Existing manager campaign POST accepts explicit send action with exact current APPROVE predecessor, null content, full actor/reason/key. Immutable SEND original/head atomically retains unchanged content/review/approval digests. Receipt validates owned historical APPROVE predecessor; original replay before current head/clock, competing new keys one winner, SEND edit/duplicate refused. Read-by-key/ID/current/audit/catalog supported; no provider I/O from campaign action and no delivery assertion.
+- First worker decision requires current SEND directly following its saved exact approval, same content and nonfuture SEND clock, plus fresh unchanged contact/registration and granted permission/configuration. APPROVE alone creates no outcome/provider attempt. Existing unknown still reconciles only; terminal remains no I/O. Updated prior worker/transport fixtures to declare SEND explicitly; no external calls.
+- Backend five-file SEND/campaign/worker/transport/registry: 34 passed in 103.82s. Catalog/SEND adjacent: 6 passed in 102.09s. Final signed SEND catalog HTTP assertion: 1 passed in 7.33s. SQLite and actual PostgreSQL, competing SEND keys, rollback, full-key actor/replay, source tampering and approval-only zero I/O. Terminal exit 0; existing crypt warning only.
+- Native contracts accept SEND with exact digests/present approved audit predecessor; catalog/history label added, new correction disabled while old protected recovery remains. Initial build caught missing SEND label mapping (TS7053), corrected. Full frontend 320 passed in 70.70s before final correction-button guard; final focused creator/contracts 11 passed in 2.52s after guard/test. TypeScript/Vite build verified; no new signed native browser/physical acceptance claimed. No schema/dependencies/production migration/live credentials or messages.
+- CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. Preparation currently occurs under APPROVE before SEND; post-SEND preparation/native SEND command and dispatch audit remain. NEXT: complete coherent native SEND/intent/result workflow, protected invocation, authenticated provider evidence/operator uncertainty resolution and retained conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13AM_TRUSTED_TRANSPORT_REGISTRY:
 - Added empty-by-default MARKETING_CREDENTIAL_BINDINGS_JSON trusted local resolver. Exact institute/provider/account/live-mode scope; duplicate or invalid catalog refuses. Only dedicated FLOWPILOT_MARKETING_ environment references allowed, no inline secrets. Each resolution rereads current secret; cached FCM token needs aware expiry beyond the caller deadline plus 5 seconds. OAuth acquisition/refresh remains external; lookup performs no provider I/O.

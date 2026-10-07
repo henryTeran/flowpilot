@@ -11,7 +11,7 @@ import { validCampaignCatalog, validCampaignOriginal, validCampaignAuditPage, sa
   type CampaignOriginal, type CampaignAuditPage } from "../marketing-campaign-utils";
 
 type Catalog = { institute_id: string; total: number; offset: number; limit: number; items: CampaignOriginal[] };
-const stages = { DRAFT: "Brouillon", REVIEW: "En revue", APPROVE: "Approuvée" };
+const stages = { DRAFT: "Brouillon", REVIEW: "En revue", APPROVE: "Approuvée", SEND: "Envoi autorisé" };
 export function MarketingPanel({ institute }: { institute: string }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
   return <CampaignDirectory key={JSON.stringify([institute, getAccessToken()])} institute={institute} />;

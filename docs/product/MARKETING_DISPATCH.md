@@ -80,3 +80,27 @@ with reconciliation only: if the provider cannot establish an outcome, the inten
 remains unknown. The worker never fabricates rejection or automatically submits
 again to resolve this ambiguity. Deployed adapters and operator resolution still
 need acceptance. Missing current pointers with retained history refuse submission.
+
+## Signed SEND declaration and first-attempt gate
+
+The existing manager-only campaign POST now accepts action `send` with the exact
+current approved revision, null content, explicit reason and operation key. It
+retains a new SEND original/head atomically, with unchanged content and approval
+and review digests. Read-by-key/ID/current/audit/catalog validate its owned APPROVE
+predecessor. Full actor/terms replay precedes current head and clock; competing
+keys cannot both append. Editing or repeating SEND as a new action is refused.
+SEND records the manager declaration, not recipient delivery or a provider call;
+revision delivery/external-message flags remain false.
+
+A first worker decision now requires that current SEND directly follows the exact
+approval saved in the intent, is no later than the decision clock, and retains the
+same content. It reevaluates the saved approved campaign against current exact
+contact/registration and configured account. APPROVE alone creates no outcome or
+provider attempt. An already uncertain attempt still reconciles only, independently
+of subsequent source corrections; terminal results remain read-only.
+
+At this checkpoint, prepare recipient intents while APPROVE is current, then
+explicitly declare SEND before first execution. Preparing additional recipients
+after SEND and the native SEND command/dispatch audit are still pending. This is
+not a deployed sending workflow. Native contracts/catalog/history can display SEND;
+new corrections are disabled there, while protected old-request recovery remains.

@@ -151,6 +151,8 @@ def test_adapter_worker_pipeline_retains_ack_and_never_posts_during_unknown_reco
         channel="email", sender_id="sender@example.com", mode="live", push_application=None)]))
     for module in (dispatch_worker, dispatch_outcomes, transports): monkeypatch.setattr(module, "utcnow", lambda: NOW + timedelta(microseconds=5))
     with Session(main_module.engine) as db: intent = dispatch_intents.prepare(db, institute, body(approval, contact), "manager")
+    from test_marketing_dispatch_worker_13ak import declare_send
+    declare_send(main_module.engine, institute, intent)
     wire = Wire({"id": EMAIL_ID})
     if lose_ack:
         def lost(*args): wire.calls.append(args); raise TimeoutError("simulated lost acknowledgement")

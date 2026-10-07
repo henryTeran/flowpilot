@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import event, select, func
 from sqlalchemy.orm import Session
 import app.main as main_module
-from app.modules.marketing import dispatch_worker as worker, dispatch_outcomes, contact_originals, provider
+from app.modules.marketing import dispatch_worker as worker, dispatch_outcomes, contact_originals, provider, campaign_originals
 from app.modules.marketing.models import DispatchOutcome, DispatchHead
 from test_marketing_dispatch_outcomes_13aj import fixture
 from test_marketing_contact_originals_13y import body as contact_body
@@ -34,8 +34,15 @@ class Fake:
         return self.saved or provider.Result(account=request.account, idempotency_key=request.idempotency_key, request_fingerprint=provider.fingerprint(request),
             status="unknown", provider_message_id=None, observed_at=NOW + timedelta(microseconds=5))
 
+def declare_send(engine, institute, intent):
+    with Session(engine) as db:
+        return campaign_originals.execute(db, institute, campaign_originals.Request(action="send",
+            campaign_id=intent.request.campaign_id, expected_revision_id=intent.request.expected_revision_id,
+            content=None, reason="Explicit signed SEND declaration", idempotency_key="worker-send"), "manager")
+
 def configured(engine, institute, monkeypatch):
     intent = fixture(engine, institute, monkeypatch); monkeypatch.setattr(worker, "utcnow", lambda: NOW + timedelta(microseconds=5))
+    declare_send(engine, institute, intent)
     adapter = Fake(engine, institute, intent)
     factory = lambda: Session(engine)
     resolve = lambda account: worker.Binding(account, adapter)

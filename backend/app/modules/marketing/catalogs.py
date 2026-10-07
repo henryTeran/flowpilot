@@ -41,4 +41,4 @@ def campaigns_current(db,institute,offset=0,limit=20):
     total=db.scalar(select(func.count()).select_from(CampaignHead).where(scope))
     rows=db.execute(select(CampaignHead,CampaignOriginal).outerjoin(CampaignOriginal,and_(CampaignOriginal.institute_id==CampaignHead.institute_id,CampaignOriginal.campaign_id==CampaignHead.campaign_id,CampaignOriginal.id==CampaignHead.original_id)).where(scope).order_by(CampaignHead.campaign_id).offset(offset).limit(limit)).all()
     if any(row is None for _,row in rows):raise business_error("Selected campaign catalog scope is incoherent")
-    return Page[campaign_originals.Original](institute_id=institute,total=total,offset=offset,limit=limit,items=tuple(campaign_originals.receipt(row) for _,row in rows))
+    return Page[campaign_originals.Original](institute_id=institute,total=total,offset=offset,limit=limit,items=tuple(campaign_originals.receipt(row, db) for _,row in rows))

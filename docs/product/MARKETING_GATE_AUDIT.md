@@ -884,6 +884,33 @@ full-backend or live provider acceptance. All four Phase 13 gates remain OPEN;
 canonical SEND authorization/audit, protected invocation, authenticated evidence,
 operator uncertainty resolution, conversion and physical/production gates remain.
 
+## Phase 13AN - signed SEND and first worker authorization
+
+Manager-only campaign POST now retains SEND from the exact current APPROVE with
+null content, explicit actor/reason/key, immutable content and approval/review
+digests. Receipt independently checks owned approved predecessor; atomically
+retained original/head rollback and competing keys verified. Key replay preserves
+actor/full terms before clock/current head. New SEND duplicate/edit refuse. GET
+key/ID/current/audit/catalog support SEND. Stage is a declaration, never delivery.
+
+First worker decision requires current SEND directly following saved exact approval,
+unchanged content and nonfuture SEND clock plus current unchanged recipient source
+and fresh grant/configuration. Approval alone produces no outcome or provider call.
+Unknown recovery remains reconciliation-only; no resend/terminal overwrite.
+
+Backend SEND/campaign/worker/transport/registry 34 passed in 103.82s; catalog/SEND
+6 passed in 102.09s; final signed SEND catalog assertion 1 passed in 7.33s. SQLite
+and actual PostgreSQL, simulated providers only, existing crypt warning. Full
+frontend 320 passed in 70.70s; after final correction-button guard, creator/contracts
+11 passed in 2.52s. Initial compilation missing SEND stage mapping corrected;
+TypeScript/Vite final build verified. Native contracts/display support SEND and
+present predecessor/digest checks; native SEND action/browser acceptance pending.
+
+Preparation currently requires current APPROVE, then SEND precedes execution.
+Post-SEND recipient preparation, native intent/results, deployment invocation,
+authenticated evidence/operator uncertainty resolution and conversion remain.
+No new migration/full-backend/live provider/physical acceptance. All gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -31,9 +31,14 @@ def fresh_decision(db, institute, intent, at):
     contact = contact_originals.current(db, institute, intent.request.customer_id)
     customer = contact_originals.owned(db, institute, intent.request.customer_id)
     registered = RegisteredCustomerFact(institute_id=institute, customer_id=intent.request.customer_id, created_at=explicit_utc_instant(customer.created_at))
-    if campaign is None or campaign.revision != saved.campaign or contact != saved.original or registered != saved.customer:
+    if (campaign is None or campaign.revision.state != "SEND"
+            or campaign.revision.previous_id != saved.campaign.id
+            or campaign.revision.content != saved.campaign.content
+            or campaign.revision.created_at > at
+            or campaign_originals.require(db, institute, saved.campaign.id).revision != saved.campaign
+            or contact != saved.original or registered != saved.customer):
         raise business_error("Dispatch sources changed after preparation")
-    if not contacts.evaluate(registered, campaign.revision, contact, at).eligible_by_current_declaration:
+    if not contacts.evaluate(registered, saved.campaign, contact, at).eligible_by_current_declaration:
         raise business_error("Current recipient does not permit first dispatch decision")
 
 def run(session_factory, institute, intent_id, actor, resolve):
