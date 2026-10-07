@@ -11,6 +11,7 @@ from app.modules.workforce.objectives import require_employee
 from app.modules.workforce.schemas import MatrixPage
 from app.modules.workforce.work_interval_schemas import WorkIntervalRead, WorkIntervalCancellationRead
 from app.shared.time import explicit_utc_instant, utcnow
+from app.modules.workforce.interval_math import microseconds, union_intervals
 
 
 class WorkHourSource(BaseModel):
@@ -40,11 +41,6 @@ class EmployeeWorkHours(BaseModel):
     complete_attendance: Literal[False] = False
 
 
-def microseconds(start: datetime, end: datetime) -> int:
-    delta = end-start
-    return (delta.days*86400+delta.seconds)*1000000+delta.microseconds
-
-
 def read(db, institute, employee, day, limit=20, offset=0):
     lock_institute(db, institute)
     require_employee(db, institute, employee)
@@ -65,23 +61,25 @@ def read(db, institute, employee, day, limit=20, offset=0):
         .where(*predicate, cancellation.id.is_(None)).order_by(original.start_time, original.id)
         .execution_options(yield_per=100))
     active = future = overlap = declared = union = 0
-    union_end = None
-    for first, last in endpoints:
-        active += 1
-        first, last = explicit_utc_instant(first), explicit_utc_instant(last)
-        if last > now:
-            future += 1
-            continue
-        first, last = max(first, start), min(last, end)
-        if last <= first:
-            continue
-        declared += microseconds(first, last)
-        if union_end is not None and first < union_end:
-            overlap += 1
-        uncovered = max(first, union_end) if union_end is not None else first
-        if last > uncovered:
-            union += microseconds(uncovered, last)
-        union_end = max(last, union_end) if union_end is not None else last
+    def eligible():
+        nonlocal active, future, overlap, declared
+        previous_end = None
+        for first, last in endpoints:
+            active += 1
+            first, last = explicit_utc_instant(first), explicit_utc_instant(last)
+            if last > now:
+                future += 1
+                continue
+            first, last = max(first, start), min(last, end)
+            if last <= first:
+                continue
+            declared += microseconds(first, last)
+            if previous_end is not None and first < previous_end:
+                overlap += 1
+            previous_end = max(last, previous_end) if previous_end is not None else last
+            yield first, last
+    for first, last in union_intervals(eligible()):
+        union += microseconds(first, last)
     records = db.execute(select(original, cancellation).outerjoin(cancellation, join).where(*predicate)
         .order_by(original.start_time, original.id).limit(limit).offset(offset))
     rows = []

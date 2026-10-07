@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11O_NATIVE_WORK_INTERVAL_LIFECYCLE
+CURRENT_CHECKPOINT = PHASE11P_EXACT_OCCUPATION_INTERVAL_FOUNDATION
 STATUS = ACTIVE
+
+PHASE11P_EXACT_OCCUPATION_INTERVAL_FOUNDATION:
+- Shared exact streaming interval union/intersection arithmetic now serves the existing selected-day work-hours union and the forthcoming occupation read. Half-open touching intervals merge without double counting; breaks remain separate, nested overlaps merge, and unordered/nonpositive inputs are refused. Intersection consumes two disjoint sorted streams without materializing them and retains microseconds.
+- Focused exact-arithmetic baseline: 3 passed. Final PostgreSQL-enabled interval arithmetic/work-hours compatibility: 7 passed in 7.46s, including existing DST, microsecond, history/pagination and institute-lock tests. A deterministic 100-case independent microsecond-set oracle checks unions/intersections over overlapping inputs. No schema or frontend change and no new full regression is claimed.
+- CHECKPOINT_STATUS = PARTIAL: the arithmetic foundation is implemented and used, but occupation API/source diagnostics, native reading and acceptance are not yet delivered. Next: intersect recorded completed-session intervals with declared working-time unions, expose missing/future/invalid ends and outside-work time, and keep any ratio scoped to recorded time rather than claiming complete attendance.
 
 PHASE11O_NATIVE_WORK_INTERVAL_LIFECYCLE:
 - Manager-only Equipe/Heures effectives adds completed work declaration with explicit institute civil dates/times, mandatory repeated-hour occurrences and reason; separate motivated cancellation preserves original instants. Skipped/reversed/future intervals are refused without inventing a planned end. Bounded original history and direct declaration navigation retain explicit read timestamp, duration, institute UTC offsets and source/cancellation provenance in >=44px controls.
