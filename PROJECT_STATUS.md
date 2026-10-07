@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13J_BOUNDED_OWNED_MARKETING_CATALOGS
+CURRENT_CHECKPOINT = PHASE13K_NATIVE_TEMPLATE_RECEIPT_CONTRACTS
 STATUS = ACTIVE
+
+PHASE13K_NATIVE_TEMPLATE_RECEIPT_CONTRACTS:
+- Added native typed template content/request/original/catalog contracts for the forthcoming editor. Validators pin owned institute/root/predecessor, signed actor, literal request/content equality, explicit email-only subject and channel/origin, bounded Unicode code-point lengths, microsecond-aware clock and exact page bounds/total/unique ordered roots. Exact receipt matching and independent-original comparison support future protected original-key recovery. Unknown fields refused. Literal whitespace/placeholders/body retained; no rendering or provider call.
+- Three focused contract tests pass after final compatibility fix. TypeScript/Vite build passes (129 modules). Full frontend regression: 285 passed in 77.45s, zero failures/skips, terminal exit 0. No native editor/browser or backend acceptance inferred from these contracts.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: audience/campaign native contracts and guarded marketing editor with original-key recovery, signed desktop/tablet workflows, explicit delivery/conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13J_BOUNDED_OWNED_MARKETING_CATALOGS:
 - Added signed manager GET catalogs for retained audience captures and current template/campaign roots. Each owned catalog reports total/offset/limit and returns bounded typed originals (20 default, 50 maximum). Template/campaign heads join originals on institute/root/original ID; incoherent heads refuse the whole read. Current correction replaces the selected original without duplicating the root. Audience captures preserve historical capture ordering. No schema change or provider operation.

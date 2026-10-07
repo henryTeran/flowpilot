@@ -206,6 +206,21 @@ signed manager-only routes, invalid bounds, page coherence and OpenAPI generatio
 Existing passlib crypt deprecation only. Native workflows, delivery and conversion
 remain pending; all Phase 13 gates remain OPEN.
 
+## 13K: native template receipt contracts
+
+Typed template content/request/original/catalog guards now verify owned scope,
+root/predecessor coherence, literal content equality and actor-bound receipt terms.
+Independent originals compare exact microsecond instants, accepting equivalent
+UTC offset spelling. Content retains whitespace/placeholders; Python-compatible
+Unicode code-point bounds support non-BMP characters. Catalog guards pin requested
+offset/limit, exact total-derived item count and unique ordered roots. Unknown fields,
+foreign originals, duplicate/reordered roots and altered terms fail closed.
+
+Three final focused contract tests pass. Full frontend regression: 285 passed in
+77.45s, zero failures/skips, terminal exit 0. TypeScript/Vite build passes with 129
+modules after using a compatible own-property check. No editor/browser/backend/
+provider acceptance inferred. Phase 13 gates remain OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
