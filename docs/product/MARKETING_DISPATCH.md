@@ -570,3 +570,23 @@ in-flight and unmount guards suppress late publication or unauthorized selection
 Native mocked lost-ack/reload path makes one POST; actual populated backend browser
 acceptance and conversion audit/current screens remain open. No public provider
 outcome mutation, message sending or causal/settlement assertion is added.
+
+### Phase13BH native current and audit reader
+
+The selected-ticket history explicitly reads current head and bounded audit20,
+verifies whole page scope/order/event semantics and head consistency, independently
+rereads original ID/key and intent/SEND/outcome ID/key sources, then rereads current
+head before publication. Changed heads or any incoherent proof hide the whole page.
+The shared proof function is also used by the protected writer. Native page checks
+only present predecessors; backend original reads verify entire retained chains
+up to the service's1000-event refusal cap. This is not authenticated provider proof
+or a complete campaign history claim. Large-history proof cost remains unverified.
+
+Historical versions/retractions show exact retained amounts separately and never
+sum into conversion totals. Event actor, reason, source campaign and predecessor
+are visible; live/test remain distinct. Successful writer receipts invalidate prior
+history display without automatic I/O. An explicit new-decision button resets a
+successful receipt and requires a new current-head read; uncertain protected terms
+have no such reset. Mock native link/lost-ack/reload/recover then distinct retraction
+and changed-head/corrupt-source history paths are verified. Populated actual backend
+desktop/tablet acceptance and current-linked campaign catalog UI remain required.

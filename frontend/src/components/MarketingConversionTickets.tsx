@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MarketingConversionWriter } from "./MarketingConversionWriter";
+import { MarketingConversionHistory } from "./MarketingConversionHistory";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { instituteMidnight } from "../outlook-utils";
@@ -17,6 +18,7 @@ function Selector({ institute, intent, accepted, timezone }: { institute: string
   const [start, setStart] = useState(""), [end, setEnd] = useState("");
   const [read, setRead] = useState<ConversionTicketRead>(), [selected, select] = useState<Attribution["ticket"]>();
   const [offset, setOffset] = useState(0), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
+  const [historyVersion, refreshHistory] = useState(0);
   useEffect(() => () => { sequence.current++; }, []);
   const base = `/marketing/institutes/${encodeURIComponent(institute)}/dispatch-intents`;
   function change(field: "start" | "end", value: string) {
@@ -71,7 +73,8 @@ function Selector({ institute, intent, accepted, timezone }: { institute: string
       <button disabled={busy || offset + read.page.items.length >= read.page.total} onClick={() => void load(offset + 20)}>Tickets suivants</button>
     </>}
     {selected && <p>Ticket sélectionné : {selected.ticket_id}. Aucun lien de conversion enregistré.</p>}
-    {selected && read && <MarketingConversionWriter institute={institute} intent={intent} accepted={accepted} ticket={selected.ticket_id} period={read.window} />}
+    {selected && read && <MarketingConversionWriter institute={institute} intent={intent} accepted={accepted} ticket={selected.ticket_id} period={read.window} onChanged={() => refreshHistory(v => v + 1)} />}
+    {selected && <MarketingConversionHistory key={JSON.stringify([selected.ticket_id, historyVersion])} institute={institute} ticket={selected.ticket_id} />}
     <p>Ces données décrivent la facturation enregistrée du destinataire. Elles ne prouvent ni livraison, ni règlement bancaire, ni effet de la campagne.</p>
   </section>;
 }

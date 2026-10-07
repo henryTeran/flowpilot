@@ -1,16 +1,17 @@
+import { verifyConversionSources } from "../api/marketing-conversion-proof";
 import { useEffect, useRef, useState } from "react";
 import { apiGet, apiPost, ApiError } from "../api/client";
 import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/session";
 import { validCampaignOriginal, sameCampaignOriginal, type CampaignOriginal } from "../marketing-campaign-utils";
-import { sameDispatchIntent, validDispatchOutcome, sameDispatchTerms, type DispatchIntent, type DispatchOutcome } from "../marketing-dispatch-utils";
-import { validConversionRequest, validConversionOriginal, matchesConversionReceipt, sameConversionOriginal,
+import { sameDispatchTerms, type DispatchIntent, type DispatchOutcome } from "../marketing-dispatch-utils";
+import { validConversionRequest, matchesConversionReceipt, sameConversionOriginal,
   type ConversionOriginal, type ConversionRequest, type ConversionWindow } from "../marketing-conversion-utils";
-type Props = { institute: string; intent: DispatchIntent; accepted: DispatchOutcome; ticket: string; period: ConversionWindow };
+type Props = { institute: string; intent: DispatchIntent; accepted: DispatchOutcome; ticket: string; period: ConversionWindow; onChanged?: () => void };
 export function MarketingConversionWriter(props: Props) {
   if (!getOperatorSubject() || getOperatorRole() !== "responsable_institut") return null;
   return <Writer key={JSON.stringify([props.institute, props.intent.id, props.accepted.id, props.ticket, props.period, getAccessToken()])} {...props} />;
 }
-function Writer({ institute, intent, accepted, ticket, period }: Props) {
+function Writer({ institute, intent, accepted, ticket, period, onChanged }: Props) {
   const actor = getOperatorSubject()!, token = getAccessToken(), root = intent.request.campaign_id;
   const base = `/marketing/institutes/${encodeURIComponent(institute)}`, conversions = base + "/conversions";
   const storage = `flowpilot.conversion-request:${JSON.stringify([institute, actor, ticket])}`;
@@ -30,22 +31,7 @@ function Writer({ institute, intent, accepted, ticket, period }: Props) {
   const mounted = useRef(false), pending = useRef(false);
   const current = () => mounted.current && token === getAccessToken() && actor === getOperatorSubject() && getOperatorRole() === "responsable_institut";
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  async function verify(o: ConversionOriginal) {
-    if (!await validConversionOriginal(o, institute, ticket)) throw new Error();
-    const a = o.attribution, outcomeBase = `${base}/dispatch-intents/${encodeURIComponent(a.intent.id)}/outcomes`;
-    const [id, key, sourceId, sourceKey, sendId, sendKey, outcomeId, outcomeKey] = await Promise.all([
-      apiGet(`${conversions}/${encodeURIComponent(o.id)}`), apiGet(`${conversions}/original/${encodeURIComponent(o.request.idempotency_key)}`),
-      apiGet(`${base}/dispatch-intents/${encodeURIComponent(a.intent.id)}`), apiGet(`${base}/dispatch-intents/original/${encodeURIComponent(a.intent.request.idempotency_key)}`),
-      apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(a.authorization.revision.id)}`),
-      apiGet<CampaignOriginal>(`${base}/campaigns/original/${encodeURIComponent(a.authorization.request.idempotency_key)}`),
-      apiGet(`${outcomeBase}/${encodeURIComponent(a.accepted.id)}`), apiGet(`${outcomeBase}/original/${encodeURIComponent(a.accepted.request.idempotency_key)}`),
-    ]);
-    if (!await sameConversionOriginal(o, id, institute) || !await sameConversionOriginal(o, key, institute)
-      || !await sameDispatchIntent(a.intent, sourceId, institute) || !await sameDispatchIntent(a.intent, sourceKey, institute)
-      || !await sameCampaignOriginal(a.authorization, sendId, institute) || !await sameCampaignOriginal(a.authorization, sendKey, institute)
-      || !await validDispatchOutcome(outcomeId, a.intent, institute) || !await validDispatchOutcome(outcomeKey, a.intent, institute)
-      || !sameDispatchTerms(a.accepted, outcomeId) || !sameDispatchTerms(a.accepted, outcomeKey)) throw new Error();
-  }
+  const verify = (o: ConversionOriginal) => verifyConversionSources(o, institute, ticket);
   async function readHead() {
     if (!current() || pending.current || saved.terms || saved.invalid) return;
     pending.current = true; setBusy(true); setHead(undefined); setError(undefined);
@@ -62,7 +48,7 @@ function Writer({ institute, intent, accepted, ticket, period }: Props) {
     if (!current()) return;
     const raw = sessionStorage.getItem(storage);
     if (!raw || !stored(JSON.parse(raw)) || !sameDispatchTerms(JSON.parse(raw).request, request)) throw new Error();
-    sessionStorage.removeItem(storage); save({}); setReceipt(o); setHead(o);
+    sessionStorage.removeItem(storage); save({}); setReceipt(o); setHead(o); onChanged?.();
   }
   async function retain(action?: "linked" | "retracted") {
     if (!current() || pending.current || saved.invalid || receipt) return;
@@ -136,5 +122,6 @@ function Writer({ institute, intent, accepted, ticket, period }: Props) {
     {saved.invalid && <p role="alert">Termes protégés à vérifier. Aucune nouvelle opération autorisée pour ce ticket.</p>}
     {busy && <p role="status">Vérification de l’opération…</p>}{error && <p role="alert">{error}</p>}
     {receipt && <p>Original conservé : {receipt.id} · {receipt.request.action === "linked" ? "Lien enregistré" : "Lien rétracté"}. La vente et ses données restent conservées.</p>}
+    {receipt && <button disabled={busy} onClick={() => { if (current()) { setReceipt(undefined); setHead(undefined); setReason(""); } }}>Nouvelle décision pour ce ticket</button>}
   </section>;
 }

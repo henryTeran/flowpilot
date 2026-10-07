@@ -33,7 +33,7 @@ function server(options: { lost?: boolean; rejected?: boolean; corrupt?: boolean
       posts++; const request = JSON.parse(String(init.body));
       assert.ok([...Array(sessionStorage.length)].some((_, i) => sessionStorage.key(i)?.startsWith("flowpilot.conversion-request:")));
       if (options.rejected) return reply({ detail: "Explicit fixture refusal" }, 400);
-      original = structuredClone(v.linked); original!.id = "native-original"; original!.request = request;
+      original = structuredClone(v.linked); original!.id = `native-original-${posts}`; original!.request = request;
       if (request.action === "retracted") original!.attribution = structuredClone(head!.attribution);
       else { original!.attribution.reason = request.reason; original!.attribution.idempotency_key = request.idempotency_key; }
       original!.attribution_fingerprint = await attributionFingerprint(original!.attribution); head = original;
@@ -42,7 +42,8 @@ function server(options: { lost?: boolean; rejected?: boolean; corrupt?: boolean
     }
     if (path.includes("/conversions/")) {
       if (path.endsWith("/current")) return reply(head);
-      if (path.includes("/original/")) return reply(original || (head && path.endsWith(head.request.idempotency_key) ? head : null));
+      if (path.includes("/original/")) return reply(original && path.endsWith(original.request.idempotency_key) ? original
+        : head && path.endsWith(head.request.idempotency_key) ? head : null);
       return reply(options.corrupt && original ? { ...original, attribution_fingerprint: "0".repeat(64) } : original || head);
     }
     if (path.includes("/campaigns/")) return reply(a.authorization);
@@ -64,6 +65,10 @@ test("lost acknowledgement freezes terms and reload recovers exact original with
     await click("Récupérer ou réessayer la même opération");
     assert.equal(s.posts(), 1); assert.match(document.body.textContent!, /Lien enregistré/);
     assert.equal([...Array(sessionStorage.length)].filter((_, i) => sessionStorage.key(i)?.startsWith("flowpilot.conversion-request:")).length, 0);
+    await click("Nouvelle décision pour ce ticket");
+    assert.equal(document.querySelector("input")!.disabled, false);
+    await click("Vérifier le lien courant"); await reason("Explicit subsequent exclusion"); await click("Rétracter le lien courant");
+    assert.equal(s.posts(), 2); assert.match(document.body.textContent!, /Lien rétracté/);
   } finally { await act(async () => root.unmount()); }
 });
 test("retraction selects exact current head and preserves its historical attribution", async () => {
