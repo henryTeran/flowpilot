@@ -1104,6 +1104,10 @@ Typed source/capture/action contracts pin registered ownership, common lifecycle
 
 Manager-only native event view now binds exact scoped guards to bounded pages and explicit reconciliation/processing/cancellation. Targeted actions pin visible revision and require reason. Protected per-actor/customer/institute intent reads original key before possible POST, verifies actor/full terms, independent key/ID receipts and current page before clearing; full capture comparison normalizes named microsecond clocks while retaining literal arrays/terms. Recovery focus: 3 passed; full frontend: 282 passed in 46.86s; TypeScript/Vite pass. Profile fixture explicitly handles new event read without weakening existing isolation tests. Signed desktop/tablet event workflow and complete Phase 12 gate audit remain pending. No outbound messages or production service activated; all CRM and physical/production gates remain OPEN.
 
+## Phase 12AP: signed native event workflows
+
+Actual signed desktop/touch-tablet API/browser workflows now cover lost committed reconciliation reply/reload recovery with one POST, explicit targeted cancellation/processing and bounded due processing, unchanged historical capture, processed cancellation refusal and scope-pinned storage clearance. Expanded actual care fixture produces 25 retained occurrences; native pages 20/5 and backward navigation verified. Forged last-page total hides all articles until clean reread. Initial two scenarios passed in 54.6s; final expanded two passed in 1.0m with fixture cleaned. >=44px controls/no overflow and visually inspected desktop/tablet screenshots. No physical-device or production service/delivery acceptance inferred. All four CRM and physical/production gates remain OPEN pending canonical requirement audit and remaining acceptance.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

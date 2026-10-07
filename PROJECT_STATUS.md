@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AO_NATIVE_EVENT_VIEW_ACTION_RECOVERY
+CURRENT_CHECKPOINT = PHASE12AP_SIGNED_NATIVE_EVENT_WORKFLOWS
 STATUS = ACTIVE
+
+PHASE12AP_SIGNED_NATIVE_EVENT_WORKFLOWS:
+- Added actual signed API/Edge desktop/touch-tablet event workflow with client America/Los_Angeles and registered own customers/actual completed care sessions. Explicit automation fixture creates four due occurrences. Deliberately committed/lost reconciliation reply resumes after reload via original key with one POST and protected storage clears only after verified key/ID/current. Explicit selected cancellation, selected processing and process_due produce one terminal cancellation plus three internal processed events; processed cancellation controls disabled. Independent capture-ID reread proves first original unchanged.
+- Extended to 21 actual completed care sources and 25 retained current occurrences (including terminal old recency events). Native pages exactly 20/5, offset 21-25, backward pagination. Forged last-page total causes guarded error and hides all old articles; clean reread recovers. Controls >=44px/no horizontal overflow asserted, desktop/tablet screenshots visually inspected.
+- Initial four-occurrence browser scenarios: 2 passed in 54.6s. Final strengthened pagination/forged-page desktop/tablet scenarios: 2 passed in 1.0m, terminal exit 0; owned fixture directory removed. Launcher rebuilt native app. Existing nonfatal bcrypt-version/NO_COLOR warnings observed, WinError10054 during initial deliberately aborted response. No new full frontend/backend/physical-device/production acceptance claimed; actual outbound messages not sent or authorized by fixture.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: canonical Phase 12 requirement-by-requirement audit and remaining acceptance implementation, then continue full Master Plan. Full canonical goal remains active.
 
 PHASE12AO_NATIVE_EVENT_VIEW_ACTION_RECOVERY:
 - Added manager-only customer event panel with guarded bounded current pages, French trigger/state/reason/action labels, provenance/deadline/revision display and explicit reason-based reconciliation, process_due (20 maximum), targeted processing/cancellation. Target pins visible revision; stale selection cannot submit. Process/cancel availability follows verified selected state; authoritative fresh backend capture still decides. No outbound message or service activation.
