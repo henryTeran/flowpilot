@@ -6792,3 +6792,5 @@ body {
 .employee-work-hours li { overflow-wrap: anywhere; }
 .work-interval-panel summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .work-interval-panel li { overflow-wrap: anywhere; }
+.employee-occupation summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.employee-occupation li { overflow-wrap: anywhere; }

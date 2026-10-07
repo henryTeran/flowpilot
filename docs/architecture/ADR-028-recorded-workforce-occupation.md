@@ -1,6 +1,6 @@
 # ADR-028: Recorded workforce occupation over declared time
 
-Status: scoped API implemented; native profile and acceptance remain open.
+Status: scoped API and native profile verified on controlled fixtures; physical/production acceptance remains open.
 
 The employee/institute-day manager read combines actual completed walk-in
 session instants and actual completed appointment instants. Planned slots,
@@ -37,5 +37,19 @@ nor a nonzero partial ledger proves total real-world activity or attendance.
 
 This read adds no schema and changes no planning, assignment, hours or financial
 facts. SQLite/PostgreSQL fixtures verify hybrid-source overlap, microseconds,
-outside-work time, unknown starts/ends and exclusions. Native integration,
-physical/production acceptance, rebooking and commissions remain separate work.
+outside-work time, unknown starts/ends and exclusions. Physical/production
+acceptance, rebooking and commissions remain separate work.
+
+The manager-only selected-day profile displays its own captured reading instant,
+declared denominator, known busy/covered/outside durations, optional floored ratio,
+exclusion diagnostics and bounded original provenance. No customer identity is
+exposed. A separate hours panel may have a different capture; the occupation
+denominator is explicitly the one embedded in this occupation reading.
+BigInt guards verify exact clipping, source states and diagnostic conservation.
+When all sources fit their bounded pages, the client independently recomputes
+the busy union and intersection; partial pages never pretend to reconstruct
+global totals. Failed fresh reads hide previous facts, and employee/day/token
+changes isolate late replies. Reception does not initiate occupation reads.
+Controlled signed workflow/Edge desktop and tablet checks cover actual execution,
+declared time, source disclosure, failed read/retry, unknown employee coverage,
+direct navigation, 44px controls and horizontal fit.

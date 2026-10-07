@@ -22,7 +22,7 @@ authorized Workforce scope progresses.
 | Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Final acceptance; never infer credentials from skill codes or automatically grant a skill. New credential matching rules require explicit configuration and are optional future scope |
 | Objectifs | Original signed manager targets, pinned civil/UTC periods, explicit gross-currency or actual-completed-session measure, exact targets, separate cancellations, bounded batched progress API, native manager lifecycle/lost-reply recovery and readonly employee profile | Physical/production acceptance |
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
-| Occupation | Manager day API unions actual completed session/appointment intervals, intersects declared working-time union, and exposes unknown/invalid/future sources plus outside-work duration; ratio is scoped to recorded time | Native profile and physical/production acceptance; complete activity/attendance stays unknown |
+| Occupation | Manager day API and native selected-day profile retain actual source unions, declared denominator, exact covered/outside time, exclusions and floored recorded-time ratio; controlled API/component/Edge desktop/tablet verified | Physical/production acceptance; complete activity/attendance stays unknown |
 | Rebooking | Original execution/customer links and future appointment facts exist; no employee rebooking measure is delivered | Explicit definition and scoped recorded-event read; no inferred customer identity or predicted result |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
@@ -32,7 +32,7 @@ authorized Workforce scope progresses.
 Gates remain:
 
 - `EMPLOYEE_360`: OPEN — availability/skills/calendar profile foundations delivered;
-  declared certifications, attributed gross revenue and original objective lifecycle/progress added; occupation/rebooking, hours and commissions pending.
+  declared certifications, attributed gross revenue, original objectives/hours and recorded occupation added; rebooking, commissions and final acceptance pending.
 - `SKILLS`: PARTIAL — recorded matrix and existing matching/configuration are
   verified with native original skill authoring/recovery; remaining workforce and physical/production acceptance is pending.
 - `ABSENCES`: PARTIAL — scheduled original facts and capacity integration are
@@ -43,11 +43,11 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: native recorded occupation reading, then rebooking and
+Next independent unit: explicit recorded rebooking definition/read, then
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
-Then finish the Employee 360 read/profile and explicit objective,
-hours and commission authorities. Existing payment settlement and physical
+Then finish the Employee 360 read/profile and commission authorities.
+Existing payment settlement and physical
 tablet/production blockers do not prevent these implementations.
 
 ADR-020 explains bounded shared-source reads and their institute-lock tradeoff.

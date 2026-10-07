@@ -1,6 +1,13 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11R_NATIVE_OCCUPATION_RATIO_GUARDS
+CURRENT_CHECKPOINT = PHASE11S_NATIVE_RECORDED_OCCUPATION_PROFILE
 STATUS = ACTIVE
+
+PHASE11S_NATIVE_RECORDED_OCCUPATION_PROFILE:
+- Manager-only selected-day Employee 360 occupation adds its own captured timestamp, declared denominator, exact busy/covered/outside durations, floored recorded-time ratio, excluded-source diagnostics and bounded original execution provenance. No customer identity or complete attendance/activity claim. Direct navigation and >=44px source disclosures retain horizontal fit.
+- Whole-response BigInt guards validate nested hours ownership/day/zone/bounds, exact original clipping/durations, source kinds/statuses, exclusion priority, diagnostic counts and total conservation. Complete bounded pages recompute actual union and work intersection; partial pages retain explicit global-versus-page semantics. Failed fresh reads hide old facts; late employee/day/token replies cannot publish. Reception does not initiate reads.
+- Full frontend compatibility: 198 passed in 33.86s (includes two duplicated guard cases before extracting the shared fixture into a non-test module). Final focused guard/component run after that extraction: 3 passed in 2.60s. Production build passes in the native launcher. No backend source/schema change or new full backend regression is claimed.
+- Backend-connected signed workflow/Edge desktop and tablet with LA host clock: 2 passed in 32.1s, shell exit 0 and owned fixture cleanup. Actual session start/finish supplies original instants; separately declared matching work produces 100% recorded occupation while earlier source time remains outside work. Original disclosure, fresh corrupt-read/retry, employee switch to unknown coverage, direct navigation, >=44px controls and no horizontal overflow pass. Final tablet screenshot inspected.
+- CHECKPOINT_STATUS = PASS at controlled recorded occupation API/component/Edge scope. Complete Phase 11 / Employee 360 remains OPEN for rebooking, commissions and physical/production acceptance. Next independent unit: explicitly defined recorded rebooking authority/read; configured source-linked commissions follow.
 
 PHASE11R_NATIVE_OCCUPATION_RATIO_GUARDS:
 - Native occupation preparation adds exact BigInt numerator/denominator, outside-time conservation and diagnostic-count validation. Basis points are verified against the recorded covered/work ratio and formatted without floating-point conversion. Unknown hours or uncertain execution require a null ratio; complete_activity must remain false. These guards are a prerequisite, not a complete response validator or delivered profile view.
