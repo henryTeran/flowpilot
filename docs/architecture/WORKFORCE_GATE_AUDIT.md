@@ -21,7 +21,7 @@ authorized Workforce scope progresses.
 | Planning | Institute-day planning plus native employee/day calendar integrates booked appointments, execution facts and original/cancelled absences; overnight, DST and skipped days retain explicit UTC boundaries | Recorded workforce shifts/hours integration and acceptance |
 | Certifications | Original signed institute/employee declarations, explicit issue/end unknowns, half-open validity and immutable separate revocations; native manager lifecycle/recovery and readonly profile | Final acceptance; never infer credentials from skill codes or automatically grant a skill. New credential matching rules require explicit configuration and are optional future scope |
 | Objectifs | No workforce objective authority has been delivered | Explicit manager-configured targets, periods/units and source-grounded progress |
-| CA | Bounded manager employee/day API reads performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL checks pass | Native employee profile integration and acceptance; no external settlement or allocated refund/net-revenue claim |
+| CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Native employee calendar exposes explicit actual session/appointment starts and recorded ends or missing end; planned duration is separate | Source-grounded occupancy measure; a ratio needs a known workforce hours denominator |
 | Rebooking | Original execution/customer links and future appointment facts exist; no employee rebooking measure is delivered | Explicit definition and scoped recorded-event read; no inferred customer identity or predicted result |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
@@ -32,7 +32,7 @@ authorized Workforce scope progresses.
 Gates remain:
 
 - `EMPLOYEE_360`: OPEN — availability/skills/calendar profile foundations delivered;
-  declared certifications added; objectives, monetary/activity measures, hours and commissions pending.
+  declared certifications and attributed gross revenue added; objectives, occupation/rebooking, hours and commissions pending.
 - `SKILLS`: PARTIAL — recorded matrix and existing matching/configuration are
   verified with native original skill authoring/recovery; remaining workforce and physical/production acceptance is pending.
 - `ABSENCES`: PARTIAL — scheduled original facts and capacity integration are
@@ -43,8 +43,8 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: native attributed revenue reading, then remaining
-Employee 360 measures and authorities.
+Next independent unit: explicit workforce objectives, then recorded workforce
+hours, occupation/rebooking and commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and explicit objective,
 hours and commission authorities. Existing payment settlement and physical

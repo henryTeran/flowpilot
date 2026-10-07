@@ -39,6 +39,7 @@ test("native calendar refuses reception reads, hides failed facts and isolates l
   const pending: { day: string; resolve: (value: Response) => void }[] = [];
   globalThis.fetch = async url => String(url).includes("/certifications?") ? response({ institute_id: "inst", employee_id: "emp",
     generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 50, total: 0 }, rows: [] })
+    : String(url).includes("/revenue?") ? response({ institute_id: "inst", employee_id: "emp", day: new URL(String(url)).searchParams.get("day"), start: snapshot().day_start, end: snapshot().day_end, generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 50, total: 0 }, rows: [], currencies: [], institute_unattributed_lines: 0 })
     : new Promise(resolve => pending.push({ day: new URL(String(url)).searchParams.get("day")!, resolve }));
   const employees = [{ id: "emp", institute_id: "inst", first_name: "Angela", skills: [], status: "available" }];
   const render = () => <EmployeeCalendarPanel institute="inst" employees={employees} timezone="Europe/Zurich" />;

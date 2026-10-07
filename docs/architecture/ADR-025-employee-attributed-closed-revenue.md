@@ -1,6 +1,6 @@
 # ADR-025: Employee-attributed internally closed revenue
 
-Status: API foundation verified; native profile integration remains open.
+Status: Accepted at controlled API/component/Edge scope.
 
 Employee 360 reads existing ticket/line invoice facts without a new monetary
 ledger. The employee scope requires the recorded performed_by_employee_id on
@@ -25,7 +25,13 @@ This is gross recorded line attribution on internally closed invoices. It does
 not assert external settlement, net revenue or allocation of a ticket-wide
 refund to a performer. It is distinct from legacy commercial cashier fallback
 reporting: the employee profile must name the attribution basis explicitly.
-Native reading will preserve these distinctions and exact money strings.
+The native profile preserves these distinctions and exact money strings. It
+validates scope, original ticket consistency, bounded page/counts, group units
+and exact cents before showing a fresh reading. Complete-page aggregates must
+match the displayed source rows. Missing/contradictory readings remove monetary
+facts; old employee/day/actor responses cannot paint a new profile. Each line
+retains its closed instant with explicit institute UTC offset. A direct profile
+button reaches the monetary section without traversing a long calendar history.
 
 Canonical section 32 requests certification facts and a Skill Matrix. A new
 service credential matching policy is not an explicit additional gate. Existing

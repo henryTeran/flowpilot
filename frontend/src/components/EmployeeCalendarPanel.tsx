@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { instituteSlot } from "../institute-calendar";
@@ -6,6 +6,7 @@ import { instituteTimeZone } from "../institute-time";
 import { validEmployeeDay, type EmployeeDay } from "../employee-calendar-utils";
 import type { Employee } from "../types";
 import { CertificationReadOnly } from "./CertificationPanel";
+import { EmployeeRevenuePanel } from "./EmployeeRevenuePanel";
 
 type Props = { institute: string; timezone?: string; employees: Employee[] };
 const reasons: Record<string, string> = { available_now: "Disponible maintenant", in_progress_session: "Prestation en cours",
@@ -18,6 +19,7 @@ export function EmployeeCalendarPanel(props: Props) {
   return <Profile key={JSON.stringify([props.institute, instituteTimeZone(props.timezone), getAccessToken()])} {...props} />;
 }
 function Profile({ institute, timezone, employees }: Props) {
+  const revenueSection = useRef<HTMLDivElement>(null);
   const token = getAccessToken(), staff = employees.filter(employee => employee.institute_id === institute);
   const [employee, select] = useState(""), [day, setDay] = useState(() => instituteSlot(new Date(), timezone)!.date);
   const [offset, page] = useState(0), [revision, refresh] = useState(0), [result, setResult] = useState<EmployeeDay>();
@@ -47,7 +49,9 @@ function Profile({ institute, timezone, employees }: Props) {
       <label>Jour du calendrier individuel<input type="date" value={day} onChange={event => { setDay(event.target.value); page(0); }} /></label></div>
     {!employee && <p>Choisissez une collaboratrice pour consulter ses compétences, sa disponibilité et ses intervalles enregistrés.</p>}
     {loading && <p role="status">Lecture du calendrier individuel…</p>}{error && <p role="alert">{error} <button onClick={() => refresh(value => value+1)}>Réessayer le calendrier individuel</button></p>}
-    {result && result.day === day && result.employee.id === employee && result.event_page.offset === offset && <><h3>{result.employee.first_name}</h3><p>Compétences enregistrées : {result.employee.skills.join(", ") || "Aucune enregistrée"}</p>
+    {result && result.day === day && result.employee.id === employee && result.event_page.offset === offset && <><h3>{result.employee.first_name}</h3>
+      <button onClick={() => revenueSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter le CA attribué</button>
+      <p>Compétences enregistrées : {result.employee.skills.join(", ") || "Aucune enregistrée"}</p>
       <p>Disponibilité au {display(result.generated_at)} : {result.availability.available ? "Disponible maintenant" : reasons[result.availability.current_slot?.reason || "capacity_unknown"]}.
         {!result.availability.available && result.availability.current_slot?.available_from && <> Prochaine fenêtre connue : {display(result.availability.current_slot.available_from)}.</>}</p>
       <p>Calendrier du {result.day} · {result.timezone} · {(Date.parse(result.day_end)-Date.parse(result.day_start))/3600000} heures réelles. La disponibilité ci-dessus décrit l’instant de lecture.</p>
@@ -61,6 +65,7 @@ function Profile({ institute, timezone, employees }: Props) {
       {!result.events.length && <p>Aucun intervalle sur cette page.</p>}<div className="workforce-pages"><span>Intervalles : {result.events.length ? offset+1 : 0}–{offset+result.events.length} / {result.event_page.total}</span>
         <button disabled={loading || !offset} onClick={() => page(offset-50)}>Intervalles précédents</button><button disabled={loading || offset+50 >= result.event_page.total} onClick={() => page(offset+50)}>Intervalles suivants</button></div>
       <CertificationReadOnly institute={institute} employee={employee} timezone={result.timezone} />
+      <div ref={revenueSection}><EmployeeRevenuePanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
     </>}
   </section>;
 }

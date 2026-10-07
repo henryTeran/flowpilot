@@ -6785,3 +6785,4 @@ body {
 .skill-editor-codes { display: flex; flex-wrap: wrap; gap: 12px; padding: 0; list-style: none; }
 .skill-editor-codes li { display: flex; align-items: center; gap: 8px; max-width: 100%; }
 .skill-editor-codes span { overflow-wrap: anywhere; min-width: 0; }
+.employee-revenue summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
