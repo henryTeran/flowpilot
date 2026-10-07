@@ -207,6 +207,35 @@ crypt deprecation warning only. No schema or persisted source change is required
 No native profile, policy-receipt/segment guard or signed-browser acceptance is
 claimed by this billing foundation.
 
+## 12G: frontend policy original and current-segment guards
+
+`frontend/src/crm-policy-utils.ts` validates explicit owned policy terms, ordered
+thresholds, canonical gross and safe JSON integer fields, original ID/predecessor,
+signed actor and aware recording metadata. Receipt matching pins every declared
+term, actor, reason, predecessor and key. Original comparison preserves identity
+and semantic microsecond instants, accepting equivalent offsets and refusing a
+1us change. Numeric policy fields that cannot be represented exactly by JavaScript
+are refused rather than rounded; no threshold is invented to repair a response.
+
+`frontend/src/crm-segment-utils.ts` binds customer registration, selected original
+policy, server capture, source diagnostics and the existing exact billing guard.
+It derives the current observation horizon and independently recomputes the
+classification and reason, including count/gross lower bounds, currency ambiguity
+and inactivity precedence. It checks unavailable-reason precedence for absent or
+future policy, future registration/closings and calendar underflow, preserving null
+segments. Policy/customer/clock/diagnostic substitutions and complete-history
+claims cannot become visible profile facts.
+
+Controlled evidence: five new test groups; final full frontend regression 236
+passed in 54.79s, zero failures/skips. TypeScript/Vite production build passes
+(111 modules; existing main/Workforce bundles unchanged, guards not UI-bound).
+Tests cover scoped strict policies, ordered/unreachable/coerced thresholds,
+receipt actor/key/predecessor/terms, offset aliases versus microsecond mutations,
+profile substitutions, exact unavailable reasons, undated sources, all six states
+and exact risk/dormant boundaries, and representable-policy calendar underflow.
+Backend contracts/schema are unchanged; existing 12F backend receipt remains
+53 passing CRM tests, without claiming a new backend or browser run.
+
 ## Remaining acceptance
 
 - Integrate the delivered signed billing read into native customer profiles;
