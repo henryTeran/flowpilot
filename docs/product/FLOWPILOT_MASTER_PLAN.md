@@ -1448,6 +1448,14 @@ AUTOMATION_EVENTS = PASS
 
 ---
 
+Phase 12AQ functional acceptance: all four section 33 gates PASS after the
+requirement-by-requirement audit in `CRM_PHASE12_ACCEPTANCE.md`. Full backend CRM
+(25 files, migrations and actual PostgreSQL included): 175 passed in 272.44s;
+signed native desktop/touch-tablet CRM suite: 12 passed in 2.2m. Physical and
+production gates remain OPEN; declared conditional CLV/recorded care basis and
+no external delivery claims are preserved. Earlier checkpoint OPEN entries are
+historical. The full canonical goal continues into Phase 13.
+
 # 34. Phase 13 — Marketing
 
 Créer :

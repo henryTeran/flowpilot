@@ -1,6 +1,12 @@
-CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AP_SIGNED_NATIVE_EVENT_WORKFLOWS
+CURRENT_PHASE = PHASE 13
+CURRENT_CHECKPOINT = PHASE12AQ_CANONICAL_FUNCTIONAL_ACCEPTANCE
 STATUS = ACTIVE
+
+PHASE12AQ_CANONICAL_FUNCTIONAL_ACCEPTANCE:
+- Audited every Master Plan section 33 requirement against current code/tests and completed evidence, preserved architecture. Added docs/product/CRM_PHASE12_ACCEPTANCE.md mapping six states, five metrics, six triggers, runtime/durable replay/scope/UX/migrations with explicit basis/limits. Canonical section does not demand calibrated CLV, complete customer history/physical visits or marketing delivery; unsupported truth stays unavailable and conditionally declared calculations stay labeled. No smaller goal substituted.
+- Full backend CRM, all 25 files including migrations and runtime schema preflight, SQLite/actual PostgreSQL: 175 passed in 272.44s, zero failures/skips, terminal exit 0. Combined six native CRM specs on signed Edge desktop/touch-tablet: 12 passed in 2.2m, terminal exit 0, owned fixture cleaned. Latest full frontend: 282 passed; TypeScript/Vite build passes. Existing passlib crypt/Alembic/bcrypt-version/NO_COLOR warnings and deliberate-abort WinError10054 observed; no broad whole-project backend receipt claimed.
+- CRM_SEGMENTS = PASS; REBOOKING = PASS; CUSTOMER_LIFECYCLE = PASS; AUTOMATION_EVENTS = PASS, canonical functional scope. Physical/production gates remain OPEN: no production migration/worker install/delivery or physical device certification. Historical OPEN checkpoint entries retained as history, top-level audit and Master Plan now reference current acceptance.
+- CHECKPOINT_STATUS = PASS. STATUS remains ACTIVE for full 26-phase objective. NEXT: Phase 13 Marketing segmentation/audiences/campaign/template foundations, explicit DRAFT/REVIEW/APPROVE/SEND and audit; preserve signed scope and original-key recovery. No external communication authorized merely by this transition.
 
 PHASE12AP_SIGNED_NATIVE_EVENT_WORKFLOWS:
 - Added actual signed API/Edge desktop/touch-tablet event workflow with client America/Los_Angeles and registered own customers/actual completed care sessions. Explicit automation fixture creates four due occurrences. Deliberately committed/lost reconciliation reply resumes after reload via original key with one POST and protected storage clears only after verified key/ID/current. Explicit selected cancellation, selected processing and process_due produce one terminal cancellation plus three internal processed events; processed cancellation controls disabled. Independent capture-ID reread proves first original unchanged.

@@ -1,7 +1,10 @@
 # Phase 12 CRM acceptance evidence
 
-Canonical authority: Master Plan section 33. All four CRM phase gates remain
-OPEN: CRM_SEGMENTS, REBOOKING, CUSTOMER_LIFECYCLE, AUTOMATION_EVENTS.
+Canonical authority: Master Plan section 33. At Phase 12AQ, all four functional
+CRM gates are PASS: CRM_SEGMENTS, REBOOKING, CUSTOMER_LIFECYCLE,
+AUTOMATION_EVENTS. See [canonical acceptance audit](CRM_PHASE12_ACCEPTANCE.md)
+for requirement mapping and final combined evidence. Earlier OPEN verdicts below
+are historical checkpoint records. Physical/production gates remain OPEN.
 
 ## 12A: exact recorded billing metric foundation
 
@@ -1108,22 +1111,26 @@ Manager-only native event view now binds exact scoped guards to bounded pages an
 
 Actual signed desktop/touch-tablet API/browser workflows now cover lost committed reconciliation reply/reload recovery with one POST, explicit targeted cancellation/processing and bounded due processing, unchanged historical capture, processed cancellation refusal and scope-pinned storage clearance. Expanded actual care fixture produces 25 retained occurrences; native pages 20/5 and backward navigation verified. Forged last-page total hides all articles until clean reread. Initial two scenarios passed in 54.6s; final expanded two passed in 1.0m with fixture cleaned. >=44px controls/no overflow and visually inspected desktop/tablet screenshots. No physical-device or production service/delivery acceptance inferred. All four CRM and physical/production gates remain OPEN pending canonical requirement audit and remaining acceptance.
 
-## Remaining acceptance
+## Phase 12AQ: canonical functional acceptance
 
-- Extend customer profile/source views for remaining lifecycle metrics and events
-  without changing complete aggregates or guessing name/phone identity. Native
-  policy configuration/recovery is delivered; no production policy is configured
-  by controlled browser fixtures and no lifecycle event is claimed yet.
-- Complete source-supported CLV and canonical rebooking acceptance, distinguishing
-  recorded gross from conditional projection and employee credit. Native explicit
-  remaining-lifetime declaration/recovery/scenario are delivered; calibrated or
-  complete historical lifetime value has not been certified.
-  Native observed return-cycle reads are delivered; this does not certify visits,
-  complete customer history or close the whole rebooking gate.
-- Implement explicit birthday/communication declarations and lifecycle events
-  for birthday, post-service, rebooking, inactivity, package expiry and
-  subscription renewal; verify scope, provenance, repeatability and cancellation
-  behavior. Actual external messages have not been sent or authorized here.
-- Integrate and test native customer profile/workflows on desktop and tablet;
-  close functional gates only with executable evidence. Physical-device and
-  production readiness gates remain separate and open.
+Requirement-by-requirement audit of Master Plan section 33 completed in
+`CRM_PHASE12_ACCEPTANCE.md`. Current full backend CRM (25 files including
+migrations, SQLite/actual PostgreSQL): 175 passed in 272.44s, zero failures/skips,
+terminal exit 0. Combined six-spec signed Edge desktop/touch-tablet suite:
+12 passed in 2.2m, terminal exit 0, fixture cleaned. Latest full frontend:
+282 passed and TypeScript/Vite pass. All four canonical functional gates PASS.
+No whole-project backend rerun or physical/production receipt inferred.
+
+## Continuing operational limits and next phase
+
+CLV is an explicitly declared conditional undiscounted remaining-value scenario;
+recorded care cycles do not certify physical visits or complete history. Unknown
+or invalid sources remain unavailable/blocked. These limits are exposed to users
+and are not replaced by inferred business truth.
+
+Physical hardware, production data/migrations, installed production recurring
+worker, external providers and successful message delivery remain unverified.
+Controlled fixtures neither configure nor certify them. Phase 13 owns audiences,
+campaigns/templates/SMS/email/push/conversion and DRAFT -> REVIEW -> APPROVE ->
+SEND with audit. No outbound campaign was sent in Phase 12. The full canonical
+goal remains active.
