@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE12AQ_CANONICAL_FUNCTIONAL_ACCEPTANCE
+CURRENT_CHECKPOINT = PHASE13A_EXPLICIT_CAMPAIGN_APPROVAL_FOUNDATION
 STATUS = ACTIVE
+
+PHASE13A_EXPLICIT_CAMPAIGN_APPROVAL_FOUNDATION:
+- Added pure immutable marketing audience/content/revision facts and explicit DRAFT -> REVIEW -> APPROVE -> SEND transition functions for sms/email/push, human or AI origin under the same chain. Exact institute scope, explicit nonempty unique audience snapshot, aware capture/revision clock, email-only required subject and no blank body. Canonical content/audience hash normalizes UTC snapshot clock and pins review/approval. Exact selected predecessor and monotonic append required; content/audience edits reset to DRAFT and clear both digests; stage transition cannot inject content; SEND cannot be edited in place.
+- Nested copied facts revalidated before draft/edit/transition; foreign scope, future audience, stale revision, backward time, duplicate/whitespace member, changed reviewed content and skipped stages refused. SEND currently records a pure dispatch-request stage only: external_message_sent=false and delivery_authorized=false. Pure facts do not authenticate actors, prove registered membership/contact/consent, persist originals or authorize a provider. These are pending signed source/service responsibilities; no messages sent.
+- Initial focus: 8 passed in 0.16s. Final new marketing plus adjacent lifecycle/automation-policy/reconciliation pure regression: 46 passed in 0.58s, zero failures/skips (9 new marketing cases). Native Windows Python; existing Starlette/httpx deprecation warning only. No database schema change, route, frontend/browser/provider/production acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 SEGMENTATION/CAMPAIGN_DRAFT/CAMPAIGN_APPROVAL/CAMPAIGN_AUDIT gates OPEN. Phase 12 functional gates remain PASS; physical/production gates remain OPEN. NEXT: signed owned audience snapshot source and append-only campaign/template originals, then native review/approval/audit and explicit delivery integrations/conversion. Full canonical goal remains active.
 
 PHASE12AQ_CANONICAL_FUNCTIONAL_ACCEPTANCE:
 - Audited every Master Plan section 33 requirement against current code/tests and completed evidence, preserved architecture. Added docs/product/CRM_PHASE12_ACCEPTANCE.md mapping six states, five metrics, six triggers, runtime/durable replay/scope/UX/migrations with explicit basis/limits. Canonical section does not demand calibrated CLV, complete customer history/physical visits or marketing delivery; unsupported truth stays unavailable and conditionally declared calculations stay labeled. No smaller goal substituted.
