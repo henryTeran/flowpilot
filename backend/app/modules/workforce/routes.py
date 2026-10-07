@@ -9,6 +9,7 @@ from app.modules.workforce.service import read_skill_matrix
 from app.modules.workforce import absences
 from app.modules.workforce.absence_schemas import AbsenceCreate, AbsenceCancel, AbsenceRead, CancellationRead
 from app.modules.workforce.calendar_schemas import EmployeeDayRead
+from app.modules.workforce.certification_schemas import CertificationCreate, CertificationRevoke, CertificationRead, RevocationRead, CertificationPage
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -30,7 +31,7 @@ def get_skill_matrix(
 
 def absence_manager(institute_id: str, user: dict = Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut" or not str(user.get("sub") or "").strip():
-        raise HTTPException(status_code=403, detail="Absences reservees a la responsable signee de cet institut")
+        raise HTTPException(status_code=403, detail="Gestion de l'equipe reservee a la responsable signee de cet institut")
     return user
 
 
@@ -76,3 +77,47 @@ def employee_day(institute_id: str, employee_id: str, day: date,
                  user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     from app.modules.workforce.calendar import read_employee_day
     return read_employee_day(db, institute_id, employee_id, day, limit, offset)
+
+
+@router.post("/certifications", response_model=CertificationRead)
+def create_certification(institute_id: str, payload: CertificationCreate, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.certifications import create
+    return create(db, institute_id, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/certifications", response_model=CertificationPage)
+def list_certifications(institute_id: str, employee_id: str, limit: int = Query(50, ge=1, le=100),
+                        offset: int = Query(0, ge=0, le=2147483647), user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.certifications import list_records
+    return list_records(db, institute_id, employee_id, limit, offset)
+
+
+@router.get("/certifications/original/{key}", response_model=CertificationRead | None)
+def original_certification(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    from app.modules.workforce.models import EmployeeCertification
+    from app.modules.workforce.certifications import snapshot
+    row = db.scalar(select(EmployeeCertification).where(EmployeeCertification.institute_id == institute_id,
+                                                  EmployeeCertification.idempotency_key == key))
+    return snapshot(db, row) if row else None
+
+
+@router.get("/certification-revocations/original/{key}", response_model=RevocationRead | None)
+def original_revocation(institute_id: str, key: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from sqlalchemy import select
+    from app.modules.workforce.models import CertificationRevocation
+    return db.scalar(select(CertificationRevocation).where(CertificationRevocation.institute_id == institute_id,
+                                              CertificationRevocation.idempotency_key == key))
+
+
+@router.get("/certifications/{identifier}", response_model=CertificationRead)
+def read_certification(institute_id: str, identifier: str, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.certifications import require, snapshot
+    return snapshot(db, require(db, institute_id, identifier))
+
+
+@router.post("/certifications/{identifier}/revoke", response_model=RevocationRead)
+def revoke_certification(institute_id: str, identifier: str, payload: CertificationRevoke,
+                         user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.certifications import revoke
+    return revoke(db, institute_id, identifier, payload, user["sub"])

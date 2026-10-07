@@ -1,5 +1,5 @@
 import { formatInstituteTime } from "./institute-time";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAccessToken, getOperatorRole } from "./api/session";
 import { createArrivalIntent, createExtensionIntents, compareQueueArrival } from "./queue-utils";
 import { apiGet, apiPatch, apiPost, WS_BASE_URL } from "./api/client";
@@ -8,7 +8,6 @@ import { AppointmentPanel } from "./components/AppointmentPanel";
 import { FlowPilotSidebar } from "./components/FlowPilotSidebar";
 import { CheckoutPanel } from "./components/CheckoutPanel";
 import { InventoryPanel } from "./components/InventoryPanel";
-import { WorkforcePanel } from "./components/WorkforcePanel";
 import { CommercePanel } from "./components/CommercePanel";
 import { ChiffresPanel } from "./components/ChiffresPanel";
 import { PaymentCashflows } from "./components/PaymentCashflows";
@@ -39,6 +38,8 @@ import type {
   ServiceCategory,
   ServiceSession,
 } from "./types";
+
+const WorkforcePanel = lazy(() => import("./components/WorkforcePanel").then(module => ({ default: module.WorkforcePanel })));
 
 const loadAgendaAppointments = (instituteId: string, day: string) => apiGet<Appointment[]>(
   `/appointments?institute_id=${encodeURIComponent(instituteId)}&day=${encodeURIComponent(day)}`,
@@ -775,7 +776,9 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
-        {mainView === "workforce" && <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} onChanged={refreshOperationalData} />}
+        {mainView === "workforce" && <Suspense fallback={<div className="bm-banner loading" role="status">Chargement de l’équipe…</div>}>
+          <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} onChanged={refreshOperationalData} />
+        </Suspense>}
         {mainView === "offres" && selectedInstituteId && <CommercePanel key={selectedInstituteId} instituteId={selectedInstituteId} services={services} />}
 
         {mainView === "planning" && (

@@ -1,0 +1,103 @@
+import { expect, test } from "@playwright/test";
+
+test.use({ timezoneId: "America/Los_Angeles" });
+test("native certification preserves original terms and recovers declaration and revocation replies", async ({ page, request }, info) => {
+  await page.goto("/");
+  await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, base = "http://127.0.0.1:4198/api/v1/workforce/institutes/demo-institute-geneve";
+  const skillsPath = base.replace("/workforce/", "/resources/") + "/employees/emp-angela/skills";
+  const skillReply = await request.get(skillsPath, { headers }); expect(skillReply.status()).toBe(200);
+  const skillsBefore = await skillReply.json();
+  const open = async () => {
+    await page.getByRole("button", { name: "Équipe", exact: true }).click();
+    await page.getByRole("button", { name: "Certifications", exact: true }).click();
+    return page.getByRole("region", { name: "Gestion des certifications" });
+  };
+  let panel = await open();
+  await panel.getByLabel("Collaboratrice des certifications").selectOption("emp-angela");
+  await expect(panel.getByLabel("Code de certification")).toBeEnabled();
+  let year = new Date().getUTCFullYear();
+  const fold = () => { const last = new Date(Date.UTC(year, 9, 31)); return new Date(last.getTime()-last.getUTCDay()*86400000).toISOString().slice(0, 10); };
+  if (Date.parse(`${fold()}T00:30:00Z`) <= Date.now()+86400000) year++;
+  const day = fold(), reference = `Native credential ${info.project.name}`;
+  await panel.getByLabel("Code de certification").fill("DECLARED-CREDENTIAL");
+  await panel.getByLabel("Intitulé de certification").fill("Formation déclarée");
+  await panel.getByLabel("Émetteur du document").fill("Émetteur déclaré");
+  await panel.getByLabel("Référence du document").fill(reference);
+  await panel.getByLabel("Date d’émission inconnue").check();
+  await panel.getByLabel("Date de début de validité").fill(day);
+  await panel.getByLabel("Heure de début de validité").fill("02:30");
+  await panel.getByLabel("Date de fin de validité").fill(day);
+  await panel.getByLabel("Heure de fin de validité").fill("02:30");
+  await panel.getByLabel("Occurrence de début de validité").selectOption(`${day}T00:30:00.000Z`);
+  await panel.getByLabel("Occurrence de fin de validité").selectOption(`${day}T01:30:00.000Z`);
+  await panel.getByLabel("Motif de déclaration").fill("Document reçu et déclaré");
+  let declarations = 0, revocations = 0;
+  page.on("request", req => {
+    if (req.method() !== "POST" || !req.url().includes("/workforce/")) return;
+    if (req.url().endsWith("/certifications")) declarations++;
+    if (req.url().endsWith("/revoke")) revocations++;
+  });
+  const lose = async (route: any) => {
+    const actual = await route.fetch(); expect(actual.status(), await actual.text()).toBe(200);
+    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Saved reply unavailable" }) });
+  };
+  const createPath = "**/workforce/institutes/*/certifications";
+  await page.route(createPath, lose);
+  await panel.getByRole("button", { name: "Enregistrer la certification", exact: true }).click();
+  await expect(panel.getByRole("alert")).toContainText("Saved reply unavailable");
+  await expect(panel.getByLabel("Référence du document")).toBeDisabled();
+  await page.unroute(createPath, lose); await page.reload(); panel = await open();
+  await panel.getByRole("button", { name: "Reprendre la demande de certification conservée" }).click();
+  await expect(panel).toContainText("Certification enregistrée."); expect(declarations).toBe(1);
+  let card = panel.locator("li").filter({ hasText: reference });
+  await expect(card).toContainText("UTC+02:00"); await expect(card).toContainText("UTC+01:00");
+  await expect(card).toContainText("Non connue"); await expect(card).toContainText("Période déclarée à venir");
+  const rows = await (await request.get(`${base}/employees/emp-angela/certifications`, { headers })).json();
+  const original = rows.rows.find((row: any) => row.certificate.reference === reference).certificate;
+  expect(Date.parse(original.valid_until)-Date.parse(original.valid_from)).toBe(3600000);
+  expect(original.issued_on).toBeNull();
+  await card.getByRole("button", { name: "Révoquer cette certification" }).click();
+  await panel.getByLabel("Motif de révocation").fill("Document remplacé");
+  const revokePath = `**/certifications/${original.id}/revoke`;
+  await page.route(revokePath, lose);
+  await panel.getByRole("button", { name: "Confirmer la révocation" }).click();
+  await expect(panel.getByRole("alert")).toContainText("Saved reply unavailable");
+  await page.unroute(revokePath, lose); await page.reload(); panel = await open();
+  await panel.getByRole("button", { name: "Reprendre la demande de certification conservée" }).click();
+  await expect(panel).toContainText("Certification révoquée ; original conservé."); expect(revocations).toBe(1);
+  card = panel.locator("li").filter({ hasText: reference });
+  await expect(card).toContainText("Document remplacé"); await expect(card).toContainText("Certification révoquée");
+  const recovered = await (await request.get(`${base}/certifications/${original.id}`, { headers })).json();
+  const { revocation, ...terms } = recovered, { revocation: unused, ...originalTerms } = original;
+  expect(terms).toEqual(originalTerms); expect(revocation.actor_id).toBe(original.actor_id);
+  const unchangedSkills = await request.get(skillsPath, { headers }); expect(unchangedSkills.status()).toBe(200);
+  expect(await unchangedSkills.json()).toEqual(skillsBefore);
+  for (const control of await panel.locator("input,select,button").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
+  await page.screenshot({ path: info.outputPath("native-certifications.png"), fullPage: true });
+  await page.getByRole("button", { name: "Calendrier individuel", exact: true }).click();
+  const profile = page.getByRole("region", { name: "Profil et calendrier individuel" });
+  await profile.getByLabel("Collaboratrice du calendrier").selectOption("emp-angela");
+  const readOnly = profile.getByRole("region", { name: "Certifications enregistrées" });
+  await expect(readOnly).toContainText(reference); await expect(readOnly).toContainText("Certification révoquée");
+  await expect(readOnly.locator("form")).toHaveCount(0);
+  await expect(readOnly.getByRole("button", { name: "Révoquer cette certification" })).toHaveCount(0);
+});
+
+test("reception cannot open or read certification history", async ({ page, request }) => {
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("cashier@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  await page.getByRole("button", { name: "Équipe", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Certifications", exact: true })).toHaveCount(0);
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  expect((await request.get("http://127.0.0.1:4198/api/v1/workforce/institutes/demo-institute-geneve/employees/emp-angela/certifications", {
+    headers: { Authorization: `Bearer ${token}` },
+  })).status()).toBe(403);
+});

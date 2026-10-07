@@ -37,7 +37,9 @@ test("individual calendar rejects foreign scope, missing pages, forged execution
 test("native calendar refuses reception reads, hides failed facts and isolates late old employee/session responses", async () => {
   const originalFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
   const pending: { day: string; resolve: (value: Response) => void }[] = [];
-  globalThis.fetch = async url => new Promise(resolve => pending.push({ day: new URL(String(url)).searchParams.get("day")!, resolve }));
+  globalThis.fetch = async url => String(url).includes("/certifications?") ? response({ institute_id: "inst", employee_id: "emp",
+    generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 50, total: 0 }, rows: [] })
+    : new Promise(resolve => pending.push({ day: new URL(String(url)).searchParams.get("day")!, resolve }));
   const employees = [{ id: "emp", institute_id: "inst", first_name: "Angela", skills: [], status: "available" }];
   const render = () => <EmployeeCalendarPanel institute="inst" employees={employees} timezone="Europe/Zurich" />;
   try {

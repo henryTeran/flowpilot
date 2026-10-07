@@ -5,6 +5,7 @@ import { instituteSlot } from "../institute-calendar";
 import { instituteTimeZone } from "../institute-time";
 import { validEmployeeDay, type EmployeeDay } from "../employee-calendar-utils";
 import type { Employee } from "../types";
+import { CertificationReadOnly } from "./CertificationPanel";
 
 type Props = { institute: string; timezone?: string; employees: Employee[] };
 const reasons: Record<string, string> = { available_now: "Disponible maintenant", in_progress_session: "Prestation en cours",
@@ -59,6 +60,7 @@ function Profile({ institute, timezone, employees }: Props) {
       </li>)}</ul>
       {!result.events.length && <p>Aucun intervalle sur cette page.</p>}<div className="workforce-pages"><span>Intervalles : {result.events.length ? offset+1 : 0}–{offset+result.events.length} / {result.event_page.total}</span>
         <button disabled={loading || !offset} onClick={() => page(offset-50)}>Intervalles précédents</button><button disabled={loading || offset+50 >= result.event_page.total} onClick={() => page(offset+50)}>Intervalles suivants</button></div>
+      <CertificationReadOnly institute={institute} employee={employee} timezone={result.timezone} />
     </>}
   </section>;
 }
