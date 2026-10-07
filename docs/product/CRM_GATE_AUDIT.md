@@ -829,6 +829,28 @@ source capture, schema/API, worker, native policy editor or external delivery
 claimed. Six-trigger candidates, durable rules/events, repeatability/cancellation
 and worker/native acceptance remain required; canonical gates stay open.
 
+## Phase 12Z: pure source-grounded six-trigger candidates
+
+Typed anchors retain own-customer source identity, aware occurred/expiry clocks
+and package-only strict remaining balance. Observed anchors must lie between
+registration and capture; calendar birthday occurrence is explicitly distinct.
+Candidates retain exact rule, policy original ID, source, due/valid-until and
+capture. Post-service applies to each care episode; rebooking/inactivity use
+latest observed care only, without claiming complete history. Package/membership
+anticipation cannot precede source existence. Due/expiry boundaries are exact;
+exhausted packages and disabled rules remain explicit. Overflow refuses timing.
+Missing source yields no invented candidate; authoritative capture still needs
+unavailable diagnostics. Delivery-authorized/message-sent stay false.
+
+Controlled candidate/rule/lifecycle tests: 38 passed in 0.38s, zero failures/skips.
+Covers all six candidates, source preservation, repeatable equality, latest-care
+selection, missing-source absence, disabled/exhausted/expiry boundaries, foreign/
+future/pre-registration/duplicate/naive/coerced facts and overflow. Existing
+Starlette/httpx testclient deprecation warning observed. No database capture,
+ledger/cancellation/worker, schema/API, frontend/browser or production acceptance
+claimed. Durable originals, authoritative capture/diagnostics and ledger remain
+required; all canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
