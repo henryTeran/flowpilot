@@ -27,7 +27,7 @@ authorized Workforce scope progresses.
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
-| Heures | Session duration exists; it does not establish an employee's shift or attendance | Recorded workforce hours and interval provenance; no inferred payroll or legal acceptance |
+| Heures | Original signed completed effective-work intervals with explicit instants, separate cancellations, overlap/replay protection and bounded manager history API; session duration/status remains a separate source | Exact day totals, native lifecycle/profile and acceptance; no inferred complete attendance, payroll or legal acceptance |
 
 Gates remain:
 
@@ -43,7 +43,7 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: recorded workforce hours, then occupation/rebooking and
+Next independent unit: exact workforce day-duration read and native hours lifecycle/profile, then occupation/rebooking and
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and explicit objective,
@@ -57,4 +57,5 @@ ADR-023 explains original declared certifications, separate revocations and reco
 ADR-024 explains original skill changes, expected-set protection and native recovery.
 ADR-025 explains performer-attributed internally closed revenue and missing monetary facts.
 ADR-026 explains original explicit objectives, pinned periods, exact targets and batched progress.
+ADR-027 explains original effective-work interval declarations and remaining coverage limits.
 PROJECT_STATUS.md records final verification counts and current checkpoint.

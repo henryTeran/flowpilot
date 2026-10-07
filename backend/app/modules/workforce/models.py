@@ -5,6 +5,42 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
 
+class EmployeeWorkInterval(Base):
+    __tablename__ = "employee_work_intervals"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "employee_id"], ["employees.institute_id", "employees.id"], name="fk_work_interval_employee_owner"),
+        UniqueConstraint("institute_id", "id", name="uq_work_interval_owner"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_work_interval_replay"),
+        CheckConstraint("end_time > start_time", name="ck_work_interval_positive"),
+        Index("ix_work_interval_employee_time", "institute_id", "employee_id", "start_time", "end_time"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    employee_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class WorkIntervalCancellation(Base):
+    __tablename__ = "work_interval_cancellations"
+    __table_args__ = (
+        ForeignKeyConstraint(["institute_id", "work_interval_id"], ["employee_work_intervals.institute_id", "employee_work_intervals.id"], name="fk_work_interval_cancel_owner"),
+        UniqueConstraint("institute_id", "work_interval_id", name="uq_work_interval_cancelled_original"),
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_work_interval_cancel_replay"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    work_interval_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class EmployeeObjective(Base):
     __tablename__ = "employee_objectives"
     __table_args__ = (
