@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AC_EVENT_RECONCILIATION_DECISIONS
+CURRENT_CHECKPOINT = PHASE12AD_EVENT_LEDGER_SCHEMA
 STATUS = ACTIVE
+
+PHASE12AD_EVENT_LEDGER_SCHEMA:
+- Added durable schema for immutable event capture originals, event revisions and explicit current heads. Captures retain scoped idempotency key, signed-actor/reason fields, server capture clock and full source JSON. Revisions retain scoped event key, capture, previous revision and decision JSON. Composite capture/predecessor/head foreign keys prevent cross-customer/event links; capture owner/key and revision owner uniqueness retained. Runtime append/reconciliation/cancellation service remains required; schema alone does not certify operational ledger behavior.
+- Added migration fb6c8de54037 after ea5b7cd43926, with online history-protected downgrade. Initial migration focus failed because generated foreign-key columns lacked explicit SQL types; added String(80), retaining constraints/guards. New controlled SQLite/PostgreSQL cases cover empty roundtrip, metadata equality, cross-customer capture/predecessor/head refusal and retained schema/history when downgrade is refused. Thirteen prior migration tests update only latest-head constants, preserving historical targets. No application database migration applied.
+- Final reconciliation/source/candidate/rule regression: 29 passed in 9.19s, zero failures/skips, actual PostgreSQL enabled. Final new plus thirteen affected migration files: 29 passed in 155.41s, zero failures/skips, actual PostgreSQL enabled; terminal exit 0. Existing passlib crypt deprecation warning observed. No runtime ledger append/reconciliation/cancellation, worker, new frontend/browser or full CRM/backend/physical/production acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: append-only capture/revision service and atomic reconciliation/cancellation API, same-key recovery and PostgreSQL concurrency/rollback proof, then worker/native acceptance and complete Phase 12. Full canonical goal remains active.
 
 PHASE12AC_EVENT_RECONCILIATION_DECISIONS:
 - Added pure deterministic internal event identity/reconciliation contracts. Identity retains institute/customer/trigger/source kind/source ID and UTC-normalized package/membership expiry term. Capture clock, policy-original correction, package balance and care-clock correction do not duplicate the logical occurrence; renewed expiry terms are distinct. Decisions retain original candidate/provenance, state/reason and evaluated clock, validating identity, source owner, state/reason coherence and candidate chronology.

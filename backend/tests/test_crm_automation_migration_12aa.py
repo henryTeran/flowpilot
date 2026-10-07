@@ -42,5 +42,5 @@ def test_automation_roundtrip_scoped_heads_predecessors_and_protected_history(tm
             assert policies.current(db, institute) == second
             assert policies.require(db, institute, first.id) == first
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "ea5b7cd43926"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "fb6c8de54037"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

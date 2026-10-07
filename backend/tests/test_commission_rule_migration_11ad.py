@@ -50,5 +50,5 @@ def test_rule_migration_parity_roundtrip_constraints_and_history_guard(tmp_path,
             command.downgrade(config, "8af04d719b32")
         assert facts() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "ea5b7cd43926"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "fb6c8de54037"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

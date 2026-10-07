@@ -132,3 +132,45 @@ class AutomationPolicyHead(Base):
         ["crm_automation_policy_originals.institute_id", "crm_automation_policy_originals.id"], name="fk_crm_automation_policy_head_owner"),)
     institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), primary_key=True)
     policy_id: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class EventCaptureOriginal(Base):
+    __tablename__ = "crm_event_capture_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "customer_id", "id", name="uq_crm_event_capture_owner"),
+        UniqueConstraint("institute_id", "customer_id", "idempotency_key", name="uq_crm_event_capture_replay"),)
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    customer_id: Mapped[str] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    reason: Mapped[str] = mapped_column(String(240), nullable=False)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class EventRevision(Base):
+    __tablename__ = "crm_event_revisions"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "customer_id", "event_key", "id", name="uq_crm_event_revision_owner"),
+        ForeignKeyConstraint(["institute_id", "customer_id", "capture_id"],
+            ["crm_event_capture_originals.institute_id", "crm_event_capture_originals.customer_id", "crm_event_capture_originals.id"], name="fk_crm_event_revision_capture_owner"),
+        ForeignKeyConstraint(["institute_id", "customer_id", "event_key", "previous_id"],
+            ["crm_event_revisions.institute_id", "crm_event_revisions.customer_id", "crm_event_revisions.event_key", "crm_event_revisions.id"], name="fk_crm_event_revision_previous_owner"),)
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    customer_id: Mapped[str] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    event_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    capture_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    previous_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    decision: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class EventHead(Base):
+    __tablename__ = "crm_event_heads"
+    __table_args__ = (ForeignKeyConstraint(["institute_id", "customer_id", "event_key", "revision_id"],
+        ["crm_event_revisions.institute_id", "crm_event_revisions.customer_id", "crm_event_revisions.event_key", "crm_event_revisions.id"], name="fk_crm_event_head_owner"),)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), primary_key=True)
+    customer_id: Mapped[str] = mapped_column(ForeignKey("customers.id"), primary_key=True)
+    event_key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    revision_id: Mapped[str] = mapped_column(String(80), nullable=False)

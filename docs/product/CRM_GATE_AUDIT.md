@@ -927,6 +927,29 @@ cancellation/processing API, worker/schema/native/browser/full CRM/backend or
 production receipt claimed. Durable scoped ledger/revisions, atomic reconciliation/
 cancellation and worker/native acceptance remain required; canonical gates open.
 
+## Phase 12AD: scoped durable event ledger schema
+
+Capture-original table retains owner/idempotency key, actor/reason, capture clock
+and full source JSON. Revision table retains event key, capture, prior revision
+and decision JSON; explicit heads select current revisions. Composite capture,
+predecessor and head foreign keys prevent cross-customer/event links. Schema
+prepares append-only runtime behavior but does not itself certify a runtime ledger.
+
+Migration fb6c8de54037 after ea5b7cd43926 has history-protected online downgrade.
+Initial focus failed on missing explicit SQL types on generated foreign-key
+columns; corrected to String(80), preserving constraints. New SQLite/PostgreSQL
+roundtrip, metadata equality, cross-customer capture/predecessor/head refusal and
+retained schema/history on refused downgrade verified. Thirteen prior migration
+files change only expected latest head, preserving historical targets.
+
+Final new plus thirteen affected migration files: 29 passed in 155.41s, zero
+failures/skips, actual PostgreSQL enabled, exit 0. Reconciliation/source/candidate/
+rule regression: 29 passed in 9.19s. Existing passlib crypt deprecation warning
+observed. No application database migration, runtime append/reconciliation/
+cancellation, worker, new frontend/browser or full CRM/backend/physical/production
+receipt claimed. Runtime service/API, idempotency/concurrency/rollback and worker/
+native acceptance remain required; all canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
