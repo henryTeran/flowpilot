@@ -94,16 +94,61 @@ lower bounds, same-currency versus foreign-currency spend, stale/horizon/scope/
 future-registration refusal and strict ordered thresholds. No policy persistence,
 segment API, native UI or production acceptance is delivered by this contract.
 
+## 12D: signed policy originals and explicit correction chain
+
+`backend/app/modules/crm/models.py`, `policies.py` and `routes.py` persist
+explicit policy terms, signed actor, reason, server recording instant and original
+idempotency key. An institute-scoped current pointer selects the policy without
+guessing from timestamps or random IDs. The initial declaration requires explicit
+`previous_policy_id: null`; a correction requires the exact current original ID.
+The institute lock and fresh pointer read serialize concurrent corrections.
+Every correction appends an original and moves the pointer atomically, retaining
+its predecessor and terms. No delete, in-place term change or implicit fallback
+to an earlier policy is exposed.
+
+Original-key replay verifies the same actor and all submitted terms before
+mutable pointer/clock checks. A committed declaration can therefore be recovered
+after another correction or a backward clock without issuing a new policy. New
+corrections refuse a clock earlier than the predecessor. Responses preserve aware
+UTC instants on SQLite. An absent configuration remains explicit null, without
+creating a default policy.
+
+Signed own-institute managers use `/api/v1/crm/institutes/{institute_id}` with
+POST `/segment-policies` and GET `/segment-policies/current`,
+`/segment-policies/original/{key}`, `/segment-policies/{identifier}`.
+The declaration body contains the complete explicit `policy`, required predecessor,
+reason and idempotency key; caller-supplied actor/recording metadata are refused.
+Foreign policy scope and stale predecessors are refused, and receipts are scoped.
+
+Migration `b72d4e91a603` follows `ac61f9d028e5`. Composite foreign keys enforce
+same-institute predecessor and current-pointer ownership; unique institute/key
+and institute/ID constraints retain replay identity. Online downgrade refuses any
+recorded policy/pointer history; empty-schema round trips remain supported. Models
+are registered in runtime and Alembic metadata. Existing migration acceptance
+tests update only their expected latest head, preserving their original history
+guards and assertions. No actual application database has been migrated.
+
+Combined all-CRM and affected SQLite/PostgreSQL migration regression: 67 passed
+in 162.30s (2m42), zero failures/skips, actual PostgreSQL enabled; existing
+passlib crypt warning only. Policy tests prove retained originals, correction,
+same-actor replay after pointer/clock change, stale/foreign/unsigned refusal,
+signed HTTP access and actual concurrent corrections accepting exactly one
+writer. Both-database migration tests verify composite ownership, empty round
+trip, protected recorded history and metadata parity. Initial focused HTTP
+fixture had a mismatched signed actor; its refusal was correct, the fixture was
+aligned and the final combined run passes. This unit does not implement segment
+reads, native configuration UI, production thresholds or automation delivery.
+
 ## Remaining acceptance
 
 - Integrate the delivered signed billing read into native customer profiles;
   add any bounded source-history views without changing complete aggregate
   coverage or inferring identity from name/phone.
-- Persist signed explicit lifecycle policies and their original/correction
-  provenance; capture undated paid-ticket diagnostics and current policy horizons
-  under the shared lock, then expose the delivered segmentation through scoped
-  reads and native profiles. No production policy or threshold is configured by
-  12C, and no persisted lifecycle transition/event is claimed yet.
+- Capture undated paid-ticket diagnostics and the explicitly selected current
+  policy horizon under the shared lock; expose scoped segmentation reads and
+  native configuration/profile workflows, including original-key recovery.
+  Handle absent/future policy evidence explicitly. No production threshold is
+  configured by 12D, and no lifecycle transition/event is claimed yet.
 - Implement source-supported CLV and customer rebooking-cycle semantics,
   distinguishing recorded gross from prediction and employee rebooking credit.
 - Implement explicit birthday/communication declarations and lifecycle events
