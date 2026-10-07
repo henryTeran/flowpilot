@@ -1052,6 +1052,34 @@ backend/frontend/browser or physical/production receipt claimed. Native rule/
 event configuration/recovery/processing/cancellation and gate acceptance remain
 required; all canonical gates stay open.
 
+## Phase 12AI: exact automation JSON/native original contracts
+
+Automation durations now emit canonical integer strings in JSON while retaining
+exact integer arithmetic and legacy integer source/read compatibility. Canonical
+string input rejects coercive whitespace/sign/fraction/exponent/leading-zero and
+overflow; large microseconds never round through JavaScript numbers. JSON schemas
+expose accepted integer/string validation input and exact string serialization.
+Existing numeric policy/capture/revision JSON remains readable; no data/schema
+migration applied.
+
+Frontend guards require all six unique triggers, explicit boolean activation,
+BigInt-bounded canonical duration, zero birthday and positive rebooking/inactivity
+intervals. Terms/original recovery pins owned scope, literal array order/full
+activation/duration, actor/reason/key/predecessor and microsecond-aware original
+clock. Malformed originals are rejected before comparison. Native editor/event
+bindings remain required.
+
+Frontend focus 8 passed in 0.85s; full frontend 268 passed in 50.59s, zero failures/
+skips. Build passes, 125 modules/native bundles unchanged. Final two automation
+groups 0.35s include newline rejection. Backend nine-file automation/source/
+reconciliation/ledger/worker/dispatch/runtime regression 52 passed in 96.96s,
+actual PostgreSQL enabled; final rule/schema focus 17 passed in 0.57s. Covers
+large exact duration/roundtrip/legacy input, malformed contracts, API schema and
+receipt provenance plus existing atomic/concurrent/runtime source tests. Existing
+passlib crypt/Alembic deprecations observed. No new full CRM/backend/browser/native
+or physical/production receipt claimed. Native rule/event workflows and gate
+acceptance remain required; all canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
