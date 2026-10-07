@@ -1,0 +1,61 @@
+# ADR-030: Explicit source-grounded recorded commissions
+
+Status: internal source/terms/calculation contract implemented and checked on
+SQLite and actual PostgreSQL. Original configured rules, accrual/cancellation
+ledger, signed routes, native manager lifecycle and employee profile remain open.
+This decision does not close the canonical COMMISSIONS or EMPLOYEE_360 gates.
+
+The first supported basis is `closed_attributed_line_gross`: a retained line
+of an internally closed paid ticket with a known CHF/EUR currency, known exact
+nonnegative gross line total, positive quantity, known nonfuture closing instant
+and an owned explicitly recorded performer. It shares the existing employee
+revenue authority. No cashier, assignment, ticket name, planned execution or
+external settlement is substituted. Removed invoice lines, incomplete amounts,
+unknown currency/performer, foreign sources and incoherent closing chronology
+cannot produce an accrual from this basis. Missing source terms stay unknown;
+a known zero amount or an explicitly configured zero rate can produce zero.
+
+The source capture stores institute, ticket/line, actual performer, service,
+category, currency, quantity, full line gross minor units, arrival/closing and
+capture instants. It contains no customer name, phone or guessed relationship.
+The caller holds the same institute transaction lock as other original Workforce
+writes. Capture scopes the ticket/line and verifies owned performer in bounded
+queries. The immutable captured value survives subsequent source changes.
+
+Every rule must explicitly provide employee, basis, currency, category, service
+or explicit null for all services in the category, half-open UTC period,
+integer rate from 0 through 10000 basis points and rounding choice. There is no
+default rate, currency, service scope or rounding policy. One basis point is
+1/10000 of the gross amount. Rates outside this gross-fraction contract require
+an explicit subsequent decision rather than implicit extra compensation. The
+period is selected by original ticket closing instant, not execution day or
+rule creation time; exactly the start is included and exactly the end excluded.
+Future original configuration must pin institute civil dates and zone once into
+these UTC boundaries, preserving original terms on replay and calendar changes.
+
+The calculation is per captured invoice line. Gross minor units already include
+line quantity: it must not be multiplied a second time. Exact integer numerator
+is `gross_minor * rate_basis_points`, with divisor 10000. Explicit rounding is
+`half_up`, `half_even` or `down` for nonnegative results. The result retains
+numerator, fractional-cent remainder, rounded minor units, full terms and full
+source capture. Subsequent aggregation sums rounded line results; it must not
+silently change to rounding a period-level gross sum. CHF/EUR minor units are
+cents; no currency conversion, mixed-currency total or Decimal ambient-context
+rounding occurs. Minor units and numerators serialize as exact strings.
+
+Numeric(10,2) retained source amounts are checked directly from decimal digits;
+floats, nonfinite/negative/out-of-source-range amounts and fractional cents are
+refused. Source snapshots, terms and calculations are frozen models. UTC-aware
+ISO instants are explicit; numeric timestamps and naive policy instants are
+refused. SQLite's missing timezone metadata is restored only for stored domain
+UTC instants, following the existing storage contract.
+
+Next, signed original rules must retain actor/reason/key, pinned periods and
+separate cancellations. Accruals must pin one original rule and one source capture,
+reject duplicate active line attribution across overlapping rules, recover before
+re-reading mutable authorities, and permit explicit correction only through a
+separate cancellation and new original. Bounded source choices, employee reads,
+native authoring and lost-reply recovery must use those authorities. No inferred
+retroactive rate, commission payment, allocated refund/net revenue, payroll or
+legal liability is asserted. Physical-device and production acceptance remain
+separate from controlled domain/migration/API/component/browser evidence.

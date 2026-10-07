@@ -24,7 +24,7 @@ authorized Workforce scope progresses.
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Manager day API and native selected-day profile retain actual source unions, declared denominator, exact covered/outside time, exclusions and floored recorded-time ratio; controlled API/component/Edge desktop/tablet verified | Physical/production acceptance; complete activity/attendance stays unknown |
 | Rebooking | Signed original attribution/cancellation API, bounded declaration-day read and guarded profile retain source provenance and global counts; controlled signed workflows/Edge desktop/tablet verify readonly provenance, changed-target diagnostics and native original declaration/cancellation/lost-reply recovery | Physical/production acceptance; no inferred identity, absent-declaration failure or predicted return |
-| Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
+| Commissions | Internal owned closed-line capture and explicit gross-basis/rate/currency/scope/period/rounding contract with exact immutable per-line calculation; SQLite and actual PostgreSQL tests pass | Original configured rules, source-linked accrual/cancellation ledger, protected correction/replay, bounded native/profile integration and final acceptance |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
 | Heures | Original signed completed effective-work intervals, separate cancellations, native manager lifecycle/lost-reply recovery, bounded history and selected-day employee read; exact union durations retain DST/microseconds and unknown attendance coverage | Physical/production acceptance; no inferred complete attendance, payroll or legal acceptance |
@@ -46,7 +46,9 @@ explicit configuration and must not grant skills implicitly.
 Bounded scoped actual-completion source and same-client target choice APIs now
 support the native manager form; invalid/unknown/attributed choices stay explicit.
 Protected original declaration/cancellation recovery is verified in controlled Edge.
-Next independent unit: commissions with explicitly configured source-grounded authorities.
+ADR-030 now defines the verified commission source and exact arithmetic contract.
+Next independent unit: original configured commission rules and source-linked accruals,
+then protected native lifecycle and employee profile integration.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and commission authorities.
 Existing payment settlement and physical
@@ -62,4 +64,5 @@ ADR-026 explains original explicit objectives, pinned periods, exact targets and
 ADR-027 explains original effective-work interval declarations and remaining coverage limits.
 ADR-028 explains recorded occupation, exact source intersections and incomplete coverage.
 ADR-029 defines explicit recorded rebooking and the required original source/booking capture.
+ADR-030 defines explicit recorded gross-line commission terms and exact captured calculation.
 PROJECT_STATUS.md records final verification counts and current checkpoint.
