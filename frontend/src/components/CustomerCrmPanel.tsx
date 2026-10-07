@@ -5,6 +5,7 @@ import { certificationInstant } from "../certification-utils";
 import { validSegmentProfile, type SegmentProfile } from "../crm-segment-utils";
 import type { Customer } from "../types";
 import { CrmPolicyPanel } from "./CrmPolicyPanel";
+import { CrmReturnPanel } from "./CrmReturnPanel";
 
 const labels: Record<string, string> = { NEW: "Nouvelle cliente", ACTIVE: "Active", LOYAL: "Fidèle", VIP: "VIP",
   AT_RISK: "À risque", DORMANT: "Inactive", policy_absent: "Politique CRM non configurée", future_policy: "Date de politique à vérifier",
@@ -78,7 +79,8 @@ function Profile({ institute, customer }: { institute: string; customer: Custome
         {s.billing.currencies.map(g => <div key={g.currency}><p>Montant connu : {crmMoney(g.known_gross_minor, g.currency)}</p>
           <p>Panier moyen : {g.recorded_average_basket_minor ? `${crmMoney(String((BigInt(g.recorded_average_basket_minor.numerator)*2n+BigInt(g.recorded_average_basket_minor.denominator))/(BigInt(g.recorded_average_basket_minor.denominator)*2n)), g.currency)} (arrondi au centime)` : "Non déterminé"}</p>
           {(g.missing_amount_tickets+g.invalid_amount_tickets > 0) && <p>Montants à vérifier : {g.missing_amount_tickets+g.invalid_amount_tickets}</p>}</div>)}
-        {s.billing.unknown_currency_tickets > 0 && <p>Devise inconnue : {s.billing.unknown_currency_tickets} tickets</p>}</>}
+        {s.billing.unknown_currency_tickets > 0 && <p>Devise inconnue : {s.billing.unknown_currency_tickets} tickets</p>}
+        <CrmReturnPanel institute={institute} customer={customer.id} start={s.billing.window.start} end={s.billing.window.end} /></>}
       {(result.undated_paid_tickets+result.future_paid_tickets > 0) && <p>Dates à vérifier : {result.undated_paid_tickets+result.future_paid_tickets} tickets</p>}
       <details><summary>Période et règle appliquée</summary><p>Lecture : {result.captured_at}</p>{s && <p>Période : {s.billing.window.start} — {s.billing.window.end}</p>}
         {result.policy_original && <p>Règle enregistrée par {result.policy_original.actor_id} · motif : {result.policy_original.reason}</p>}</details></>}

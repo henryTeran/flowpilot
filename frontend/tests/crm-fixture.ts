@@ -1,4 +1,13 @@
 import type { SegmentProfile } from "../src/crm-segment-utils";
+import type { ReturnRead } from "../src/crm-return-utils";
+export function crmEmptyReturn(): ReturnRead {
+  return { complete_execution_coverage: false, complete_service_coverage: false,
+    summary: { window: { institute_id: "i", customer_id: "customer_a", start: "2026-10-06T00:00:00Z", end: "2026-10-07T00:00:00Z", captured_at: "2026-10-07T00:00:00Z" },
+      basis: "recorded_completed_ticket_care", execution_count: 0, episode_count: 0, known_gap_count: 0, overlapping_gap_count: 0,
+      known_gap_total_us: "0", average_return_gap_us: null, complete_customer_history: false, inferred_booking_credit: false },
+    diagnostics: { unlinked_ticket: 0, invalid_owner_or_service: 0, invalid_actual_times: 0 },
+    page: { offset: 0, limit: 20, total: 0 }, episodes: [], gaps: [] };
+}
 export function crmProfile(): SegmentProfile {
   const customer = { institute_id: "i", customer_id: "customer_a", created_at: "2026-10-06T23:59:59.999950Z" };
   const policy = { institute_id: "i", observation_us: 86400000000, new_customer_us: 100,

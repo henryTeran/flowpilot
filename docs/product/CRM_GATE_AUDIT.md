@@ -407,14 +407,46 @@ Guards are not yet native-bound; existing bundles remain unchanged. No backend,
 new browser, physical-device or production receipt is claimed. Canonical CRM
 gates remain open.
 
+## Phase 12M: native recorded-care return profile
+
+The native manager profile binds return-cycle reads to the verified policy's
+observed start/end. Without a usable segment period, it does not guess care
+windows. Customer/institute/token/period changes dispose previous requests;
+refresh and page transitions hide stale facts. Care capture time is displayed
+separately from payment capture time, preserving their distinct observations.
+
+The profile displays complete-cohort episode/execution and gap counts, uncertain
+diagnostics, and the exact mean rendered with integer half-up rounding to
+hundredths of days. Incomplete execution/service/history coverage and absence
+of inferred booking credit are explicit. Twenty-row episode pages show actual
+clocks/ticket provenance and companion off-page predecessor IDs while retaining
+global metrics. Empty/overlapping/damaged cohorts do not produce a fabricated
+mean. Long source identifiers wrap on tablet.
+
+Controlled frontend focus: 7 passed in 3.21s; complete frontend regression:
+247 passed in 48.76s, zero failures/skips. TypeScript/Vite build passes, 118
+modules, lazy CRM approximately 24.08kB. Role/customer/actor stale responses,
+forged means, empty uncertain history, integer display rounding and 20/1-row
+pages with 21 global episodes are tested. Signed Edge policy/profile regression:
+4 passed in 1.1m, desktop/touch tablet, zero failures/skips. Each real profile
+fixture creates two completed sessions through signed ticket/start/finish APIs,
+verifies ticket provenance/known gap, hides forged means and recovers fresh
+facts. Existing profile and committed-policy recovery still pass. Controls are
+at least 44px with no horizontal overflow; tablet screenshot inspected. Owned
+fixture cleanup confirmed. Existing bcrypt/NO_COLOR warnings only. No new
+backend/schema, actual application migration, physical-device or production
+receipt is claimed; all four CRM gates remain open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
   without changing complete aggregates or guessing name/phone identity. Native
   policy configuration/recovery is delivered; no production policy is configured
   by controlled browser fixtures and no lifecycle event is claimed yet.
-- Implement source-supported CLV and customer rebooking-cycle semantics,
-  distinguishing recorded gross from prediction and employee rebooking credit.
+- Implement source-supported CLV semantics and complete canonical rebooking
+  acceptance, distinguishing recorded gross from prediction and employee credit.
+  Native observed return-cycle reads are delivered; this does not certify visits,
+  complete customer history or close the whole rebooking gate.
 - Implement explicit birthday/communication declarations and lifecycle events
   for birthday, post-service, rebooking, inactivity, package expiry and
   subscription renewal; verify scope, provenance, repeatability and cancellation

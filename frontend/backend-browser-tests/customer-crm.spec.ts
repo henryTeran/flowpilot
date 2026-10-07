@@ -21,6 +21,15 @@ test("signed native customer search reads current CRM and refuses a forged class
       at_risk_us: 7200000000, dormant_us: 14400000000, loyal_min_tickets: 2, vip_min_tickets: 3,
       vip_currency: "CHF", vip_gross_minor: "300" } } });
   expect(configured.status(), await configured.text()).toBe(200);
+  const careTickets: string[] = [];
+  for (let i=0; i<2; i++) {
+    const ticketReply = await request.post(`${base}/tickets`, { headers, data: { institute_id: institute, service_id: "svc-aisselles", customer_id: customer.id } });
+    expect(ticketReply.status(), await ticketReply.text()).toBe(200); const ticket = await ticketReply.json(); careTickets.push(ticket.id);
+    const started = await request.post(`${base}/planning/sessions/start`, { headers, data: { ticket_id: ticket.id, employee_id: "emp-angela", service_id: "svc-aisselles" } });
+    expect(started.status(), await started.text()).toBe(200); const session = await started.json();
+    const finished = await request.patch(`${base}/planning/sessions/${session.id}/finish`, { headers });
+    expect(finished.status(), await finished.text()).toBe(200);
+  }
   await expect(page.getByRole("combobox", { name: /Choisir.*institut/ })).toHaveValue(institute);
   await page.getByRole("button", { name: "Clientes", exact: true }).click();
   const directory = page.getByRole("region", { name: "Clientes et CRM", exact: true });
@@ -28,6 +37,17 @@ test("signed native customer search reads current CRM and refuses a forged class
   await directory.getByRole("button", { name: "Rechercher", exact: true }).click();
   await directory.getByRole("button", { name, exact: true }).click();
   const panel = directory.getByRole("region", { name: "Profil CRM", exact: true });
+  const cycle = panel.getByRole("region", { name: "Cycle de retour observé", exact: true });
+  await expect(cycle).toContainText("Épisodes de soins enregistrés : 2");
+  await expect(cycle).toContainText("Intervalles connus : 1");
+  for (const id of careTickets) await expect(cycle).toContainText(id);
+  await expect(cycle).toContainText("jours (arrondi)");
+  const returnPath = `**/crm/institutes/${institute}/customers/${customer.id}/return-cycle?*`;
+  const corruptCycle = async (route: any) => { const actual = await route.fetch(), value = await actual.json(); value.summary.average_return_gap_us.numerator = "999999999999999999999"; await route.fulfill({ response: actual, json: value }); };
+  await page.route(returnPath, corruptCycle); await cycle.getByRole("button", { name: "Actualiser le cycle", exact: true }).click();
+  await expect(cycle.getByRole("alert")).toContainText("à vérifier"); await expect(cycle).not.toContainText("Épisodes de soins enregistrés");
+  await page.unroute(returnPath, corruptCycle); await cycle.getByRole("button", { name: "Actualiser le cycle", exact: true }).click();
+  await expect(cycle).toContainText("Épisodes de soins enregistrés : 2");
   await expect(panel).toContainText("Nouvelle cliente"); await expect(panel).toContainText("Tickets payés sur la période : 0");
   const profilePath = `**/crm/institutes/${institute}/customers/${customer.id}/segment`;
   const corrupt = async (route: any) => { const actual = await route.fetch(), value = await actual.json(); value.segment.state = "VIP"; await route.fulfill({ response: actual, json: value }); };

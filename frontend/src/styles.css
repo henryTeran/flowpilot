@@ -6817,4 +6817,5 @@ body {
 .customer-crm button { padding: 10px 16px; cursor: pointer; }
 .customer-crm ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .customer-crm p { overflow-wrap: anywhere; }
+.customer-crm ol li { overflow-wrap: anywhere; margin-block: 12px; }
 .customer-crm [aria-label="Profil CRM"] { border-top: 1px solid #ddd; padding-top: 16px; }

@@ -1,6 +1,13 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12L_RETURN_FRONTEND_GUARDS
+CURRENT_CHECKPOINT = PHASE12M_NATIVE_RETURN_CYCLE
 STATUS = ACTIVE
+
+PHASE12M_NATIVE_RETURN_CYCLE:
+- Bound exact return-cycle reads to the native manager customer profile's verified explicit policy observation bounds. Missing/unavailable segment policy does not invent a care period. Own customer/institute/token/period keys dispose obsolete responses; refresh and page transitions hide previous facts. Each care read has its own visible capture clock and does not pretend to share the billing snapshot.
+- Shows whole-period recorded ticket-care episodes/executions, exact-ratio mean converted with integer half-up rounding to hundredths of days, known/overlapping gaps and separate source diagnostics. Incomplete care/service/history coverage and absence of inferred booking credit are explicit. Bounded 20-row pages retain full-cohort totals and off-page predecessor provenance; unknown/uncertain means remain indeterminate.
+- Controlled focus: 7 frontend guard/profile/return-panel tests passed in 3.21s; TypeScript/Vite build passes, 118 modules, lazy CRM ~24.08kB. Complete frontend regression: 247 passed in 48.76s, zero failures/skips. Covers role/client/actor stale responses, forged mean suppression, empty coverage uncertainty, exact rounded days and 20/1-row paging with global 21-episode totals. No backend/schema change or new backend/full-backend receipt claimed.
+- Signed native Edge CRM policy/profile regression: 4 passed in 1.1m, zero failures/skips, desktop/touch tablet. Each customer profile creates two actual completed care sessions through signed ticket/start/finish APIs, verifies their ticket IDs/known return gap, rejects a corrupted mean then restores a fresh read, and preserves existing profile forgery recovery and committed policy original recovery. All controls >=44px/no horizontal overflow; tablet screenshot inspected. Owned temporary fixture directory removal confirmed; existing passlib bcrypt/NO_COLOR warnings only. No actual application migration, physical-device or production acceptance claim.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: source-supported CLV semantics and explicit customer lifecycle declarations/events, then complete Phase 12 acceptance. Full canonical goal remains active.
 
 PHASE12L_RETURN_FRONTEND_GUARDS:
 - Added exact scoped frontend return-cycle contracts and guards for aware observation/capture clocks, owned institute/customer, incomplete source coverage, diagnostic keys/counts, whole-cohort execution/episode/gap conservation and exact integer-string mean. Diagnostics/overlaps suppress averages; empty/single cohorts do not fabricate a return cycle. Known positive gaps are disjoint and their global sum is bounded by the observed window.

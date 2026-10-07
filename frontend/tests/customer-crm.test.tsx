@@ -4,7 +4,7 @@ import { JSDOM } from "jsdom";
 import React, { act } from "react";
 import { CustomerCrmProfile, crmMoney } from "../src/components/CustomerCrmPanel";
 import { setAccessToken } from "../src/api/session";
-import { crmProfile } from "./crm-fixture";
+import { crmProfile, crmEmptyReturn } from "./crm-fixture";
 const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "http://localhost:5173" });
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, sessionStorage: dom.window.sessionStorage, IS_REACT_ACT_ENVIRONMENT: true });
 const { createRoot } = await import("react-dom/client");
@@ -13,7 +13,7 @@ const customer = { id: "customer_a", institute_id: "i", display_name: "Alice", p
 const reply = (v: unknown) => new Response(JSON.stringify(v), { headers: { "Content-Type": "application/json" } });
 test("native CRM profile isolates role/customer/actor and hides forged fresh readings", async () => {
   const fetch = globalThis.fetch, root = createRoot(document.getElementById("root")!), pending: ((v: Response) => void)[] = [];
-  globalThis.fetch = async () => new Promise(resolve => pending.push(resolve));
+  globalThis.fetch = async url => String(url).includes("/return-cycle?") ? reply(crmEmptyReturn()) : new Promise(resolve => pending.push(resolve));
   try {
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<CustomerCrmProfile institute="i" customer={customer} />));
     assert.equal(pending.length, 0);
