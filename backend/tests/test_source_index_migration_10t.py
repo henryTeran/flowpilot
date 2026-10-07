@@ -95,7 +95,7 @@ def test_source_indexes_roundtrip_preserves_populated_history_and_blocked_downgr
             command.downgrade(config, "0a675be2c4d9")
         assert facts(engine) == before
         with engine.connect() as connection:
-            assert connection.scalar(text("select version_num from alembic_version")) == "b72d4e91a603"
+            assert connection.scalar(text("select version_num from alembic_version")) == "c83e5fa21704"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
 
 

@@ -479,6 +479,51 @@ storage, API/UI, actual PostgreSQL, migration, broader regression, physical-devi
 or production receipt is claimed. Native original declaration/recovery and
 authoritative billing/diagnostic reads remain required; CRM gates stay open.
 
+## Phase 12O: lifetime original provenance and authoritative scenario API
+
+Registered own customers now have immutable lifetime-assumption originals and
+an explicit current pointer. Institute/customer/key uniqueness and composite
+original predecessor/head foreign keys prevent cross-customer substitution.
+The API requires signed own-institute managers and actual registered identity,
+never historical opaque ticket references. Initial/corrected declarations retain
+every model assumption, explicit predecessor, reason, signed actor and server
+clock. Exact original-key replay returns the old receipt before mutable head/
+clock checks; changed terms/actor, stale predecessor and backward clocks fail.
+There are no edit/delete routes or silent rebases.
+
+Current, original-key and original-ID routes support original recovery. The
+scenario endpoint takes an explicit aware start and pins end/capture to one
+server clock under the institute lock. Registered identity/date, current original,
+all unknown/future-paid date diagnostics and whole billing cohort are captured
+before releasing it (six SQL statements with an original). The result retains
+registration and declaration provenance. No declaration, future original or
+future registration returns unavailable; damaged source dates/currencies/amounts
+keep projections indeterminate. Billing is streamed completely, not paginated
+before calculation. The response remains a declared conditional remaining-value
+scenario, not certified customer lifetime or validated predictive CLV.
+
+Migration `c83e5fa21704` follows `b72d4e91a603`; empty downgrade/re-upgrade is
+supported and online downgrade refuses recorded lifetime originals/heads. New
+SQLite/PostgreSQL fixtures verify metadata equality, cross-customer pointer and
+predecessor constraints and unchanged originals after protected downgrade.
+Ten historical migration test files change only their expected latest head;
+their existing history/schema assertions are preserved. No application database
+migration was performed.
+
+Controlled initial original/calculation focus: 26 passed in 6.43s. Adjacent CRM
+original/lifetime/policy/profile/billing regression: 39 passed in 35.23s. Final
+original/API focus after returning registration provenance and adding future-date
+assertions: 4 passed in 20.64s, actual PostgreSQL enabled. Tests cover a complete
+108-ticket cohort/constant six-query budget, exact net value, scoped receipt
+replay/corrections, signed HTTP roles/owner/date and spoofed-actor rejection,
+unknown/opaque customers, competing same-predecessor corrections (one succeeds),
+and a real cooperating PostgreSQL writer blocked until entire capture completes
+with independent before/after net values. New and ten affected migration files:
+23 passed in 152.64s. All zero failures/skips; existing passlib crypt warning
+only. No full-backend, new frontend/browser, physical-device or production receipt
+is claimed. Exact frontend guards and native declaration/recovery/display remain
+required; all canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

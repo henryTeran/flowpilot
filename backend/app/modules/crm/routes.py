@@ -5,6 +5,7 @@ from app.database.session import get_db
 from app.modules.crm import policies
 from app.modules.crm import profile
 from app.modules.crm import return_sources
+from app.modules.crm import lifetime_originals as lifetime
 
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
 
@@ -13,6 +14,32 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.post("/customers/{customer_id}/lifetime-assumptions", response_model=lifetime.Original)
+def lifetime_create(institute_id: str, customer_id: str, payload: lifetime.Declaration, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifetime.create(db,institute_id,customer_id,payload,user.get("sub"))
+
+
+@router.get("/customers/{customer_id}/lifetime-assumptions/current", response_model=lifetime.Original | None)
+def lifetime_current(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifetime.current(db,institute_id,customer_id)
+
+
+@router.get("/customers/{customer_id}/lifetime-assumptions/original/{key}", response_model=lifetime.Original | None)
+def lifetime_original(institute_id: str, customer_id: str, key: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifetime.original(db,institute_id,customer_id,key)
+
+
+@router.get("/customers/{customer_id}/lifetime-assumptions/{identifier}", response_model=lifetime.Original)
+def lifetime_detail(institute_id: str, customer_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
+    lifetime.owned(db,institute_id,customer_id)
+    return lifetime.require(db,institute_id,customer_id,identifier)
+
+
+@router.get("/customers/{customer_id}/lifetime-scenario", response_model=lifetime.ScenarioRead)
+def lifetime_scenario(institute_id: str, customer_id: str, start: str = Query(min_length=1,max_length=64), user=Depends(manager), db: Session = Depends(get_db)):
+    return lifetime.read(db,institute_id,customer_id,start)
 
 
 @router.get("/customers/{customer_id}/segment", response_model=profile.SegmentProfile)
