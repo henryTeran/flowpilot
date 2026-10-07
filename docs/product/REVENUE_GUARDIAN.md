@@ -608,3 +608,50 @@ assumptions, actualPg same-key race, failed transaction rollback and committed
 response-loss recovery. Previous booking-history migration and trusted marketing
 invocation remain compatible with the new schema head. No native retention interface
 or complete Phase14/production acceptance is claimed. All three Phase14 gates OPEN.
+
+## Phase14N — explicit retained-scenario comparison
+
+`POST /scenarios/comparison` is a signed owned manager read, with an explicit
+baseline originalID/full SHA and1..19 alternative original references. Each ID
+must be distinct; the total selected cohort is bounded to20. There is no implicit
+latest scenario, revision/head or default selection. One institute lock and read
+clock bind all freshly loaded own rows; each full original is verified using14M
+before its digest is compared with the expected selection. Missing/foreign IDs,
+malformed originals or mismatched expected fingerprints refuse the whole frame.
+Only selected originals are verified here; full institute history audit remains
+the separate14M route. No mutable ticket source is recaptured and no rows are written.
+
+The comparison preserves each full raw envelope and selected order, with baseline
+first. Exact reduced signed-rational differences use integer Fraction arithmetic;
+they are available only when both projections are valued and model/currency/
+observed period/projected period match. An explicit recorded zero remains valued;
+unknown projections have no zero substitute. Incompatible periods or currencies
+have explicit reasons and no monetary difference. CHF/EUR remain separate.
+
+Two flags expose distinct evidence dimensions: source capture-clock equality, and
+equality of the retained Billing aggregate terms excluding capture time. Equal
+aggregate terms do not prove identical underlying ticket/line IDs or physical sales.
+A source-price change may contribute to a variant difference, which is explicitly
+`comparison_only_not_attributed_effect`; no activity-fraction causal effect is
+claimed. The returned originals preserve their original captured period/evidence,
+even when current prices change or projection periods are now past.
+
+Currency groups count selected/valued/unavailable alternatives only. Both group
+and root summed_projected_gross_minor stay null: alternative estimates for the same
+future period must not be added as revenue. Prediction, causal effect, action and
+full-institute scenario-cohort claims remain strictly false; confidence remains
+conditional and unvalidated. Comparison does not alter official billing figures.
+
+Initial comparison/original/preview regression: **15 passed100.21s**, zero failures/
+skips, terminal exit0, SQLite and actual isolated PostgreSQL; existing crypt
+deprecation only. Final expanded comparison: **2 passed19.12s**, zero failures/
+skips, terminal exit0, SQLite and actual isolated PostgreSQL; existing crypt
+deprecation only. Nine actual retained variants include explicit0/1 valued projection
+with -2525/2 minor difference; unavailable baseline/variant keeps differences null.
+Actual retained sources exercise negative fractional2525/4 and changed-source+50
+minor deltas, different capture/same aggregates, separateCHF/EUR, unavailable
+sources/incompatible periods, immutable historic price evidence, digest/ownedID/
+duplicate/injected actor-amount-evidence controls and read-only record counts.
+No new schema, frontend/native or production acceptance is claimed. Native retained
+scenario declaration/recovery/audit/selection/comparison and retained opportunity/
+closure-valuation review remain to implement. All three Phase14 gates OPEN.

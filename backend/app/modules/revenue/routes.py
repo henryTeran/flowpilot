@@ -8,6 +8,7 @@ from app.modules.revenue import billing, sources, capacity, closures, scenarios,
 from app.modules.revenue import booking_references
 from app.modules.revenue import booking_valuation
 from app.modules.revenue import scenario_originals
+from app.modules.revenue import scenario_comparison
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -45,6 +46,11 @@ def revenue_scenario(institute_id: str, request: scenarios.Request, user=Depends
 @router.post("/scenarios/originals", response_model=scenario_originals.Envelope)
 def retain_revenue_scenario(institute_id: str, request: scenario_originals.Declaration, user=Depends(manager), db: Session = Depends(get_db)):
     return scenario_originals.create(db, institute_id, request, user.get("sub"))
+
+
+@router.post("/scenarios/comparison", response_model=scenario_comparison.Comparison)
+def compare_revenue_scenarios(institute_id: str, request: scenario_comparison.Request, user=Depends(manager), db: Session = Depends(get_db)):
+    return scenario_comparison.read(db, institute_id, request)
 
 
 @router.get("/scenarios/original-by-key", response_model=scenario_originals.Envelope | None)
