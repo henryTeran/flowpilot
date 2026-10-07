@@ -1394,6 +1394,17 @@ ABSENCES = PASS
 COMMISSIONS = PASS
 ```
 
+Phase 11AM verifies these four functional gates in the controlled environment:
+the twelve Employee 360 subjects and Skill Matrix map to current shared-source
+APIs/native bindings in `docs/architecture/WORKFORCE_GATE_AUDIT.md`. At code commit
+`85800ec`, all 28 Phase 11 backend test files pass (83 tests on owned SQLite and
+actual PostgreSQL fixtures), and all 16 signed Workforce browser spec files pass
+(44 Edge desktop/touch-tablet scenarios). Current frontend evidence includes 227
+passing tests and the browser launcher's production build. This scope does not
+claim the full backend suite, unrelated browser suites, a physical device,
+application-database migration, payment settlement or production readiness.
+Those existing gates remain open while canonical Phase 12 proceeds.
+
 ---
 
 # 33. Phase 12 — CRM & Customer Lifecycle
