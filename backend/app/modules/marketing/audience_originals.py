@@ -106,3 +106,26 @@ def create(db,institute,payload,actor):
         db.flush();result=receipt(row);db.commit();return result
     except Exception:
         db.rollback();raise
+
+def campaign_audience(db,institute,identifier,channel):
+    """Build historical campaign recipient terms only from verified retained pages."""
+    from sqlalchemy import func
+    from app.modules.marketing.campaigns import AudienceFact
+    cap=require(db,institute,identifier)
+    if cap.request.channel!=channel:
+        raise business_error("Campaign channel must match the retained audience")
+    count=db.scalar(select(func.count()).select_from(AudiencePage).where(AudiencePage.institute_id==institute,AudiencePage.capture_id==identifier))
+    if count!=cap.summary.page_count:
+        raise business_error("Audience retained page count is incoherent")
+    customers=selected=eligible=0;recipients=[]
+    for index in range(cap.summary.page_count):
+        observed=page(db,institute,identifier,index).observation
+        customers+=len(observed.items);selected+=sum(i.selected_segment for i in observed.items)
+        for item in observed.items:
+            if item.eligible_by_recorded_permission:
+                recipients.append(item.customer_id);eligible+=1
+    if (customers,selected,eligible)!=(cap.summary.customer_count,cap.summary.selected_count,cap.summary.eligible_count):
+        raise business_error("Audience manifest does not match its retained pages")
+    if not recipients:
+        raise business_error("No customers qualify under the retained marketing permission")
+    return AudienceFact(id=cap.id,institute_id=institute,captured_at=cap.captured_at,customer_ids=tuple(recipients))

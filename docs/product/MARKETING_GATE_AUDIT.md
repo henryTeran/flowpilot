@@ -107,6 +107,25 @@ page flush rollback preserving old history, forged predecessor filter and compet
 same-key one original/two pages tested. Existing passlib crypt warning only. No
 schema/native/browser/provider/production receipt inferred; marketing gates OPEN.
 
+## 13F: verified campaign audience binding
+
+Internal campaign_audience reads an owned retained capture for the exact requested
+channel, checks actual stored page count, validates every historical page/chain and
+reconciles whole customer/selected/eligible counts against summary. Only recorded
+marketing-eligible recipient IDs are returned in deterministic retained order with
+capture ID/clock for approval digest. Wrong channel, foreign ID, manifest mismatch
+and empty eligible list fail. This is historical campaign content binding, not
+fresh permission/contact/provider authority or a campaign persistence endpoint.
+
+Initial source/campaign focus: 12 passed in 14.01s; expanded adjacent regression:
+14 passed in 20.01s; final tightened source focus: 3 passed in 13.66s, actual
+PostgreSQL, zero failures/skips. Eligible recipients on both pages of a 55-member
+50/5 cohort prove no first-page truncation. Forged summary and foreign/channel
+changes refused, rollback restores original, empty SMS permission cannot qualify.
+Existing atomic/replay/concurrent-key and approval chain tests remain passing.
+Passlib crypt deprecation only; no schema/native/provider/production claim. All
+marketing gates remain OPEN pending campaign/template persistence and workflows.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

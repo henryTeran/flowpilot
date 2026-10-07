@@ -5,6 +5,7 @@ from sqlalchemy import event,func,select
 from sqlalchemy.orm import Session
 import app.main as main_module
 from app.modules.marketing import audience_originals as originals
+from app.modules.crm import lifecycle_originals
 from app.modules.marketing.models import AudienceOriginal,AudiencePage
 from test_marketing_audiences_13b import exercise as seed
 from test_crm_billing_12b import NOW
@@ -18,8 +19,17 @@ def exercise(engine,institute,monkeypatch):
  def clock():calls.append(True);return NOW+timedelta(microseconds=2)
  monkeypatch.setattr(originals,"utcnow",clock)
  with Session(engine) as db:
+  permission=lifecycle_originals.current(db,institute,"aud_000").declaration.model_copy(update={"customer_id":"aud_054"})
+  lifecycle_originals.create(db,institute,"aud_054",lifecycle_originals.Declaration(declaration=permission,previous_id=None,reason="Explicit second-page permission",idempotency_key="last"),"manager")
   first=originals.create(db,institute,request(),"manager");assert len(calls)==1
-  assert first.summary.page_count==2 and first.summary.customer_count==55 and first.summary.selected_count==55 and first.summary.eligible_count==1
+  assert first.summary.page_count==2 and first.summary.customer_count==55 and first.summary.selected_count==55 and first.summary.eligible_count==2
+  audience=originals.campaign_audience(db,institute,first.id,"email")
+  assert audience.id==first.id and audience.customer_ids==("aud_000","aud_054") and audience.captured_at==first.captured_at
+  with pytest.raises(HTTPException):originals.campaign_audience(db,institute,first.id,"sms")
+  with pytest.raises(HTTPException):originals.campaign_audience(db,"marketing_foreign",first.id,"email")
+  original_row=db.get(AudienceOriginal,first.id);original_row.summary={**original_row.summary,"eligible_count":3}
+  with pytest.raises(HTTPException):originals.campaign_audience(db,institute,first.id,"email")
+  db.rollback();assert originals.campaign_audience(db,institute,first.id,"email")==audience
   p0=originals.page(db,institute,first.id,0);p1=originals.page(db,institute,first.id,1)
   assert len(p0.observation.items)==50 and len(p1.observation.items)==5 and p1.observation.selection.after==p0.observation.next_after
   assert p0.observation.captured_at==p1.observation.captured_at==first.captured_at
@@ -45,6 +55,9 @@ def exercise(engine,institute,monkeypatch):
   prior.observation=forged
   with pytest.raises(HTTPException):originals.page(db,institute,first.id,1)
   db.rollback();assert originals.page(db,institute,first.id,0)==p0
+  empty=originals.create(db,institute,request("sms-empty").model_copy(update={"channel":"sms"}),"manager")
+  assert empty.summary.eligible_count==0
+  with pytest.raises(HTTPException):originals.campaign_audience(db,institute,empty.id,"sms")
   return first
 
 def test_sqlite_atomic_capture_replay_history_and_signed_access(client,monkeypatch):

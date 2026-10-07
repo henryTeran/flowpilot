@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13E_ATOMIC_RETAINED_AUDIENCE_CAPTURE
+CURRENT_CHECKPOINT = PHASE13F_VERIFIED_CAMPAIGN_AUDIENCE_BINDING
 STATUS = ACTIVE
+
+PHASE13F_VERIFIED_CAMPAIGN_AUDIENCE_BINDING:
+- Added source-backed campaign_audience constructor: scope-locked retained capture required, exact campaign/capture channel, actual stored page count checked against manifest, every coherent historical page and chain validated. Recomputes customer/selected/eligible totals across all pages and refuses mismatch; returns canonical historical campaign AudienceFact containing only recorded marketing-eligible IDs in retained deterministic order. Empty eligible list refused rather than assigning unknown permissions. No raw caller recipients accepted by this constructor.
+- Historical capture ID/clock and recipient tuple can now be pinned in campaign review/approval digest without truncating to first page. Constructor is internal, not a campaign write/approval endpoint or fresh send authorization; retained permission is not destination/provider authority. Campaign/template persistence remains pending. No schema change or external messages.
+- Initial source/campaign focus: 12 passed in 14.01s. Expanded audience-original/observation/campaign regression: 14 passed in 20.01s, zero failures/skips, actual PostgreSQL enabled. Final empty-permission tightened source focus: 3 passed in 13.66s. SQLite/PostgreSQL 55-member fixture includes eligible aud_000 and aud_054 across 50/5 pages; wrong channel/foreign scope/forged eligible summary refused, rollback restores original, SMS empty eligibility refused. Prior actor/replay/atomic rollback/concurrent key and approval-chain coverage remains passing. Existing passlib crypt deprecation only.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: append-only template/campaign revision schema and actor/terms-pinned draft/review/approval/original audit services using verified audience binding; native workflows and explicit delivery/conversion integration afterwards. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13E_ATOMIC_RETAINED_AUDIENCE_CAPTURE:
 - Added signed manager audience-captures POST and scoped original-key/original-ID/retained-page reads. Required explicit segments/channel/reason/key; whole registered institute cohort scanned through bounded 50-member pages at one locked server clock. Each coherent page retained under owned capture, final exact customer/selected/eligible/page counts committed once. Summary validates count ordering and 50-page arithmetic; even empty cohort retains one page. No mutable head/edit/delete route or schema change.
