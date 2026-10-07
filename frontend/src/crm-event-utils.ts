@@ -1,5 +1,6 @@
+import { validLifecycleRead, type LifecycleRead } from "./crm-lifecycle-utils";
 import { certificationInstant as instant } from "./certification-utils";
-import { validAutomationPolicy, type AutomationRule, automationTriggers } from "./crm-automation-utils";
+import { validAutomationOriginal, validAutomationPolicy, type AutomationOriginal, type AutomationRule, automationTriggers } from "./crm-automation-utils";
 export type EventAnchor = { institute_id:string; customer_id:string; source_id:string; source_kind:"care_episode"|"package"|"membership"|"birthday"; occurred_at:string; expires_at:string|null; remaining:number|null };
 export type EventCandidate = { institute_id:string; customer_id:string; policy_original_id:string; rule:AutomationRule; source:EventAnchor; due_at:string; valid_until:string|null; captured_at:string; state:"scheduled"|"due"|"expired"|"exhausted"|"disabled"; external_message_sent:false; delivery_authorized:false };
 const text=(v:unknown):v is string=>typeof v==="string" && v.length>0 && v.length<=80 && v.trim()===v;
@@ -63,3 +64,53 @@ export async function validEventPage(v:unknown,institute:string,customer:string,
  for(const r of p.revisions){if(!await validEventRevision(r,institute,customer) || r.event_key<=previous || ids.has(r.id))return false;previous=r.event_key;ids.add(r.id);}
  return true;
 }
+
+export type EventRequest={action:"reconcile"|"cancel"|"process"|"process_due";event_key:string|null;expected_revision_id:string|null;reason:string;idempotency_key:string};
+export type EventSource={institute_id:string;customer_id:string;captured_at:string;customer:{institute_id:string;customer_id:string;created_at:string};policy_original:AutomationOriginal|null;lifecycle:LifecycleRead;anchors:EventAnchor[];candidates:EventCandidate[];diagnostics:Record<string,number>;complete_customer_history:false;external_message_sent:false;delivery_authorized:false};
+export type EventCapture={id:string;institute_id:string;customer_id:string;actor_id:string;request:EventRequest;captured_at:string;source:EventSource;revisions:EventRevision[]};
+export function validEventRequest(v:unknown):v is EventRequest{
+ const r=v as EventRequest;if(!r || !["reconcile","cancel","process","process_due"].includes(r.action) || typeof r.reason!=="string" || r.reason.trim()!==r.reason || r.reason.length<3 || r.reason.length>240 || typeof r.idempotency_key!=="string" || !r.idempotency_key || r.idempotency_key.trim()!==r.idempotency_key || r.idempotency_key.length>120)return false;
+ return ["reconcile","process_due"].includes(r.action) ? r.event_key===null && r.expected_revision_id===null : text(r.event_key) && text(r.expected_revision_id);
+}
+const diagnosticKeys=["policy_absent","future_policy","future_registration","birthday_unavailable","care_unavailable","care_unlinked_ticket","care_invalid_owner_or_service","care_invalid_actual_times","invalid_event_timing","package_absent","membership_absent","invalid_package","invalid_membership"];
+export function validEventSource(v:unknown,institute:string,customer:string):v is EventSource{
+ const s=v as EventSource,clock=instant(s?.captured_at),registered=instant(s?.customer?.created_at);
+ if(!s || !text(institute) || !text(customer) || s.institute_id!==institute || s.customer_id!==customer || clock===undefined || registered===undefined || s.customer.institute_id!==institute || s.customer.customer_id!==customer || s.complete_customer_history!==false || s.external_message_sent!==false || s.delivery_authorized!==false || !validLifecycleRead(s.lifecycle,institute,customer) || instant(s.lifecycle.captured_at)!==clock || instant(s.lifecycle.customer.created_at)!==registered || s.policy_original!==null && !validAutomationOriginal(s.policy_original,institute) || !Array.isArray(s.anchors) || !Array.isArray(s.candidates) || !s.diagnostics || Object.keys(s.diagnostics).length!==diagnosticKeys.length || diagnosticKeys.some(k=>!Number.isSafeInteger(s.diagnostics[k]) || s.diagnostics[k]<0))return false;
+ const d=s.diagnostics,p=s.policy_original;
+ if(d.policy_absent!==Number(p===null) || d.future_policy!==Number(p!==null && instant(p.created_at)!>clock) || d.future_registration!==Number(registered>clock) || d.birthday_unavailable!==Number(!s.lifecycle.birthday?.occurrence_start) || ["policy_absent","future_policy","future_registration","birthday_unavailable","care_unavailable","invalid_event_timing","package_absent","membership_absent"].some(k=>d[k]>1))return false;
+ const identities=new Set<string>();let latest:EventAnchor|undefined;
+ for(const a of s.anchors){
+  if(!validEventAnchor(a,institute,customer))return false;
+  const key=JSON.stringify([a.source_kind,a.source_id]);if(identities.has(key))return false;identities.add(key);
+  if(a.source_kind==="birthday"){
+   const b=s.lifecycle.birthday;if(!b || a.source_id!==b.anniversary_on || instant(a.occurred_at)!==instant(b.occurrence_start) || instant(a.expires_at)!==instant(b.occurrence_end))return false;
+  }else if(instant(a.occurred_at)!<registered || instant(a.occurred_at)!>clock)return false;
+  if(a.source_kind==="care_episode" && (!latest || instant(a.occurred_at)!>instant(latest.occurred_at)! || instant(a.occurred_at)===instant(latest.occurred_at) && a.source_id>latest.source_id))latest=a;
+ }
+ if(s.anchors.filter(a=>a.source_kind==="birthday").length!==Number(!d.birthday_unavailable) || (d.care_unlinked_ticket || d.care_invalid_owner_or_service || d.care_invalid_actual_times || d.care_unavailable) && latest)return false;
+ if(!p || d.future_policy || d.future_registration || d.invalid_event_timing)return s.candidates.length===0;
+ const expected=new Map<string,AutomationRule>();
+ for(const rule of p.policy.rules){const kind={birthday:"birthday",post_service:"care_episode",rebooking:"care_episode",inactivity:"care_episode",package_expiry:"package",subscription_renewal:"membership"}[rule.trigger];
+  for(const a of s.anchors.filter(a=>a.source_kind===kind && (!["rebooking","inactivity"].includes(rule.trigger) || a===latest)))expected.set(JSON.stringify([rule.trigger,a.source_kind,a.source_id]),rule);
+ }
+ if(s.candidates.length!==expected.size)return false;
+ for(const c of s.candidates){
+  if(!validEventCandidate(c,institute,customer) || c.policy_original_id!==p.id || instant(c.captured_at)!==clock)return false;
+  const key=JSON.stringify([c.rule.trigger,c.source.source_kind,c.source.source_id]),rule=expected.get(key),anchor=s.anchors.find(a=>a.source_kind===c.source.source_kind && a.source_id===c.source.source_id);
+  if(!rule || !anchor || rule.enabled!==c.rule.enabled || rule.offset_us!==c.rule.offset_us || instant(anchor.occurred_at)!==instant(c.source.occurred_at) || (anchor.expires_at===null ? c.source.expires_at!==null : instant(anchor.expires_at)!==instant(c.source.expires_at)) || anchor.remaining!==c.source.remaining)return false;expected.delete(key);
+ }
+ return expected.size===0;
+}
+export async function validEventCapture(v:unknown,institute:string,customer:string):Promise<boolean>{
+ const c=v as EventCapture,clock=instant(c?.captured_at);if(!c || !text(c.id) || c.institute_id!==institute || c.customer_id!==customer || typeof c.actor_id!=="string" || !c.actor_id || c.actor_id.trim()!==c.actor_id || c.actor_id.length>160 || !validEventRequest(c.request) || clock===undefined || !validEventSource(c.source,institute,customer) || instant(c.source.captured_at)!==clock || !Array.isArray(c.revisions))return false;
+ const keys=new Set<string>(),ids=new Set<string>();
+ for(const r of c.revisions){if(!await validEventRevision(r,institute,customer) || instant(r.decision.evaluated_at)!>clock || keys.has(r.event_key) || ids.has(r.id))return false;keys.add(r.event_key);ids.add(r.id);}
+ for(const candidate of c.source.candidates)if(!keys.has(await eventIdentity(candidate)))return false;
+ if(["cancel","process"].includes(c.request.action)){
+  const target=c.revisions.find(r=>r.event_key===c.request.event_key);
+  if(!target || (c.request.action==="cancel" ? target.decision.state!=="cancelled" || target.decision.reason!=="explicit_cancellation" : target.decision.state!=="processed" || target.decision.reason!=="already_processed"))return false;
+ }
+ return true;
+}
+export function sameEventRequest(a:EventRequest,b:EventRequest){return validEventRequest(a) && validEventRequest(b) && a.action===b.action && a.event_key===b.event_key && a.expected_revision_id===b.expected_revision_id && a.reason===b.reason && a.idempotency_key===b.idempotency_key;}
+export async function matchesEventCapture(v:unknown,institute:string,customer:string,terms:EventRequest,actor:string){const c=v as EventCapture;return await validEventCapture(c,institute,customer) && c.actor_id===actor && sameEventRequest(c.request,terms);}

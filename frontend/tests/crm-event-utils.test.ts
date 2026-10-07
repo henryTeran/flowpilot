@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validEventCandidate, eventIdentity, validEventDecision, validEventRevision, validEventPage, type EventCandidate } from "../src/crm-event-utils";
+import { validEventCandidate, eventIdentity, validEventDecision, validEventRevision, validEventPage, validEventRequest, validEventSource, validEventCapture, matchesEventCapture, type EventSource, type EventCandidate } from "../src/crm-event-utils";
 const candidate:EventCandidate={institute_id:"i",customer_id:"c",policy_original_id:"p",rule:{trigger:"post_service",enabled:true,offset_us:"1"},source:{institute_id:"i",customer_id:"c",source_id:"ticket",source_kind:"care_episode",occurred_at:"2026-10-07T12:00:00Z",expires_at:null,remaining:null},due_at:"2026-10-07T12:00:00.000001Z",valid_until:null,captured_at:"2026-10-07T12:00:00Z",state:"scheduled",delivery_authorized:false,external_message_sent:false};
 test("event candidate recomputes exact timing and state; refuses forged ownership, source and delivery",()=>{
  assert.equal(validEventCandidate(candidate,"i","c"),true);
@@ -44,4 +44,37 @@ test("revision and bounded current page refuse changed occurrence, scope, predec
  assert.equal(await validEventPage(page,"i","c",0,20),true);
  for(const patch of [{total:2},{offset:1},{limit:50},{revisions:[revision,revision]}])assert.equal(await validEventPage({...page,...patch},"i","c",0,20),false);
  assert.equal(await validEventPage({...page,total:0,revisions:[]},"i","c",0,20),true);
+});
+
+function sourceFixture():EventSource {
+ const customer={institute_id:"i",customer_id:"c",created_at:"2020-01-01T00:00:00Z"};
+ return {institute_id:"i",customer_id:"c",captured_at:candidate.captured_at,customer,policy_original:null,lifecycle:{institute_id:"i",customer_id:"c",captured_at:candidate.captured_at,customer,original:null,calendar_original:null,birthday:null,unavailable_reason:"declaration_absent",delivery_authorized:false,external_message_sent:false},anchors:[candidate.source],candidates:[],diagnostics:{policy_absent:1,future_policy:0,future_registration:0,birthday_unavailable:1,care_unavailable:0,care_unlinked_ticket:0,care_invalid_owner_or_service:0,care_invalid_actual_times:0,invalid_event_timing:0,package_absent:1,membership_absent:1,invalid_package:0,invalid_membership:0},complete_customer_history:false,delivery_authorized:false,external_message_sent:false};
+}
+test("source capture pins lifecycle clock, complete diagnostics and explicit policy before candidate eligibility",()=>{
+ const source=sourceFixture();assert.equal(validEventSource(source,"i","c"),true);
+ for(const patch of [{candidates:[candidate]},{diagnostics:{...source.diagnostics,policy_absent:0}},{lifecycle:{...source.lifecycle,captured_at:"2026-10-07T12:00:00.000001Z"}},{anchors:[candidate.source,candidate.source]},{complete_customer_history:true}])assert.equal(validEventSource({...source,...patch},"i","c"),false);
+});
+test("event action receipt verifies actor and literal target terms; retained older revisions are allowed",async()=>{
+ const source=sourceFixture(),terms={action:"reconcile" as const,event_key:null,expected_revision_id:null,reason:"Explicit reconciliation",idempotency_key:"key"};
+ const decision={event_key:await eventIdentity(candidate),candidate,state:"scheduled" as const,reason:"candidate" as const,evaluated_at:candidate.captured_at};
+ const r={id:"r",institute_id:"i",customer_id:"c",event_key:decision.event_key,capture_id:"older",previous_id:null,decision};
+ const receipt={id:"capture",institute_id:"i",customer_id:"c",actor_id:"manager",request:terms,captured_at:source.captured_at,source,revisions:[r]};
+ assert.equal(await validEventCapture(receipt,"i","c"),true);assert.equal(await matchesEventCapture(receipt,"i","c",terms,"manager"),true);
+ assert.equal(await matchesEventCapture(receipt,"i","c",terms,"foreign"),false);
+ assert.equal(await matchesEventCapture(receipt,"i","c",{...terms,reason:"Changed reason"},"manager"),false);
+ assert.equal(await validEventCapture({...receipt,revisions:[r,r]},"i","c"),false);
+ assert.equal(await validEventCapture({...receipt,request:{...terms,action:"process",event_key:decision.event_key,expected_revision_id:r.id}},"i","c"),false);
+ assert.equal(await validEventCapture({...receipt,captured_at:"2026-10-07T12:00:00.000001Z"},"i","c"),false);
+ assert.equal(validEventRequest({...terms,action:"cancel"}),false);
+ assert.equal(validEventRequest({...terms,action:"cancel",event_key:decision.event_key,expected_revision_id:r.id}),true);
+});
+
+test("eligible source capture requires every policy-derived care occurrence, exact rule and source",()=>{
+ const s=sourceFixture();s.policy_original={id:"p",institute_id:"i",actor_id:"manager",created_at:"2020-01-01T00:00:00Z",previous_policy_id:null,reason:"Explicit rules",idempotency_key:"p",policy:{institute_id:"i",rules:[{trigger:"birthday",enabled:false,offset_us:"0"},{trigger:"post_service",enabled:true,offset_us:"1"},{trigger:"rebooking",enabled:true,offset_us:"1"},{trigger:"inactivity",enabled:true,offset_us:"1"},{trigger:"package_expiry",enabled:false,offset_us:"0"},{trigger:"subscription_renewal",enabled:false,offset_us:"0"}]}};
+ s.diagnostics.policy_absent=0;s.candidates=[candidate,{...candidate,rule:{...candidate.rule,trigger:"rebooking"}},{...candidate,rule:{...candidate.rule,trigger:"inactivity"}}];
+ assert.equal(validEventSource(s,"i","c"),true);
+ assert.equal(validEventSource({...s,candidates:s.candidates.slice(1)},"i","c"),false);
+ assert.equal(validEventSource({...s,candidates:[candidate,candidate,s.candidates[2]]},"i","c"),false);
+ assert.equal(validEventSource({...s,candidates:s.candidates.map(c=>({...c,policy_original_id:"foreign"}))},"i","c"),false);
+ assert.equal(validEventSource({...s,diagnostics:{...s.diagnostics,care_invalid_actual_times:1}},"i","c"),false);
 });

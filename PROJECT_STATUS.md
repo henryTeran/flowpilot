@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 12
-CURRENT_CHECKPOINT = PHASE12AM_EVENT_IDENTITY_REVISION_PAGE_GUARDS
+CURRENT_CHECKPOINT = PHASE12AN_EVENT_SOURCE_CAPTURE_REQUEST_GUARDS
 STATUS = ACTIVE
+
+PHASE12AN_EVENT_SOURCE_CAPTURE_REQUEST_GUARDS:
+- Added typed event source/request/capture guards. Source pins scope/registered fact, independently validated lifecycle/calendar observation and common clock, explicit policy original, complete bounded diagnostics, unique valid anchors and birthday occurrence provenance. Eligible candidates must exactly cover policy-derived anchors (latest care only for recency), retain exact rule/source/capture/policy ID, and pass deadline/state guards. Unavailable policy/future registration/policy or invalid timing diagnostics require no candidates; diagnostic counts remain reported backend evidence, not independently verified raw database facts.
+- Actions require explicit batch-null or exact target/revision terms, reason and key. Capture verifies actor, literal request, scoped source/common clock, unique owned revisions and monotonic evaluation; reused older revisions are allowed. All fresh candidate occurrence keys must appear. Targeted cancel/process receipt must contain target in explicit cancellation/processed state. Receipt matching checks actor/full terms before recovery can clear pending intent. Independent receipt equivalence and native UI recovery remain pending.
+- Initial focus: 7 passed in 0.42s and TypeScript/Vite build passed. Full frontend: 279 passed in 47.88s, zero failures/skips. Final tightened fresh-key/target outcome focus: 8 passed in 0.39s; final TypeScript passes. No new backend/native browser/physical/production acceptance claimed; contracts not UI-bound.
+- CHECKPOINT_STATUS = PARTIAL. All four canonical CRM and physical/production gates remain OPEN. NEXT: native guarded event view/action intent recovery and signed desktop/tablet workflow evidence; complete Phase 12 acceptance. Full canonical goal remains active.
 
 PHASE12AM_EVENT_IDENTITY_REVISION_PAGE_GUARDS:
 - Added asynchronous browser WebCrypto SHA256 occurrence identity using Python-compatible compact ASCII JSON and exact normalized UTC expiry terms. Source Unicode/surrogate escaping, equivalent timezone clocks and one-microsecond term renewal tested against independently computed Python oracle hashes. Care/birthday identity omits mutable capture/policy/balance fields as canonical backend does.

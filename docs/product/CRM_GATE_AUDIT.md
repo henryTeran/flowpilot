@@ -1096,6 +1096,10 @@ Owned typed source anchors and candidates now recompute exact microsecond deadli
 
 Browser occurrence SHA256 matches independently computed Python compact ASCII/normalized UTC hashes, including Unicode and exact microsecond renewed expiry. Decision/revision guards verify scoped identity, chronology, state/reason, capture/predecessor IDs; current-page guard pins request bounds, total/count and sorted unique occurrences/revisions. Focus: 5 passed; full frontend: 276 passed in 47.31s; TypeScript/Vite pass. These contracts are not UI-bound; source/capture provenance and original action recovery remain pending. All four CRM and physical/production gates remain OPEN.
 
+## Phase 12AN: source, capture and action request contracts
+
+Typed source/capture/action contracts pin registered ownership, common lifecycle/source/capture clock, birthday calendar provenance, exact explicit policy-derived candidate coverage, diagnostic shape and unique scoped revisions. Request distinguishes batch from exact target/revision; recovery matching checks actor and literal terms. Retained older revisions remain valid; fresh occurrences and targeted action outcome must be represented. Backend diagnostic counts are reported evidence, not proof of independently inspected raw source completeness. Full frontend: 279 passed in 47.88s; final focus: 8 passed; TypeScript and build pass. Independent original equivalence/native action recovery remain pending. All CRM and physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
