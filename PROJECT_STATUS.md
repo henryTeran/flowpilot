@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11Z_NATIVE_REBOOKING_CHOICE_GUARDS
+CURRENT_CHECKPOINT = PHASE11AA_REBOOKING_SELECTOR_COMPONENT
 STATUS = ACTIVE
+
+PHASE11AA_REBOOKING_SELECTOR_COMPONENT:
+- Reusable manager-only native selector reads bounded actual-completion source pages, exposes disabled reasons, then reads same-client target pages only after an eligible source is selected. Main choices show institute civil clocks/UTC offsets; selected exact execution/booking captures remain in disclosures. Pagination and refresh withdraw the previous selection; empty source pages do not imply zero activity. No raw ID entry, attribution write or automatic selection.
+- Source/target responses use established exact guards. Employee/day/zone/token remounts isolate scopes, and current source/offset/revision/disabled refs refuse target responses from prior refreshes before cleanup. Visible data additionally binds source revision and page offsets; parent receives a pair only from the currently verified source/target capture. Failed fresh reads hide choices and withdraw the pair; disabled recovery state initiates no choice reads. The component is prepared for the pending form and is not yet routed into the live Workforce authoring section.
+- Initial component/choice focus: 3 passed in 4.01s; production TypeScript/Vite build passes. Final component/choice focus after explicit source revision/page visibility guards: 3 passed in 2.91s. Deferred-response case proves reception no-read, employee/actor isolation, late target refusal after source refresh, valid pair selection, failed fresh withdrawal and disabled-state no-read. Shared fixtures avoid importing test modules into another test. No backend/schema, full regression, Edge selector acceptance or signed native form completion is claimed.
+- CHECKPOINT_STATUS = PARTIAL: selection component is implemented/tested; native form/navigation, actor-scoped saved original requests, cancellation and lost-reply recovery remain required. Next: wire the selector into the manager original rebooking lifecycle, then verify component/Edge recovery. Full canonical goal and physical/production acceptance remain open.
 
 PHASE11Z_NATIVE_REBOOKING_CHOICE_GUARDS:
 - Typed native source/target choice guards validate institute/employee/day/zone, exact completion-day boundaries, bounded page counts and unique identities. Source eligibility is independently recomputed in backend exclusion priority; eligible captures must exactly match client/service/performer and microsecond execution instants. Invalid/future/unknown/attributed sources remain disabled with null capture and complete_sources=false.

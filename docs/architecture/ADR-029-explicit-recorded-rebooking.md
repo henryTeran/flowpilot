@@ -36,6 +36,17 @@ the target's assigned employee to differ from the original performer, preserving
 execution attribution. Controlled guard tests/build pass; the selector/form and
 signed native lifecycle remain pending.
 
+The reusable selector component now pages validated actual-completion choices
+and then same-client target choices, displaying disabled reasons rather than
+entering raw IDs. Scope/token remounts and current source/page/revision guards
+isolate late responses. Source refresh withdraws both captures immediately;
+target replies from that previous source revision cannot repopulate them. Fresh
+read failures hide choices and withdraw the parent selection; disabled recovery
+does not initiate choice reads. Civil clocks/offsets aid selection and exact
+captured instants remain in disclosures. Component tests/build pass; live
+Workforce form routing, signed request recovery and Edge selector acceptance
+remain pending.
+
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
 window or permits guessing customer identity. Employee rebooking will therefore

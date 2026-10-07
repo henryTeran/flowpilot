@@ -6796,3 +6796,5 @@ body {
 .employee-occupation li { overflow-wrap: anywhere; }
 .employee-rebooking summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .employee-rebooking li { overflow-wrap: anywhere; }
+.rebooking-choices summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.rebooking-choices details { overflow-wrap: anywhere; }
