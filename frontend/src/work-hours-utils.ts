@@ -2,6 +2,8 @@ import { certificationInstant, validRevokeTerms, type RevokeTerms } from "./cert
 export type WorkTerms = RevokeTerms & { employee_id: string; start_time: string; end_time: string };
 export type WorkCancellation = RevokeTerms & { id: string; institute_id: string; work_interval_id: string; actor_id: string; created_at: string };
 export type WorkInterval = WorkTerms & { id: string; institute_id: string; actor_id: string; created_at: string; cancellation: WorkCancellation | null };
+export type WorkIntent = { type: "create"; terms: WorkTerms } | { type: "cancel"; original: WorkInterval; terms: RevokeTerms };
+export type WorkPage = { institute_id: string; employee_id: string; generated_at: string; page: { offset: number; limit: number; total: number }; rows: WorkInterval[] };
 export type WorkHourSource = { interval: WorkInterval; clipped_start: string; clipped_end: string; duration_us: string; exclusion: "cancelled" | "future_end" | null };
 export type WorkHours = { institute_id: string; employee_id: string; day: string; timezone: string; start: string; end: string; generated_at: string;
   page: { offset: number; limit: number; total: number }; rows: WorkHourSource[]; active_sources: number; future_end_sources: number; overlap_sources: number;
@@ -25,6 +27,23 @@ export function validWorkInterval(v: unknown, institute: string, employee?: stri
   return validWorkTerms(r) && r.institute_id === institute && (!employee || r.employee_id === employee) && text(r.id, 80)
     && text(r.actor_id, 160) && certificationInstant(r.created_at) !== undefined
     && (r.cancellation === null || validWorkCancellation(r.cancellation, institute, r.id));
+}
+export function validWorkIntent(v: unknown, institute: string): v is WorkIntent {
+  const r = v as WorkIntent;
+  return !!r && (r.type === "create" ? validWorkTerms(r.terms) : r.type === "cancel" && validWorkInterval(r.original, institute)
+    && r.original.cancellation === null && validRevokeTerms(r.terms));
+}
+export const matchesWork = (r: WorkInterval, t: WorkTerms, actor: string) => r.actor_id === actor && r.employee_id === t.employee_id
+  && certificationInstant(r.start_time) === certificationInstant(t.start_time) && certificationInstant(r.end_time) === certificationInstant(t.end_time)
+  && r.reason === t.reason && r.idempotency_key === t.idempotency_key;
+export const sameWorkOriginal = (a: WorkInterval, b: WorkInterval) => a.id === b.id && a.institute_id === b.institute_id
+  && matchesWork(a, b, b.actor_id) && certificationInstant(a.created_at) === certificationInstant(b.created_at);
+export function validWorkPage(v: unknown, institute: string, employee: string, offset: number): v is WorkPage {
+  const r = v as WorkPage;
+  return !!r && r.institute_id === institute && r.employee_id === employee && certificationInstant(r.generated_at) !== undefined
+    && !!r.page && r.page.offset === offset && r.page.limit === 20 && count(r.page.total) && Array.isArray(r.rows)
+    && r.rows.length === Math.min(20, Math.max(0, r.page.total-offset)) && new Set(r.rows.map(v => v?.id)).size === r.rows.length
+    && r.rows.every(v => validWorkInterval(v, institute, employee));
 }
 export function validWorkHours(v: unknown, institute: string, employee: string, day: string, start: string, end: string, zone: string, offset: number): v is WorkHours {
   const r = v as WorkHours, from = certificationInstant(start), until = certificationInstant(end), now = certificationInstant(r?.generated_at);

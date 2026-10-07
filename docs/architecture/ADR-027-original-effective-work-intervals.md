@@ -1,7 +1,7 @@
 # ADR-027: Original declared effective workforce hours
 
 Status: API/migration foundation, exact day-duration read and native readonly
-Employee 360 integration implemented; native lifecycle and
+Employee 360 integration and native manager lifecycle/recovery implemented;
 Employee 360 integration remain open.
 
 The canonical Employee 360 requires workforce hours. Existing employee status,
@@ -75,6 +75,19 @@ responses. Direct navigation avoids long calendar scrolling. Clipped institute
 instants show both repeated-hour UTC offsets; exact original UTC instants,
 actor/reason/IDs and cancellation remain in a 44px provenance disclosure.
 
-Remaining work: native original creation/cancellation/lost-reply recovery and
-acceptance. Occupancy must retain explicit source coverage
+Native manager authoring requests explicit institute civil dates/times and an
+explicit occurrence for repeated hours. Missing/skipped occurrences, reversed
+intervals and future effective ends are refused. Actor/institute-scoped storage
+preserves the complete UTC request before original-key lookup or POST. Create
+recovery verifies the signed original twice, including exact microseconds and
+recording instant. Separate cancellation recovery verifies its original plus
+unchanged source interval. A validated fresh bounded history page is required
+before clearing the request. Failed reads keep it, and protected recovery can
+refresh history without creating another request. Late old-actor or old-zone
+responses cannot POST or clear storage. Zone changes reset civil fields while
+preserving saved UTC terms. Only definitive 400/422 POST refusals offer correction;
+malformed saved requests remain protected. Native declaration/cancellation do
+not alter scheduling or availability.
+
+Remaining work: physical/production acceptance. Occupancy must retain explicit source coverage
 and cannot infer complete working time or a ratio from an empty/partial ledger.
