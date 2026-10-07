@@ -779,7 +779,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
-        {mainView === "marketing" && <Suspense fallback={<div role="status">Chargement...</div>}><MarketingPanel institute={selectedInstituteId} /></Suspense>}
+        {mainView === "marketing" && <Suspense fallback={<div role="status">Chargement...</div>}><MarketingPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} /></Suspense>}
         {mainView === "clients" && <Suspense fallback={<div role="status">Chargement...</div>}><CustomerCrmPanel institute={selectedInstituteId} /></Suspense>}
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
         {mainView === "workforce" && <Suspense fallback={<div className="bm-banner loading" role="status">Chargement de l’équipe…</div>}>

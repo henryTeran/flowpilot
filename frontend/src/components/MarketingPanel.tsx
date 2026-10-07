@@ -14,11 +14,11 @@ import { validCampaignCatalog, validCampaignOriginal, validCampaignAuditPage, sa
 
 type Catalog = { institute_id: string; total: number; offset: number; limit: number; items: CampaignOriginal[] };
 const stages = { DRAFT: "Brouillon", REVIEW: "En revue", APPROVE: "Approuvée", SEND: "Envoi autorisé" };
-export function MarketingPanel({ institute }: { institute: string }) {
+export function MarketingPanel({ institute, timezone }: { institute: string; timezone?: string }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
-  return <CampaignDirectory key={JSON.stringify([institute, getAccessToken()])} institute={institute} />;
+  return <CampaignDirectory key={JSON.stringify([institute, getAccessToken()])} institute={institute} timezone={timezone} />;
 }
-function CampaignDirectory({ institute }: { institute: string }) {
+function CampaignDirectory({ institute, timezone }: { institute: string; timezone?: string }) {
   const [audienceVersion, refreshAudiences] = useState(0);
   const token = getAccessToken(), sequence = useRef(0);
   const [page, setPage] = useState<Catalog>(), [selected, select] = useState<CampaignOriginal>();
@@ -51,10 +51,10 @@ function CampaignDirectory({ institute }: { institute: string }) {
       <button disabled={page.offset === 0} onClick={() => void load(Math.max(0, page.offset - 20))}>Campagnes précédentes</button>
       <button disabled={page.offset + page.items.length >= page.total} onClick={() => void load(page.offset + 20)}>Campagnes suivantes</button>
     </>}
-    {selected && <CampaignHistory key={selected.revision.campaign_id} institute={institute} selected={selected} />}
+    {selected && <CampaignHistory key={selected.revision.campaign_id} institute={institute} timezone={timezone} selected={selected} />}
   </section>;
 }
-function CampaignHistory({ institute, selected }: { institute: string; selected: CampaignOriginal }) {
+function CampaignHistory({ institute, selected, timezone }: { institute: string; selected: CampaignOriginal; timezone?: string }) {
   const token = getAccessToken(), sequence = useRef(0), root = selected.revision.campaign_id;
   const [original, setOriginal] = useState<CampaignOriginal>(), [page, setPage] = useState<CampaignAuditPage>();
   const [offset, setOffset] = useState(0);
@@ -89,7 +89,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
     <MarketingCampaignCreator institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     <MarketingRecipientPanel institute={institute} original={original} />
     {original && <MarketingDispatchHistory institute={institute} campaign={original} />}
-    {original && <MarketingConversionReport institute={institute} campaign={root} />}
+    {original && <MarketingConversionReport institute={institute} campaign={root} timezone={timezone} />}
     {page && <><p>{page.originals.length ? `${page.offset + 1}–${page.offset + page.originals.length}` : "0"} sur {page.total} révisions</p>
       {page.originals.map(o => <article key={o.revision.id} style={{ overflowWrap: "anywhere" }}><h4>{stages[o.revision.state]}</h4>
         <p>{o.revision.actor_id} · {o.revision.created_at} · {o.revision.reason}</p>

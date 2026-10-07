@@ -3,16 +3,17 @@ import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
 import { validConversionReport, type ConversionReport } from "../marketing-conversion-utils";
 import { certificationInstant } from "../certification-utils";
+import { instituteMidnight } from "../outlook-utils";
 
 function money(minor: string): string {
   const amount = BigInt(minor);
   return `${amount / 100n}.${(amount % 100n).toString().padStart(2, "0")}`;
 }
-export function MarketingConversionReport({ institute, campaign }: { institute: string; campaign: string }) {
+export function MarketingConversionReport({ institute, campaign, timezone }: { institute: string; campaign: string; timezone?: string }) {
   if (!institute || !campaign || getOperatorRole() !== "responsable_institut") return null;
-  return <ReportForm key={JSON.stringify([institute, campaign, getAccessToken()])} institute={institute} campaign={campaign} />;
+  return <ReportForm key={JSON.stringify([institute, campaign, timezone, getAccessToken()])} institute={institute} campaign={campaign} timezone={timezone} />;
 }
-function ReportForm({ institute, campaign }: { institute: string; campaign: string }) {
+function ReportForm({ institute, campaign, timezone }: { institute: string; campaign: string; timezone?: string }) {
   const token = getAccessToken(), sequence = useRef(0);
   const [start, setStart] = useState(""), [end, setEnd] = useState("");
   const [report, setReport] = useState<ConversionReport>(), [loading, setLoading] = useState(false), [error, setError] = useState<string>();
@@ -25,8 +26,10 @@ function ReportForm({ institute, campaign }: { institute: string; campaign: stri
     const request = ++sequence.current, current = () => request === sequence.current && token === getAccessToken()
       && getOperatorRole() === "responsable_institut";
     setReport(undefined); setError(undefined);
-    const period = { start, end }, first = certificationInstant(start), last = certificationInstant(end);
-    if (first === undefined || last === undefined || first >= last) { setError("Choisissez deux dates avec fuseau horaire, dans l’ordre."); return; }
+    const from = timezone && instituteMidnight(start, timezone), until = timezone && instituteMidnight(end, timezone);
+    const first = certificationInstant(from), last = certificationInstant(until);
+    if (!from || !until || first === undefined || last === undefined || first >= last) { setError("Choisissez deux dates dans l’ordre et vérifiez le fuseau de l’institut."); return; }
+    const period = { start: from, end: until };
     setLoading(true);
     try {
       const params = new URLSearchParams(period);
@@ -39,8 +42,9 @@ function ReportForm({ institute, campaign }: { institute: string; campaign: stri
   return <section aria-label="Synthèse des conversions" style={{ overflowWrap: "anywhere" }}>
     <h3>Conversions déclarées</h3>
     <p>Choisissez une période de facturation déjà observée. Le début est inclus, la fin exclue.</p>
-    <label>Début avec fuseau horaire <input value={start} placeholder="2026-10-01T00:00:00+02:00" onChange={e => change("start", e.target.value)} /></label>
-    <label>Fin avec fuseau horaire <input value={end} placeholder="2026-10-02T00:00:00+02:00" onChange={e => change("end", e.target.value)} /></label>
+    <p>Journées de l’institut · {timezone || "Fuseau indisponible"}</p>
+    <label>Date de début <input type="date" value={start} onChange={e => change("start", e.target.value)} /></label>
+    <label>Date de fin exclue <input type="date" value={end} onChange={e => change("end", e.target.value)} /></label>
     <button disabled={loading} onClick={() => void load()}>Lire la synthèse des conversions</button>
     {loading && <p role="status">Lecture des conversions…</p>}
     {error && <p role="alert">{error}</p>}
