@@ -35,11 +35,15 @@ test("signed native campaign sources draft recovery review approval and immutabl
   for (const control of await creator.locator("button,input,select,textarea").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await creator.screenshot({ path: info.outputPath("native-campaign-draft.png") });
-  let posts = 0, draft: any; let markLost!: () => void; const firstLost = new Promise<void>(resolve => { markLost = resolve; });
+  let posts = 0, draft: any, edited: any;
+  let markLost!: () => void, markEditLost!: () => void;
+  const firstLost = new Promise<void>(resolve => { markLost = resolve; }), editLost = new Promise<void>(resolve => { markEditLost = resolve; });
   await page.route("**/campaigns", async route => {
     if (route.request().method() !== "POST") return route.continue(); posts++;
     const response = await route.fetch(); expect(response.status()).toBe(200); const data = await response.json();
-    if (posts === 1) { draft = data; await route.abort("failed"); markLost(); return; } return route.fulfill({ response });
+    if (posts === 1) { draft = data; await route.abort("failed"); markLost(); return; }
+    if (posts === 4) { edited = data; await route.abort("failed"); markEditLost(); return; }
+    return route.fulfill({ response });
   });
   await creator.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click(); await firstLost;
   await expect(creator.getByRole("button", { name: "Reprendre le brouillon conservé", exact: true })).toBeEnabled();
@@ -59,4 +63,25 @@ test("signed native campaign sources draft recovery review approval and immutabl
   expect(head.revision.state).toBe("APPROVE"); expect(head.revision.approved_digest).toBe(head.revision.reviewed_digest); expect(head.revision.external_message_sent).toBe(false);
   expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.marketing-campaign-create-request:") || k.startsWith("flowpilot.marketing-campaign-request:")))).toBe(false);
   await history.screenshot({ path: info.outputPath("native-campaign-approved.png") });
+  const editor = page.getByRole("region", { name: "Modifier la campagne", exact: true });
+  await editor.getByRole("button", { name: "Préparer une correction de campagne", exact: true }).click();
+  await expect(editor.getByLabel("Texte de campagne")).toHaveValue(body); await expect(editor.getByLabel("Source du texte")).toHaveValue("template");
+  await editor.getByLabel("Source du texte").selectOption("literal"); await editor.getByLabel("Origine de campagne").selectOption("human");
+  await editor.getByLabel("Texte de campagne").fill("Explicit edited content {customer_name}"); await editor.getByLabel("Motif du brouillon").fill("Explicit approved campaign correction");
+  for (const control of await editor.locator("button,input,select,textarea").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+  await editor.screenshot({ path: info.outputPath("native-campaign-edit.png") });
+  await editor.getByRole("button", { name: "Enregistrer la correction de campagne", exact: true }).click(); await editLost;
+  await expect(editor.getByRole("button", { name: "Reprendre la correction conservée", exact: true })).toBeEnabled();
+  await page.reload(); await open(); await page.getByRole("button", { name: `${subject} · Brouillon · email`, exact: true }).click();
+  await editor.getByRole("button", { name: "Reprendre la correction conservée", exact: true }).click();
+  await expect(editor).toContainText("Brouillon original vérifié"); await expect(history.locator("article")).toHaveCount(4); expect(posts).toBe(4);
+  expect(edited.request.action).toBe("edit"); expect(edited.revision.previous_id).toBe(head.revision.id);
+  expect(edited.revision.state).toBe("DRAFT"); expect(edited.revision.reviewed_digest).toBeNull(); expect(edited.revision.approved_digest).toBeNull();
+  expect(edited.revision.content.template_original_id).toBeNull(); expect(edited.revision.content.origin).toBe("human");
+  await expect(actions.getByRole("button", { name: "Approuver le contenu et l’audience", exact: true })).toBeDisabled();
+  await expect(actions.getByRole("button", { name: "Soumettre en revue", exact: true })).toBeEnabled();
+  const oldApproval = await request.get(`${base}/campaigns/${head.revision.id}`, { headers }); expect(await oldApproval.json()).toEqual(head);
+  expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.marketing-campaign-edit-request:")))).toBe(false);
+  await history.screenshot({ path: info.outputPath("native-campaign-edit-reset.png") });
 });

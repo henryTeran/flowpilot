@@ -1,17 +1,23 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiGet, apiPost, ApiError } from "../api/client";
 import { getAccessToken, getOperatorRole, getOperatorSubject } from "../api/session";
+import { certificationInstant as instant } from "../certification-utils";
 import { validAudienceCatalog, validAudienceOriginal, sameAudienceOriginal, type AudienceCatalog, type AudienceOriginal } from "../marketing-audience-utils";
 import { validTemplateCatalog, validTemplateOriginal, sameTemplateOriginal, type TemplateCatalog, type TemplateOriginal } from "../marketing-template-utils";
 import { validCampaignRequest, validCampaignOriginal, matchesCampaignReceipt, sameCampaignOriginal, type CampaignRequest, type CampaignOriginal } from "../marketing-campaign-utils";
-export function MarketingCampaignCreator({ institute, onChanged }: { institute: string; onChanged?: () => void }) {
+type EditorProps = { institute: string; campaign?: string; original?: CampaignOriginal; onChanged?: () => void };
+export function MarketingCampaignCreator({ institute, campaign, original, onChanged }: EditorProps) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
-  return <Creator key={JSON.stringify([institute, getAccessToken()])} institute={institute} onChanged={onChanged} />;
+  return <Creator key={JSON.stringify([institute, campaign, getAccessToken()])} institute={institute} campaign={campaign} original={original} onChanged={onChanged} />;
 }
-function Creator({ institute, onChanged }: { institute: string; onChanged?: () => void }) {
+function Creator({ institute, campaign, original, onChanged }: EditorProps) {
   const token = getAccessToken(), actor = getOperatorSubject(), mounted = useRef(false), pending = useRef(false);
-  const base = `/marketing/institutes/${encodeURIComponent(institute)}`, storage = `flowpilot.marketing-campaign-create-request:${JSON.stringify([institute, actor])}`;
-  const validTerms = (v: unknown): v is CampaignRequest => validCampaignRequest(v) && v.action === "create";
+  const base = `/marketing/institutes/${encodeURIComponent(institute)}`, storage = campaign
+    ? `flowpilot.marketing-campaign-edit-request:${JSON.stringify([institute, actor, campaign])}`
+    : `flowpilot.marketing-campaign-create-request:${JSON.stringify([institute, actor])}`;
+  const validTerms = (v: unknown): v is CampaignRequest => validCampaignRequest(v)
+    && (campaign ? v.action === "edit" && v.campaign_id === campaign : v.action === "create");
+  const [predecessor, setPredecessor] = useState<string | null>(null);
   const [saved, save] = useState<{ terms?: CampaignRequest; invalid?: boolean }>(() => {
     try { const raw = sessionStorage.getItem(storage); if (!raw) return {}; const v = JSON.parse(raw); return validTerms(v) ? { terms: v } : { invalid: true }; }
     catch { return { invalid: true }; }
@@ -24,6 +30,41 @@ function Creator({ institute, onChanged }: { institute: string; onChanged?: () =
   const current = () => mounted.current && token === getAccessToken();
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const frozen = busy || !!saved.terms || !!saved.invalid;
+  async function prepare() {
+    if (frozen || !current()) return;
+    if (!campaign) { setOpen(true); setReceipt(undefined); return; }
+    if (!original) return;
+    setBusy(true); setOpen(false); setReceipt(undefined); setError(undefined); setPredecessor(null);
+    try {
+      const head = await apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(campaign)}/current`);
+      if (!current()) return;
+      if (!await validCampaignOriginal(head, institute) || head.revision.campaign_id !== campaign) throw new Error("Campagne courante à vérifier.");
+      if (!current()) return;
+      const [byId, source, selectedTemplate] = await Promise.all([
+        apiGet<CampaignOriginal>(`${base}/campaigns/${encodeURIComponent(head.revision.id)}`),
+        apiGet<unknown>(`${base}/audience-captures/${encodeURIComponent(head.revision.content.audience.id)}`),
+        head.revision.content.template_original_id === null ? Promise.resolve(null)
+          : apiGet<unknown>(`${base}/templates/${encodeURIComponent(head.revision.content.template_original_id)}`),
+      ]);
+      if (!current()) return;
+      if (!await sameCampaignOriginal(head, byId, institute) || !validAudienceOriginal(source, institute)
+        || source.id !== head.revision.content.audience.id || source.request.channel !== head.revision.content.channel
+        || source.summary.eligible_count !== head.revision.content.audience.customer_ids.length
+        || instant(source.captured_at) !== instant(head.revision.content.audience.captured_at)) throw new Error("Sources de correction à vérifier.");
+      if (!current()) return;
+      const sourceKey = await apiGet<unknown>(`${base}/audience-captures/original/${encodeURIComponent(source.request.idempotency_key)}`);
+      if (!current()) return;
+      if (!validAudienceOriginal(sourceKey, institute) || !sameAudienceOriginal(source, sourceKey)) throw new Error("Audience de correction à vérifier.");
+      if (selectedTemplate !== null && (!validTemplateOriginal(selectedTemplate, institute)
+        || selectedTemplate.id !== head.revision.content.template_original_id || instant(selectedTemplate.created_at)! > instant(head.revision.created_at)!
+        || selectedTemplate.content.channel !== head.revision.content.channel || selectedTemplate.content.origin !== head.revision.content.origin
+        || selectedTemplate.content.subject !== head.revision.content.subject || selectedTemplate.content.body !== head.revision.content.body)) throw new Error("Template de correction à vérifier.");
+      setPredecessor(head.revision.id); selectAudience(source); selectTemplate(selectedTemplate === null ? undefined : selectedTemplate as TemplateOriginal);
+      setChannel(head.revision.content.channel); setMode(selectedTemplate ? "template" : "literal"); setOrigin(head.revision.content.origin);
+      setSubject(head.revision.content.subject || ""); setBody(head.revision.content.body); setReason(""); setAudiences(undefined); setTemplates(undefined); setOpen(true);
+    } catch (e) { if (current()) setError(e instanceof Error ? e.message : "Correction à reprendre."); }
+    finally { if (current()) setBusy(false); }
+  }
   async function sources(kind: "audiences" | "templates", offset = 0) {
     if (frozen || !channel || !current()) return;
     setBusy(true); setError(undefined); if (kind === "audiences") setAudiences(undefined); else setTemplates(undefined);
@@ -73,24 +114,24 @@ function Creator({ institute, onChanged }: { institute: string; onChanged?: () =
         || !await validCampaignOriginal(head, institute) || head.revision.campaign_id !== result.revision.campaign_id) throw new Error("Original ou campagne courante à vérifier.");
       if (!current()) return;
       if (sessionStorage.getItem(storage) !== raw) throw new Error("Demande conservée à vérifier.");
-      sessionStorage.removeItem(storage); save({}); setReceipt(result); setOpen(false); selectAudience(undefined); selectTemplate(undefined);
+      sessionStorage.removeItem(storage); save({}); setReceipt(result); setOpen(false); setPredecessor(null); selectAudience(undefined); selectTemplate(undefined);
       setAudiences(undefined); setTemplates(undefined); setChannel(""); setMode(""); setOrigin(""); setSubject(""); setBody(""); setReason(""); onChanged?.();
     } catch (e) { if (current()) { setError(e instanceof Error ? e.message : "Brouillon à reprendre."); setRejected(posting && !returned && e instanceof ApiError && [400, 422].includes(e.status)); } }
     finally { pending.current = false; if (current()) setBusy(false); }
   }
   function submit(event: FormEvent) {
-    event.preventDefault(); if (frozen || !actor || !audience || !["literal", "template"].includes(mode) || mode === "template" && !template) return;
-    const terms = { action: "create", campaign_id: null, expected_revision_id: null, reason: reason.trim(), idempotency_key: crypto.randomUUID(),
+    event.preventDefault(); if (frozen || !actor || !audience || campaign && !predecessor || !["literal", "template"].includes(mode) || mode === "template" && !template) return;
+    const terms = { action: campaign ? "edit" : "create", campaign_id: campaign || null, expected_revision_id: campaign ? predecessor : null, reason: reason.trim(), idempotency_key: crypto.randomUUID(),
       content: { channel, origin, subject: channel === "email" ? subject : null, body, audience_id: audience.id, template_original_id: template?.id || null } };
     if (!validTerms(terms)) { setError("Vérifiez le contenu, les sources et le motif."); return; } void run(terms);
   }
-  return <section aria-label="Créer une campagne"><h3>Créer une campagne</h3>
+  return <section aria-label={campaign ? "Modifier la campagne" : "Créer une campagne"}><h3>{campaign ? "Modifier la campagne" : "Créer une campagne"}</h3>
     {error && <p role="alert">{error}</p>}{busy && <p role="status">Vérification des sources et du brouillon…</p>}
     {saved.invalid && <p role="alert">Demande conservée invalide : aucune écriture possible.</p>}
-    {saved.terms && <><p>Brouillon conservé : {saved.terms.reason}</p><button disabled={busy} onClick={() => void run(saved.terms!)}>Reprendre le brouillon conservé</button></>}
+    {saved.terms && <><p>Brouillon conservé : {saved.terms.reason}</p><button disabled={busy} onClick={() => void run(saved.terms!)}>{campaign ? "Reprendre la correction conservée" : "Reprendre le brouillon conservé"}</button></>}
     {rejected && <button onClick={() => { if (!saved.terms || sessionStorage.getItem(storage) !== JSON.stringify(saved.terms)) return;
       sessionStorage.removeItem(storage); save({}); setRejected(false); }}>Corriger le brouillon refusé</button>}
-    <button disabled={frozen} onClick={() => { setOpen(true); setReceipt(undefined); }}>Préparer une campagne</button>
+    <button disabled={frozen || !!campaign && !original} onClick={() => void prepare()}>{campaign ? "Préparer une correction de campagne" : "Préparer une campagne"}</button>
     {open && <form onSubmit={submit}><fieldset className="marketing-audience-fields" disabled={frozen}><legend>Sources et contenu du brouillon</legend>
       <label>Canal de campagne<select required value={channel} onChange={e => { setChannel(e.target.value); selectAudience(undefined); selectTemplate(undefined); setAudiences(undefined); setTemplates(undefined); }}>
         <option value="">Choisir</option><option value="email">Email</option><option value="sms">SMS</option><option value="push">Push</option></select></label>
@@ -113,9 +154,10 @@ function Creator({ institute, onChanged }: { institute: string; onChanged?: () =
       {channel === "email" && <label>Objet de campagne<input required disabled={mode === "template"} value={subject} onChange={e => setSubject(e.target.value)} /></label>}
       <label className="marketing-template-body">Texte de campagne<textarea required disabled={mode === "template"} value={body} onChange={e => setBody(e.target.value)} /></label>
       <label>Motif du brouillon<input required minLength={3} maxLength={240} value={reason} onChange={e => setReason(e.target.value)} /></label>
-      <button disabled={!actor || !audience || mode === "template" && !template}>Enregistrer le brouillon</button>
+      <button disabled={!actor || !audience || !!campaign && !predecessor || mode === "template" && !template}>{campaign ? "Enregistrer la correction de campagne" : "Enregistrer le brouillon"}</button>
     </fieldset></form>}
     {receipt && <div role="status"><p>Brouillon original vérifié : {receipt.revision.id}</p><p>{receipt.revision.content.audience.customer_ids.length} destinataires retenus · DRAFT</p></div>}
     <p>Les sources sont historiques. Aucun envoi n’est réalisé lors de la création du brouillon.</p>
+    {campaign && <p>La correction revient au brouillon et efface la revue et l’approbation précédentes. Une nouvelle validation est nécessaire.</p>}
   </section>;
 }

@@ -62,3 +62,32 @@ test("invalid create storage and reception cannot initiate campaign writes", asy
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<MarketingCampaignCreator institute="i" />)); assert.equal(document.body.textContent, ""); assert.equal(calls, 0);
   } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
 });
+test("campaign correction recovery pins root/predecessor and keeps wrong-actor intent", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let wrongActor = true, posts = 0, changed = 0;
+  const editStorage = 'flowpilot.marketing-campaign-edit-request:["i","manager","root"]';
+  const editTerms: CampaignRequest = { ...terms, action: "edit", campaign_id: "root", expected_revision_id: "approval" };
+  const edited: CampaignOriginal = { request: editTerms, revision: { ...original.revision, id: "edit", previous_id: "approval" } };
+  globalThis.fetch = async (_url, options) => { if (options?.method === "POST") posts++;
+    return reply(wrongActor ? { ...edited, revision: { ...edited.revision, actor_id: "other" } } : edited); };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(editStorage, JSON.stringify(editTerms));
+    await act(async () => root.render(<MarketingCampaignCreator institute="i" campaign="root" onChanged={() => changed++} />));
+    await click("Reprendre la correction conservée"); assert.ok(sessionStorage.getItem(editStorage)); assert.equal(changed, 0);
+    wrongActor = false; await click("Reprendre la correction conservée"); assert.equal(sessionStorage.getItem(editStorage), null); assert.equal(changed, 1); assert.equal(posts, 0);
+    assert.match(document.body.textContent!, /efface la revue et l’approbation/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});
+test("correction preparation rejects inconsistent retained audience then prepares exact current content", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!); let forgedClock = true;
+  const audience = { id: "audience", institute_id: "i", actor_id: "manager", captured_at: "2026-10-07T00:00:00Z",
+    request: { segments: ["NEW"], channel: "email", reason: "Source", idempotency_key: "source" }, summary: { page_count: 1, customer_count: 1, selected_count: 1, eligible_count: 1 },
+    complete_registered_cohort: true, delivery_authorized: false };
+  globalThis.fetch = async url => reply(String(url).includes("/audience-captures/") ? { ...audience,
+    captured_at: forgedClock ? "2026-10-07T00:00:00.000001Z" : audience.captured_at } : original);
+  try {
+    sessionStorage.clear(); setAccessToken(token()); await act(async () => root.render(<MarketingCampaignCreator institute="i" campaign="root" original={original} />));
+    await click("Préparer une correction de campagne"); assert.match(document.body.textContent!, /Sources de correction à vérifier/); assert.equal(document.querySelector("form"), null);
+    forgedClock = false; await click("Préparer une correction de campagne"); assert.equal(document.querySelector("textarea")!.value, content.body);
+    assert.equal([...document.querySelectorAll("select")].find(s => s.closest("label")?.textContent?.startsWith("Source du texte"))!.value, "literal");
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});

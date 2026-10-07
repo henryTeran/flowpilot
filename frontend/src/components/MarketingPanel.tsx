@@ -81,6 +81,7 @@ function CampaignHistory({ institute, selected }: { institute: string; selected:
       <p>{original.revision.content.audience.customer_ids.length} destinataires retenus · audience {original.revision.content.audience.id}</p>
       <p>Aucun envoi enregistré. Les permissions retenues ne constituent pas une autorisation d’envoi actuelle.</p></>}
     <MarketingCampaignActions institute={institute} campaign={root} original={original} onChanged={() => void load()} />
+    <MarketingCampaignCreator institute={institute} campaign={root} original={original} onChanged={() => void load()} />
     {page && <><p>{page.originals.length ? `${page.offset + 1}–${page.offset + page.originals.length}` : "0"} sur {page.total} révisions</p>
       {page.originals.map(o => <article key={o.revision.id} style={{ overflowWrap: "anywhere" }}><h4>{stages[o.revision.state]}</h4>
         <p>{o.revision.actor_id} · {o.revision.created_at} · {o.revision.reason}</p>

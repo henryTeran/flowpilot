@@ -394,6 +394,29 @@ four draft/approved screenshots inspected. Existing bcrypt-version/NO_COLOR only
 Native edit/reset and deeper page/all-channel acceptance plus contacts/delivery/
 conversion pending; all marketing gates OPEN, physical/production gates OPEN.
 
+## 13T: native campaign editing and approval reset
+
+Selected campaigns now reuse the source-bound editor for exact-predecessor edits.
+Preparation independently rereads current/ID and retained audience ID/key/channel/
+clock/eligible count, optional exact owned nonfuture template original/content.
+Source mismatch refuses the form. Literal/template fields prefill without guessing;
+explicit literal-mode switch releases template binding. Per-institute/actor/root
+edit intent survives refresh/reload; original-key full terms/actor plus independent
+key/ID/current checks precede closure. Backend edit creates DRAFT, clears review/
+approval digests and preserves all older originals. No SEND/provider operation.
+
+Five creator tests pass in 2.90s, including wrong edit actor/receipt closure with no
+POST, forged source clock refuses preparation then exact prefill and prior guards.
+Full frontend: 309 passed in 58.06s, zero failures/skips, terminal exit 0. TypeScript/
+Vite build passes (138 modules). Actual signed desktop/touch-tablet full expanded
+workflow: 2 passed in 48.8s; fixture cleaned. Approved AI/template-bound campaign
+explicitly released to human literal correction, exact approval predecessor, lost
+edit/reload/replay four total POSTs, DRAFT/null digests/new review required, original
+approval unchanged, four audit originals and edit storage cleared. Controls >=44px/
+no overflow; four edit/reset screenshots inspected. Existing bcrypt/NO_COLOR only.
+All-channel/source replacement/deeper pagination and contact/delivery/conversion
+acceptance pending; marketing gates OPEN, physical/production gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
