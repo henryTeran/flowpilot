@@ -58,7 +58,7 @@ class ClosedTicketFact(Fact):
 
 class ExactRatio(Fact):
     numerator: str = Field(pattern=r"^(0|[1-9][0-9]*)$")
-    denominator: int = Field(strict=True, gt=0)
+    denominator: Annotated[str, StringConstraints(pattern=r"^[1-9][0-9]*$")]
 
 
 class CurrencyBilling(Fact):
@@ -108,8 +108,8 @@ def calculate_billing(window: BillingWindow, facts: Iterable[ClosedTicketFact]) 
         if fact.amount_minor is not None: group["minor"] += int(fact.amount_minor)
     currencies = tuple(CurrencyBilling(currency=currency, closed_tickets=g["count"], known_amount_tickets=g["known"],
         missing_amount_tickets=g["missing"], invalid_amount_tickets=g["invalid"], known_gross_minor=str(g["minor"]),
-        recorded_average_basket_minor=ExactRatio(numerator=str(g["minor"]), denominator=g["count"]) if g["known"] == g["count"] else None)
+        recorded_average_basket_minor=ExactRatio(numerator=str(g["minor"]), denominator=str(g["count"])) if g["known"] == g["count"] else None)
         for currency, g in sorted(groups.items()))
-    return RecordedBilling(window=window, closed_tickets=len(ids), frequency_per_microsecond=ExactRatio(numerator=str(len(ids)), denominator=microseconds(window.end-window.start)),
+    return RecordedBilling(window=window, closed_tickets=len(ids), frequency_per_microsecond=ExactRatio(numerator=str(len(ids)), denominator=str(microseconds(window.end-window.start))),
         last_recorded_closed_at=last, recorded_recency_us=str(microseconds(window.captured_at-last)) if last else None,
         unknown_currency_tickets=unknown_currency, currencies=currencies, complete_currency_classification=unknown_currency == 0)

@@ -175,6 +175,38 @@ results exposed the fixture inconsistency. Explicit hour-based test thresholds
 were supplied without changing production classification, then all tests passed.
 No new schema migration, native browser/UI or production acceptance is claimed.
 
+## 12F: exact frontend recorded-billing guards
+
+`frontend/src/crm-billing-utils.ts` validates customer/institute scope, requested
+window aliases and exact aware microsecond chronology before rendering recorded
+billing. It independently verifies ticket/currency/amount-quality count
+conservation, unknown-currency completeness, canonical nonnegative gross strings
+bounded by known source count, frequency and average-basket ratios, recency and
+empty-history semantics. CHF/EUR groups must be unique and ordered. Missing or
+invalid gross cannot become a zero average; complete-history and predicted-CLV
+substitutions are rejected. Unsafe JSON numeric counts are refused rather than
+rounded. Monetary sums beyond JavaScript's safe numeric range use BigInt.
+
+The backend `ExactRatio` now serializes **both numerator and denominator as
+canonical integer strings**, with a strictly positive denominator. This corrects
+the experimental CRM response contract before native consumption: very long
+observed periods have microsecond denominators beyond JSON/JavaScript numeric
+precision. No existing native CRM consumer is bound to the previous numeric
+denominator; repository usage was inspected. The frontend verifies the exact
+ratio against clock/count arithmetic without passing denominators through Number.
+
+Controlled frontend regression: 231 passed in 48.22s, zero failures/skips;
+TypeScript/Vite production build passes (111 modules; existing main/Workforce
+bundles unchanged, guard not bound to UI yet). Four new test groups cover scope,
+UTC-offset equivalents versus 1us changes, forged ratios/counts/source bounds,
+missing/invalid/unknown and empty history, noncanonical money, unsafe counts and numeric denominators,
+large exact aggregates and a year-1 observation period. Backend CRM regression
+and long-horizon JSON serialization: all six CRM files, 53 passed in 124.72s
+(2m04), zero failures/skips with actual PostgreSQL enabled; existing passlib
+crypt deprecation warning only. No schema or persisted source change is required.
+No native profile, policy-receipt/segment guard or signed-browser acceptance is
+claimed by this billing foundation.
+
 ## Remaining acceptance
 
 - Integrate the delivered signed billing read into native customer profiles;

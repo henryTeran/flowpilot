@@ -23,7 +23,7 @@ def fact(ticket="t", **changes):
 def test_empty_history_is_unknown_not_a_prediction():
     result = calculate_billing(window(), [])
     assert result.closed_tickets == 0
-    assert result.frequency_per_microsecond.model_dump() == {"numerator": "0", "denominator": 86400000000}
+    assert result.frequency_per_microsecond.model_dump() == {"numerator": "0", "denominator": "86400000000"}
     assert result.last_recorded_closed_at is None and result.recorded_recency_us is None
     assert result.currencies == () and result.predicted_clv is None
     assert result.complete_customer_history is False
@@ -37,7 +37,7 @@ def test_exact_currency_cohorts_and_missing_sources():
         fact("t6", currency="EUR", amount_minor=None, amount_quality="invalid")])
     chf, eur = result.currencies
     assert chf.known_gross_minor == "201"
-    assert chf.recorded_average_basket_minor.model_dump() == {"numerator": "201", "denominator": 2}
+    assert chf.recorded_average_basket_minor.model_dump() == {"numerator": "201", "denominator": "2"}
     assert eur.known_gross_minor == "9999999999" and eur.recorded_average_basket_minor is None
     assert (eur.known_amount_tickets, eur.missing_amount_tickets, eur.invalid_amount_tickets) == (1, 1, 1)
     assert result.closed_tickets == 6 and result.recorded_recency_us == "1"
@@ -69,8 +69,15 @@ def test_invalid_source_is_refused(changes):
 
 def test_exact_microsecond_window_and_zero_gross():
     result = calculate_billing(window(start=NOW-timedelta(microseconds=1)), [fact(amount_minor="0")])
-    assert result.frequency_per_microsecond.denominator == 1
+    assert result.frequency_per_microsecond.denominator == "1"
     assert result.currencies[0].recorded_average_basket_minor.numerator == "0"
     for changes in ({"start": NOW}, {"end": NOW+timedelta(microseconds=1)}, {"start": "2026-10-06"}):
         with pytest.raises(ValidationError):
             window(**changes)
+
+
+def test_long_horizon_ratio_serializes_without_unsafe_json_numbers():
+    result = calculate_billing(window(start=datetime(1, 1, 1, tzinfo=timezone.utc)), [])
+    denominator = result.frequency_per_microsecond.denominator
+    assert isinstance(denominator, str) and int(denominator) > 2**53
+    assert result.model_dump(mode="json")["frequency_per_microsecond"]["denominator"] == denominator

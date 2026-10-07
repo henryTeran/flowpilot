@@ -73,7 +73,7 @@ def exercise(engine, institute, monkeypatch):
         chf, eur = result.currencies
         assert chf.closed_tickets == 105 and chf.known_gross_minor == "10605"
         assert chf.recorded_average_basket_minor.numerator == "10605"
-        assert chf.recorded_average_basket_minor.denominator == 105
+        assert chf.recorded_average_basket_minor.denominator == "105"
         assert eur.recorded_average_basket_minor is None
         assert (eur.known_amount_tickets, eur.missing_amount_tickets, eur.invalid_amount_tickets) == (1, 1, 1)
         assert result.unknown_currency_tickets == 1 and result.recorded_recency_us == "3600000000"
