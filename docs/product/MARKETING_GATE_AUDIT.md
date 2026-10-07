@@ -759,6 +759,30 @@ No production migration/new frontend/native/live-provider acceptance. Next signe
 intent preparation/replay and outcome service, durable uncertain-I/O worker, configured
 adapters/native audit/conversion. Marketing/physical/production gates OPEN; goal ACTIVE.
 
+## Phase 13AI - signed owned dispatch intent preparation
+
+Manager-only prepare/key/ID routes; owned institute lock pins current campaign and
+contact, evaluates approved membership/current grant/destination with one clock,
+resolves server account channel/application and atomically persists exact transport
+terms/fingerprint/actor/reason. MARKETING_ACCOUNTS_JSON empty by default; invalid,
+absent or ambiguous bindings refuse. Client cannot supply account objects or actor.
+Key/full-request/actor replay occurs before fresh sources/config/time; independent
+historical approval/contact must equal retained submission. Withdrawal/config removal
+preserves historical receipt without authorizing future execution. No provider I/O or
+SEND. One operation per approved customer; same-key recovery and competing-key refusal.
+
+Initial 3 passed/15.87s; adjacent preparation/provider/recipient/contact 18 passed/52.20s
+before added cases; final 6 preparation tests passed/33.64s, exit 0. Actual PostgreSQL
+all three source channels/approvals/intents, withdrawal before any intent creates none,
+wrong sources/clock/config refusal, flush rollback, corrupt receipt refusal. Signed
+POST/key/ID, actor/term/role/scope/anonymous denial, replay with missing configuration.
+Actual PostgreSQL same-key race one identical receipt, distinct keys one winner.
+Isolated fixtures clean. Crypt deprecation/deliberate invalid-bool serialization warning
+in adjacent provider test only. No schema/full migration/full backend/frontend/native/
+live-provider claim. See MARKETING_DISPATCH.md. Next outcome originals, durable
+attempt/reconciliation worker, configured adapters/native audit/conversion. All
+marketing/physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
