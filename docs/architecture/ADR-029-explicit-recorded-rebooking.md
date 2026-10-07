@@ -26,6 +26,16 @@ and rows do not trigger per-option source queries. Selection remains a snapshot:
 the signed original write revalidates authoritative facts and active uniqueness
 before creating any declaration. No source/target choice creates attribution.
 
+Native choice guards independently verify exact scoped source captures and
+completion-day eligibility, including backend exclusion priority. Target choices
+must match the selected execution/client, one creation event and positive
+original/current slot chronology with exact microsecond comparisons. Drift in
+source, client or current captured slot cannot silently become the selected
+request; invalid/attributed choices must have null capture. Choice guards allow
+the target's assigned employee to differ from the original performer, preserving
+execution attribution. Controlled guard tests/build pass; the selector/form and
+signed native lifecycle remain pending.
+
 Canonical section 32 requires employee rebooking; section 33 separately requires
 CRM rebooking cycles and automation. Neither defines an employee attribution
 window or permits guessing customer identity. Employee rebooking will therefore

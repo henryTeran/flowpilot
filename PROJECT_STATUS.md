@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11Y_BOUNDED_REBOOKING_SOURCE_TARGET_CHOICES
+CURRENT_CHECKPOINT = PHASE11Z_NATIVE_REBOOKING_CHOICE_GUARDS
 STATUS = ACTIVE
+
+PHASE11Z_NATIVE_REBOOKING_CHOICE_GUARDS:
+- Typed native source/target choice guards validate institute/employee/day/zone, exact completion-day boundaries, bounded page counts and unique identities. Source eligibility is independently recomputed in backend exclusion priority; eligible captures must exactly match client/service/performer and microsecond execution instants. Invalid/future/unknown/attributed sources remain disabled with null capture and complete_sources=false.
+- Target guards bind the returned execution to the selected capture, verify exact client identity, current active booking status, event cardinality, no self-link and original/current booked-slot chronology against the same capture clock. Already-attributed or invalid bookings carry no selectable capture. Different target performer is allowed: attribution stays with the original execution. No attended return is inferred from a selectable reservation.
+- Production TypeScript/Vite build passes. Focused source/target/original guard compatibility: 5 passed in 1.01s, covering corrupt ownership/coverage, 1us source/capture mutation, end-boundary refusal, source exclusion precedence, changed selected client/source, duplicate creation, current-slot drift and disabled missing/attributed target provenance. No backend/schema, form/write-path, new full frontend regression or new Edge acceptance is claimed.
+- CHECKPOINT_STATUS = PARTIAL: native selection validation foundation is implemented; selector UI, signed original form, separate cancellation and actor-scoped lost-reply recovery remain required. Next: implement the source-friendly manager rebooking form using these guards and the established original lifecycle pattern, then verify component/Edge recovery. Full canonical goal and physical/production acceptance remain open.
 
 PHASE11Y_BOUNDED_REBOOKING_SOURCE_TARGET_CHOICES:
 - Manager-only source choices page completed session/appointment actual ending instants in institute-day bounds, explicitly actual_completion_day rather than declaration journal day. Typed eligible execution captures use explicit owned client/line/ticket links. Incoherent/missing starts, future ends, unknown client and already-active source attribution produce disabled reasons; completely unlocated completions never use planned ends. complete_sources=false retains missing coverage.
