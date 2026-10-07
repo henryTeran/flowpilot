@@ -39,6 +39,7 @@ test("native calendar refuses reception reads, hides failed facts and isolates l
   const pending: { day: string; resolve: (value: Response) => void }[] = [];
   globalThis.fetch = async url => String(url).includes("/certifications?") ? response({ institute_id: "inst", employee_id: "emp",
     generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 50, total: 0 }, rows: [] })
+    : String(url).includes("/work-hours?") ? response({ institute_id: "inst", employee_id: "emp", day: new URL(String(url)).searchParams.get("day"), timezone: "Europe/Zurich", start: snapshot().day_start, end: snapshot().day_end, generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 20, total: 0 }, rows: [], active_sources: 0, future_end_sources: 0, overlap_sources: 0, known_declared_duration_us: "0", known_union_duration_us: "0", recorded_duration_us: null, complete_attendance: false })
     : String(url).includes("/objectives?") ? response({ institute_id: "inst", employee_id: "emp", generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 20, total: 0 }, rows: [] })
     : String(url).includes("/revenue?") ? response({ institute_id: "inst", employee_id: "emp", day: new URL(String(url)).searchParams.get("day"), start: snapshot().day_start, end: snapshot().day_end, generated_at: "2026-10-07T12:00:00Z", page: { offset: 0, limit: 50, total: 0 }, rows: [], currencies: [], institute_unattributed_lines: 0 })
     : new Promise(resolve => pending.push({ day: new URL(String(url)).searchParams.get("day")!, resolve }));

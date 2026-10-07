@@ -1,6 +1,7 @@
 # ADR-027: Original declared effective workforce hours
 
-Status: API/migration foundation and exact day-duration read implemented; native lifecycle and
+Status: API/migration foundation, exact day-duration read and native readonly
+Employee 360 integration implemented; native lifecycle and
 Employee 360 integration remain open.
 
 The canonical Employee 360 requires workforce hours. Existing employee status,
@@ -63,6 +64,17 @@ diagnostics preserve the discrepancy. The union cannot exceed the selected day.
 PostgreSQL verifies a writer remains locked out between count and source/page
 reads, then appears consistently in the next reading.
 
-Remaining work: native original creation/cancellation/lost-reply recovery, profile
-integration and acceptance. Occupancy must retain explicit source coverage
+The native employee profile reads selected-day hours with its own explicit
+reading instant. Exact microsecond strings are validated and formatted through
+BigInt. Guards verify employee/institute/day/zone and parent-validated day bounds,
+complete bounded pages, original/cancellation ownership, exact clipping and
+duration, exclusion state, totals/union/source counts and incomplete attendance
+coverage. Complete pages recompute the union from original endpoints. Fresh
+failed/corrupted reads hide old facts; employee/day/token changes isolate late
+responses. Direct navigation avoids long calendar scrolling. Clipped institute
+instants show both repeated-hour UTC offsets; exact original UTC instants,
+actor/reason/IDs and cancellation remain in a 44px provenance disclosure.
+
+Remaining work: native original creation/cancellation/lost-reply recovery and
+acceptance. Occupancy must retain explicit source coverage
 and cannot infer complete working time or a ratio from an empty/partial ledger.

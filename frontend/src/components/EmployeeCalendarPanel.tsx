@@ -8,6 +8,7 @@ import type { Employee } from "../types";
 import { CertificationReadOnly } from "./CertificationPanel";
 import { EmployeeRevenuePanel } from "./EmployeeRevenuePanel";
 import { EmployeeObjectivesPanel } from "./EmployeeObjectivesPanel";
+import { EmployeeWorkHoursPanel } from "./EmployeeWorkHoursPanel";
 
 type Props = { institute: string; timezone?: string; employees: Employee[] };
 const reasons: Record<string, string> = { available_now: "Disponible maintenant", in_progress_session: "Prestation en cours",
@@ -22,6 +23,7 @@ export function EmployeeCalendarPanel(props: Props) {
 function Profile({ institute, timezone, employees }: Props) {
   const revenueSection = useRef<HTMLDivElement>(null);
   const objectiveSection = useRef<HTMLDivElement>(null);
+  const hoursSection = useRef<HTMLDivElement>(null);
   const token = getAccessToken(), staff = employees.filter(employee => employee.institute_id === institute);
   const [employee, select] = useState(""), [day, setDay] = useState(() => instituteSlot(new Date(), timezone)!.date);
   const [offset, page] = useState(0), [revision, refresh] = useState(0), [result, setResult] = useState<EmployeeDay>();
@@ -54,6 +56,7 @@ function Profile({ institute, timezone, employees }: Props) {
     {result && result.day === day && result.employee.id === employee && result.event_page.offset === offset && <><h3>{result.employee.first_name}</h3>
       <button onClick={() => revenueSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter le CA attribué</button>
       <button onClick={() => objectiveSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter les objectifs</button>
+      <button onClick={() => hoursSection.current?.scrollIntoView({ block: "start", behavior: "smooth" })}>Consulter les heures</button>
       <p>Compétences enregistrées : {result.employee.skills.join(", ") || "Aucune enregistrée"}</p>
       <p>Disponibilité au {display(result.generated_at)} : {result.availability.available ? "Disponible maintenant" : reasons[result.availability.current_slot?.reason || "capacity_unknown"]}.
         {!result.availability.available && result.availability.current_slot?.available_from && <> Prochaine fenêtre connue : {display(result.availability.current_slot.available_from)}.</>}</p>
@@ -68,6 +71,7 @@ function Profile({ institute, timezone, employees }: Props) {
       {!result.events.length && <p>Aucun intervalle sur cette page.</p>}<div className="workforce-pages"><span>Intervalles : {result.events.length ? offset+1 : 0}–{offset+result.events.length} / {result.event_page.total}</span>
         <button disabled={loading || !offset} onClick={() => page(offset-50)}>Intervalles précédents</button><button disabled={loading || offset+50 >= result.event_page.total} onClick={() => page(offset+50)}>Intervalles suivants</button></div>
       <CertificationReadOnly institute={institute} employee={employee} timezone={result.timezone} />
+      <div ref={hoursSection}><EmployeeWorkHoursPanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
       <div ref={objectiveSection}><EmployeeObjectivesPanel institute={institute} employee={employee} /></div>
       <div ref={revenueSection}><EmployeeRevenuePanel institute={institute} employee={employee} day={day} start={result.day_start} end={result.day_end} timezone={result.timezone} /></div>
     </>}
