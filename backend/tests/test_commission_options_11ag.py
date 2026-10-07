@@ -26,6 +26,7 @@ def exercise(engine, institute, employee, service, monkeypatch):
         db.get(Institute, institute).timezone = "Europe/Zurich"; db.commit()
         def read(day=date(2026, 10, 25), offset=0): return choices.read(db, institute, first.id, day, offset=offset)
         value = read(); assert value.page.total == 1 and value.rows[0].exclusion is None
+        assert value.rows[0].ticket_number == db.get(QueueTicket, value.rows[0].ticket_id).ticket_number
         assert value.rows[0].calculation.amount_minor == "104" and value.rule == first
         assert value.end-value.start == timedelta(hours=25) and value.complete_sources is False and value.basis == "source_closed_day"
         # Cross-rule active attribution disables the same source; cancellation releases it.

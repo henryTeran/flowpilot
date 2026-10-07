@@ -24,6 +24,7 @@ Exclusion = Literal["rule_cancelled", "future_rule", "already_attributed", "futu
 class SourceOption(BaseModel):
     line_id: str
     ticket_id: str
+    ticket_number: str
     service_id: str
     category: str
     quantity: int | None
@@ -89,7 +90,7 @@ def read(db, institute, rule_id, day, limit=20, offset=0):
         if exclusion is None:
             try: preview = calculate(calculation_terms(rule), capture_values(line, ticket, institute, True, now))
             except HTTPException: exclusion = "invalid_source"
-        values.append(SourceOption(line_id=line.id, ticket_id=ticket.id, service_id=line.service_id,
+        values.append(SourceOption(line_id=line.id, ticket_id=ticket.id, ticket_number=ticket.ticket_number, service_id=line.service_id,
             category=line.revenue_category, quantity=line.quantity if type(line.quantity) is int else None,
             amount=line.total if isinstance(line.total, Decimal) and line.total.is_finite() else None, currency=ticket.currency,
             arrival_at=explicit_utc_instant(ticket.arrival_time), paid_at=paid, already_attributed=bool(attributed),

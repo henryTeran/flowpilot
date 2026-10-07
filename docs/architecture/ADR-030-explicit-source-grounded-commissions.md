@@ -259,7 +259,8 @@ rounding modes, explicit zero/max rates at the retained source bound, numeric/
 boolean/coerced terms, original UTC/microsecond preservation, unknown entitlement,
 forged complete/partial day totals and clock diagnostics/cancellation transitions.
 Full frontend compatibility and production TypeScript/Vite build pass. Original
-Native source-linked accrual/cancellation lifecycle remains open.
+Native source-linked accrual/cancellation lifecycle is described below; physical
+and production acceptance remain open.
 
 ### Frontend closed-source choices
 
@@ -332,3 +333,36 @@ Refresh/paging hide prior facts until a valid response arrives. Remounting by
 employee/day/bounds/timezone/token and disposed-request checks isolate old replies;
 reception cannot trigger these protected reads. Parent-calendar verification
 must succeed before the commission profile is mounted.
+
+### Native source-linked declaration and correction
+
+The manager's commission journal binds an owned employee, bounded original rule
+choices and an explicit source-closing day in the current institute timezone.
+Source selection retains the original rule's policy/calendar and independently
+validates the backend preview against every raw fact. Excluded sources remain
+disabled with the exact reason. Refresh, page/day/rule changes and request freeze
+clear selection; stale or incoherent responses cannot restore an old preview.
+The existing joined source query additionally returns the human ticket number,
+so similar service/closing rows can be distinguished without entering technical
+IDs. This is additive display metadata and does not alter captured calculation,
+query scope/budget or money. The final submit follows the exact gross/quantity/
+rounding preview; it sends only original rule/line IDs, reason and replay key.
+Backend locking/capture/arithmetic remains authoritative at the final write.
+
+The persisted employee/institute/signed-actor envelope freezes new writes and
+shows the retained reason. Recovery reads the original key first; only null
+allows a new POST. Before such a POST, the original rule is independently read
+and must belong to the saved employee/institute. Committed-original recovery
+does not depend on a still-eligible mutable source/rule. Complete pinned receipt
+math/scope/actor/terms, independent original reread and fresh bounded journal/rule
+reads must succeed before clearing the envelope. A failed fresh read remains
+refreshable while the protected request survives.
+
+Cancellation persists the full original separately from new reason/key terms;
+it verifies the signed cancellation plus unchanged pinned rule/source/calculation
+and semantic microsecond clock on the original reread. The journal conserves
+cancelled originals. An explicit correction requires cancellation and a fresh
+new declaration; overlapping rules introduce no priority or automatic credit.
+Old actor/employee/read-sequence replies and duplicate pending submissions are
+guarded. Reception cannot read or author this protected surface. No entitlement,
+conversion, payout, payroll or physical settlement is inferred.

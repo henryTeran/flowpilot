@@ -1,0 +1,65 @@
+import { expect, test } from "@playwright/test";
+test.use({ timezoneId: "America/Los_Angeles" });
+test("native source-linked commission and cancellation recover committed lost replies without duplicate writes", async ({ page, request }, info) => {
+  test.setTimeout(90000);
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, base = "http://127.0.0.1:4198/api/v1", institute = "demo-institute-geneve", workforce = `${base}/workforce/institutes/${institute}`;
+  const setting = `${base}/gift-cards/institutes/${institute}/settings`;
+  expect((await request.put(setting, { headers, data: { currency: "CHF" } })).status()).toBe(200);
+  const created = await request.post(`${base}/tickets`, { headers, data: { institute_id: institute, service_id: "svc-aisselles" } });
+  expect(created.status()).toBe(200); const ticket = await created.json();
+  const started = await request.post(`${base}/planning/sessions/start`, { headers, data: { ticket_id: ticket.id, employee_id: "emp-angela", service_id: "svc-aisselles" } });
+  expect(started.status(), await started.text()).toBe(200); const session = await started.json();
+  expect((await request.patch(`${base}/planning/sessions/${session.id}/finish`, { headers })).status()).toBe(200);
+  expect((await request.patch(`${base}/tickets/${ticket.id}/checkout/start`, { headers, data: { employee_id: "emp-assya" } })).status()).toBe(200);
+  const paid = await request.patch(`${base}/tickets/${ticket.id}/checkout/pay`, { headers, data: { employee_id: "emp-assya", payment_method: "especes" } });
+  expect(paid.status(), await paid.text()).toBe(200); const receipt = await paid.json();
+  const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Zurich" }).format(new Date());
+  const configured = await request.post(`${workforce}/commission-rules`, { headers, data: { employee_id: "emp-angela", title: `Native credit ${info.project.name}`, basis: "closed_attributed_line_gross", currency: "CHF",
+    category: "care", service_id: "svc-aisselles", rate_basis_points: 1025, rounding: "half_even", first_day: day, last_day: day, reason: "Owned explicit native rule", idempotency_key: `native-credit-rule-${info.project.name}` } });
+  expect(configured.status(), await configured.text()).toBe(200); const rule = await configured.json();
+  let original: any, cancellation: any, posts = 0, cancellations = 0;
+  const enter = async () => {
+    await expect(page.getByRole("combobox", { name: /Choisir.*institut/ })).toHaveValue(institute);
+    await page.getByRole("button", { name: "Équipe", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Actualiser les compétences", exact: true })).toBeEnabled();
+    await page.getByRole("button", { name: "Déclarations de commission", exact: true }).click();
+  };
+  const panel = page.getByRole("region", { name: "Gestion des commissions", exact: true });
+  await page.route("**/workforce/institutes/*/commissions", async route => {
+    if (route.request().method() !== "POST") return route.continue();
+    posts++; const actual = await route.fetch(); expect(actual.status(), await actual.text()).toBe(200); original = await actual.json(); await route.abort("failed");
+  });
+  await enter(); await panel.getByRole("combobox", { name: "Collaboratrice des déclarations de commission", exact: true }).selectOption("emp-angela");
+  await panel.getByRole("combobox", { name: "Règle de la commission", exact: true }).selectOption(rule.id);
+  await panel.getByRole("combobox", { name: "Ligne clôturée", exact: true }).selectOption(receipt.lines[0].id);
+  await expect(panel.getByRole("region", { name: "Sources de commission" })).toContainText("1,54 CHF");
+  await expect(panel.getByRole("region", { name: "Sources de commission" })).toContainText(receipt.ticket_number);
+  await panel.getByLabel("Motif de la commission", { exact: true }).fill("Native explicit credit");
+  await panel.getByRole("form", { name: "Déclarer une commission", exact: true }).screenshot({ path: info.outputPath("native-commission-preview.png") });
+  await panel.getByRole("button", { name: "Enregistrer la commission", exact: true }).click();
+  await expect(panel.getByRole("alert")).toBeVisible(); expect(posts).toBe(1); expect(original.calculation.amount_minor).toBe("154"); expect(original.employee_id).toBe("emp-angela");
+  const protectedKey = await page.evaluate(() => Object.keys(sessionStorage).find(key => key.startsWith("flowpilot.commission-request:"))!);
+  expect(await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)!).intent.terms.idempotency_key, protectedKey)).toBe(original.idempotency_key);
+  await page.reload(); await enter(); await panel.getByRole("button", { name: "Reprendre la demande de commission conservée", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: /^Commission enregistrée\.$/ })).toBeVisible(); expect(posts).toBe(1);
+  expect(await page.evaluate(key => sessionStorage.getItem(key), protectedKey)).toBeNull();
+  const card = panel.locator("li").filter({ hasText: original.id }); await card.locator("summary").click(); await expect(card).toContainText(receipt.lines[0].id);
+  await page.route("**/workforce/institutes/*/commissions/*/cancel", async route => { cancellations++; const actual = await route.fetch(); expect(actual.status()).toBe(200); cancellation = await actual.json(); await route.abort("failed"); });
+  await card.getByRole("button", { name: "Annuler cette commission", exact: true }).click();
+  await panel.getByLabel("Motif d’annulation de la commission", { exact: true }).fill("Native explicit correction");
+  await panel.getByRole("button", { name: "Confirmer l’annulation de la commission", exact: true }).click();
+  await expect(panel.getByRole("alert")).toBeVisible(); expect(cancellations).toBe(1);
+  await page.reload(); await enter(); await panel.getByRole("button", { name: "Reprendre la demande de commission conservée", exact: true }).click();
+  await expect(panel.getByRole("status").filter({ hasText: /^Commission annulée ; original conservé\.$/ })).toBeVisible(); expect(cancellations).toBe(1);
+  expect(await page.evaluate(key => sessionStorage.getItem(key), protectedKey)).toBeNull();
+  const retainedReply = await request.get(`${workforce}/commissions/${original.id}`, { headers }); expect(retainedReply.status()).toBe(200); const retained = await retainedReply.json();
+  expect(retained.rule_capture).toEqual(original.rule_capture); expect(retained.calculation).toEqual(original.calculation); expect(retained.cancellation.id).toBe(cancellation.id);
+  for (const control of await panel.locator("button,select,input,summary").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth+1)).toBe(false);
+  await panel.screenshot({ path: info.outputPath("native-commission-cancelled.png") });
+  // The launcher owns and removes these temporary source/credit fixtures; no physical settlement is asserted.
+});

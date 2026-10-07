@@ -1,7 +1,7 @@
 import { certificationInstant as instant, certificationDate } from "./certification-utils";
 import { validCommissionRule, sameCommissionRuleOriginal, validCommissionCalculation, type CommissionRule, type CommissionCalculation } from "./commission-utils";
 
-export type CommissionSourceOption = { line_id: string; ticket_id: string; service_id: string; category: string; quantity: number | null;
+export type CommissionSourceOption = { line_id: string; ticket_id: string; ticket_number: string; service_id: string; category: string; quantity: number | null;
   amount: string | null; currency: string | null; arrival_at: string | null; paid_at: string; already_attributed: boolean;
   cancellation_clock_future: boolean; exclusion: "rule_cancelled" | "future_rule" | "already_attributed" | "future_cancellation" | "future_closing" | "currency_mismatch" | "outside_period" | "invalid_source" | null;
   calculation: CommissionCalculation | null };
@@ -35,7 +35,7 @@ export function validCommissionSourceOptions(v: unknown, institute: string, sele
     || r.rows.length !== Math.min(20, Math.max(0, r.page.total-offset))) return false;
   const ids = new Set<string>();
   for (const row of r.rows) {
-    if (!row || !text(row.line_id) || ids.has(row.line_id) || !text(row.ticket_id) || !text(row.service_id) || row.category !== r.rule.category
+    if (!row || !text(row.line_id) || ids.has(row.line_id) || !text(row.ticket_id) || !text(row.ticket_number) || row.ticket_number.length > 40 || !text(row.service_id) || row.category !== r.rule.category
       || r.rule.service_id !== null && row.service_id !== r.rule.service_id || typeof row.already_attributed !== "boolean"
       || typeof row.cancellation_clock_future !== "boolean" || row.quantity !== null && !Number.isSafeInteger(row.quantity)
       || row.amount !== null && !decimal(row.amount)

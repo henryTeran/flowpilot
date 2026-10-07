@@ -6802,5 +6802,7 @@ body {
 .commission-rule-panel summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .employee-commissions { margin-top: 24px; }
 .employee-commissions summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.commission-panel summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.commission-choices { margin-top: 16px; }
 .rebooking-panel li { overflow-wrap: anywhere; }
 .rebooking-panel .rebooking-choices { grid-column: 1 / -1; min-width: 0; }
