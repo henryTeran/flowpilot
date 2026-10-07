@@ -44,5 +44,5 @@ def test_absence_migration_empty_roundtrip_and_cancelled_history_guard(tmp_path,
             command.downgrade(config, "2c897df4e6fb")
         assert records() == before
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0c7d9ef65148"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "1d8eaf762259"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

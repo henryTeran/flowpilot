@@ -48,5 +48,5 @@ def test_policy_migration_roundtrip_scoped_heads_and_protected_originals(tmp_pat
             assert policies.current(db, institute) == second
             assert policies.require(db, institute, first.id) == first
         with engine.connect() as connection:
-            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0c7d9ef65148"
+            assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "1d8eaf762259"
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []

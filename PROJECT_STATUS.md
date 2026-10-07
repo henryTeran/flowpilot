@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13F_VERIFIED_CAMPAIGN_AUDIENCE_BINDING
+CURRENT_CHECKPOINT = PHASE13G_CAMPAIGN_TEMPLATE_REVISION_SCHEMA
 STATUS = ACTIVE
+
+PHASE13G_CAMPAIGN_TEMPLATE_REVISION_SCHEMA:
+- Added template originals/current heads and campaign originals/current heads. Per-institute replay keys, actor/reason/request/clock and content/revision JSON retained. Composite predecessor/head constraints pin same institute and template/campaign root; campaign audience and optional template original references pin institute ownership. Migration 1d8eaf762259 after 0c7d9ef65148 matches metadata, permits empty roundtrip and rejects offline history verification or removal of any retained campaign/template row before DDL. No production migration or signed campaign/template write/approval service claimed by schema fixtures.
+- New dual SQLite/actual PostgreSQL migration focus: 2 passed in 10.22s; metadata exact, empty roundtrip, cross-root predecessor/head, foreign template/audience, duplicate replay key refusal and retained-history protection. All 23 migration files: 47 passed in 286.73s, zero failures/skips, terminal exit 0. Fourteen prior tests change only latest-head value; prior downgrade/history assertions preserved. Adjacent actual-source audience/capture/campaign regression: 14 passed in 25.56s. Existing passlib crypt/SQLite datetime adapter deprecations only; no frontend/native/provider/production acceptance claimed.
+- CHECKPOINT_STATUS = PARTIAL. Phase 13 gates remain OPEN. NEXT: source-backed signed template/campaign create/correction/review/approval/original-key/current/audit services using verified retained audiences, then native workflows and explicit delivery/conversion. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13F_VERIFIED_CAMPAIGN_AUDIENCE_BINDING:
 - Added source-backed campaign_audience constructor: scope-locked retained capture required, exact campaign/capture channel, actual stored page count checked against manifest, every coherent historical page and chain validated. Recomputes customer/selected/eligible totals across all pages and refuses mismatch; returns canonical historical campaign AudienceFact containing only recorded marketing-eligible IDs in retained deterministic order. Empty eligible list refused rather than assigning unknown permissions. No raw caller recipients accepted by this constructor.

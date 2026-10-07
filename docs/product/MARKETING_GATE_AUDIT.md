@@ -126,6 +126,28 @@ Existing atomic/replay/concurrent-key and approval chain tests remain passing.
 Passlib crypt deprecation only; no schema/native/provider/production claim. All
 marketing gates remain OPEN pending campaign/template persistence and workflows.
 
+## 13G: owned template/campaign revision schema
+
+Added template originals/current heads and campaign originals/current heads.
+Original rows retain signed-actor/reason/key/clock/request slots and typed-content
+or revision JSON slots for the forthcoming service. Template predecessor/head
+must belong to the same institute/template; campaign predecessor/head must belong
+to the same institute/campaign. Campaign audience and optional template original
+are scoped composite foreign keys. Replay keys are unique per institute/domain.
+Migration `1d8eaf762259` follows `0c7d9ef65148`, matches metadata and refuses
+removal of any retained campaign/template history (or offline history checks).
+No production migration or campaign/template write/approval API implemented here.
+Schema fixtures are explicitly not validated campaign/audience business receipts.
+
+SQLite/actual PostgreSQL new migration focus: 2 passed in 10.22s; exact metadata,
+empty roundtrip, cross-root predecessor/head, foreign source and duplicate key
+refusal, retained-history protection. Adjacent audience/campaign services:
+14 passed in 25.56s, zero failures/skips. Full migration suite (all 23 files, actual PostgreSQL): 47 passed in 286.73s,
+zero failures/skips, terminal exit 0. Existing passlib crypt/SQLite datetime adapter
+deprecations only. Prior
+fourteen latest-head assertions update only revision value; prior downgrade and
+history assertions remain intact. All Phase 13 gates remain OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
