@@ -500,3 +500,51 @@ Starlette and color warnings did not fail the final run.
 All Phase14 gates remain OPEN: this checkpoint covers recorded billing only,
 not native capacity, closures, rebooking, retained scenarios or the full opportunity
 review flow. Production, physical settlement and load acceptance remain separate.
+
+## Phase14L — native recorded-capacity review
+
+The manager can now explicitly read a completed institute civil day in Pilotage,
+alongside recorded billing. All-employee totals remain separate from the20-row
+employee evidence page: known declared work union, finalized activity inside and
+outside declared hours, conditional declared time without recorded activity and
+exact utilization ratio. Unknown hours/activity suppress derived totals and ratios;
+these diagnostics may overlap. Sum of employee-time is not physical unused capacity,
+opening hours or bookable availability. No financial value is inferred.
+
+Source details expose the visible original work declarations and at most one
+activity source per employee, with full source counts and bounded coverage stated.
+Each new employee page is a new pinned backend read, not a retained snapshot across
+navigation. Whole-response verification binds scope/day/timezone and exact civil
+midnights/capture, all aggregate and page counts, unique ordered employee IDs,
+duration bounds, exact derived ratios, strict no-claim flags and nested occupation/
+work-hour evidence. Existing occupation verification accepts an explicitly requested
+one-row evidence page; its default public20-row contract remains unchanged. Full
+employee pages covering the whole cohort must reproduce aggregate sums; partial
+pages cannot replace the institute denominator. This does not attest SQL authenticity
+or a complete physical activity history.
+
+No reads occur on mount. Malformed reload clears previous totals; date/context/
+session changes and unmount discard pending results. This checkpoint is read only,
+with no database schema, production migration or external communications.
+
+Initial focused regressions:10 passed5.87s and TypeScript/Vite build PASS. Initial
+actual-backend desktop/tablet2 passed1.2m, but visual inspection exposed an inherited
+workspace grid narrowing the fourth section to310px. Both Revenue sections now span
+the workspace and the native test asserts at least600px width,44px controls and no
+horizontal overflow. Final full frontend: **371 passed79899.95ms**, zero failures/
+skips, terminal exit0, including pending-session/context replacement guards.
+Fresh native rebuilt desktop1440x900 and touch tablet1024x768: **2 passed1.2m**,
+zero failures/skips, terminal exit0. Both final viewport captures were visually
+inspected; full-width sections, at least44px controls and no horizontal overflow
+passed. Actual owned25 then46 employee cohorts use signed work-declaration services
+to retain one hour plus one microsecond per employee on the25-hour institute day;
+browserLosAngeles does not alter the Zurich day. Missing-hours initial aggregate
+is unavailable; all-declared totals retain exact person-time and recorded zero
+activity ratio. Next/previous20-row pages preserve all-employee totals; original
+work-source details, strict presence-claim corruption refusal and retry verified.
+The native historical activity cohort is empty; nonempty occupation/microsecond/
+uncertainty proof remains contract/React and existing occupation regression coverage,
+not native physical execution proof. Owned temporary database was removed. Existing
+passlib-bcrypt and color warnings did not fail the run.
+All three Phase14 gates remain OPEN; native closure/rebooking/scenario/opportunity
+review and retained scenario/audit/selected-scenario reports are still required.

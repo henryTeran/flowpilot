@@ -16,11 +16,11 @@ function union(values: [bigint, bigint][]) {
   }
   return merged;
 }
-export function validOccupation(v: unknown, institute: string, employee: string, day: string, start: string, end: string, zone: string, offset: number): v is Occupation {
+export function validOccupation(v: unknown, institute: string, employee: string, day: string, start: string, end: string, zone: string, offset: number, limit = 20): v is Occupation {
   const r = v as Occupation;
   if (!r || !validWorkHours(r.work_hours, institute, employee, day, start, end, zone, 0) || !r.page || r.page.offset !== offset
-    || r.page.limit !== 20 || !Number.isSafeInteger(r.page.total) || r.page.total < 0 || !Array.isArray(r.rows)
-    || r.rows.length !== Math.min(20, Math.max(0, r.page.total-offset))
+    || !Number.isSafeInteger(limit) || limit < 1 || limit > 50 || r.page.limit !== limit || !Number.isSafeInteger(r.page.total) || r.page.total < 0 || !Array.isArray(r.rows)
+    || r.rows.length !== Math.min(limit, Math.max(0, r.page.total-offset))
     || !validOccupationTotals(r, r.work_hours.recorded_duration_us, r.work_hours.known_union_duration_us, r.diagnostics, r.page.total)
     || new Set(r.rows.map(s => `${s?.kind}:${s?.id}`)).size !== r.rows.length) return false;
   const from = certificationInstant(start)!, until = certificationInstant(end)!, now = certificationInstant(r.work_hours.generated_at)!;
@@ -46,8 +46,8 @@ export function validOccupation(v: unknown, institute: string, employee: string,
         || workDuration(s.duration_us) !== clippedLast-clippedFirst) return false;
     }
   }
-  if (!occupationDiagnosticKeys.every(k => seen[k] <= r.diagnostics[k] && (offset || r.page.total > 20 || seen[k] === r.diagnostics[k]))) return false;
-  if (!offset && r.page.total <= 20) {
+  if (!occupationDiagnosticKeys.every(k => seen[k] <= r.diagnostics[k] && (offset || r.page.total > limit || seen[k] === r.diagnostics[k]))) return false;
+  if (!offset && r.page.total <= limit) {
     const busy = union(r.rows.filter(s => s.exclusion === null).map(s => [certificationInstant(s.clipped_start)!, certificationInstant(s.clipped_end)!]));
     if (busy.reduce((sum, [a, b]) => sum+b-a, 0n) !== workDuration(r.known_busy_duration_us)) return false;
     if (r.work_hours.page.total <= 20) {
