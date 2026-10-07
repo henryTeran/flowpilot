@@ -737,6 +737,35 @@ No new backend/schema, browser, physical-device or production receipt is claimed
 Native declaration/recovery/observation and all six durable lifecycle event
 triggers remain required; canonical CRM gates stay open.
 
+## Phase 12V: native birthday-calendar declaration and recovery
+
+Managers can explicitly prepare an institute calendar declaration or correction.
+Initial timezone and leap-day rule remain blank. Preparation pins the verified
+predecessor; correction copies the exact timezone/rule. Selected original ID,
+actor, reason and human-readable leap-day behavior remain visible.
+
+Protected intent is stored before possible POST under institute/signed-actor
+scope. Original-key absence alone permits POST. Full receipt terms/actor/key/
+predecessor, independent original reread and verified fresh current selection
+precede clearance and profile invalidation. Lost reply/remount, failed current
+read, altered original clock, wrong actor or malformed storage retain intent.
+No silent rebase, guessed calendar default or unverified clearance is allowed.
+
+Controlled calendar editor/lifecycle focus: 8 passed in 2.93s. Final full frontend
+regression: 263 passed in 49.02s, zero failures/skips. Final TypeScript/Vite build
+passes, 123 modules, lazy CRM 47.14kB. Signed Edge calendar/policy/customer
+regression: 6 passed in 1.5m, desktop/touch tablet, zero failures/skips. Real
+calendar POST commits before deliberately aborted reply; reload restores intent
+and recovery uses one POST. Correction retains predecessor and independent
+original-ID/current reads prove first-original preservation. Existing profile,
+care, policy, lifetime/scenario and forged-read recovery remain covered.
+Controls >=44px/no horizontal overflow; tablet form screenshot inspected; owned
+fixture removal confirmed. Existing bcrypt/NO_COLOR warnings and nonfatal socket
+reset during deliberate reply abort observed. No new backend/schema/full-backend,
+application database migration, production policy or physical/production receipt
+claimed. Customer lifecycle declaration/observation and all six durable event
+triggers remain required; canonical CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
