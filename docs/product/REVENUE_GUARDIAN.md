@@ -55,7 +55,7 @@ future-period and unsupported-write refusal.
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
 | Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
 | Cancelled revenue | 14C verifies booking events but has no historical quote.14G/H retain and verify walk-in cancellation conditions and full-period currency values; legacy unpriced and source diagnostics remain explicit. No causal revenue loss is claimed. |
-| No-show revenue | 14C verifies owned no-show events;14I retains catalog references at booking service selection. Reader binding and explicit rate/scenario valuation remain required. A catalog reference is not an agreed quote or causal loss. |
+| No-show revenue | 14C verifies owned closures;14I/J retain and verify catalog references and expose explicit historical-rate closure scenarios. A benchmark is not an agreed quote, eligibility proof or causal loss. Native review and retained scenario audit remain required. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
 | Opportunities | 14C adds two source-backed unpriced closure follow-ups with all five required fields. Rebooking/scenario/feasible-capacity opportunities and historical price basis remain to integrate. No automatic contact/booking. |
@@ -411,3 +411,49 @@ after catalog/currency change, no note-only reprice, service-change new referenc
 missing member amount, no cancellation reprice, metadata parity and data-preserving
 migration guards. Existing crypt deprecation only. No frontend, financial-loss
 aggregate, signed quote agreement or production acceptance is claimed.
+
+## 14J: verified booking reference and explicit closure value
+
+Manager-only `GET /api/v1/revenue/institutes/{institute_id}/appointments/{id}/price-references`
+pins a locked capture and verifies every retained reference before returning
+offset/limit20/max50 originals. Full original JSON/digest is preserved. Typed terms
+bind institute/appointment/event/type/time/actor, selected service, nonexecuted
+booking before/after states, actual service change and amount/currency diagnostics.
+Future events, duplicate creation and corrupted sources outside the displayed page
+refuse publication. Missing legacy service-selection snapshots are counted without
+backfilling prices. Current catalog prices, current service selection and terminal
+appointment status do not rewrite historical references. The reader is not a
+complete authenticated predecessor-chain attestation.
+
+Manager-only `POST .../appointments/{id}/closure-value-preview` requires explicit
+reference event ID/full expected fingerprint, closure event ID, member/passage
+rate and reason. Actor comes from the signed session. It verifies owned sources,
+one terminal closure/unique creation, reference not later than closure, same
+service, retained closure transition and current final snapshot. No automatic
+latest-reference or eligibility-based rate selection exists. The selected catalog
+benchmark yields exact known-currency minor units only; missing/invalid rate or
+unknown currency returns null value with an explicit reason. Current catalog or
+currency changes cannot reprice the chosen original.
+
+This produces the five required opportunity fields with confidence
+`declared_rate_scenario_not_agreed_quote`. It remains an unretained human-declared
+scenario: no quote agreement, eligibility, paid price, causal loss or recovery
+action is claimed. No caller-provided amounts or actor are accepted. The closure
+must be observed strictly before capture; no clock is advanced artificially to
+admit an event at/following the capture. Human review of actual agreement,
+eligibility and recovery is recommended before any action. Persisted scenario
+original/key/audit, aggregate selected-scenario reporting and native review remain
+to implement.
+
+Initial reference reader plus price-capture/closure regressions: **12 passed21.94s**,
+SQLite and actual isolated PostgreSQL, zero failures/skips, exit0. Initial combined
+reader/valuation4 passed18.26s; final strengthened reader/source-uncertainty result
+is recorded in PROJECT_STATUS.md. Tests exercise25 actual creation/service-change
+references20/5, full cohort/off-page refusal, intact response SHA, malformed foreign/
+actor/quote/currency terms even with recomputed digest, current-price independence,
+legacy-null coverage, terminal appointment history and signed manager/role/scope/
+anonymous/bounds/write controls. Valuation tests select exact987member/1234passage,
+keep historicalCHF after liveEUR/price changes, reject wrong fingerprint/closure/
+reference/actor and injected amount, and return explicit unavailable states for
+missing/invalid rate and future currency configuration. No schema or native UI
+acceptance is claimed at this checkpoint; full Phase14 gates remain OPEN.

@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.revenue import billing, sources, capacity, closures, scenarios, rebooking, slot_opportunities, walk_in_cancellations
+from app.modules.revenue import booking_references
+from app.modules.revenue import booking_valuation
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -56,3 +58,15 @@ def walk_in_cancellations_read(institute_id: str, start: AwareDatetime, end: Awa
     offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
     user=Depends(manager), db: Session = Depends(get_db)):
     return walk_in_cancellations.read(db, institute_id, start, end, offset, limit)
+
+
+@router.get("/appointments/{appointment_id}/price-references", response_model=booking_references.Read)
+def booking_price_references(institute_id: str, appointment_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return booking_references.read(db, institute_id, appointment_id, offset, limit)
+
+
+@router.post("/appointments/{appointment_id}/closure-value-preview", response_model=booking_valuation.Preview)
+def booking_closure_value(institute_id: str, appointment_id: str, request: booking_valuation.Request,
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return booking_valuation.preview(db, institute_id, appointment_id, request, user.get("sub"))
