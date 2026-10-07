@@ -50,6 +50,19 @@ def read(db, institute, customer, start, end, limit=20, offset=0):
         window = BillingWindow(institute_id=institute, customer_id=customer, start=start, end=end, captured_at=utcnow())
     except ValidationError as error:
         raise business_error("An explicit positive observed care window is required") from error
+    result, diagnostics = capture(db, window)
+    summary = ReturnSummary.model_validate(result.model_dump(exclude={"episodes", "gaps"}))
+    if any(diagnostics.values()):
+        summary = summary.model_copy(update={"average_return_gap_us": None})
+    visible = result.episodes[offset:offset+limit]
+    ticket_ids = {episode.ticket_id for episode in visible}
+    return ReturnRead(summary=summary, diagnostics=diagnostics, page=ReturnPage(offset=offset, limit=limit, total=result.episode_count),
+        episodes=visible, gaps=tuple(gap for gap in result.gaps if gap.next_ticket_id in ticket_ids))
+
+
+def capture(db, window):
+    """Caller owns institute lock and registered source; returns whole cohort."""
+    institute, customer = window.institute_id, window.customer_id
     from datetime import timezone
     first, last, captured = (t.astimezone(timezone.utc) for t in (window.start, window.end, window.captured_at))
     def cohort(completion):
@@ -87,10 +100,4 @@ def read(db, institute, customer, start, end, limit=20, offset=0):
             except ValidationError:
                 diagnostics["invalid_actual_times"] += 1
     result = calculate(window, facts())
-    summary = ReturnSummary.model_validate(result.model_dump(exclude={"episodes", "gaps"}))
-    if any(diagnostics.values()):
-        summary = summary.model_copy(update={"average_return_gap_us": None})
-    visible = result.episodes[offset:offset+limit]
-    ticket_ids = {episode.ticket_id for episode in visible}
-    return ReturnRead(summary=summary, diagnostics=diagnostics, page=ReturnPage(offset=offset, limit=limit, total=result.episode_count),
-        episodes=visible, gaps=tuple(gap for gap in result.gaps if gap.next_ticket_id in ticket_ids))
+    return result, diagnostics

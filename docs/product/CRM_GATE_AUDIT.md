@@ -877,6 +877,33 @@ physical/production or full-backend acceptance claimed. Authoritative source
 capture/diagnostics, durable event ledger/reconciliation, repeatability/cancellation
 and worker/native acceptance remain required; all canonical CRM gates stay open.
 
+## Phase 12AB: authoritative registered-customer event source capture
+
+Signed own-institute manager read holds the shared lock across registered source,
+selected automation policy, lifecycle/calendar originals, actual care and scoped
+package/membership terms. One server capture is reused for birthday and all
+candidates. Reusable whole care capture preserves bounded return-cycle behavior;
+106 episodes are processed rather than the visible 20-row page. Complete customer
+history is not asserted. Package balance/expiry and membership active terms are
+validated against registration/capture; missing/invalid sources, future/absent
+policy/registration, unavailable birthday and care quality stay explicit. Invalid
+completed care suppresses care candidates because it can change latest completion.
+Timing overflow gives no guessed candidate. Retained policy/lifecycle/calendar,
+anchors/candidates and diagnostics permit subsequent reconciliation; no durable
+event or delivery yet.
+
+Initial shared care/lifecycle 9 passed in 16.43s. SQLite source fixture initially
+passed catalog lists as IDs; corrected fixture, retaining guards. Focused source/
+care/lifecycle/candidate regression 18 passed in 21.40s. Final fifteen-file CRM:
+140 passed in 83.62s, zero failures/skips, actual PostgreSQL enabled. Covers whole
+care cohort, common single clock, all six triggers with package/membership terms,
+exhausted package, repeatable capture, invalid care suppression, signed roles and
+foreign customer refusal. Actual PostgreSQL rule writer waits during package
+source capture; old snapshot retains prior original, next read sees correction.
+Existing passlib crypt deprecation warning observed. No schema/migration, ledger/
+cancellation/worker, new frontend/browser or physical/production receipt claimed.
+Durable reconciliation and worker/native acceptance remain required; gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

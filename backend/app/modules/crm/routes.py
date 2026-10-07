@@ -8,6 +8,7 @@ from app.modules.crm import return_sources
 from app.modules.crm import lifetime_originals as lifetime
 from app.modules.crm import lifecycle_originals as lifecycle, calendar_policies as calendar
 
+from app.modules.crm import event_sources
 from app.modules.crm import automation_originals as automation
 
 router = APIRouter(prefix="/crm/institutes/{institute_id}", tags=["crm"])
@@ -17,6 +18,11 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.get("/customers/{customer_id}/event-sources", response_model=event_sources.EventSourceRead)
+def event_source_read(institute_id: str, customer_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return event_sources.read(db,institute_id,customer_id)
 
 
 @router.post("/automation-policies", response_model=automation.PolicyRead)

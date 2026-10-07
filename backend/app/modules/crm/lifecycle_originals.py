@@ -63,14 +63,14 @@ class LifecycleRead(Fact):
     delivery_authorized: Literal[False] = False
 
 
-def read(db, institute, customer):
+def read(db, institute, customer, *, _captured_at=None):
     registered = owned(db,institute,customer)
     registration = RegisteredCustomerFact(institute_id=institute,customer_id=customer,created_at=explicit_utc_instant(registered.created_at))
     pointer = head(db,institute,customer)
     retained = require(db,institute,customer,pointer.original_id) if pointer else None
     calendar_head = calendar_policies.read_head(db,institute)
     calendar = calendar_policies.require(db,institute,calendar_head.policy_id) if calendar_head else None
-    now = utcnow()
+    now = _captured_at if _captured_at is not None else utcnow()
     reason = "declaration_absent" if retained is None else "calendar_absent" if calendar is None else "future_declaration" if retained.created_at>now else "future_calendar" if calendar.created_at>now else "future_registration" if registration.created_at>now else None
     observation = None
     if reason is None:
