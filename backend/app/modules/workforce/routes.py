@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from datetime import date
 from sqlalchemy.orm import Session
 
 from app.core.permissions import require_ticket_manager
@@ -7,6 +8,7 @@ from app.modules.workforce.schemas import SkillMatrixRead
 from app.modules.workforce.service import read_skill_matrix
 from app.modules.workforce import absences
 from app.modules.workforce.absence_schemas import AbsenceCreate, AbsenceCancel, AbsenceRead, CancellationRead
+from app.modules.workforce.calendar_schemas import EmployeeDayRead
 
 router = APIRouter(prefix="/workforce/institutes/{institute_id}", tags=["workforce"])
 
@@ -66,3 +68,11 @@ def read_absence(institute_id: str, identifier: str, user: dict = Depends(absenc
 @router.post("/absences/{identifier}/cancel", response_model=CancellationRead)
 def cancel_absence(institute_id: str, identifier: str, payload: AbsenceCancel, user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
     return absences.cancel(db, institute_id, identifier, payload, user["sub"])
+
+
+@router.get("/employees/{employee_id}/day", response_model=EmployeeDayRead)
+def employee_day(institute_id: str, employee_id: str, day: date,
+                 limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0, le=2147483647),
+                 user: dict = Depends(absence_manager), db: Session = Depends(get_db)):
+    from app.modules.workforce.calendar import read_employee_day
+    return read_employee_day(db, institute_id, employee_id, day, limit, offset)

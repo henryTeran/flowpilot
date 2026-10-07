@@ -3,18 +3,20 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import type { Employee } from "../types";
 import { SkillMatrixPanel } from "./SkillMatrixPanel";
 import { AbsencePanel } from "./AbsencePanel";
+import { EmployeeCalendarPanel } from "./EmployeeCalendarPanel";
 
 type Props = { institute: string; timezone?: string; employees: Employee[]; onChanged: () => Promise<boolean> };
 export function WorkforcePanel(props: Props) {
   return <Sections key={JSON.stringify([props.institute, getAccessToken()])} {...props} />;
 }
 function Sections(props: Props) {
-  const [section, select] = useState<"skills" | "absences">("skills");
+  const [section, select] = useState<"skills" | "absences" | "calendar">("skills");
   return <div>
     <nav className="workforce-sections" aria-label="Sections de l’équipe">
       <button aria-pressed={section === "skills"} onClick={() => select("skills")}>Compétences</button>
       {getOperatorRole() === "responsable_institut" && <button aria-pressed={section === "absences"} onClick={() => select("absences")}>Absences et congés</button>}
+      {getOperatorRole() === "responsable_institut" && <button aria-pressed={section === "calendar"} onClick={() => select("calendar")}>Calendrier individuel</button>}
     </nav>
-    {section === "skills" ? <SkillMatrixPanel instituteId={props.institute} timezone={props.timezone} /> : <AbsencePanel {...props} />}
+    {section === "skills" ? <SkillMatrixPanel instituteId={props.institute} timezone={props.timezone} /> : section === "absences" ? <AbsencePanel {...props} /> : <EmployeeCalendarPanel {...props} />}
   </div>;
 }

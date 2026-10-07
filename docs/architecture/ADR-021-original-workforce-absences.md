@@ -47,5 +47,6 @@ uses the same recovery lifecycle. Reception has no sensitive absence panel/read.
 Controlled desktop/tablet browser acceptance covers original creation and
 cancellation after lost replies/reload and repeated institute hours on a host in
 another timezone. The native view is paginated interval history. An employee
-calendar, Employee 360 and physical/production acceptance remain open; it does
-not close the entire Phase 11 ABSENCES gate.
+calendar foundation is now delivered in ADR-022. Complete Employee 360 and
+physical/production acceptance remain open; this does not close the entire
+Phase 11 ABSENCES gate.
