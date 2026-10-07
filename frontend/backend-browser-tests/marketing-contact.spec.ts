@@ -53,6 +53,60 @@ test("signed native contact declaration verifies canonical email, recovers lost 
   expect(first.declaration.communications[0].destination.email).toBe("customer@example.com");
   expect(first.declaration.communications[2].destination.push_token).toBe(`device-${info.project.name}`);
   expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.marketing-contact-request:")))).toBe(false);
+  // Only customer/segment-policy setup uses the API; every marketing action below uses native controls.
+  const marketing = `${api}/marketing/institutes/${institute}`, policies = `${api}/crm/institutes/${institute}/segment-policies`;
+  const prior = await (await request.get(policies + "/current", { headers })).json();
+  const policy = await request.post(policies, { headers, data: { policy: { institute_id: institute, observation_us: 1209600000000,
+    new_customer_us: 86400000000, at_risk_us: 172800000000, dormant_us: 604800000000, loyal_min_tickets: 2, vip_min_tickets: 3,
+    vip_currency: "CHF", vip_gross_minor: "300" }, previous_policy_id: prior?.id || null, reason: "Explicit native chain segments",
+    idempotency_key: `contact-chain-policy-${info.project.name}` } });
+  expect(policy.status(), await policy.text()).toBe(200);
+  let capture: any, approval: any, campaignPosts = 0, capturePosts = 0;
+  await page.route("**/audience-captures", async route => {
+    if (route.request().method() !== "POST") return route.continue(); capturePosts++;
+    const response = await route.fetch(); expect(response.status()).toBe(200); capture = await response.json(); await route.fulfill({ response });
+  });
+  await page.route("**/campaigns", async route => {
+    if (route.request().method() !== "POST") return route.continue(); campaignPosts++;
+    const response = await route.fetch(); expect(response.status()).toBe(200); approval = await response.json(); await route.fulfill({ response });
+  });
+  await page.getByRole("button", { name: "Marketing", exact: true }).click();
+  const audiencePanel = page.getByRole("region", { name: "Capturer une audience", exact: true }), captureReason = `Native complete push ${info.project.name}`;
+  await audiencePanel.getByLabel("Nouvelles", { exact: true }).check();
+  await audiencePanel.getByLabel("Canal de l’audience").selectOption("push");
+  await audiencePanel.getByLabel("Source des permissions").selectOption("marketing_contact");
+  await audiencePanel.getByLabel("Motif de capture").fill(captureReason);
+  await audiencePanel.getByRole("button", { name: "Conserver l’audience", exact: true }).click();
+  await expect(audiencePanel).toContainText("Capture originale vérifiée"); expect(capturePosts).toBe(1);
+  expect(capture.request.permission_basis).toBe("marketing_contact"); expect(capture.summary.eligible_count).toBeGreaterThan(0);
+  const retained = await (await request.get(`${marketing}/audience-captures/${capture.id}/pages/0`, { headers })).json();
+  expect(retained.observation.items.find((i: any) => i.customer_id === customer.id).declaration).toEqual(first);
+  const creator = page.getByRole("region", { name: "Créer une campagne", exact: true }), body = `Native contacts push ${info.project.name}`;
+  await creator.getByRole("button", { name: "Préparer une campagne", exact: true }).click();
+  await creator.getByLabel("Canal de campagne").selectOption("push");
+  await creator.getByRole("button", { name: "Choisir une audience source", exact: true }).click();
+  await creator.getByRole("button", { name: new RegExp(captureReason) }).click();
+  await creator.getByLabel("Source du texte").selectOption("literal"); await creator.getByLabel("Origine de campagne").selectOption("ai");
+  await creator.getByLabel("Texte de campagne").fill(body); await creator.getByLabel("Motif du brouillon").fill("Explicit native AI draft");
+  await creator.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
+  await expect(creator).toContainText("Brouillon original vérifié"); expect(campaignPosts).toBe(1);
+  await page.getByRole("button", { name: `${body} · Brouillon · push`, exact: true }).click();
+  const history = page.getByRole("region", { name: "Historique de campagne", exact: true }), actions = history.getByRole("region", { name: "Validation de campagne", exact: true });
+  await actions.getByLabel("Motif de validation").fill("Explicit native review");
+  await actions.getByRole("button", { name: "Soumettre en revue", exact: true }).click();
+  await expect(actions.getByRole("button", { name: "Approuver le contenu et l’audience", exact: true })).toBeEnabled();
+  await actions.getByLabel("Motif de validation").fill("Explicit native approval");
+  await actions.getByRole("button", { name: "Approuver le contenu et l’audience", exact: true }).click();
+  await expect(history).toContainText("Approuvée"); expect(campaignPosts).toBe(3);
+  expect(approval.revision.state).toBe("APPROVE"); expect(approval.revision.content.origin).toBe("ai");
+  expect(approval.revision.content.audience.customer_ids).toContain(customer.id);
+  expect(approval.revision.approved_digest).toBe(approval.revision.reviewed_digest);
+  const recipients = history.getByRole("region", { name: "Destinataires courants", exact: true });
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  const member = recipients.locator("article").filter({ hasText: customer.id });
+  await expect(member).toContainText("Accord et destination déclarés");
+  await recipients.screenshot({ path: info.outputPath("native-contact-chain-approved.png") });
+  await select();
   await editor.getByRole("button", { name: "Préparer les contacts marketing", exact: true }).click();
   await expect(editor.getByLabel("Destination Email", { exact: true })).toHaveValue("customer@example.com");
   await expect(editor.getByLabel("Destination Push", { exact: true })).toHaveValue(`device-${info.project.name}`);
@@ -68,4 +122,12 @@ test("signed native contact declaration verifies canonical email, recovers lost 
   expect(current.declaration.communications[0]).toEqual(first.declaration.communications[0]);
   expect(await (await request.get(base + "/" + first.id, { headers })).json()).toEqual(first);
   await editor.screenshot({ path: info.outputPath("native-contact-withdrawal.png") });
+  await page.getByRole("button", { name: "Marketing", exact: true }).click();
+  await page.getByRole("button", { name: `${body} · Approuvée · push`, exact: true }).click();
+  await recipients.getByRole("button", { name: "Vérifier les destinataires courants", exact: true }).click();
+  await expect(member).toContainText("Refus déclaré"); await expect(member).toContainText("Non éligible");
+  expect(await (await request.get(`${marketing}/campaigns/${approval.revision.campaign_id}/current`, { headers })).json()).toEqual(approval);
+  expect(await (await request.get(`${marketing}/audience-captures/${capture.id}/pages/0`, { headers })).json()).toEqual(retained);
+  expect(campaignPosts).toBe(3); expect(capturePosts).toBe(1);
+  await recipients.screenshot({ path: info.outputPath("native-contact-chain-withdrawn.png") });
 });

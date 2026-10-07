@@ -698,6 +698,25 @@ claimed. Buttons >=44px/no overflow, four screenshots inspected. Existing bcrypt
 NO_COLOR diagnostics only. No backend/schema/provider/full-backend acceptance claim.
 All marketing/physical/production gates OPEN; canonical goal ACTIVE.
 
+## Phase 13AF - full native contact to campaign approval chain
+
+Expanded existing signed native contact scenario through Push contact-basis audience
+capture, source selection, explicit literal IA-declared draft, REVIEW, APPROVE and
+current-recipient grant. Registered customer/segment policy alone set up by signed API;
+all marketing mutations use native controls. Lost contact reply/reload recovery remains
+exactly one original creation. Native correction withdraws Push and fresh recipient read
+refuses customer; retained audience page/approval/older contact remain exact. Two contact
+POSTs/two readonly previews, one capture POST, three campaign POSTs per format.
+No LLM-generated-content claim: fixture text explicitly declared IA-origin. No SEND.
+
+Actual signed Edge desktop/tablet 2 passed in 1.1m (19.2s/19.0s individual), exit 0,
+fixtures cleaned. Signed launcher rebuild passes. Four additional chain grant/withdrawal
+screenshots inspected. Existing contact 44px/no-overflow checks rerun. Existing bcrypt/
+NO_COLOR diagnostics only. Test/docs-only; latest full frontend 318/65.46s from 13AE.
+No new backend/schema/provider acceptance. Next delivery provider boundary, durable send
+intent/outcome and retained conversion evidence; canonical marketing audit thereafter.
+All marketing/physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

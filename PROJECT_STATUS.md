@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 13
-CURRENT_CHECKPOINT = PHASE13AE_NATIVE_CURRENT_RECIPIENTS
+CURRENT_CHECKPOINT = PHASE13AF_NATIVE_CONTACT_TO_APPROVAL_CHAIN
 STATUS = ACTIVE
+
+PHASE13AF_NATIVE_CONTACT_TO_APPROVAL_CHAIN:
+- Extended signed native contact acceptance through complete marketing chain: trusted customer selection, all-three-channel grants and explicit destinations, canonical readonly review, lost contact POST/reload/key recovery, explicit contact-basis Push audience capture, source selection, literal IA-declared draft, native REVIEW/APPROVE, current recipient grant. Native exact-predecessor Push withdrawal then fresh current-recipient refusal preserves approved campaign, captured page and original contact. Only registered customer/segment-policy setup uses signed API; marketing mutation actions all native controls. IA origin is explicitly declared literal fixture text, not an LLM-generated content claim.
+- Exactly two contact mutation POSTs/two readonly previews, one capture POST and three campaign POSTs per format; retained member source equals first contact, approved digest equals reviewed digest, retained membership includes owned customer. No provider call or SEND. Signed Edge desktop/touch-tablet: 2 passed in 1.1m (individual 19.2s/19.0s), terminal exit 0; owned fixtures cleaned; signed launcher rebuild passes. Four additional approved/withdrawn screenshots inspected, recipient facts readable; contact controls >=44px/no overflow inherited and rerun in scenario.
+- Test/documentation-only checkpoint. Latest full frontend remains 318 passed in 65.46s at 13AE; no new full frontend/backend/schema/provider acceptance claimed. CHECKPOINT_STATUS = PARTIAL; all Phase 13 gates OPEN. NEXT: explicit channel-independent delivery provider boundary, durable send intents/outcomes and retained conversion evidence, then canonical marketing gate audit. Full canonical goal ACTIVE; physical/production gates OPEN.
 
 PHASE13AE_NATIVE_CURRENT_RECIPIENTS:
 - Added explicit manager-only current recipient reads under verified campaign history, pinned to displayed revision, bounded 20-member pages. Native guard validates exact retained membership/order/count/scope, full approved campaign digest, aware source clocks, complete three-channel contact originals, recomputed eligibility/reason and strict false delivery/send/whole-campaign flags.
