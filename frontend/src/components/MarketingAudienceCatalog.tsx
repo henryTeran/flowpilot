@@ -64,6 +64,7 @@ function Retained({ institute, selected }: { institute: string; selected: Audien
   useEffect(() => { void load(); return () => { sequence.current++; }; }, []);
   return <section aria-label="Détail de l’audience retenue"><h4>Audience historique</h4>
     <p style={{ overflowWrap: "anywhere" }}>{selected.id} · {selected.request.channel} · {selected.request.reason}</p>
+    <p>Source retenue : {selected.request.permission_basis === "marketing_contact" ? "Déclarations de contacts marketing" : "Déclarations CRM"}</p>
     <p>{selected.summary.customer_count} clientes observées · {selected.summary.selected_count} sélectionnées · {selected.summary.eligible_count} éligibles à la capture.</p>
     <button disabled={busy} onClick={() => void load(index)}>Actualiser la page retenue</button>
     {busy && <p role="status">Lecture de la page retenue…</p>}{error && <p role="alert">{error}</p>}

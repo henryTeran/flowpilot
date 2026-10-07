@@ -621,6 +621,30 @@ fixtures cleaned. No new full backend/schema/provider/delivery claim. Next nativ
 contact editor/recovery, contact-source capture choice and signed desktop/tablet
 views; then observations/provider/send/conversion. All gates OPEN; goal ACTIVE.
 
+## 13AC: native explicit contact-source audience capture
+
+Capture requires explicit source choice; contacts marketing emits exact new basis,
+CRM preserves legacy request. Pending request retains original basis through reload,
+verified capture/history displays it. Push explanation separates contact declarations
+from legacy email/SMS dimensions. No implicit source default. Visual inspection found
+long option clipping on desktop; shortened option names remain readable on both formats.
+
+Final seven focused tests pass in 4.35s: wrong-basis receipt preserves intent, exact
+independent reread clears with zero POSTs; prior recovery/session/guard cases remain.
+Full frontend: 312 passed in 56.57s, no failures/skips, terminal exit 0 before option-
+only wording refinement. Final launcher rebuild passes. Signed Edge desktop/tablet:
+initially 2 passed in 53.4s; final refined source options 2 passed in 48.4s, terminal
+exit 0, fixtures cleaned. Legacy then push contact-source capture lost replies/reload
+recover with two total POSTs per format; exact contact original/source retained,
+unknowns excluded, historical legacy original unchanged, pending key clear. Actual
+55 then 56 registered cohort pages 50/5 then 50/6 displayed through verified catalog/
+key/ID/page checks. Form controls >=44px/no horizontal overflow. Four initial source/
+retained-page and two final source screenshots inspected. Existing bcrypt/NO_COLOR,
+initial deliberate abort connection reset only. Contacts created by signed fixture
+API; native contact editor not yet implemented. No provider/send/new backend/schema
+acceptance claimed. Next native contact editor/recovery, observations/provider/send/
+conversion. Marketing/physical/production gates OPEN; full canonical goal ACTIVE.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and

@@ -45,3 +45,22 @@ test("invalid capture intent freezes form and old actor response cannot close st
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<MarketingAudiencePanel institute="i" />)); assert.equal(document.body.textContent, "");
   } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
 });
+
+test("contact-source replay refuses a different permission basis and retains exact intent", async () => {
+  const savedFetch = globalThis.fetch, root = createRoot(document.getElementById("root")!);
+  const pending: AudienceRequest = { ...terms, channel: "push", permission_basis: "marketing_contact" };
+  let exact = false, posts = 0;
+  globalThis.fetch = async (_url, options) => {
+    if (options?.method === "POST") posts++;
+    return reply({ ...original, request: exact ? pending : { ...terms, channel: "push" } });
+  };
+  try {
+    sessionStorage.clear(); setAccessToken(token()); sessionStorage.setItem(storage, JSON.stringify(pending));
+    await act(async () => root.render(<MarketingAudiencePanel institute="i" />));
+    assert.match(document.body.textContent!, /Source conservée : Déclarations de contacts marketing/);
+    await resume(); assert.equal(sessionStorage.getItem(storage), JSON.stringify(pending));
+    assert.match(document.body.textContent!, /Capture originale à vérifier/);
+    exact = true; await resume(); assert.equal(sessionStorage.getItem(storage), null); assert.equal(posts, 0);
+    assert.match(document.body.textContent!, /Source retenue : Déclarations de contacts marketing/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = savedFetch; sessionStorage.clear(); }
+});

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 test.use({ timezoneId: "America/Los_Angeles" });
 test("signed native audience capture recovers lost POST and retains explicit marketing permissions", async ({ page, request }, info) => {
+  test.setTimeout(120000);
   await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
   await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
   await expect(page.locator(".flow-session-exit")).toBeVisible();
@@ -28,12 +29,18 @@ test("signed native audience capture recovers lost POST and retains explicit mar
   await open(); const panel = page.getByRole("region", { name: "Capturer une audience", exact: true });
   await expect(panel.getByLabel("Nouvelles", { exact: true })).not.toBeChecked(); await expect(panel.getByLabel("Canal de l’audience")).toHaveValue("");
   await panel.getByLabel("Nouvelles", { exact: true }).check(); await panel.getByLabel("Canal de l’audience").selectOption("email");
+  await expect(panel.getByLabel("Source des permissions")).toHaveValue("");
+  await panel.getByLabel("Source des permissions").selectOption("legacy_lifecycle");
   await panel.getByLabel("Motif de capture").fill("Explicit native retained audience");
   let posts = 0, first: any;
+  let markContactLost!: () => void;
+  const contactLost = new Promise<void>(resolve => { markContactLost = resolve; });
   await page.route("**/audience-captures", async route => {
     if (route.request().method() !== "POST") return route.continue();
     posts++; const response = await route.fetch(); expect(response.status()).toBe(200); first = await response.json();
-    if (posts === 1) return route.abort("failed"); return route.fulfill({ response });
+    if (posts === 1) return route.abort("failed");
+    if (posts === 2) { await route.abort("failed"); markContactLost(); return; }
+    return route.fulfill({ response });
   });
   await panel.getByRole("button", { name: "Conserver l’audience", exact: true }).click();
   await expect(panel.getByRole("button", { name: "Reprendre la capture conservée", exact: true })).toBeEnabled();
@@ -70,4 +77,36 @@ test("signed native audience capture recovers lost POST and retains explicit mar
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
   await panel.screenshot({ path: info.outputPath("native-audience.png") });
   await retainedPanel.screenshot({ path: info.outputPath("native-retained-audience.png") });
+  const legacyCapture = first;
+  const contactReply = await request.post(`${base}/marketing/institutes/${institute}/customers/${customer.id}/contact-declarations`, { headers,
+    data: { previous_id: null, reason: "Explicit native push contact source", idempotency_key: `push-contact-${info.project.name}`,
+      declaration: { institute_id: institute, customer_id: customer.id, purpose: "marketing", communications: ["email", "sms", "push"].map(channel => ({
+        channel, permission: channel === "push" ? "granted" : "unknown", permission_evidence: channel === "push" ? "Explicit push marketing permission" : null,
+        destination: channel === "push" ? { channel, email: null, phone: null, push_application: "fixture-app", push_token: `fixture-device-${info.project.name}`,
+          evidence: "Explicit fixture application device" } : null })) } } });
+  expect(contactReply.status(), await contactReply.text()).toBe(200); const contact = await contactReply.json();
+  await panel.getByLabel("Nouvelles", { exact: true }).check(); await panel.getByLabel("Canal de l’audience").selectOption("push");
+  await panel.getByLabel("Source des permissions").selectOption("marketing_contact");
+  await panel.getByLabel("Motif de capture").fill(`Native contact push ${info.project.name}`);
+  for (const control of await panel.locator("button,input,select").all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)).toBe(false);
+  await panel.screenshot({ path: info.outputPath("native-contact-audience-source.png") });
+  await panel.getByRole("button", { name: "Conserver l’audience", exact: true }).click(); await contactLost;
+  await expect(panel.getByRole("button", { name: "Reprendre la capture conservée", exact: true })).toBeEnabled();
+  await page.reload(); await open(); await expect(panel).toContainText("Source conservée : Déclarations de contacts marketing");
+  await panel.getByRole("button", { name: "Reprendre la capture conservée", exact: true }).click();
+  await expect(panel).toContainText("Capture originale vérifiée"); expect(posts).toBe(2);
+  expect(first.request.permission_basis).toBe("marketing_contact"); expect(first.request.channel).toBe("push"); expect(first.summary.eligible_count).toBeGreaterThan(0);
+  expect(await (await request.get(`${base}/marketing/institutes/${institute}/audience-captures/${legacyCapture.id}`, { headers })).json()).toEqual(legacyCapture);
+  await page.getByRole("button", { name: "Consulter les audiences retenues", exact: true }).click();
+  await catalog.getByRole("button", { name: new RegExp(`Native contact push ${info.project.name}`) }).click();
+  await expect(retainedPanel.locator("article")).toHaveCount(50); await expect(retainedPanel).toContainText("Source retenue : Déclarations de contacts marketing");
+  await retainedPanel.getByRole("button", { name: "Clientes suivantes", exact: true }).click();
+  await expect(retainedPanel.locator("article")).toHaveCount(first.summary.customer_count - 50);
+  const pages = await Promise.all([0, 1].map(async index => (await (await request.get(`${base}/marketing/institutes/${institute}/audience-captures/${first.id}/pages/${index}`, { headers })).json()).observation));
+  const retainedContact = pages.flatMap(p => p.items).find(item => item.customer_id === customer.id);
+  expect(retainedContact.declaration).toEqual(contact); expect(retainedContact.eligible_by_recorded_permission).toBe(true);
+  expect(pages.every(p => p.selection.permission_basis === "marketing_contact")).toBe(true);
+  expect(await page.evaluate(() => Object.keys(sessionStorage).some(k => k.startsWith("flowpilot.marketing-audience-request:")))).toBe(false);
+  await retainedPanel.screenshot({ path: info.outputPath("native-contact-retained-audience.png") });
 });

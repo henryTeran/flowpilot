@@ -18,6 +18,7 @@ function Capture({ institute, onCaptured }: { institute: string; onCaptured?: ()
     } catch { return { invalid: true }; }
   });
   const [segments, setSegments] = useState<MarketingSegment[]>([]), [channel, setChannel] = useState("");
+  const [basis, setBasis] = useState("");
   const [reason, setReason] = useState(""), [busy, setBusy] = useState(false), [rejected, setRejected] = useState(false);
   const [error, setError] = useState<string>(), [original, setOriginal] = useState<AudienceOriginal>();
   const current = () => mounted.current && token === getAccessToken();
@@ -46,8 +47,9 @@ function Capture({ institute, onCaptured }: { institute: string; onCaptured?: ()
   }
   const frozen = busy || !!saved.terms || !!saved.invalid;
   function submit(event: FormEvent) {
-    event.preventDefault(); if (frozen || !actor) return;
-    const terms = { segments, channel, reason: reason.trim(), idempotency_key: crypto.randomUUID() };
+    event.preventDefault(); if (frozen || !actor || !["legacy_lifecycle", "marketing_contact"].includes(basis)) return;
+    const terms = { segments, channel, reason: reason.trim(), idempotency_key: crypto.randomUUID(),
+      ...(basis === "marketing_contact" ? { permission_basis: "marketing_contact" as const } : {}) };
     if (!validAudienceRequest(terms)) { setError("Choisissez au moins un segment, un canal et un motif explicite."); return; }
     void run(terms);
   }
@@ -56,6 +58,7 @@ function Capture({ institute, onCaptured }: { institute: string; onCaptured?: ()
     {busy && <p role="status">Vérification de la capture…</p>}{error && <p role="alert">{error}</p>}
     {saved.invalid && <p role="alert">Demande conservée invalide : aucune écriture possible.</p>}
     {saved.terms && <><p>Capture conservée : {saved.terms.channel} · {saved.terms.reason}</p>
+      <p>Source conservée : {saved.terms.permission_basis === "marketing_contact" ? "Déclarations de contacts marketing" : "Déclarations CRM"}</p>
       <button disabled={busy} onClick={() => void run(saved.terms!)}>Reprendre la capture conservée</button></>}
     {rejected && <button onClick={() => {
       if (!saved.terms || sessionStorage.getItem(storage) !== JSON.stringify(saved.terms)) return;
@@ -66,12 +69,15 @@ function Capture({ institute, onCaptured }: { institute: string; onCaptured?: ()
         onChange={event => setSegments(previous => event.target.checked ? marketingSegments.filter(s => s === segment || previous.includes(s)) : previous.filter(s => s !== segment))} />{labels[segment]}</label>)}
       <label>Canal de l’audience<select required value={channel} onChange={e => setChannel(e.target.value)}><option value="">Choisir</option>
         <option value="email">Email</option><option value="sms">SMS</option><option value="push">Push</option></select></label>
+      <label>Source des permissions<select required value={basis} onChange={e => setBasis(e.target.value)}><option value="">Choisir</option>
+        <option value="marketing_contact">Contacts marketing</option><option value="legacy_lifecycle">Déclarations CRM</option></select></label>
       <label>Motif de capture<input required minLength={3} maxLength={240} value={reason} onChange={e => setReason(e.target.value)} /></label>
-      <button disabled={!actor}>Conserver l’audience</button>
+      <button disabled={!actor || !basis}>Conserver l’audience</button>
     </fieldset></form>
     {original && <div role="status"><p>Capture originale vérifiée : {original.id}</p>
       <p>{original.summary.customer_count} clientes observées · {original.summary.selected_count} sélectionnées · {original.summary.eligible_count} éligibles selon la permission retenue.</p>
       <p>{original.summary.page_count} pages conservées · {original.captured_at}</p></div>}
-    <p>Cette capture ne réalise aucun envoi. Push ne dispose pas encore d’une déclaration de permission prise en charge.</p>
+    {original && <p>Source retenue : {original.request.permission_basis === "marketing_contact" ? "Déclarations de contacts marketing" : "Déclarations CRM"}</p>}
+    <p>Cette capture ne réalise aucun envoi. Push utilise les déclarations de contacts marketing ; les déclarations CRM ne couvrent que l’email et le SMS.</p>
   </section>;
 }
