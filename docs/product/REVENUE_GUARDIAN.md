@@ -56,7 +56,7 @@ future-period and unsupported-write refusal.
 | Employee capacity | 14B exposes bounded owned employee occupation evidence; resource/skill constraints and core booking authority remain to integrate. |
 | Cancelled revenue | 14C verifies owned booking cancellation events and unchanged original slot terms. Historical quote/price evidence still missing; revenue remains null. Walk-in cancellation valuation remains to integrate. |
 | No-show revenue | 14C verifies owned no-show booking events and current terminal source. Original price/quote evidence remains required for financial valuation; no causal loss is inferred. |
-| Rebooking opportunities | Reuse CRM/workforce source-backed return/rebooking rules, preserve eligibility and contact permission boundaries. |
+| Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
 | Opportunities | 14C adds two source-backed unpriced closure follow-ups with all five required fields. Rebooking/scenario/feasible-capacity opportunities and historical price basis remain to integrate. No automatic contact/booking. |
 | Product acceptance | Integrate manager desktop/tablet Revenue Guardian view, source navigation, uncertainty/refusal/retry and actual backend native verification. |
@@ -193,3 +193,51 @@ billing/actor/date-only refusal. Fresh previews can reflect changed current reco
 baskets; an older in-memory response does not mutate. Native UI, retained scenario
 original/key/audit/replay, feasible-capacity and source-backed booking-price valuation
 remain open; these are preview results, not persisted official forecasts.
+
+## 14E: observed rebooking opportunities
+
+Manager-only `GET /api/v1/revenue/institutes/{institute_id}/rebooking` captures all
+owned registered customers at one institute-locked instant. It reuses CRM's current
+immutable automation policy and source-backed actual-care candidate derivation,
+with an internal optional clock pin. Public CRM routes retain their prior behavior;
+neither endpoint accepts a caller capture clock. There is no new timing heuristic.
+Only the current enabled, due rebooking candidate for latest observed care is listed.
+Scheduled/disabled/missing-candidate customers and relevant policy/registration/care
+diagnostics remain explicit. Incomplete care sources prevent that customer's inferred
+recency, as in the existing CRM authority, rather than treating the valid subset as
+a complete care history.
+
+A due customer with an owned active return booking that overlaps the capture or
+ends later is suppressed. This is an explicit generic-return policy, independent of
+service mix or appointment credit; it does not prove that a booking was caused by
+the original care. Invalid active slot or foreign/missing employee/service evidence
+refuses the entire catalog, including if the affected customer lies outside the
+returned opportunity page. The already-booked count is for otherwise-due candidates,
+not a census of every customer with any booking.
+
+Offset/limit20/max50 bound returned opportunities, not the examined customer
+cohort, diagnostics or total. Each exposes the selected care anchor/candidate,
+current policy original, registered customer clock, lifecycle original or explicit
+unavailability, relevant diagnostics and required type/estimated_value/confidence/
+recommended_action. Unrelated package/birthday anchors and full history are not
+copied into the response. No name/phone is projected. Monetary value remains null;
+confidence is `observed_care_and_declared_rule_only`. Recommendation requires human
+review of return need, contact permission and feasible slot. A legacy lifecycle
+declaration is not registered marketing-channel delivery authority. Complete history,
+delivery and message-sent claims are strictly false; there is no event capture,
+booking/contact write or outbound execution.
+
+Initial new catalog plus existing CRM event-source/candidate regressions:
+**12 passed25.24s**, SQLite and actual isolated PostgreSQL, zero failures/skips,
+terminal exit0. After reducing response evidence and extending scheduled/disabled
+policy transitions, final focused **2 passed13.90s**, same two databases, exit0.
+Existing crypt deprecation only. Tests create25 actual care-linked customers,
+prove20/5 pages/full totals, absent-policy diagnostics, one pinned clock despite a
+different default CRM clock, absent contact declarations, active-return suppression,
+malformed off-page slot refusal, corrupt actual-care diagnostics, empty terminal
+page, bounds/strict flags and signed role/institute/anonymous/write refusal.
+
+The source authority still scans care history and performs reads per customer;
+large-customer/load acceptance is unproven. No native Revenue Guardian interface or
+retained opportunity audit is claimed. Scenario/price valuation, core feasible-slot
+authority, source drill-down and desktop/tablet review remain open.

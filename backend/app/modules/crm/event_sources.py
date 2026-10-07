@@ -28,13 +28,15 @@ class EventSourceRead(Fact):
     delivery_authorized: Literal[False] = False
 
 
-def read(db, institute, customer):
+def read(db, institute, customer, *, _captured_at=None):
     lock_institute(db, institute)
     row = require_customer(db, institute, customer)
     registered = RegisteredCustomerFact(institute_id=institute,customer_id=customer,created_at=explicit_utc_instant(row.created_at))
     pointer = automation_originals.read_head(db,institute)
     policy = automation_originals.require(db,institute,pointer.policy_id) if pointer else None
-    now = utcnow()
+    # Trusted aggregate readers share one institute-locked capture. Public
+    # lifecycle endpoints do not accept a client-provided observation clock.
+    now = explicit_utc_instant(_captured_at) if _captured_at is not None else utcnow()
     life = lifecycle_originals.read(db,institute,customer,_captured_at=now)
     diagnostics = {key: 0 for key in ("policy_absent", "future_policy", "future_registration", "birthday_unavailable",
         "care_unavailable", "care_unlinked_ticket", "care_invalid_owner_or_service", "care_invalid_actual_times",

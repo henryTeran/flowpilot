@@ -4,7 +4,7 @@ from pydantic import AwareDatetime
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.revenue import billing, sources, capacity, closures, scenarios
+from app.modules.revenue import billing, sources, capacity, closures, scenarios, rebooking
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -37,3 +37,9 @@ def booking_closures(institute_id: str, start: AwareDatetime, end: AwareDatetime
 @router.post("/scenarios/revenue-preview", response_model=scenarios.Scenario)
 def revenue_scenario(institute_id: str, request: scenarios.Request, user=Depends(manager), db: Session = Depends(get_db)):
     return scenarios.preview(db, institute_id, request, user.get("sub"))
+
+
+@router.get("/rebooking", response_model=rebooking.Rebooking)
+def rebooking_opportunities(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return rebooking.read(db, institute_id, offset, limit)
