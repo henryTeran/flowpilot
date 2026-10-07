@@ -6,6 +6,7 @@ import { validSegmentProfile, type SegmentProfile } from "../crm-segment-utils";
 import type { Customer } from "../types";
 import { CrmPolicyPanel } from "./CrmPolicyPanel";
 import { CrmReturnPanel } from "./CrmReturnPanel";
+import { CrmEventPanel } from "./CrmEventPanel";
 import { CrmLifecyclePanel } from "./CrmLifecyclePanel";
 import { CrmLifetimePanel } from "./CrmLifetimePanel";
 import { CrmAutomationPolicyPanel } from "./CrmAutomationPolicyPanel";
@@ -88,6 +89,7 @@ function Profile({ institute, customer }: { institute: string; customer: Custome
         {s.billing.unknown_currency_tickets > 0 && <p>Devise inconnue : {s.billing.unknown_currency_tickets} tickets</p>}
         <CrmReturnPanel institute={institute} customer={customer.id} start={s.billing.window.start} end={s.billing.window.end} /></>}
       {(result.undated_paid_tickets+result.future_paid_tickets > 0) && <p>Dates à vérifier : {result.undated_paid_tickets+result.future_paid_tickets} tickets</p>}
+      <details><summary>Consulter les événements internes</summary><CrmEventPanel institute={institute} customer={customer.id} /></details>
       <CrmLifecyclePanel institute={institute} customer={customer.id} />
       <CrmLifetimePanel institute={institute} customer={customer.id} start={s?.billing.window.start} />
       <details><summary>Période et règle appliquée</summary><p>Lecture : {result.captured_at}</p>{s && <p>Période : {s.billing.window.start} — {s.billing.window.end}</p>}

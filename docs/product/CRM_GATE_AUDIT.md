@@ -1100,6 +1100,10 @@ Browser occurrence SHA256 matches independently computed Python compact ASCII/no
 
 Typed source/capture/action contracts pin registered ownership, common lifecycle/source/capture clock, birthday calendar provenance, exact explicit policy-derived candidate coverage, diagnostic shape and unique scoped revisions. Request distinguishes batch from exact target/revision; recovery matching checks actor and literal terms. Retained older revisions remain valid; fresh occurrences and targeted action outcome must be represented. Backend diagnostic counts are reported evidence, not proof of independently inspected raw source completeness. Full frontend: 279 passed in 47.88s; final focus: 8 passed; TypeScript and build pass. Independent original equivalence/native action recovery remain pending. All CRM and physical/production gates remain OPEN.
 
+## Phase 12AO: native event view and action recovery
+
+Manager-only native event view now binds exact scoped guards to bounded pages and explicit reconciliation/processing/cancellation. Targeted actions pin visible revision and require reason. Protected per-actor/customer/institute intent reads original key before possible POST, verifies actor/full terms, independent key/ID receipts and current page before clearing; full capture comparison normalizes named microsecond clocks while retaining literal arrays/terms. Recovery focus: 3 passed; full frontend: 282 passed in 46.86s; TypeScript/Vite pass. Profile fixture explicitly handles new event read without weakening existing isolation tests. Signed desktop/tablet event workflow and complete Phase 12 gate audit remain pending. No outbound messages or production service activated; all CRM and physical/production gates remain OPEN.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

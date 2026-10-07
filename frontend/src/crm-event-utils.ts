@@ -114,3 +114,11 @@ export async function validEventCapture(v:unknown,institute:string,customer:stri
 }
 export function sameEventRequest(a:EventRequest,b:EventRequest){return validEventRequest(a) && validEventRequest(b) && a.action===b.action && a.event_key===b.event_key && a.expected_revision_id===b.expected_revision_id && a.reason===b.reason && a.idempotency_key===b.idempotency_key;}
 export async function matchesEventCapture(v:unknown,institute:string,customer:string,terms:EventRequest,actor:string){const c=v as EventCapture;return await validEventCapture(c,institute,customer) && c.actor_id===actor && sameEventRequest(c.request,terms);}
+
+function canonicalReceipt(v:unknown,key=""):string{
+ if(typeof v==="string" && ["created_at","captured_at","occurred_at","expires_at","due_at","valid_until","evaluated_at","occurrence_start","occurrence_end"].includes(key))return instant(v)?.toString() || JSON.stringify(v);
+ if(Array.isArray(v))return "["+v.map(x=>canonicalReceipt(x)).join(",")+"]";
+ if(v && typeof v==="object")return "{"+Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,x])=>JSON.stringify(k)+":"+canonicalReceipt(x,k)).join(",")+"}";
+ return JSON.stringify(v);
+}
+export async function sameEventCapture(a:unknown,b:unknown,institute:string,customer:string){return await validEventCapture(a,institute,customer) && await validEventCapture(b,institute,customer) && canonicalReceipt(a)===canonicalReceipt(b);}

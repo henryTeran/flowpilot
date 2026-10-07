@@ -14,7 +14,7 @@ const customer = { id: "customer_a", institute_id: "i", display_name: "Alice", p
 const reply = (v: unknown) => new Response(JSON.stringify(v), { headers: { "Content-Type": "application/json" } });
 test("native CRM profile isolates role/customer/actor and hides forged fresh readings", async () => {
   const fetch = globalThis.fetch, root = createRoot(document.getElementById("root")!), pending: ((v: Response) => void)[] = [];
-  globalThis.fetch = async url => String(url).endsWith("/lifecycle") || String(url).includes("/lifecycle-declarations/") ? reply(null) : String(url).includes("/return-cycle?") ? reply(crmEmptyReturn()) : String(url).includes("/lifetime-scenario?") ? reply(crmLifetime()) : String(url).includes("/lifetime-assumptions/") ? reply(null) : new Promise(resolve => pending.push(resolve));
+  globalThis.fetch = async url => String(url).includes("/events?") ? reply({institute_id:"i",customer_id:"customer_a",total:0,offset:0,limit:20,revisions:[]}) : String(url).endsWith("/lifecycle") || String(url).includes("/lifecycle-declarations/") ? reply(null) : String(url).includes("/return-cycle?") ? reply(crmEmptyReturn()) : String(url).includes("/lifetime-scenario?") ? reply(crmLifetime()) : String(url).includes("/lifetime-assumptions/") ? reply(null) : new Promise(resolve => pending.push(resolve));
   try {
     setAccessToken(token("manager", "accueil")); await act(async () => root.render(<CustomerCrmProfile institute="i" customer={customer} />));
     assert.equal(pending.length, 0);
