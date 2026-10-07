@@ -39,6 +39,7 @@ import type {
   ServiceSession,
 } from "./types";
 
+const CustomerCrmPanel = lazy(() => import("./components/CustomerCrmPanel").then(module => ({ default: module.CustomerCrmPanel })));
 const WorkforcePanel = lazy(() => import("./components/WorkforcePanel").then(module => ({ default: module.WorkforcePanel })));
 
 const loadAgendaAppointments = (instituteId: string, day: string) => apiGet<Appointment[]>(
@@ -73,7 +74,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("disconnected");
   const [activeDrawer, setActiveDrawer] = useState<"newTicket" | "tickets" | "checkout" | "appointments" | "dashboard" | "demo" | null>(null);
-  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce">("planning");
+  const [mainView, setMainView] = useState<"planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients">("planning");
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [identityContext, setIdentityContext] = useState<IdentityContext>("general");
   const [afterIdentityAction, setAfterIdentityAction] = useState<"newTicket" | "checkout" | null>(null);
@@ -738,6 +739,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         onOpenDashboard={() => { setActiveDrawer(null); setMainView("chiffres"); }}
         onOpenInventory={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("inventory"); } : undefined}
         onOpenWorkforce={["accueil", "responsable_institut"].includes(getOperatorRole() || "") ? () => { setActiveDrawer(null); setMainView("workforce"); } : undefined}
+        onOpenCustomers={getOperatorRole() === "responsable_institut" ? () => { setActiveDrawer(null); setMainView("clients"); } : undefined}
         onOpenOffers={() => { setActiveDrawer(null); setMainView("offres"); }}
         onLogout={onLogout}
       />
@@ -775,6 +777,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
         {error && <div className="bm-banner error">{error}</div>}
         {loading && <div className="bm-banner loading">Chargement des données...</div>}
 
+        {mainView === "clients" && <Suspense fallback={<div role="status">Chargement...</div>}><CustomerCrmPanel institute={selectedInstituteId} /></Suspense>}
         {mainView === "inventory" && <InventoryPanel instituteId={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />}
         {mainView === "workforce" && <Suspense fallback={<div className="bm-banner loading" role="status">Chargement de l’équipe…</div>}>
           <WorkforcePanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} employees={employees} services={services} onChanged={refreshOperationalData} />
@@ -1088,7 +1091,8 @@ function isCheckoutTicket(status: string) {
   return ["ready_for_checkout", "in_checkout", "checkout"].includes(status);
 }
 
-function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce") {
+function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients") {
+  if (view === "clients") return "Clientes";
   if (view === "workforce") return "Accueil / Équipe";
   if (view === "inventory") return "Accueil / Inventaire";
   if (view === "offres") return "Accueil / Offres";
@@ -1097,7 +1101,8 @@ function getTopBreadcrumb(view: "planning" | "tickets" | "chiffres" | "offres" |
   return "Accueil / Planning";
 }
 
-function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce") {
+function getTopTitle(view: "planning" | "tickets" | "chiffres" | "offres" | "inventory" | "workforce" | "clients") {
+  if (view === "clients") return "Clientes";
   if (view === "workforce") return "Équipe";
   if (view === "inventory") return "Inventaire";
   if (view === "offres") return "Offres";

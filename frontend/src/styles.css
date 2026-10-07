@@ -6806,3 +6806,13 @@ body {
 .commission-choices { margin-top: 16px; }
 .rebooking-panel li { overflow-wrap: anywhere; }
 .rebooking-panel .rebooking-choices { grid-column: 1 / -1; min-width: 0; }
+/* Customer CRM follows the existing desktop/tablet controls. */
+.customer-crm { background: white; border-radius: 16px; padding: 24px; min-width: 0; }
+.customer-crm form, .customer-crm header { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.customer-crm label { display: grid; gap: 6px; flex: 1 1 220px; }
+.customer-crm input, .customer-crm button, .customer-crm summary { min-height: 44px; }
+.customer-crm input { width: 100%; box-sizing: border-box; padding: 10px; }
+.customer-crm button { padding: 10px 16px; cursor: pointer; }
+.customer-crm ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.customer-crm p { overflow-wrap: anywhere; }
+.customer-crm [aria-label="Profil CRM"] { border-top: 1px solid #ddd; padding-top: 16px; }

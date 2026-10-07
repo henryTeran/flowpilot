@@ -18,6 +18,7 @@ def test_customer_search_replay_and_registered_beneficiary_scope(client):
     created = client.post(prefix, headers=operator, json=data)
     assert created.status_code == 200, created.text
     customer = created.json()
+    assert customer["created_at"].endswith("Z")
     assert client.get(prefix + f"/{customer['id']}", headers=operator).json() == customer
     assert client.post(prefix, headers=operator, json=data).json() == customer
     assert client.post(prefix, headers=operator, json={**data, "display_name": "Different"}).status_code == 400

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Annotated
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import AwareDatetime, BaseModel, ConfigDict, StringConstraints, field_validator
+from app.shared.time import explicit_utc_instant
 
 
 class CustomerCreate(BaseModel):
@@ -16,4 +17,9 @@ class CustomerRead(BaseModel):
     institute_id: str
     display_name: str
     phone: str | None
-    created_at: datetime
+    created_at: AwareDatetime
+
+    @field_validator("created_at", mode="before")
+    @classmethod
+    def aware_creation(cls, value):
+        return explicit_utc_instant(value) if isinstance(value, datetime) else value

@@ -236,15 +236,49 @@ and exact risk/dormant boundaries, and representable-policy calendar underflow.
 Backend contracts/schema are unchanged; existing 12F backend receipt remains
 53 passing CRM tests, without claiming a new backend or browser run.
 
+## 12H: native manager customer directory and observed profile
+
+`frontend/src/components/CustomerCrmPanel.tsx` binds the existing registered
+customer search (maximum 20 results, explicit selection) to the guarded current
+segment read. Manager navigation uses the existing Clientes entry and a lazy
+bundle. Institute/token/customer changes dispose old reads; query changes clear
+choices and selected profiles. Refresh immediately hides previous facts, and
+malformed/failed responses show an actionable reread instead of old classification.
+Reception makes no sensitive CRM request through this panel.
+
+Profiles show the observed state or precise unavailable/unknown explanation,
+ticket count, last closing, known gross by currency, rounded-to-cent recorded
+average basket, missing amount/currency/date diagnostics, and expandable period
+and original policy provenance. Large money formatting uses BigInt and the
+display-only average rounds half up explicitly; source ratios remain unchanged.
+The directory does not create a default policy or expose policy mutations yet.
+
+Native browser evidence revealed the existing CustomerRead creation timestamp
+lost UTC metadata on SQLite. `backend/app/modules/customers/schemas.py` now uses
+AwareDatetime with the established stored-UTC restoration helper, preserving
+actual creation instant rather than accepting naive timestamps. Existing customer
+identity/search/checkout behavior is preserved and a UTC JSON assertion added.
+
+Controlled evidence: initial focused profile/segment tests 5 passed in 4.18s;
+final complete frontend 238 passed in 42.43s, zero failures/skips. TypeScript/Vite
+build passes, 115 modules, separately loaded CRM bundle about 10.42kB. Backend
+customer/checkout/profile focus 9 passed in 20.23s; final customer/checkout focus
+after the explicit UTC assertion 5 passed in 9.59s; existing passlib crypt warning
+only. Signed Edge desktop/touch-tablet 2 passed in 33.9s (6.7s/4.6s), real isolated
+customer and explicit policy, native search/selection/current profile, corrupted
+classification hidden then recovered, all controls at least 44px and no horizontal
+overflow. Tablet screenshot inspected. Initial Edge cases timed out on absent
+search choices because naive timestamps were correctly refused; the DTO authority
+was corrected without extending timeouts or weakening guards. Only launcher's
+owned temporary fixture was removed, confirmed on completion. No physical-device,
+actual application migration, settlement or production readiness claim.
+
 ## Remaining acceptance
 
-- Integrate the delivered signed billing read into native customer profiles;
-  add any bounded source-history views without changing complete aggregate
-  coverage or inferring identity from name/phone.
-- Integrate delivered current-horizon segmentation and diagnostics into native
-  configuration/profile workflows, including guarded original-key recovery and
-  explicit absent/future policy presentation. No production threshold is configured
-  by 12E, and no lifecycle transition/event is claimed yet.
+- Implement native explicit policy configuration/correction, guarded original-key
+  recovery and configuration provenance; extend customer profile/source views as
+  needed without changing complete aggregates or guessing name/phone identity.
+  No production policy is configured by 12H, and no lifecycle event is claimed yet.
 - Implement source-supported CLV and customer rebooking-cycle semantics,
   distinguishing recorded gross from prediction and employee rebooking credit.
 - Implement explicit birthday/communication declarations and lifecycle events

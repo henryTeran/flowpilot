@@ -27,6 +27,7 @@ interface FlowPilotSidebarProps {
   onOpenDashboard: () => void;
   onOpenInventory?: () => void;
   onOpenWorkforce?: () => void;
+  onOpenCustomers?: () => void;
   onOpenOffers?: () => void;
   onLogout?: () => void;
 }
@@ -38,6 +39,7 @@ export function FlowPilotSidebar({
   onOpenDashboard,
   onOpenInventory,
   onOpenWorkforce,
+  onOpenCustomers,
   onOpenOffers,
   onLogout,
 }: FlowPilotSidebarProps) {
@@ -47,6 +49,7 @@ export function FlowPilotSidebar({
     if (itemId === "dashboard") onOpenDashboard();
     if (itemId === "inventory") onOpenInventory?.();
     if (itemId === "workforce") onOpenWorkforce?.();
+    if (itemId === "clients") onOpenCustomers?.();
     if (itemId === "offres") onOpenOffers?.();
   }
 
@@ -60,7 +63,7 @@ export function FlowPilotSidebar({
       </div>
 
       <nav className="bm-nav" aria-label="Navigation principale">
-        {menuItems.filter(item => (item.id !== "inventory" || !!onOpenInventory) && (item.id !== "workforce" || !!onOpenWorkforce)).map((item) => (
+        {menuItems.filter(item => (item.id !== "inventory" || !!onOpenInventory) && (item.id !== "workforce" || !!onOpenWorkforce) && (item.id !== "clients" || !!onOpenCustomers)).map((item) => (
           <button
             key={item.id}
             type="button"
