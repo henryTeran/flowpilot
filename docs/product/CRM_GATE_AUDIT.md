@@ -950,6 +950,33 @@ cancellation, worker, new frontend/browser or full CRM/backend/physical/producti
 receipt claimed. Runtime service/API, idempotency/concurrency/rollback and worker/
 native acceptance remain required; all canonical gates stay open.
 
+## Phase 12AE: atomic internal event ledger and cancellation API
+
+Signed own-customer capture/reconciliation persists full source/diagnostics,
+request/actor/reason/key and selected revision IDs in one transaction. Scoped
+same-key exact replay precedes mutable clocks/heads. Revision append pins prior
+revision; unchanged semantic decisions reuse old IDs. Historical original-key/ID
+reads retain results after later head changes. Current event pagination retains
+complete total and bounded 20/default 50/max rows with fully scoped joins.
+
+Explicit cancellation requires exact current event/revision and rejects stale
+revision or processed event. Explicit cancellation remains terminal after source/
+rule changes. Failure after multiple flushed revisions rolls back capture,
+revisions and heads. No edit/delete/processing or outbound-send API supplied.
+
+Initial ledger SQLite/PostgreSQL 3 passed in 10.44s; adjacent focus 35 passed in
+30.12s. Full seventeen-file CRM 148 passed in 72.92s, zero failures/skips, actual
+PostgreSQL enabled. After scoped-join/signed-HTTP/six-trigger fixture strengthening,
+final ledger/reconciliation/source 11 passed in 18.45s. Proves 111 occurrences
+across all six triggers using real package/membership terms, repeated semantic
+revision reuse, independent original/history reads, old-clock replay, actor/terms/
+stale-revision refusal, pagination, signed roles/spoof/unauthenticated checks,
+rollback on third revision failure and actual PostgreSQL same-key concurrency
+(one capture) plus competing cancellation (one succeeds). Existing passlib crypt
+deprecation warning observed. No new schema/migration, worker/native/browser or
+physical/production acceptance claimed. Worker internal processing receipts and
+native rule/event recovery workflows remain required; canonical gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events

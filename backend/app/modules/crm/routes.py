@@ -8,6 +8,7 @@ from app.modules.crm import return_sources
 from app.modules.crm import lifetime_originals as lifetime
 from app.modules.crm import lifecycle_originals as lifecycle, calendar_policies as calendar
 
+from app.modules.crm import event_ledger
 from app.modules.crm import event_sources
 from app.modules.crm import automation_originals as automation
 
@@ -18,6 +19,26 @@ def manager(institute_id: str, user=Depends(require_ticket_manager)):
     if user.get("institute_id") != institute_id or user.get("role") != "responsable_institut":
         raise HTTPException(403, "Permission insuffisante")
     return user
+
+
+@router.post("/customers/{customer_id}/event-captures", response_model=event_ledger.CaptureRead)
+def event_capture_create(institute_id: str, customer_id: str, payload: event_ledger.Request, user=Depends(manager), db: Session = Depends(get_db)):
+    return event_ledger.execute(db,institute_id,customer_id,payload,user.get("sub"))
+
+
+@router.get("/customers/{customer_id}/event-captures/original/{key}", response_model=event_ledger.CaptureRead | None)
+def event_capture_original(institute_id: str, customer_id: str, key: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return event_ledger.original(db,institute_id,customer_id,key)
+
+
+@router.get("/customers/{customer_id}/event-captures/{identifier}", response_model=event_ledger.CaptureRead)
+def event_capture_detail(institute_id: str, customer_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return event_ledger.require(db,institute_id,customer_id,identifier)
+
+
+@router.get("/customers/{customer_id}/events", response_model=event_ledger.CurrentPage)
+def event_current_page(institute_id: str, customer_id: str, limit: int = Query(20,ge=1,le=50), offset: int = Query(0,ge=0), user=Depends(manager), db: Session = Depends(get_db)):
+    return event_ledger.page(db,institute_id,customer_id,limit,offset)
 
 
 @router.get("/customers/{customer_id}/event-sources", response_model=event_sources.EventSourceRead)
