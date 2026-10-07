@@ -437,6 +437,48 @@ fixture cleanup confirmed. Existing bcrypt/NO_COLOR warnings only. No new
 backend/schema, actual application migration, physical-device or production
 receipt is claimed; all four CRM gates remain open.
 
+## Phase 12N: explicit remaining-lifetime value calculation
+
+`backend/app/modules/crm/lifetime.py` defines an explicit, scoped conditional
+remaining-lifetime scenario. Required declarations are model version, currency,
+expected active microseconds, activity fraction, gross contribution margin and
+future relationship costs. Activity/margin fractions are canonical bounded
+integer-string ratios between zero and one; durations/costs are canonical
+bounded strings. There are no inferred commercial defaults.
+
+The undiscounted model is explicitly:
+
+- projected gross = selected-currency observed gross / observed microseconds
+  × declared active microseconds × declared activity fraction;
+- projected contribution = projected gross × declared gross contribution margin;
+- remaining CLV = projected contribution − declared future relationship costs.
+
+This is a remaining-value scenario conditional on declared assumptions, not
+historical gross relabelled as CLV, a complete historical net value, a calibrated
+prediction or guaranteed lifetime. Margin/costs remain declared assumptions,
+not inferred from paid tickets. CHF/EUR never combine or undergo invented FX.
+The result retains its source billing and every assumption/diagnostic. Existing
+`billing.predicted_clv` remains null; complete history, validated prediction and
+discounting remain false.
+
+Integer/Fraction arithmetic produces reduced signed integer-string ratios with
+no intermediate floats, silent cent rounding or loss of negative/zero results.
+Explicit zero gross/activity can yield zero contribution and negative remaining
+value after costs. Empty history is unknown. Stale observations, undated/future
+closings, calendar overflow, unknown currency, no observations in the selected
+currency or uncertain selected-currency amounts suppress all monetary outputs.
+UTC elapsed-time arithmetic preserves offset aliases.
+
+Controlled pure lifetime/metrics/segments regression: 62 passed in 0.52s, zero
+failures/skips, including 23 new lifetime cases. Initial 61 passed in 0.65s
+before final timezone/calendar case. Exact negative/fractional/zero arithmetic,
+large costs above safe JSON integer precision, strict required assumptions,
+scope/diagnostics, uncertainty priority, separate currencies and calendar bounds
+are covered. Existing Starlette/httpx deprecation warning only. No original
+storage, API/UI, actual PostgreSQL, migration, broader regression, physical-device
+or production receipt is claimed. Native original declaration/recovery and
+authoritative billing/diagnostic reads remain required; CRM gates stay open.
+
 ## Remaining acceptance
 
 - Extend customer profile/source views for remaining lifecycle metrics and events
