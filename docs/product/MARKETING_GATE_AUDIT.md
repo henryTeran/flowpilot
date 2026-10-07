@@ -148,6 +148,25 @@ deprecations only. Prior
 fourteen latest-head assertions update only revision value; prior downgrade and
 history assertions remain intact. All Phase 13 gates remain OPEN.
 
+## 13H: signed template originals and corrections
+
+Signed manager templates POST and original-key/original-ID/current reads now use
+explicit new-root/correction targets and literal plain-text name/channel/origin/
+subject/body. Email requires subject; SMS/push have none. Placeholder text is
+preserved literally, not rendered. Full original request/actor/content retained;
+key-first replay precedes mutable clock/head and pins terms/actor. Correction pins
+exact current predecessor/monotonic clock; original/head commit once or rollback.
+No edit/delete/render/send API or provider authority.
+
+Initial adjacent focus: 11 passed in 4.61s. Expanded template/audience/campaign:
+15 passed in 19.45s, actual PostgreSQL, zero failures/skips. Final six pure channel/
+origin cases on Windows: 6 passed in 0.21s (three DB cases deselected). SQLite/
+PostgreSQL current/history/replay, signed key/ID/current/role checks, actor/terms/
+stale/clock refusals, original-flush then head-failure rollback and concurrent
+correction one winner covered. Existing passlib crypt and Windows Starlette/httpx
+deprecations only. No schema/native/provider/production acceptance inferred;
+campaign draft/review/approve/audit persistence remains pending; gates OPEN.
+
 ## Remaining canonical work
 
 Source-backed segmentation/audiences; append-only scoped templates/campaigns and
