@@ -23,7 +23,7 @@ authorized Workforce scope progresses.
 | Objectifs | Original signed manager targets, pinned civil/UTC periods, explicit gross-currency or actual-completed-session measure, exact targets, separate cancellations, bounded batched progress API, native manager lifecycle/lost-reply recovery and readonly employee profile | Physical/production acceptance |
 | CA | Bounded manager employee/day API and native profile read performer-attributed retained internally closed lines, separate exact currencies and missing data; SQLite/PostgreSQL/component/Edge checks pass | Physical/production acceptance; no external settlement or allocated refund/net-revenue claim |
 | Occupation | Manager day API and native selected-day profile retain actual source unions, declared denominator, exact covered/outside time, exclusions and floored recorded-time ratio; controlled API/component/Edge desktop/tablet verified | Physical/production acceptance; complete activity/attendance stays unknown |
-| Rebooking | Original execution/customer links and future appointment facts exist; no employee rebooking measure is delivered | Explicit definition and scoped recorded-event read; no inferred customer identity or predicted result |
+| Rebooking | Explicit signed attribution contract and source capture validate completed execution, owned client links, original booking creation and exact chronology on SQLite/PostgreSQL | Original declaration/cancellation ledger, native recovery and scoped Employee 360 read; no inferred customer identity, absent-declaration failure or predicted return |
 | Commissions | No configured workforce commission ledger/rule authority is delivered | Explicit rates/basis/currency, original rule pinning, actual attributed source and protected correction/replay semantics |
 | Absences | Signed manager-only original facts, capacity conflict protection, native authoring/recovery and employee calendar are verified on controlled API/component/Edge | Physical-device and production acceptance |
 | Congés | Explicit `leave` intervals share the original authority, native cancellation/recovery and scoped employee/day calendar | Physical-device and production acceptance; no entitlement/payroll claim |
@@ -43,7 +43,7 @@ Section 32 requires certification facts and a Skill Matrix. A new credential
 qualification policy is not an additional canonical gate. Existing explicit
 skill requirements remain authoritative; new credential rules would require
 explicit configuration and must not grant skills implicitly.
-Next independent unit: explicit recorded rebooking definition/read, then
+Next independent unit: original recorded rebooking declaration/cancellation ledger, then native recovery/read and
 commissions with source-grounded authorities.
 Do not create a second scheduler or derive a future absence from today's status.
 Then finish the Employee 360 read/profile and commission authorities.
@@ -59,4 +59,5 @@ ADR-025 explains performer-attributed internally closed revenue and missing mone
 ADR-026 explains original explicit objectives, pinned periods, exact targets and batched progress.
 ADR-027 explains original effective-work interval declarations and remaining coverage limits.
 ADR-028 explains recorded occupation, exact source intersections and incomplete coverage.
+ADR-029 defines explicit recorded rebooking and the required original source/booking capture.
 PROJECT_STATUS.md records final verification counts and current checkpoint.

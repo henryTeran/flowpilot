@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 11
-CURRENT_CHECKPOINT = PHASE11S_NATIVE_RECORDED_OCCUPATION_PROFILE
+CURRENT_CHECKPOINT = PHASE11T_EXPLICIT_REBOOKING_SOURCE_CONTRACT
 STATUS = ACTIVE
+
+PHASE11T_EXPLICIT_REBOOKING_SOURCE_CONTRACT:
+- ADR-029 defines explicitly declared employee rebooking from actual completed execution to an original booking created afterwards for the same owned customer. Chronological/name/phone resemblance never creates attribution; absent declarations do not establish failures. Source identity is observed and must be pinned at declaration, without claiming missing historical customer snapshots exist.
+- Source capture validates walk-in owned session/line/ticket or appointment facts, recorded performer, explicit institute customer, coherent positive actual instants and shared capture clock. Target capture requires one original owned creation event, same original/current customer, known positive original/current booked slots and exact completion/creation chronology. Cancelled/no-show/self-linked, missing/ambiguous provenance, naive/numeric clocks, invalid/future/unfinalized execution and foreign scope are refused. No customer names/phones returned, no write/route/schema or scheduler change.
+- Controlled SQLite and actual PostgreSQL source contract tests: 2 passed in 3.93s, exercising both execution kinds and invalid source/booking/chronology variants including 1us boundaries. No native/frontend/full regression or production acceptance is claimed.
+- CHECKPOINT_STATUS = PARTIAL: source validation and original-fact contract are delivered; signed original declaration/cancellation ledger, uniqueness/replay/concurrency/migration, native lost-reply recovery and Employee 360 read remain required. Next: implement the pinned original rebooking authority, then native integration and configured commissions. Full canonical goal remains active.
 
 PHASE11S_NATIVE_RECORDED_OCCUPATION_PROFILE:
 - Manager-only selected-day Employee 360 occupation adds its own captured timestamp, declared denominator, exact busy/covered/outside durations, floored recorded-time ratio, excluded-source diagnostics and bounded original execution provenance. No customer identity or complete attendance/activity claim. Direct navigation and >=44px source disclosures retain horizontal fit.
