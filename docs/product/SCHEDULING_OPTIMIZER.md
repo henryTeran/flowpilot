@@ -3,7 +3,8 @@
 Authority: Master Plan section37. SCHEDULING_OPTIMIZER, SCORING_DETERMINISTIC and
 EXPLANATION_EVIDENCE remain OPEN until authenticated source/policy integration,
 native review and scoped end-to-end acceptance.16A supplies the pure deterministic
-kernel; the full26-phase objective remains ACTIVE.
+kernel;16B adds explicit normalization terms and raw-to-normalized proof. The
+full26-phase objective remains ACTIVE.
 
 ## Official calculation
 
@@ -100,3 +101,39 @@ Existing Starlette/httpx deprecation and one intentional unsafe-copy Pydantic wa
 No SQL/API/native/current-source acceptance is claimed by these pure-kernel tests.
 Existing API services/routes/schema/frontend unchanged; no persistent migration/provider/deployment.
 All three Phase16 gates remain OPEN and the full objective stays ACTIVE.
+
+## 16B explicit normalization terms
+
+`optimizer/policy.py` defines a complete eight-rule policy contract. Every rule
+has a factor, exact weight, supported basis and explicit reason. Zero weights
+require a disabled basis and no hidden ceiling/currency/mode. Enabled catalog
+reference requires a positive minor-unit ceiling, currency and member/passage
+mode. Elapsed gap/overtime penalties require explicit microsecond ceilings.
+Utilization is proposed elapsed duration over its complete containing free window;
+continuity/preferences/conflicts require exact recorded binary indicators. No
+numeric default, inferred working hours, inferred preference or guessed tariff
+is introduced. These are declared score assumptions, not verified business impact.
+
+Raw source quantities retain basis, quantity/denominator, monetary dimensions,
+reference, observed clock and reason. Missing quantity has no fabricated numeric
+terms or dated reference. Wrong factor/basis/currency/mode, future evidence,
+malformed binary/interval and unsafe copied policy refuse. Normalization uses
+exact fractions, explicitly caps quantities above a declared ceiling at one,
+and exposes the saturation flag plus original raw quantity/ceiling. It neither
+rewrites a reference price nor turns it into a quote, profit or prediction.
+Disabled factors retain raw trace without claiming a normalized zero. Known
+resource conflict remains a known indicator even with a disabled scoring weight,
+so the16A hard rule still blocks it. Complete terms convert to canonical factor
+weights for the existing scorer.
+
+Final combined normalization/scoring/existing matching **47 passed0.70s**, zero
+failures/skips, terminalexit0 (19 normalization,16 scoring,12 matching cases).
+Covers all eight unavailable-source cases, exact ratios/elapsed units/saturation,
+explicit monetary/disabled terms, currency/mode/future rejection, duplicate/empty
+policy, unsafe-copy revalidation and disabled-weight hard-conflict propagation.
+Existing Starlette/httpx and intentional unsafe-copy warnings only. No SQL/API/
+native source authentication or retained-policy claim yet; these contracts are
+not a public client-supplied scoring endpoint. Existing services/routes/schema/
+frontend unchanged. Next: retained scoped normalization/weight originals with
+signed actor, source hash, key recovery and controlled migrations; then actual
+current factor capture and version-bound native review. All Phase16 gates OPEN.
