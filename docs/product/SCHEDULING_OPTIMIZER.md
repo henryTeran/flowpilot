@@ -1,12 +1,14 @@
 # Scheduling Optimizer — Phase16
 
 Authority: Master Plan section37. SCHEDULING_OPTIMIZER, SCORING_DETERMINISTIC and
-EXPLANATION_EVIDENCE remain OPEN until authenticated source/policy integration,
-native review and scoped end-to-end acceptance.16A supplies the pure deterministic
+EXPLANATION_EVIDENCE PASS at controlled local functional scope under the
+[canonical16I audit](SCHEDULING_OPTIMIZER_PHASE16_ACCEPTANCE.md).16A supplies the pure deterministic
 kernel;16B adds explicit normalization terms and raw-to-normalized proof. The
 full26-phase objective remains ACTIVE.16C adds retained signed policy originals;
 16D adds authenticated current factor capture;16F/16H integrate native policy and
-current score review. Canonical Phase16 acceptance remains unfinished.
+current score review.16I completes scoped canonical acceptance; production,
+physical/provider/load/whole-project gates and the full26-phase objective remain
+OPEN/ACTIVE.
 
 ## Official calculation
 
@@ -102,7 +104,7 @@ unsafe model-copy revalidation and unavailable core matching.
 Existing Starlette/httpx deprecation and one intentional unsafe-copy Pydantic warning.
 No SQL/API/native/current-source acceptance is claimed by these pure-kernel tests.
 Existing API services/routes/schema/frontend unchanged; no persistent migration/provider/deployment.
-All three Phase16 gates remain OPEN and the full objective stays ACTIVE.
+At16A all three Phase16 gates remained OPEN; the full objective stays ACTIVE.
 
 ## 16B explicit normalization terms
 
@@ -138,7 +140,7 @@ native source authentication or retained-policy claim yet; these contracts are
 not a public client-supplied scoring endpoint. Existing services/routes/schema/
 frontend unchanged. Next: retained scoped normalization/weight originals with
 signed actor, source hash, key recovery and controlled migrations; then actual
-current factor capture and version-bound native review. All Phase16 gates OPEN.
+current factor capture and version-bound native review. At16B all Phase16 gates were OPEN.
 
 ## 16C retained signed policy originals
 
@@ -346,7 +348,7 @@ single-element proof (no mutation); corrected duplicate-proof mutation and added
 two-option ranking/tie vectors. Final **7 passed994.68ms**, zero failures/skips,
 terminalexit0; TypeScript/Vite passed184 modules.
 Full frontend483 passed85.44s, zero failures/skips, terminalexit0. This utility is not yet imported by the product
-UI at16G;16H integrates it below. Complete Phase16 acceptance remains unfinished.
+UI at16G;16H integrates it below. At16G complete Phase16 acceptance was unfinished.
 Backend runtime/schema unchanged;16D evidence is separate.
 
 ## Native current scoring review (16H)
@@ -391,8 +393,8 @@ Controls>=44px/panel>=600px/no horizontal overflow pass. Six final score/unknown
 refusal captures were individually inspected and readable on desktop/tablet.
 Existing bcrypt/NO_COLOR warnings only. Final complete frontend487 passed83.90s, zero failures/skips, terminalexit0.
 Backend16D evidence remains separate; schema headb128ef60a9d2/persistent application
-migration/provider/deployment state unchanged. Phase16 gates await canonical audit.
-SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
-Next: sovereign factor derivation from current matching/SQL sources, selected
-retained policy/full fingerprint, raw normalization proof and version-pinned signed
-review; then native policy authoring/history/recovery and score/reason/risk review.
+migration/provider/deployment state unchanged. At16H gates awaited canonical audit;
+16I's audit above now records controlled local PASS and remaining production limits.
+Next: canonical Phase17 BASE Foundation. Current factor derivation, version-pinned
+review and native policy/score interfaces are implemented; production and full
+Master Plan completion remain separate from the controlled local Phase16 gates.

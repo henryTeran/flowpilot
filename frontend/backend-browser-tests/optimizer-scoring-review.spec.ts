@@ -43,7 +43,13 @@ test("signed current score review binds source and policy, preserves unknowns/re
   await expect(calculate).toBeDisabled(); expect(calls).toHaveLength(0);
   async function choosePolicy(receipt: any) {
     await policies.getByRole("button", { name: "Lire les politiques conservées", exact: true }).click();
-    await policies.locator("article").filter({ has: page.getByRole("heading", { name: receipt.original.reason, exact: true }) }).getByRole("button", { name: "Choisir cette politique pour la revue", exact: true }).click();
+    await expect(policies.locator("article").first()).toBeVisible();
+    const card = policies.locator("article").filter({ has: page.getByRole("heading", { name: receipt.original.reason, exact: true }) });
+    for (let i = 0; await card.count() === 0 && i < 10; i++) {
+      await policies.getByRole("button", { name: "Politiques suivantes", exact: true }).click();
+      await expect(policies.getByRole("status")).toHaveCount(0); await expect(policies.locator("article").first()).toBeVisible();
+    }
+    await card.getByRole("button", { name: "Choisir cette politique pour la revue", exact: true }).click();
   }
   async function chooseRoot() {
     await history.getByRole("button", { name: "Lire les états de liste d’attente", exact: true }).click();
