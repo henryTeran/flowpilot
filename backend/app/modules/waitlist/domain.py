@@ -12,6 +12,7 @@ from app.modules.resources.domain import has_required_skills
 from app.modules.resources.allocation_domain import (
     ResourceNeed, ResourceTimeline, next_resource_window,
 )
+from app.modules.scheduling.availability_domain import free_windows
 
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=240)]
 Minutes = Annotated[int, Field(strict=True, gt=0, le=1440)]
@@ -152,6 +153,8 @@ class Capture(Fact):
     employees: tuple[EmployeeCapacity, ...]
     resources: tuple[ResourceCapacity, ...]
     customer: CustomerContext
+    customer_capacity: Literal["known", "unknown"] = "known"
+    customer_blockers: tuple[Window, ...] = ()
 
     @model_validator(mode="after")
     def coherent(self):
@@ -175,7 +178,7 @@ class Review(Fact):
     demand: Demand
     capture: Capture
     options: tuple[Option, ...]
-    unavailable_reason: Literal["constraints_unknown", "duration_changed", "resource_configuration_unknown", "no_matching_recorded_capacity"] | None
+    unavailable_reason: Literal["constraints_unknown", "duration_changed", "resource_configuration_unknown", "customer_capacity_unknown", "no_matching_recorded_capacity"] | None
     confidence: Literal["conditional_recorded_capacity"] = "conditional_recorded_capacity"
     # Literal string avoids bool coercion; there is no action path in this kernel.
     action: Literal["manual_review_only"] = "manual_review_only"
@@ -195,6 +198,8 @@ def match(demand: Demand, capture: Capture) -> Review:
         reason = "duration_changed"
     elif capture.service.resource_configuration == "unknown":
         reason = "resource_configuration_unknown"
+    elif capture.customer_capacity == "unknown":
+        reason = "customer_capacity_unknown"
     options = []
     if reason is None:
         resources = tuple(ResourceTimeline(row.resource_id, row.kind, frozenset(row.capabilities),
@@ -211,10 +216,15 @@ def match(demand: Demand, capture: Capture) -> Review:
                     end = min(available.end, free.end)
                     if end - start < timedelta(minutes=demand.duration_minutes):
                         continue
-                    result = next_resource_window(resources, needs, start, demand.duration_minutes, latest_end=end)
-                    if result is not None:
-                        options.append(Option(employee_id=employee.employee_id, start=result.start,
-                            end=result.end, resource_ids=result.resource_ids))
+                    blockers = [(window.start, window.end, str(index)) for index, window in enumerate(capture.customer_blockers)]
+                    for begin, finish, _ in free_windows(start, blockers):
+                        finish = min(finish, end) if finish is not None else end
+                        if finish-begin < timedelta(minutes=demand.duration_minutes):
+                            continue
+                        result = next_resource_window(resources, needs, begin, demand.duration_minutes, latest_end=finish)
+                        if result is not None:
+                            options.append(Option(employee_id=employee.employee_id, start=result.start,
+                                end=result.end, resource_ids=result.resource_ids))
         # Earliest complete option for each window intersection; not every possible
         # appointment start, and no revenue/history/consent score is invented.
         options = sorted(set((row.employee_id, row.start, row.end, row.resource_ids) for row in options),

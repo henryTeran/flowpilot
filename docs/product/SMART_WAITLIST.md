@@ -3,7 +3,8 @@
 Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
 AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
-revision and cancellation. SQL capacity capture and native review remain unfinished.
+revision and cancellation;15D adds authenticated selected-version SQL matching.
+Whole-waitlist detection, queue-projection integration and native review remain unfinished.
 
 ## Contract and current implementation
 
@@ -39,16 +40,16 @@ is not machine verification of every real-world constraint.
 
 | Section36 dimension | Current evidence | Required end-to-end work |
 | --- | --- | --- |
-| Service | Explicit demand/current service identity binding | Signed active-catalog and registration capture; retained demand authoring |
-| Duration | Exact declared/current equality and full interval fit | Original duration source and correction/recovery UI |
-| Customer availability | Ordered evidenced aware windows, exact intersection | Institute-calendar authoring, retained corrections/cancellation |
-| Employee | Explicit allowed identities, known free windows | Owned current-source adapter, preferences and responsive review |
-| Skills | Existing subset authority | Complete current requirement/qualification source capture |
-| Resources | Existing distinct-unit allocator | Owned reservation inventory capture and revalidation before actual booking |
-| Constraints | Unknown refuses; evidenced human review | Supported structured constraints, customer active-return conflicts and source uncertainty handling |
-| History | Explicit observed/absent/unknown context with chronology | Sovereign care-history capture and explained declared policy, without inferred intent |
-| Consents | Dated granted/refused/unknown service-follow-up context | Current retained lifecycle capture, explicit contact eligibility and refusal UX; no automatic dispatch |
-| Auto slot detection | Pure earliest complete intersection | Signed bounded detection from complete current sources, invalidation/retry and audit evidence |
+| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture | Native demand authoring |
+| Duration |15D current/declared equality and full interval fit | Correction/recovery UI |
+| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers | Institute-calendar authoring and native lifecycle |
+| Employee | Explicit restrictions;15D owned current core free-window capture | Responsive review, additional supported preferences |
+| Skills |15D current existing requirement/qualification authority | Native proof review |
+| Resources |15D owned current reservation inventory and existing distinct-unit allocator | Queue projection integration; revalidation before any actual booking |
+| Constraints | Unknown human review refuses;15D customer conflicts, overdue capacity/source refusal | Additional supported structured constraints, current queue implications and native review |
+| History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
+| Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
+| Auto slot detection |15D signed selected-version current SQL earliest fitting intersections | Whole-waitlist detection, source invalidation/retry and native evidence |
 | Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging | Native authoring/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
@@ -160,6 +161,61 @@ migration assertions pinned to the previous head;
 the schema/data/history guard remained intact. Those assertions now compare the
 actual canonical Alembic head rather than a historical checkpoint's revision.
 
-Next: capture current sovereign SQL capacity/history/consent/customer-booking facts,
-apply explained constraints and expose authenticated matching, then native waitlist
-authoring/recovery/review. All three Phase15 gates remain OPEN.
+## Phase15D — authenticated current-source matching
+
+GET `/lifecycle/states/{root_id}/matching` requires the expected current lifecycle
+event ID/full fingerprint, explicit aware ISO horizon, email/SMS channel and explicit
+history/permission review policy. Manager/exact-institute scope remains required.
+Stale version refuses; cancelled roots produce an explicit unavailable result.
+There is no endpoint accepting a caller's capacity/history/consent snapshot.
+
+One institute-locked server clock pins current registration, active service/duration,
+existing qualification facts, core employee availability, absences and resource
+inventory/reservations. Active booking/session ownership and positive intervals,
+typed skill/resource configuration, reservation ownership and observed absence/
+cancellation clocks are validated before core readers can omit malformed sources.
+An active booking in progress beyond its recorded end gives unknown employee
+capacity; an overdue current customer booking/session gives unknown customer capacity.
+Unreleased expired resource occupancy stays unknown under the existing authority.
+
+Customer booking/session intervals are subtracted using the existing free-window
+kernel without rewriting the retained availability declaration. Employee/source
+windows are clipped to the explicit horizon, then the matching kernel intersects
+them with customer availability and solves complete distinct resource units. Current
+duration changes require a fresh declaration; machine service without configured
+resource needs refuses. Returned options are independently feasible conditional
+alternatives, not jointly reserved or exhaustive possible start times.
+
+The sovereign CRM actual-care capture observes ticket-linked care since current
+registration up to capture. Diagnostics make recency/history unknown rather than
+using a surviving subset. Clean zero episodes means no care recorded in that scope,
+never “never visited”. Explicit policy may require observed care or no recorded care;
+unknown refuses either requirement. Current channel-specific service-follow-up
+permissions come from retained lifecycle declarations independently of birthday
+calendar presence. Future declarations remain unknown. Requiring a recorded grant
+refuses unknown/refused states, but even a grant is not contact authorization or
+proof of a usable contact coordinate. Review-only policy invents no eligibility rule.
+
+Evidence exposes care/source diagnostics, current permission original/reason,
+employee availability reasons, customer conflict source IDs and waiting-ticket
+count. Opening hours, physical attendance, complete real care/obligation history,
+contact authority and reservation remain unproven. This read uses the existing
+booking availability authority, not the wait-time projection of unreserved waiting
+tickets. Waiting/assigned queue implications must be reviewed and integrated in
+remaining detection work; no claim that a queue was displaced or fully accommodated.
+Captured results are current snapshots that require revalidation before an action.
+
+Initial16 passed19.32s. Final seven-module regression66 passed65.28s, no failures/
+skips, terminalexit0 with SQLite and actual isolated PostgreSQL. Covers signed API
+scope, ISO/epoch refusal, pin/stale/cancel guards, current source changes, independent
+permission calendar absence/future grants/refusals, observed/invalid care, customer
+booking/session conflicts, absence/resource reservation fit, overdue uncertainty,
+missing machine configuration and unchanged original/reservation counts. Includes
+existing lifecycle/demand/allocator/availability compatibility. Two intentional
+unsafe-copy serializer warnings from15B tests plus existing crypt deprecation.
+No schema changes (head a017d865bb4c), persistent database migration, frontend/native
+waitlist, full-project regression or production acceptance claimed.
+
+Next: whole-active-waitlist bounded detection and queue/source evidence integration,
+then native demand/lifecycle/policy authoring, recovery and matching review. All
+three Phase15 gates remain OPEN; the full26-phase objective remains active.

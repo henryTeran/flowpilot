@@ -158,3 +158,14 @@ def test_repeated_civil_hour_uses_elapsed_instants_not_wall_clock_order():
     option = match(demand, capture).options[0]
     assert option.end-option.start == timedelta(minutes=30)
     assert option.start == datetime(2026, 10, 25, 0, 45, tzinfo=timezone.utc)
+
+
+def test_customer_conflicts_split_intersections_without_rewriting_declaration():
+    demand, capture = facts()
+    capture = changed(capture, service=changed(capture.service, needs=[]), resources=[],
+        customer_blockers=[dict(start=NOW, end=NOW+timedelta(minutes=40)),
+            dict(start=NOW+timedelta(minutes=30), end=NOW+timedelta(minutes=60))])
+    review = match(demand, capture)
+    assert review.options[0].start == NOW+timedelta(minutes=60)
+    assert review.demand.availability == demand.availability
+    assert not match(demand, changed(capture, customer_capacity="unknown")).options

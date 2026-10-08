@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from typing import Literal
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.waitlist import originals
 from app.modules.waitlist import lifecycle
+from app.modules.waitlist import sources
 
 router = APIRouter(prefix="/waitlist/institutes/{institute_id}", tags=["waitlist"])
 
@@ -59,3 +61,14 @@ def lifecycle_event(institute_id: str, event_id: str, user=Depends(manager), db:
 @router.get("/lifecycle/states/{root_id}", response_model=lifecycle.State)
 def waitlist_state(institute_id: str, root_id: str, user=Depends(manager), db: Session = Depends(get_db)):
     return lifecycle.read_state(db, institute_id, root_id)
+
+
+@router.get("/lifecycle/states/{root_id}/matching", response_model=sources.Read)
+def matching(institute_id: str, root_id: str, horizon_end: sources.Horizon, channel: Literal["email", "sms"],
+        history_requirement: Literal["review_only", "observed_care_required", "no_recorded_care_required"],
+        permission_requirement: Literal["review_only", "recorded_grant_required"],
+        expected_event_id: str = Query(min_length=1, max_length=80),
+        expected_event_fingerprint: str = Query(pattern=r"^[0-9a-f]{64}$"),
+        user=Depends(manager), db: Session = Depends(get_db)):
+    policy = sources.Policy(channel=channel, history_requirement=history_requirement, permission_requirement=permission_requirement)
+    return sources.read(db, institute_id, root_id, expected_event_id, expected_event_fingerprint, horizon_end, policy)
