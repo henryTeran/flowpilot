@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, JSON, String, UniqueConstraint, Index
+from sqlalchemy import DateTime, ForeignKey, JSON, String, Integer, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
 
@@ -64,6 +64,24 @@ class ExecutionOriginal(Base):
     approval_id: Mapped[str] = mapped_column(ForeignKey("base_approval_originals.id"), nullable=False)
     booking_event_id: Mapped[str] = mapped_column(ForeignKey("booking_events.id"), nullable=False)
     idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    original: Mapped[dict] = mapped_column(JSON, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class InteractionOriginal(Base):
+    __tablename__ = "base_interaction_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "sequence", name="uq_base_interaction_sequence"),
+        UniqueConstraint("institute_id", "attempt_id", name="uq_base_interaction_completion"),
+        Index("ix_base_interaction_history", "institute_id", "sequence"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    previous_id: Mapped[str | None] = mapped_column(ForeignKey("base_interaction_originals.id"), nullable=True)
+    attempt_id: Mapped[str | None] = mapped_column(ForeignKey("base_interaction_originals.id"), nullable=True)
     actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     original: Mapped[dict] = mapped_column(JSON, nullable=False)

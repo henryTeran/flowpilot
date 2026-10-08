@@ -527,7 +527,48 @@ Initial API booking/preparation are fixture setup; peer login/review/decisions
 are automated native controls, not proof of physical human input or production/
 PostgreSQL-native/provider acceptance. No whole frontend/backend rerun claim.
 
-Next: complete interaction audit, broader planning/language handling and supported
+Phase17O introduces a retained interaction journal kernel, not yet connected to
+HTTP entrypoints. A closed set of21 BASE action labels can retain a scoped signed
+principal, request digest and UTC attempt clock before domain work, then a linked
+success/refusal/failure result. Success retains the full response digest; refusal
+and failure retain only a closed HTTP status classification. Raw request/response
+text, utterances, authorization headers and private exception details are not
+stored by this kernel. Digests are not anonymization or signatures.
+
+Institute locking serializes sequence allocation and terminal completion. Full
+canonical originals, row columns, scope/actor, predecessor fingerprints, clocks
+and matching pending attempts are verified across the entire retained cohort
+before every append or paginated read. Interleaved attempts may finish in either
+order. One terminal result per attempt is enforced by both service verification
+and database uniqueness. A failed outcome write rolls back only that append and
+leaves the earlier committed attempt unresolved. This is deliberately not an
+atomic transaction with existing domain effects; retained domain receipts remain
+the authority for recovery after a committed effect and lost acknowledgement.
+Unresolved attempts do not assert success or failure. A failed interaction result
+does not prove absence of business effects; domain receipts remain authoritative.
+Equal clocks follow sequence
+and predecessor references. Future clocks and broken/rehashed predecessor chains
+fail closed. The chain has no external truncation anchor or database ACL proof.
+Journal inspection is manager-scoped; internal append permits exact manager or
+reception principals for future authenticated discovery/refusal tracing. No public
+write endpoint and no automatic current-route logging have been added yet.
+
+Migration0673d4b5f0a7 parentf562c3a4edf6 adds
+base_interaction_originals/self-referential predecessor+attempt FKs, scoped
+sequence/completion uniqueness and history index. Empty online roundtrip/metadata
+parity and populated/offline downgrade guards run only in owned fixtures. No
+persistent application migration; controlled deployment now requires this head.
+Initial two-module7 passed30.18s. Added strict invalid-principal-before-SQL case;
+fresh fourteen-module complete BASE113 passed258.14s, zero failures/skips,
+terminalexit0, actual isolated SQLite/PostgreSQL including all five BASE migration
+suites. Eight new journal/migration cases cover full chains/privacy/pagination,
+rehash/tamper, actor/scope/unsafe principal rejection, real concurrent append and
+completion, and result flush failure preserving the unresolved attempt. Existing
+execution/approval/sensitive/read plans/intent/routes/preflight regressions pass.
+Crypt/intentional unsafe-copy warnings only after disabling readonly pytest cache.
+No new frontend/native/production/provider/whole-project claim. Six gates OPEN.
+
+Next: connect signed BASE entrypoints to attempt/result retention and expose verified journal inspection, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture
