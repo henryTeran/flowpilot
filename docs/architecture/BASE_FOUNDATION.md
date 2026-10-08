@@ -54,7 +54,7 @@ as response integrity rather than retention or a signature. Reception can discov
 an empty registry, but cannot resolve or invoke manager capabilities; other roles
 and foreign institutes are rejected at the signed entrypoint.
 
-This foundation adds no frontend, migration, provider call or persisted BASE
+At17B the foundation added no frontend, migration, provider call or persisted BASE
 interaction audit. `resolve` validates a structured candidate; it is not completion of
 the canonical natural-language Intent Resolver. The selected context/evidence
 types likewise do not complete every Context/Evidence/Audit/Planner/Approval
@@ -91,6 +91,38 @@ approval nor business eligibility: context is still only an authorized selection
 Source ownership, freshness and business guards run when a subsequent registered
 read is explicitly requested. The hash covers the canonical typed request, not a
 signature, retained interaction, semantic proof or cross-actor authority.
+
+##17D retained preparation and history
+
+Signed manager endpoints create `/plans`, recover `/plan-by-key`, read one plan
+and page plan history. Explicit preparation resolves the supplied bounded language
+request, requires a unique explicit selected operation, then captures existing
+read/suggest service evidence under the institute lock. It retains raw utterance,
+selected arguments, reason, signed actor/institute, resolution, complete delegated
+result and server completion/creation clocks. This is preparation of one registered
+operation, not a general multi-step planner, LEVEL3 capability or human approval.
+Service refusals are retained as refusals; stale sources reject before insertion.
+No booking, contact or external action runs. Preparation explicitly performs a
+business read, unlike the earlier intent/context endpoints.
+
+Recovery keys bind the exact typed request and original actor. Same-key replay
+returns the old verified capture without business reread; changed terms or actor
+refuse. Historical interpretation is retained, not recomputed from a future
+language provider. Verification checks full raw SHA, canonical typed snapshot,
+column/clock/actor binding, exact selection/context/result type, owned root,
+matching horizon/rules/causal head and selected scoring policy. These are retained
+consistency proofs, not cryptographic signatures or new source calculations.
+History verifies the whole institute cohort before slicing20-row pages, including
+off-page corruption. Reads of retained plans do not certify current eligibility.
+
+Migration `c239f071bad3` follows `b128ef60a9d2`; it adds only the scoped replay-unique
+`base_plan_originals` history table. Online empty downgrade is possible; retained
+rows and offline downgrade are guarded. Deployment requires applying this migration
+through the existing controlled procedure. The persistent application DB is not
+migrated by development verification. This history covers successful preparations,
+including delegated refusals; unresolved/rejected intents and other BASE reads are
+not yet a complete interaction audit. Approval lifecycle, multi-step planning,
+secured execution adapters, broader language and native UX remain required.
 
 ## Evidence and remaining work
 
@@ -130,7 +162,23 @@ serialization; no business/time validator was weakened. Existing crypt and
 intentional unsafe-copy serializer warnings only. No native/frontend/general
 language/live-provider/whole-project acceptance claim.
 
-Next: retained plans, approval lifecycle/audit, broader language handling and supported
+Phase17D final eight-module suite **71 passed77.92s**, zero failures/skips,
+terminalexit0, SQLite and actual isolated PostgreSQL. Six new plan cases verify
+retention/replay/no recapture, changed actor/terms refusal,25-row paging and
+off-page/rehashed selection/nested-reference corruption, signed HTTP roles/identity,
+current matching/scoring and preserved permission refusal/stale-source rejection,
+real PostgreSQL same-key/conflicting-key races and flush rollback/committed lost-ack
+recovery. Three new migration cases prove offline guard and owned SQLite/PostgreSQL
+empty roundtrip, metadata parity and populated downgrade refusal. Existing intent,
+BASE routes/services and optimizer current/original/migration regressions pass.
+Initial four-module50 passed21.98s; expanding snapshot validation initially caused
+an indentation import error (exit4, no cases run), corrected before eight-module
+68 passed146.21s. Added nested SHA and race/recovery checks then final71 passed.
+Only existing crypt/intentional unsafe-copy warnings. HTTP remains SQLite; no
+native/frontend/whole-project/production acceptance claim. Persistent application
+schema remains untouched; new deployment prerequisite is headc239f071bad3.
+
+Next: approval lifecycle, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

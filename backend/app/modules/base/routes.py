@@ -1,11 +1,13 @@
 """Signed BASE discovery, selection context and registered read/suggest calls."""
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import Literal
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.base import read_capabilities as base
 from app.modules.base import intents
+from app.modules.base import plans
+from app.modules.waitlist.originals import Envelope as RetainedEnvelope
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
 
@@ -42,6 +44,26 @@ def context(institute_id: str, body: base.Invocation, user: base.Principal = Dep
 @router.post("/intents/resolve", response_model=intents.Resolution)
 def intent(institute_id: str, body: intents.Request, user: base.Principal = Depends(principal)):
     return intents.resolve(user, institute_id, body)
+
+
+@router.post("/plans", response_model=RetainedEnvelope)
+def prepare(institute_id: str, body: plans.Request, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return plans.create(db, user, institute_id, body)
+
+
+@router.get("/plan-by-key", response_model=RetainedEnvelope | None)
+def recover(institute_id: str, key: str = Query(min_length=1, max_length=120), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return plans.by_key(db, user, institute_id, key)
+
+
+@router.get("/plans", response_model=plans.Audit)
+def history(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return plans.audit(db, user, institute_id, offset, limit)
+
+
+@router.get("/plans/{identifier}", response_model=RetainedEnvelope)
+def plan(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return plans.require(db, user, institute_id, identifier)
 
 
 @router.post("/reads", response_model=Envelope)
