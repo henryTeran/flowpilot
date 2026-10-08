@@ -8,8 +8,9 @@ revision and cancellation;15D adds authenticated selected-version SQL matching.
 allocations as virtual constraints;15G adds native retained-declaration history;
 15H adds protected demand-intent transport;15I adds native declaration authoring
 and recovery;15J adds native retained lifecycle history;15K adds protected native
-activation/revision/cancellation and same-key recovery. Native current matching
-and detection review remain unfinished.
+activation/revision/cancellation and same-key recovery;15L adds current matching
+and detection browser contracts. Native current matching/detection review remains
+unfinished.
 
 ## Contract and current implementation
 
@@ -30,9 +31,10 @@ Options are independent alternatives, not jointly reserved capacity.
 
 Observed care history and dated service-follow-up email/SMS permission references
 remain explicit context. Unknown history is not “never visited”; a refusal is not
-a grant. Neither grants nor matches authorize sending. History/consent currently
-do not rank or exclude candidates: final history-based rules and contact eligibility
-must be specified from authoritative sources in the integration work below.
+a grant. Neither grants nor matches authorize sending.15D applies explicit
+review/observed-care/no-recorded-care and review/recorded-grant policies;15L checks
+those refusal/source relationships in browser contracts. Native explained policy
+selection and source review remain unfinished; actual contact authority stays separate.
 
 Source adapters must authenticate scope, registration, current lifecycle originals,
 catalog activity, complete bookings/sessions/absences/resource occupancy and source
@@ -513,3 +515,43 @@ Backend/schema unchanged (heada017d865bb4c); no persistent migration, production
 physical/provider/load or whole-project acceptance claim. All three gates remain
 OPEN. Next: native selected-version matching and whole-waitlist detection policies,
 current source evidence and invalidation.
+
+
+## 15L current matching and detection browser contracts
+
+The browser contract binds a current read to the exact selected full-SHA causal
+state, explicit channel/history/permission policy and aware horizon. Exact nested
+contracts validate capture clocks, service/customer scope, duration, employee skills
+and ordered windows, distinct known resource units and reservation intervals,
+customer blockers, queue count partitions and retained care/permission consistency.
+Policy refusal precedence and captured unknown-condition refusal cannot become
+options. Proposed alternatives require exact elapsed duration, fit inside customer
+and employee windows, qualifications and complete distinct resource coverage. Unit
+coverage verifies the displayed assignment; it does not calculate another slot or
+replace the existing backend allocator. Proposed options remain independent,
+conditional and subject to revalidation before any booking or contact.
+
+Detection checks a shared capture/policy/horizon,20-row paging, whole-cohort count
+and reason partitions, sorted unique roots, cross-root unique event IDs/keys, and
+returned option/reason bounds. A completely returned cohort must agree exactly;
+whole off-page SQL/source verification remains15E backend authority. Capacity row
+references and CRM permission originals have no new cryptographic source signature.
+These contracts provide consistency checks, not browser authentication, SQL-admin
+authenticity, complete real care history, physical capacity or contact authorization.
+
+The pure typed DTO generator uses the actual deterministic domain.match kernel,
+without SQL/application startup. Nine read variants cover options requiring two
+distinct resources, observed care/current granted permission, cancelled/missing
+registration, explicit history/permission refusal, changed duration and known/unknown
+queue projection. Four detection vectors include25 active roots and20/5/empty pages,
+with complete retained original/event fingerprints. Seven focused tests passed0.75s,
+terminalexit0, including source/skill/resource/interval tamper, wrong version/policy/
+horizon, false grant/refusal, malformed fields, queue contradictions and paging/count
+corruption. Initial TypeScript boundary cast omission corrected; final production
+build passed179 modules, terminalexit0. Full frontend452 passed115.83s, zero failures/skips/cancellations, terminalexit0.
+
+No UI change or new native validation claim in15L. Prior15K native evidence retains
+its original scope. Backend runtime/schema unchanged (heada017d865bb4c); no persistent
+migration/provider/deployment. All three gates remain OPEN. Next: native explicit
+manager policy/horizon selection, selected-version matching, whole-waitlist detection,
+source/refusal inspection and invalidation with actual signed desktop/tablet tests.
