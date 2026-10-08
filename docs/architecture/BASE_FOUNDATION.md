@@ -514,7 +514,20 @@ No clock rewriting or persisted corruption; response injection tests browser
 proof validation. No new full frontend/backend/PostgreSQL-native/physical human
 input or production/provider claim. Product code unchanged; all six gates OPEN.
 
-Next: independent-manager acceptance, complete interaction audit, broader planning/language handling and supported
+Phase17N adds a second manager exclusively to the owned browser fixture. Real
+authentication signs both users. First manager API-prepares an operation; peer
+manager logs in through the native UI, rereads its exact reference, approves and
+revokes. Server history retains original preparing actor/full SHA, peer decision
+actors and exact predecessor fingerprints. No execution and appointment remains
+scheduled. No forged identity or unstated four-eyes restriction is introduced.
+Fresh complete BASE native eight tests passed1.6m, zero failures/skips, exit0 and
+owned temporary SQLite cleanup. Independent-manager desktop7.9s/tablet4.5s plus
+all preceding expiry/corruption/lost-ack/stop cases pass. Product code unchanged.
+Initial API booking/preparation are fixture setup; peer login/review/decisions
+are automated native controls, not proof of physical human input or production/
+PostgreSQL-native/provider acceptance. No whole frontend/backend rerun claim.
+
+Next: complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

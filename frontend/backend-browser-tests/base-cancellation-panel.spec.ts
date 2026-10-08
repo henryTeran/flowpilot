@@ -1,6 +1,29 @@
 import { expect, test } from "@playwright/test";
 test.setTimeout(120000);
 test.use({ actionTimeout: 20000 });
+test("independent signed manager reviews and approves another manager preparation", async ({ page, request }, info) => {
+  const api = "http://127.0.0.1:4198/api/v1", institute = "demo-institute-geneve", base = `${api}/base/institutes/${institute}`;
+  const login = await request.post(`${api}/auth/login`, { data: { email: "manager@browser.example.com", password: "Browser-test-only-2026" } }); expect(login.status()).toBe(200);
+  const first = await login.json(), headers = { Authorization: `Bearer ${first.access_token}` };
+  const day = new Date(Date.now()+(info.project.name.includes("tablet") ? 41 : 40)*86400000); day.setUTCHours(10,0,0,0);
+  const created = await request.post(`${api}/appointments`, { headers, data: { institute_id: institute, employee_id: "emp-angela", service_id: "svc-soin-profond", customer_name: `BASE peer ${info.project.name}`, start_time: day.toISOString(), idempotency_key: `base-peer-${info.project.name}` } }); expect(created.status()).toBe(200); const appointment = await created.json();
+  const previewResponse = await request.post(`${base}/sensitive-previews/appointment-cancel`, { headers, data: { appointment_id: appointment.id } }); expect(previewResponse.status()).toBe(200); const preview = await previewResponse.json();
+  const prepared = await request.post(`${base}/sensitive-operations`, { headers, data: { capability: "APPOINTMENT_CANCEL", selection: { appointment_id: appointment.id }, expected_state_fingerprint: preview.state_fingerprint, valid_until: new Date(Date.now()+3600000).toISOString(), reason: "First manager retained preparation", idempotency_key: `base-peer-operation-${info.project.name}` } }); expect(prepared.status()).toBe(200); const operation = await prepared.json();
+  expect(operation.original.actor_id).toBe("browser-manager");
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager-peer@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click(); await expect(page.locator(".flow-session-exit")).toBeVisible();
+  await page.getByRole("button", { name: "RDV sous appel", exact: true }).click(); const panel = page.locator(".base-cancellation-panel");
+  await panel.getByLabel("Référence de préparation", { exact: true }).fill(operation.original.id);
+  await panel.getByRole("button", { name: "Relire préparation et décisions", exact: true }).click(); await expect(panel).toContainText("Auteur browser-manager");
+  await panel.getByLabel("Motif de l’action", { exact: true }).fill("Peer manager approval after explicit review");
+  await panel.getByRole("button", { name: "Approuver cette préparation", exact: true }).click(); await expect(panel).toContainText("État : approuvée");
+  const historyReply = await request.get(`${base}/sensitive-operations/${operation.original.id}/approval-state`, { headers }); expect(historyReply.status()).toBe(200); const history = await historyReply.json();
+  expect(history.operation.fingerprint).toBe(operation.fingerprint); expect(history.operation.original.actor_id).toBe("browser-manager"); expect(history.decisions).toHaveLength(1); expect(history.decisions[0].original.actor_id).toBe("browser-manager-peer"); expect(history.decisions[0].original.operation_fingerprint).toBe(operation.fingerprint);
+  await panel.getByLabel("Motif de l’action", { exact: true }).fill("Peer manager revocation preserves appointment"); await panel.getByRole("button", { name: "Révoquer l’approbation", exact: true }).click(); await expect(panel).toContainText("État : révoquée");
+  const final = await (await request.get(`${base}/sensitive-operations/${operation.original.id}/approval-state`, { headers })).json(); expect(final.decisions).toHaveLength(2); expect(final.decisions[1].original.actor_id).toBe("browser-manager-peer"); expect(final.decisions[1].original.previous_fingerprint).toBe(final.decisions[0].fingerprint);
+  expect(await (await request.get(`${base}/sensitive-operations/${operation.original.id}/execution`, { headers })).json()).toBeNull();
+  const actual = await request.get(`${api}/appointments?institute_id=${institute}&day=${day.toISOString().slice(0,10)}`, { headers }); expect((await actual.json()).find((a: any) => a.id === appointment.id)?.status).toBe("scheduled");
+});
 test("signed native expired preparation masks corrupted history and permits only stopping", async ({ page, request }, info) => {
   await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
   await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();

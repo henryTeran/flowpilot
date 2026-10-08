@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17M_NATIVE_EXPIRY_AND_CORRUPT_STATE_GUARDS
+CURRENT_CHECKPOINT = PHASE17N_NATIVE_INDEPENDENT_MANAGER_DECISIONS
 STATUS = ACTIVE
+
+PHASE17N_NATIVE_INDEPENDENT_MANAGER_DECISIONS:
+- Added a second manager solely to the owned browser fixture. Actual auth login signs each account; first manager API-prepares an owned operation, peer manager logs in through native UI, explicitly rereads exact retained reference, approves then revokes. Server history preserves first operation actor/full SHA, peer decision actors and exact predecessor fingerprints; no execution retained and appointment remains scheduled. No client actor impersonation, token forgery or imposed four-eyes rule.
+- Fresh full BASE native suite eight passed1.6m, zero failures/skips, terminalexit0/owned temporary SQLite cleanup; application rebuilt unchanged. Independent-manager desktop7.9s/tablet4.5s; prior expiry/corruption6.1s/5.5s, lost-ack6.8s/6.7s and stop11.7s/15.1s regressions pass with expanded fixture. No product implementation change needed. API initial booking/preparation is fixture setup, not native first-manager authoring; peer login/review/decisions are native automated controls, not physical human-input/production/Pg-native/provider acceptance. No new whole frontend/backend rerun claim; previous524 baseline unchanged. No persistent app migration/deployment/push.
+- CHECKPOINT_STATUS = PARTIAL; six BASE gates OPEN; full26-phase goal ACTIVE. NEXT: complete BASE interaction audit (currently retained operation/decision/execution originals do not trace every interaction), remaining canonical secured adapters/planning/language and acceptance audit.
 
 PHASE17M_NATIVE_EXPIRY_AND_CORRUPT_STATE_GUARDS:
 - Added signed native real-server expiry scenario: owned fixture preparation has three-second validity; bounded polling observes actual server expiry without changing clocks. Signed API approval then refuses400. Browser receives altered approved status on an empty causal chain, masks decisions/actions, retries genuine expired state with approval disabled and permits explicit native decline. No execution POST, per-operation receipt null, fixture appointment remains scheduled.

@@ -54,7 +54,7 @@ def main():
                         name="Browser shared room", kind="room", capabilities=[], status="active"))
         db.add(ResourceRequirement(id="browser-room-need", institute_id=DEMO_INSTITUTE_ID,
                                    service_id="svc-soin-profond", kind="room", capability="", quantity=1))
-        for role, name in (("responsable_institut", "manager"), ("accueil", "cashier")):
+        for role, name in (("responsable_institut", "manager"), ("responsable_institut", "manager-peer"), ("accueil", "cashier")):
             db.add(User(id="browser-" + name, email=name + "@browser.example.com",
                         password_hash=hash_password("Browser-test-only-2026"),
                         role=role, institute_id=DEMO_INSTITUTE_ID, status="active"))
