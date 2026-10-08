@@ -6,8 +6,8 @@ AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
 allocations as virtual constraints;15G adds native retained-declaration history;
-15H adds a tested protected demand-intent transport, not yet a native form.
-Native authoring, lifecycle and matching/detection review remain unfinished.
+15H adds protected demand-intent transport;15I adds native declaration authoring
+and recovery. Native lifecycle and matching/detection review remain unfinished.
 
 ## Contract and current implementation
 
@@ -43,9 +43,9 @@ is not machine verification of every real-world constraint.
 
 | Section36 dimension | Current evidence | Required end-to-end work |
 | --- | --- | --- |
-| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture | Native demand authoring |
-| Duration |15D current/declared equality and full interval fit | Correction/recovery UI |
-| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers | Institute-calendar authoring and native lifecycle |
+| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture;15I native explicit catalog selection | Native lifecycle and current matching review |
+| Duration |15D current/declared equality and full interval fit;15I catalog-derived declaration and correction/recovery UI | Current matching review |
+| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers;15I explicit institute-calendar windows | Native lifecycle and current matching review |
 | Employee | Explicit restrictions;15D owned current core free-window capture | Responsive review, additional supported preferences |
 | Skills |15D current existing requirement/qualification authority | Native proof review |
 | Resources |15D owned reservation inventory/allocator;15F core projected queue resource occupations | Native evidence; revalidation before any actual booking |
@@ -53,7 +53,7 @@ is not machine verification of every real-world constraint.
 | History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
 | Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
 | Auto slot detection |15D selected-version intersections;15E whole-cohort capture/paging;15F queue allocations | Native source invalidation/evidence and release/load verification |
-| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging | Native authoring/recovery and matching integration; declarations alone are not active lifecycle |
+| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery | Native lifecycle transitions/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
 ## Verification
@@ -358,3 +358,58 @@ undefined recovery, changed intent, concurrent instances and session changes at 
 network boundary. Focused protocol plus original contracts:13 passed1.42s. Complete
 frontend:417 passed94.23s, no failures/skips, terminalexit0. TypeScript/Vite production
 build passed172 modules, terminalexit0. All three Phase15 gates remain OPEN.
+
+## Phase15I — native declaration authoring and recovery
+
+Manager-only Pilotage writer uses the existing customer picker (including explicit
+native registration), loaded active catalog duration and owned employee choices.
+Customer, service, restrictions, constraints and civil dates/times start empty;
+unknown constraints is an explicit choice, not a silent default. One to64 windows
+must be ordered, positive, non-overlapping and retain a future end at declaration. Availability,
+reason and confirmed-constraint evidence require explicit text. No duration, customer
+identity, employee capacity, permission or booking is invented.
+
+The existing institute calendar resolves civil date/time without the browser's local
+zone. Missing/invalid institution timezone blocks new declarations. Skipped hours
+refuse; repeated hours require an explicit occurrence. Changing civil input resets
+that occurrence. Frozen original terms remain recoverable even after expiry or a
+timezone/catalog change; fresh source validation remains the backend's authority.
+
+15H transport freezes before I/O, recovers key-first and independently rereads
+key/ID/full-SHA/actor/request before showing success. Lost acknowledgement locks
+draft fields and exposes the immutable request and same-key retry across reload.
+Only definitive POST rejection enables a fresh key check before correction; any
+intervening retained original is recovered. Invalid saved intent blocks new writes.
+Scope/timezone/token remounts and current actor/role/unmount guards suppress stale
+network continuation and receipt publication. Customer-picker callbacks are scoped.
+
+Verified success clears intent, exposes institution-zone windows, known/unknown
+constraints, actor/capture and folded original/source/full fingerprint. History is
+invalidated after confirmed authoring and remains an explicit read; a new declaration
+resets all draft choices. No activation, booking, assignment, reservation, contact,
+opening-hours verification or current source eligibility follows from conservation.
+
+Initial focused19 passed5.95s; complete frontend423 passed98.56s. Successful explicit
+repeated-hour instant and prior-history invalidation coverage were strengthened;
+final writer7 passed4.84s and complete frontend424 passed95.86s, no failures/skips,
+terminalexit0. Initial production TypeScript/Vite build passed175 modules; final
+native harness rebuilds production sources. Two initial native timeouts arose from
+exact label lookup for catalog select; two subsequent failures after committed POST
+arose from filled-textarea label lookup. Role-based test locators fixed these;
+next native2 passed40.9s. Visual QA found the inherited customer search target
+below44px; scoped input/select minimum and assertions for all visible form controls
+now enforce44px. This CSS-only correction follows the424-test logic baseline.
+
+Final rebuilt actual signed backend Edge desktop/touch landscape tablet:2 passed
+43.8s, no failures/skips, terminalexit0; owned temporary database removed. Native
+customer registration and two-window authoring verify catalog duration, institute
+calendar-to-UTC normalization, saved terms before POST, committed lost acknowledgement,
+field lock, reload recovery with one POST and three independent reads, full raw SHA
+and source, explicit history reread, no automatic activation and empty new-draft
+reset. All six final form/frozen/receipt captures inspected individually: readable
+dates, wrapped original/source proof, region width>=600,44px controls and no overflow.
+DST/correction/invalid storage/late authority cases are DOM/protocol coverage, not
+native visual evidence. Backend/schema unchanged (heada017d865bb4c); no persistent
+migration, physical device/provider/load/production acceptance. All three Phase15
+gates remain OPEN; next native explicit lifecycle transitions and version/key recovery,
+then current matching/detection policy and source review. Full26-phase goal stays active.

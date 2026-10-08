@@ -6840,3 +6840,9 @@ body {
 .revenue-guardian-period select { min-height: 44px; padding: 10px 14px; border: 1px solid #c7d2e2; border-radius: 8px; font: inherit; }
 .revenue-guardian-panel textarea { display: block; min-height: 80px; width: 100%; max-width: 100%; padding: 12px; font: inherit; border: 1px solid #c7d2e2; border-radius: 8px; }
 .revenue-guardian-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+.waitlist-demand-writer fieldset { min-width: 0; border: 1px solid #dce4ef; padding: 16px; border-radius: 10px; }
+.waitlist-demand-writer button { min-height: 44px; padding: 10px 14px; }
+.waitlist-demand-writer input, .waitlist-demand-writer select { min-height: 44px; }
+.waitlist-window { margin: 16px 0; padding: 12px; border: 1px solid #e3e9f1; border-radius: 8px; }
+.waitlist-employee-choices { display: flex; flex-wrap: wrap; gap: 12px; }
+.waitlist-employee-choices label { display: flex; align-items: center; gap: 8px; min-height: 44px; }

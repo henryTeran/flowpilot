@@ -41,7 +41,7 @@ import type {
 
 const MarketingPanel = lazy(() => import("./components/MarketingPanel").then(module => ({ default: module.MarketingPanel })));
 const RevenueGuardianPanel = lazy(() => import("./components/RevenueGuardianPanel").then(module => ({ default: module.RevenueGuardianPanel })));
-const WaitlistOriginalHistory = lazy(() => import("./components/WaitlistOriginalHistory").then(module => ({ default: module.WaitlistOriginalHistory })));
+const WaitlistPanel = lazy(() => import("./components/WaitlistPanel").then(module => ({ default: module.WaitlistPanel })));
 const CustomerCrmPanel = lazy(() => import("./components/CustomerCrmPanel").then(module => ({ default: module.CustomerCrmPanel })));
 const WorkforcePanel = lazy(() => import("./components/WorkforcePanel").then(module => ({ default: module.WorkforcePanel })));
 
@@ -908,7 +908,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
             <PaymentCashflows instituteId={selectedInstituteId} />
             <Suspense fallback={<p>Chargement du Revenue Guardian…</p>}>
               <RevenueGuardianPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />
-              <WaitlistOriginalHistory institute={selectedInstituteId} timezone={selectedInstitute?.timezone} />
+              <WaitlistPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} employees={employees} />
             </Suspense>
           </main>
         )}
