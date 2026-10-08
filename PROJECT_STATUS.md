@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17I_BROWSER_CANCELLATION_PROOF_CONTRACTS
+CURRENT_CHECKPOINT = PHASE17J_BROWSER_CANCELLATION_WRITE_RECOVERY
 STATUS = ACTIVE
+
+PHASE17J_BROWSER_CANCELLATION_WRITE_RECOVERY:
+- Added separate preparation/decision/execution browser intent drivers: strict institute/actor/mode storage, immutable cloned terms retained before I/O, same-scope in-flight serialization, literal-null key absence before explicit POST, live-context guards and reload recovery. Full receipt hashes, exact actor/request terms, fresh key lookup plus independent operation detail/causal decision chain/per-operation execution receipt must match before storage cleanup. Historical approval recovery after revocation and prior execution after expiry do not authorize new execution.
+- Ambiguous errors, undefined key responses, corrupted/foreign storage, changed proofs/terms/actor, scope changes and cleanup failures retain frozen intent. Only definitive POST400/404/422 plus fresh literal-null key lookup allows explicit correction; a now-present original recovers instead. No automatic driver I/O, no provider/SQL execution path. Caller must supply mounted/token/actor/role guard during native integration.
+- Initial targeted14 passed/4 failed642.61ms, then17 passed/1 failed526.53ms exposed harness callbacks captured before replacement and an actor tamper equal to the fixture actor; corrected harness and distinct forged actor. Final expanded27 passed521.13ms, zero failures/skips. Complete frontend520 passed86417.69ms, zero failures/skips, terminalexit0; TypeScript/Vite build passes186 modules. No backend change/new database acceptance claim; fixtures typed synthetic, not physical human input or booking-event proof. No native UI integration/production/provider/schema mutation/deployment/push. CHECKPOINT_STATUS = PARTIAL; six BASE gates OPEN; full26-phase goal ACTIVE. NEXT: native manager human preparation/decision/execution, causal history display, verified recovery and signed desktop/tablet acceptance.
 
 PHASE17I_BROWSER_CANCELLATION_PROOF_CONTRACTS:
 - Added strict browser contracts for cancellation preview, retained operation, decision, complete causal approval state and execution receipt. Exact fields, manager/institute/appointment binding, canonical UTC microseconds, full original SHA, validity and explicit lifecycle are checked. Equal decision clocks follow predecessor references, never lexicographic IDs. Expired approval history can validate an earlier receipt; it grants no fresh execution authority.

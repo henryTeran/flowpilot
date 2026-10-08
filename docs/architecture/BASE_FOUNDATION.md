@@ -423,7 +423,32 @@ SQL event existence, current source authority or physical human input. Actual
 booking-event verification remains exclusively in the server execution service.
 These contracts are not yet connected to native UI; no new UX acceptance claim.
 
-Next: immutable scoped browser write/recovery, native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
+Phase17J adds separate operation, decision and execution intent drivers with
+institute/actor/mode-scoped storage and in-flight serialization. Strict requests
+are cloned and retained before any I/O; reloads preserve those exact terms even
+when the form changes. Only literal null from the matching key read permits a
+POST. Ambiguous acknowledgement, corrupt storage, mismatching actor/terms/proof,
+or stale context preserve the pending request. No driver automatically starts
+work; callers must invoke submit explicitly and supply a live scope guard.
+
+Confirmation verifies the response, a fresh key lookup and an independent
+operation detail, full decision chain or per-operation execution receipt before
+clearing storage. Decision recovery requires membership in the verified causal
+chain, including historical decisions after revocation. Execution recovery also
+verifies the complete approved chain; an expired state can confirm a prior valid
+execution. Full server/domain event verification remains authoritative. A
+definitive POST400/404/422 can offer correction, but only a fresh null key lookup
+allows clearing; a now-present receipt is recovered instead. Reloads cannot
+infer correction eligibility from an old failure. Cleanup failures retain the
+request for another verified recovery. No native UI integration yet.
+Final27 focused tests pass521.13ms; complete frontend520 passed86417.69ms,
+zero failures/skips, terminalexit0; TypeScript/Vite build passes186 modules.
+Initial harness failures were corrected (captured callbacks and a forged actor
+equal to the fixture's real actor); no product proof was weakened. These are
+browser protocol tests with typed synthetic receipts, not new database/native
+physical human input or production acceptance.
+
+Next: native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture
