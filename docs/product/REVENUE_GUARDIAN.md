@@ -933,3 +933,61 @@ No frontend/native, whole-project backend, physical, provider, production or loa
 acceptance is claimed. Native booking closure/reference review, protected valuation
 declaration/key recovery/audit and remaining opportunity review/retention are next.
 All three Phase14 gates remain OPEN and the full26-phase goal remains ACTIVE.
+
+## Phase 14S — native closure/reference and retained valuation review
+
+Managers explicitly choose completed civil-day bounds in the institute timezone.
+Closure event occurrence, not booked slot time, determines membership. Whole
+selected-cohort counts remain separate from twenty-row pages and institute-wide
+legacy terminal bookings without a closure event. Browser validation refuses
+changed scope, transitions, execution facts, clocks, counts and misleading claims.
+The server remains responsible for verifying the full off-page source cohort.
+
+Opening a closure explicitly loads its paginated historical price references.
+Each reference shows service, duration, source actor/time, member and passage
+amount quality, configured currency provenance and full raw canonical fingerprint.
+Only service/chronology-compatible references can be chosen; there is no automatic
+latest-reference or rate choice. Unknown currency, missing and invalid amounts
+remain unavailable rather than zero. Historical catalog terms establish neither an
+agreed quote, payment nor member eligibility.
+
+Declaration requires a chosen reference, explicit member/passage rate and meaningful
+reason. Signed institute/subject, appointment, exact request and generated key are
+frozen in sessionStorage before POST. Every attempt reads that key first. A received
+original must verify its complete raw SHA, retained evidence, selected IDs/SHA,
+signed actor, exact historical classification and frozen request. Independent key
+and ID reads must confirm it before intent recovery is cleared. Lost acknowledgement
+survives reload without duplicate POST. Only definite400/422 plus a fresh absent-key
+read permits explicit correction. Unreadable storage prevents replacement; session
+storage does not guarantee recovery after browser closure. Session/role/context
+guards prevent stale writes, acknowledgements and proof revival.
+
+Verified receipts and explicitly read twenty-row history show exact value or
+uncertainty, reason, actor/capture, source/reference transitions, key and full
+fingerprints. Multiple decisions remain independent and are not summed. A second
+declaration requires an explicit new decision. Retention invalidates prior history
+without automatically reading it. No follow-up, payment, loss calculation, physical
+presence or complete booking-history claim is introduced.
+
+Final focused frontend **6 passed3.25s**, full frontend **391 passed80.41s**, zero
+failures/skips, terminalexit0; TypeScript/Vite build passes. Initial native2
+passed49.2s. The expanded run exposed a desktop test synchronization error (history
+searched before verification completed), while tablet passed. After waiting for
+read completion before paging, fresh rebuilt desktop/tablet **2 passed59.3s**, zero
+failures/skips, BROWSER_PROCESS_EXIT=0/terminalexit0; owned temporary database cleaned.
+Actual domain-created25 closures/profile and25 references on the first booking
+exercise source/reference20/5 paging. Catalog change to99 leaves retained member
+9.87CHF unchanged. Actual API-authored25 additional originals exercise audit pages;
+two native declarations/profile explicitly select member9.87 then passage12.34CHF.
+The first POST commits but loses its acknowledgement; reload recovers the same key
+without another POST. A corrupt causal flag hides the audit until a valid retry.
+Six final source/reference/recovered-member receipt captures were visually reviewed
+on desktop/tablet, with full hashes, >=600px regions,44px controls and no document
+overflow. Passage is a native assertion, not a captured receipt. Pure cross-language
+fixture/zero/unknown-currency contract tests do not establish native SQL visuals.
+
+No backend/schema change or persistent database migration; head8ef5b643992a remains
+the deployment prerequisite. No fresh whole-backend, production, provider, physical
+or load acceptance. All three Phase14 gates remain OPEN; next are native walk-in
+cancellation, rebooking/capacity-opportunity review, remaining opportunity retention
+and the complete Phase14 requirement audit. Full26-phase goal remains ACTIVE.
