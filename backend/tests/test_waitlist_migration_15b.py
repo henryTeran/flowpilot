@@ -4,6 +4,7 @@ import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from sqlalchemy import inspect, text, select
 from sqlalchemy.orm import Session
 from app.database.base import Base
@@ -37,4 +38,4 @@ def test_waitlist_schema_empty_roundtrip_and_history_guard(tmp_path, monkeypatch
         with pytest.raises(RuntimeError, match="cannot be removed"): command.downgrade(config, "8ef5b643992a")
         assert "waitlist_demand_originals" in inspect(engine).get_table_names()
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == "9f06c754aa3b"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar() == ScriptDirectory.from_config(config).get_current_head()

@@ -2,8 +2,8 @@
 
 Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
 AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
-15B adds retained authenticated demand declarations. Active waitlist lifecycle,
-SQL capacity capture and native review remain unfinished.
+15B adds retained authenticated demand declarations;15C adds explicit activation,
+revision and cancellation. SQL capacity capture and native review remain unfinished.
 
 ## Contract and current implementation
 
@@ -49,7 +49,7 @@ is not machine verification of every real-world constraint.
 | History | Explicit observed/absent/unknown context with chronology | Sovereign care-history capture and explained declared policy, without inferred intent |
 | Consents | Dated granted/refused/unknown service-follow-up context | Current retained lifecycle capture, explicit contact eligibility and refusal UX; no automatic dispatch |
 | Auto slot detection | Pure earliest complete intersection | Signed bounded detection from complete current sources, invalidation/retry and audit evidence |
-| Waitlist lifecycle |15B retained declarations, actor/key recovery, full-cohort verified audit, SQL migration and same-key concurrency | Revision/cancel transitions and active waitlist views; declarations alone are not active lifecycle |
+| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging | Native authoring/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
 ## Verification
@@ -104,6 +104,62 @@ committed lost-acknowledgement recovery, signed SQLite HTTP routes, source chang
 Unsafe-copy tests intentionally produce Pydantic serializer warnings; existing crypt
 deprecation remains. Frontend unchanged; no native waitlist or whole-project claim.
 
-Next: explicit revision/cancellation lifecycle for retained demands, then capture
-current sovereign SQL sources and expose authenticated matching review. Do not close
-any Phase15 gate from declaration/pure-kernel evidence alone.
+## Phase15C — explicit active lifecycle
+
+A declaration stays `declared_only` until an explicit activation event. POST
+`/lifecycle/originals` takes the root original ID/fingerprint, exact previous event
+ID/fingerprint (null for initial activation), action and selected target original
+ID/fingerprint, reason and replay key. Every event fixes signed actor/server capture
+and records `waitlist_state_only_no_booking_or_contact`. Target declarations keep
+the same registered customer; a revision can explicitly select a different service
+or availability declaration. Cancellation preserves the currently selected target.
+Cancelled roots cannot be reopened; a genuinely new request needs a new root.
+
+Activation/revision revalidate current registration, active catalog duration, owned
+employee restrictions and remaining future availability, retaining the registration/
+catalog/restriction source used for that transition. This is not a slot capacity or
+consent check. Unknown constraints may be recorded in an active request but cannot
+yield eligible options under the matching kernel. Cancellation does not recapture
+current eligibility, so expired windows/inactive services do not prevent cancellation.
+An expired request can remain administratively active until cancelled; matching must
+still clip/refuse expired availability. No automatic expiry or hidden reservation.
+
+Each event is retained with raw JSON/SHA and bound SQL columns. Complete chains
+verify references to the independent demand originals, predecessor hash and capture,
+one first activation, unique successors, no orphans/cycles/branches, same customer,
+current target and terminal cancellation. Equal capture times follow causal links,
+not ID sorting. SQL unique `(institute, root, previous)` uses an empty sentinel for
+the first event, so initial activation is protected as well as later successors.
+The existing institute lock serializes writes; stale predecessors are rejected.
+
+Key replay verifies the retained chain/request/actor before recapturing current
+eligibility. GET `/lifecycle/original-by-key`, `/lifecycle/originals/{event_id}` and
+`/lifecycle/states/{root_id}` provide independent event/state reads. GET `/lifecycle`
+verifies the entire activated-root cohort before returning20/default50/max states,
+with active/cancelled totals separate from pages. Unactivated declarations remain
+in their independent audit, not this active lifecycle. Complete raw histories are
+returned for each selected root; large-history memory/load behavior is unverified.
+
+Migrationa017d865bb4c follows9f06c754aa3b. Empty online down/up is supported;
+offline or populated-history downgrade refuses removal. No persistent application
+or production database migrated. No SQL administrator authenticity or append-only
+trigger guarantee; application routes do not rewrite/delete retained originals.
+
+Final seven-module regression:41 passed130.35s, zero failures/skips, terminalexit0
+with SQLite and actual isolated PostgreSQL enabled. Includes demand/kernel/allocator
+and earlier closure-migration compatibility. Proves explicit lifecycle, signed
+HTTP writes/reads/denials, independent by-ID/key/state reads, stale-version rejection,
+25-root20/5 full-cohort paging and off-page rehashed source refusal. Actual PostgreSQL
+same-key and conflicting-successor races, forced rollback, committed lost-ack recovery,
+chain/source/clock/claim tamper, plus SQLite/PostgreSQL metadata and guarded down/up
+are covered. Two intentional unsafe-copy serializer warnings plus crypt deprecation.
+Frontend unchanged; no native waitlist, full-project or production acceptance claim.
+
+The initial runs (13 passed/2 failed and28 passed/2 failed) found two older15B
+migration assertions pinned to the previous head;
+the schema/data/history guard remained intact. Those assertions now compare the
+actual canonical Alembic head rather than a historical checkpoint's revision.
+
+Next: capture current sovereign SQL capacity/history/consent/customer-booking facts,
+apply explained constraints and expose authenticated matching, then native waitlist
+authoring/recovery/review. All three Phase15 gates remain OPEN.

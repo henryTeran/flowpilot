@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.waitlist import originals
+from app.modules.waitlist import lifecycle
 
 router = APIRouter(prefix="/waitlist/institutes/{institute_id}", tags=["waitlist"])
 
@@ -32,3 +33,29 @@ def audit(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20
 @router.get("/originals/{original_id}", response_model=originals.Envelope)
 def original(institute_id: str, original_id: str, user=Depends(manager), db: Session = Depends(get_db)):
     return originals.require(db, institute_id, original_id)
+
+
+@router.post("/lifecycle/originals", response_model=originals.Envelope)
+def transition(institute_id: str, request: lifecycle.Request, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.create(db, institute_id, request, user.get("sub"))
+
+
+@router.get("/lifecycle/original-by-key", response_model=originals.Envelope | None)
+def recover_transition(institute_id: str, key: str = Query(min_length=1, max_length=120), user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.by_key(db, institute_id, key)
+
+
+@router.get("/lifecycle", response_model=lifecycle.Audit)
+def lifecycle_audit(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+        user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.audit(db, institute_id, offset, limit)
+
+
+@router.get("/lifecycle/originals/{event_id}", response_model=originals.Envelope)
+def lifecycle_event(institute_id: str, event_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.require(db, institute_id, event_id)
+
+
+@router.get("/lifecycle/states/{root_id}", response_model=lifecycle.State)
+def waitlist_state(institute_id: str, root_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return lifecycle.read_state(db, institute_id, root_id)
