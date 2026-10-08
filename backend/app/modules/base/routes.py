@@ -10,6 +10,7 @@ from app.modules.base import plans
 from app.modules.base import sensitive_capabilities as sensitive
 from app.modules.base import sensitive_originals as operations
 from app.modules.base import approvals
+from app.modules.base import executions
 from app.modules.waitlist.originals import Envelope as RetainedEnvelope
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
@@ -81,6 +82,27 @@ def recover_decision(institute_id: str, key: str = Query(min_length=1, max_lengt
 @router.get("/sensitive-operations/{identifier}/approval-state", response_model=approvals.State)
 def approval_state(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
     return approvals.state(db, user, institute_id, identifier)
+
+
+@router.get("/execution-capabilities", response_model=tuple[executions.Capability, ...])
+def execution_capabilities(institute_id: str, user: base.Principal = Depends(principal)):
+    plans.guard(user, institute_id)
+    return tuple(executions.REGISTRY.values())
+
+
+@router.post("/executions", response_model=RetainedEnvelope)
+def execute(institute_id: str, body: executions.Request, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return executions.execute(db, user, institute_id, body)
+
+
+@router.get("/execution-by-key", response_model=RetainedEnvelope | None)
+def recover_execution(institute_id: str, key: str = Query(min_length=1, max_length=120), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return executions.by_key(db, user, institute_id, key)
+
+
+@router.get("/sensitive-operations/{identifier}/execution", response_model=RetainedEnvelope | None)
+def execution_for_operation(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return executions.for_operation(db, user, institute_id, identifier)
 
 
 @router.post("/contexts/resolve", response_model=base.Context)

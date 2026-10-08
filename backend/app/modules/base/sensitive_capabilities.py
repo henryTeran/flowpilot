@@ -1,8 +1,8 @@
 """Closed sensitive preparation registry; no public executor or implicit approval."""
 from types import MappingProxyType
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from typing import Literal
-from pydantic import AwareDatetime, model_validator
+from pydantic import AwareDatetime, model_validator, field_validator
 from sqlalchemy import select
 from app.modules.base import read_capabilities as base
 from app.modules.crm.metrics import Fact, Count
@@ -44,6 +44,12 @@ class Snapshot(Fact):
     actual_start_time: base.matching.Horizon | None
     actual_end_time: base.matching.Horizon | None
     checkout_ticket_id: base.ExactId | None
+
+    @field_validator("start_time", "end_time", "booked_start_time", "booked_end_time", "actual_start_time", "actual_end_time")
+    @classmethod
+    def canonical_source_time(cls, value):
+        # SQL timestamptz may be returned in the connection's local timezone.
+        return value.astimezone(timezone.utc) if isinstance(value, datetime) else value
 
     @model_validator(mode="after")
     def positive_interval(self):
@@ -103,7 +109,7 @@ def preview(db, principal, institute, candidate):
     for event in db.scalars(select(BookingEvent).where(BookingEvent.institute_id == institute,
             BookingEvent.appointment_id == appointment.id).order_by(BookingEvent.occurred_at, BookingEvent.id)
             .execution_options(populate_existing=True)):
-        at = explicit_utc_instant(event.occurred_at)
+        at = explicit_utc_instant(event.occurred_at).astimezone(timezone.utc)
         if at > now:
             raise business_error("Cancellation history contains a future event")
         history.append(dict(id=event.id, event_type=event.event_type, actor_id=event.actor_id,

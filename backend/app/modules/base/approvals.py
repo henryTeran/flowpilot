@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import AwareDatetime, model_validator
 from sqlalchemy import select
 from app.modules.base import read_capabilities as base, sensitive_originals as operations, sensitive_capabilities as sensitive
-from app.modules.base.models import ApprovalOriginal
+from app.modules.base.models import ApprovalOriginal, ExecutionOriginal
 from app.modules.base.plans import Key, Reason, guard
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import Envelope, fingerprint
@@ -123,6 +123,9 @@ def decide(db, principal, institute, candidate):
                     not any(receipt == entry for entry in current.decisions):
                 raise business_error("Approval recovery key retains original terms, actor and operation chain")
             return receipt
+        if db.scalar(select(ExecutionOriginal.id).where(ExecutionOriginal.institute_id == institute,
+                ExecutionOriginal.operation_id == request.operation_id)) is not None:
+            raise business_error("Performed operation cannot acquire a new decision or be undone by revocation")
         previous = current.decisions[-1] if current.decisions else None
         if request.operation_fingerprint != current.operation.fingerprint or \
                 (request.previous_id, request.previous_fingerprint) != ((previous.original["id"], previous.fingerprint) if previous else (None, None)):

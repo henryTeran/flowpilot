@@ -50,3 +50,21 @@ class ApprovalOriginal(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     original: Mapped[dict] = mapped_column(JSON, nullable=False)
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+
+
+class ExecutionOriginal(Base):
+    __tablename__ = "base_execution_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_base_execution_replay"),
+        UniqueConstraint("operation_id", name="uq_base_execution_operation"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    operation_id: Mapped[str] = mapped_column(ForeignKey("base_sensitive_operation_originals.id"), nullable=False)
+    approval_id: Mapped[str] = mapped_column(ForeignKey("base_approval_originals.id"), nullable=False)
+    booking_event_id: Mapped[str] = mapped_column(ForeignKey("booking_events.id"), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    original: Mapped[dict] = mapped_column(JSON, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)

@@ -240,6 +240,51 @@ the latest approved predecessor, original validity and fresh source again, then
 commit service effects and its own idempotent receipt together. Complete BASE
 interaction audit, broader adapters/planning/language and native UX remain open.
 
+##17H atomic approved cancellation execution
+
+An independent immutable execution registry and signed manager
+`GET /execution-capabilities` describe the implemented APPOINTMENT_CANCEL LEVEL3
+adapter. Preparation descriptors remain historical preparation metadata, including
+their original `public_execution=false`; they are not retroactively changed to
+execution entitlements. Read/intent/read-plan unions remain closed to cancellation.
+Explicit `POST /executions` accepts only operation ID/full SHA, approval ID/full
+SHA, reason and recovery key. It requires the latest approved chain, unexpired
+operation, exact references and actual current preflight state matching the
+prepared SHA under the institute lock. It then calls the existing cancellation
+service with caller-owned commit, captures its operational result and the one
+new existing booking event, writes the execution original, verifies all proofs
+and commits them together. Validity is checked again before confirmation.
+Recorded appointment instants and booking-event capture timestamps are normalized
+to UTC before hashing, so a PostgreSQL connection timezone does not change the
+reviewed version or execution event proof. Existing raw event JSON stays intact.
+No provider explanation, generated SQL, inferred approval, contact or refund runs.
+
+Execution key/actor/typed terms bind exact replay; operation uniqueness prevents
+another key from executing it again. `GET /execution-by-key` and
+`/sensitive-operations/{id}/execution` verify original full SHA/canonical columns,
+signed actor/scope, before/after effect, approved operation/decision/validity and
+the actual owned booking-event full SHA, actor, clock and snapshots. Historical
+replay performs no source recapture or mutation, including after original expiry.
+Corrupt receipts or booking-event evidence fail closed. Event/receipt timestamps
+and consistent snapshots are proof of recorded effects, not cryptographic
+signatures or complete external/physical history. No private customer text is
+included in the operational snapshot; declared reasons still belong to the audit.
+
+Any error after cancellation but before commit rolls back appointment, employee,
+resource reservations, booking event and receipt in the same SQL transaction.
+Committed lost acknowledgement recovers by the exact key. Concurrent callers use
+the same institute lock as approval/revocation and booking changes. A new approval
+decision after recorded execution refuses: revocation cannot undo a performed
+cancellation. Historical approval replay remains available. Approval state itself
+does not claim to execute; clients must inspect the separate execution receipt.
+
+Migration `f562c3a4edf6` follows `e451b293dcf5`, adds scoped key-unique and
+operation-unique `base_execution_originals` with operation/approval/booking-event
+FKs, and refuses offline or populated downgrade. Persistent application migration
+is not performed. Native explicit human review/decision/execution and broader
+operations/full interaction audit remain required; this is backend functional
+execution verified on owned fixtures, not real customer/production execution.
+
 ## Evidence and remaining work
 
 Initial six-module test collection failed because inherited wildcard before-
@@ -342,7 +387,27 @@ human-input/frontend/whole-project/production acceptance claim. Persistent
 application/provider/deployment untouched; controlled deployment now requires
 heade451b293dcf5.
 
-Next: atomic idempotent execution, complete interaction audit, broader planning/language handling and supported
+Phase17H initial execution/approval two-module18 passed36.12s. Expanded
+12-module **103 passed200.16s**, zero failures/skips, terminalexit0, SQLite and
+actual isolated PostgreSQL, including three new execution migration cases and
+existing BASE migrations/full regressions. Added actual execution/revocation race
+and non-UTC PostgreSQL connection proof; four-module1 failed/39 passed65.15s found
+that the shared SQLite metadata-restoration helper preserves aware offsets, so
+history/event hash timestamps also needed explicit local UTC normalization.
+Corrected only BASE snapshot/history/event normalization; shared time behavior
+unchanged. Final affected four-module **40 passed110.90s**, zero failures/skips,
+terminalexit0, SQLite/actual PostgreSQL. Thirteen execution cases cover exact
+receipts/event tamper, replay after expiry/no recapture, changed actor/key/terms,
+late revocation, pending/revoked/changed/expired/wrong-reference refusal, signed
+HTTP strict scope, real competing executions and execution/revocation, rollback
+of business effects when receipt flush fails, committed lost-ack/resource recovery
+and non-UTC source/event proof. All affected preflight/sensitive retention/approval
+regressions pass. Earlier12-module baseline is not claimed as a fresh105-case run.
+Only crypt/intentional unsafe-copy warnings. HTTP is SQLite; no native physical
+human-input/frontend/whole-project/production claim. Persistent app/provider/
+deployment untouched; controlled migration prerequisite is headf562c3a4edf6.
+
+Next: native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture
