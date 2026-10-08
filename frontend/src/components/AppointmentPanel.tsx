@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Appointment, AppointmentAction, AppointmentCreatePayload, AppointmentUpdatePayload, Employee, Service } from "../types";
 import { CustomerPicker } from "./CustomerPicker";
+const BaseCancellationPanel = lazy(() => import("./BaseCancellationPanel").then(module => ({ default: module.BaseCancellationPanel })));
 import { instituteInstants, instituteSlot, nextInstituteSlot } from "../institute-calendar";
 import { instituteTimeZone, formatInstituteTime } from "../institute-time";
 import { getAccessToken } from "../api/session";
@@ -383,6 +384,7 @@ function View({
           </div>
         )}
       </div>
+      <Suspense fallback={<p>Chargement de l’approbation…</p>}><BaseCancellationPanel institute={instituteId} timezone={timezone} appointments={agendaAppointments} employees={employees} services={services} onExecuted={() => setRevision(value => value + 1)} /></Suspense>
     </section>
   );
 }

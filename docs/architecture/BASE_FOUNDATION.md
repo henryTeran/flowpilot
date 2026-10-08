@@ -448,7 +448,49 @@ equal to the fixture's real actor); no product proof was weakened. These are
 browser protocol tests with typed synthetic receipts, not new database/native
 physical human input or production acceptance.
 
-Next: native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
+Phase17K integrates a manager-only cancellation panel into the appointment drawer,
+loaded as a separate browser chunk. Mount makes no BASE business calls. Explicit
+appointment selection and preview read precede preparation; reason and UTC future
+validity have no defaults. Captured times/status/service/employee references are
+shown before the separate approve/decline/revoke/execute controls. Current catalog
+labels aid recognition; captured IDs and operational timestamps remain the proof.
+An exact retained reference can be reread by another manager. Verified causal
+state and per-operation execution reads control which actions are displayed;
+failed reads mask authority. Historical status alone does not assert freshness.
+
+All three drivers use mounted/token/subject/role guards and institute-keyed panel
+replacement. Frozen requests block new writes and expose explicit key recovery;
+definitive rejection correction is separately offered. Confirmation independently
+verifies retained proofs and refreshes operation/history/execution. A confirmed
+execution refreshes the agenda. Backend service guards still control eligibility,
+expiry, current source, atomic effects and actual booking-event proof. The UI
+does not contact customers or refund payments.
+
+Four synthetic DOM scenarios cover no mount/default authority, explicit full
+flow, lost-ack reload, corrupt history masking and reception/old-token isolation.
+Initial3 failures exposed a JavaScript zero-millisecond UTC format inconsistent
+with canonical server timestamps; formatting was corrected without weakening the
+proof contract. Final initial DOM4 passed2743.77ms; TypeScript/Vite189 modules.
+Native first desktop selection timed out on an accessible select name containing
+option text; only the verified owned CLI subtree was stopped and wrapper cleanup
+confirmed. Added explicit select accessible name and bounded action timeout.
+Corrected signed Edge desktop/tablet2 passed48.8s with owned temporary SQLite
+cleanup. Initial six whole-panel captures were clipped by the scrolling drawer,
+so preparation details and focused card captures were improved. Final native2
+passed43.1s (desktop11.7s/tablet8.1s), exit0, cleanup confirmed, rebuilt final189
+module bundle. Each of three actual committed writes loses its reply, reloads
+and recovers with exactly one POST per phase; fixture appointment is cancelled.
+Controls>=44px, no horizontal overflow; six final proof cards visually inspected
+and readable. API appointment creation is fixture setup, not native booking
+authoring acceptance. Native tests automate explicit controls; they do not prove
+physical human input or real customer/production/provider acceptance. Existing
+bcrypt/NO_COLOR warnings only. Persistent application database unchanged.
+Initial full frontend524 passed86285.30ms; after visual refinements, fresh final
+complete frontend524 passed85410.74ms, zero failures/skips, terminalexit0.
+All six BASE gates remain OPEN; this bounded native flow does not close the
+canonical nine-component/six-gate Phase17 acceptance or full26-phase goal.
+
+Next: broader native refusal/revocation/stale-source acceptance, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture
