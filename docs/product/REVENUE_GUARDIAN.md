@@ -56,10 +56,10 @@ future-period and unsupported-write refusal.
 | Employee capacity | 14B/14L expose owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority, with14U native review. No confirmed reservation or opening-hours/physical-attendance proof. |
 | Cancelled revenue | 14C/14I/J/R/S verify booking closures, historical catalog references and independent retained rate scenarios with native review.14G/H retain walk-in conditions/full-period currency values; native walk-in review is tracked in14T below. No agreed quote or causal revenue loss is claimed. |
 | No-show revenue | 14C/I/J/R/S implement source verification, explicit historical-rate scenarios, retained original/key/audit and native review. A benchmark is not an agreed quote, eligibility proof or causal loss. |
-| Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
+| Rebooking opportunities | 14E/14V implement pinned full-customer CRM catalog, due-rule/active-return suppression and native evidence/permission review. Explicit price/scenario valuation and selected feasible-slot integration remain to audit; no contact authorization or complete history inferred. |
 | Projected revenue | 14D/M/N/O/P/Q implement signed exact historical-rate scenarios, durable originals/key/audit, selected comparison and native desktop/tablet review. Future prediction remains conditional/unvalidated; no scenario sum or attributed effect. |
-| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention;14U adds native slot review. Remaining native rebooking review and opportunity retention must be completed; no automatic contact/booking. |
-| Product acceptance | Recorded billing/capacity/scenario/booking closure native review exists; complete remaining opportunity review, evidence navigation and requirement-by-requirement Phase14 audit before closing gates. |
+| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention;14U/V add native slot/rebooking review. Remaining opportunity decision retention and full integration audit must be completed; no automatic contact/booking. |
+| Product acceptance | Recorded billing/capacity/scenario/booking closure/walk-in cancellation/rebooking/slot native review exists; complete remaining decision retention, evidence navigation and requirement-by-requirement Phase14 audit before closing gates. |
 
 Large-cohort memory/load behavior and report-wide evidence navigation remain
 unverified: the pure kernel retains unique ticket/line IDs and mix groups even
@@ -1098,3 +1098,67 @@ schema or persistent database change; head8ef5b643992a remains a deployment prer
 Native rebooking review, opportunity decision retention and full Phase14 audit remain
 next. All three Phase14 gates and production/physical/provider/load acceptance remain
 OPEN; the full26-phase goal remains ACTIVE.
+
+## Phase 14V — native observed-care rebooking review
+
+Managers explicitly read current rebooking opportunities with independent twenty-row
+customer pages. Whole-catalog counts partition due review candidates, active returns
+already recorded, scheduled/disabled rules and unavailable candidates. Relevant source
+diagnostics remain separate and can overlap; they are not added as customer counts.
+Observed care and declared due dates use the institute timezone (UTC fallback through
+the existing clock helper). Each page captures current sources again; this is not a
+retained report snapshot or proof of complete customer history.
+
+Main cards state unavailable monetary value and observed-care/current-declared-rule
+confidence. The recommended action is human review of actual need, contact permission
+and feasible slot. Folded source proof exposes the care ticket, observed completion,
+registration chronology, original rule ID/actor/date/reason and exact interval/due
+instant. A rule applied to observed care is not a prediction of a real return visit.
+
+Separate folded lifecycle originals expose channel/purpose permissions, explicit
+evidence and declaration provenance. Absence remains unknown, refusal stays refusal,
+and a declaration dated after capture explicitly cannot serve as current permission.
+Declared grants do not authorize dispatch or establish contact coordinates; no message
+is sent. Omitted calendar facts cannot be independently authenticated by this response;
+known unavailable-reason/future-clock implications are checked without treating missing
+birthday observation as lack of permission for unrelated communication purposes.
+
+Strict browser validation binds exact frames/scope/capture and safe full-catalog count
+partition to20-row cardinality and unique customer order. It requires clear selected
+care diagnostics, owned registration/care chronology, a current original policy shared
+across returned rows, selected rule/ID binding and the existing canonical CRM exact
+BigInt due calculation. Only due/enabled rebooking candidates on care anchors qualify.
+Lifecycle shape/scope/evidence and all no-action/no-delivery flags are checked. This
+does not replace14E's full customer/source and active-return query or prove SQL-admin
+authenticity: relational policy/lifecycle DTOs carry no raw SHA envelope. No source
+mutation/permission or financial inference is added. No mount I/O; failed reads and
+scope/session/request/unmount guards prevent prior or late proof from appearing.
+
+Initial focused4 passed3.03s; final **4 passed3.02s**, full frontend **402 passed94.09s**,
+zero failures/skips, terminalexit0. TypeScript/Vite build passes; final native rebuilds
+the production bundle. Existing rebooking/capacity backend modules **4 passed49.86s**
+on SQLite and actual isolated PostgreSQL, zero failures/skips, terminalexit0. Initial
+native fixtures failed before UI on a model import name; corrected. Next desktop passed
+and tablet failed on expected50 versus49: the desktop's new active return correctly
+stays suppressed in shared state. The test expectation now preserves this source fact.
+Fresh final desktop/tablet **2 passed1.9m**, zero failures/skips,
+BROWSER_PROCESS_EXIT=0/terminalexit0; owned temporary database cleaned.
+
+SQL fixtures seed28 registered customers/profile:27 actual completed ticket-care
+records and one without care; existing return and not-yet-due rule leave25 candidates.
+Policy/lifecycle originals use actual CRM services, not native editor UI. Native review
+proves20/5 pages at25 candidates, first/second20-row pages at49 and all20/20/8 pages
+after a fixture return reduces49 to48. It covers2-day due rules, original source actors,
+grant/refusal/unknown/absent declarations, diagnostics, invalid delivery-claim refusal,
+retry, global rule disable/future/restore and exclusion after active-return insertion.
+Reads keep ticket, appointment, reservation and CRM-event capture/revision counts
+unchanged relative to explicitly seeded states; all opportunity calls GET. Four final
+original/unknown desktop/tablet captures visually reviewed, >=600px region,44px controls
+and no overflow. Pure backend-produced vector is not SQL capture; future-permission
+coverage is contract/DOM testing, not a native future-declaration screenshot.
+
+No backend/schema or persistent database change; head8ef5b643992a unchanged. No new
+whole-project backend, physical, provider, load or production acceptance claim. All
+three Phase14 gates remain OPEN. Remaining opportunity decision retention and complete
+requirement audit, including explicit value/feasibility/source-navigation coverage,
+are next. The full26-phase goal remains ACTIVE.

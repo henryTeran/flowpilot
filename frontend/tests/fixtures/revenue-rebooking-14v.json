@@ -1,0 +1,267 @@
+{
+  "institute_id": "own",
+  "captured_at": "2026-01-05T00:00:00Z",
+  "basis": "latest_observed_care_and_current_declared_rebooking_rule",
+  "page": {
+    "offset": 0,
+    "limit": 20,
+    "total": 2
+  },
+  "opportunities": [
+    {
+      "type": "review_due_rebooking",
+      "evidence": {
+        "institute_id": "own",
+        "customer_id": "customer-0",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "customer": {
+          "institute_id": "own",
+          "customer_id": "customer-0",
+          "created_at": "2026-01-01T00:00:00Z"
+        },
+        "policy_original": {
+          "policy": {
+            "institute_id": "own",
+            "rules": [
+              {
+                "trigger": "birthday",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "post_service",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "rebooking",
+                "enabled": true,
+                "offset_us": "86400000000"
+              },
+              {
+                "trigger": "inactivity",
+                "enabled": false,
+                "offset_us": "86400000000"
+              },
+              {
+                "trigger": "package_expiry",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "subscription_renewal",
+                "enabled": false,
+                "offset_us": "0"
+              }
+            ]
+          },
+          "previous_policy_id": null,
+          "reason": "Explicit retained rule",
+          "idempotency_key": "policy-key",
+          "id": "policy",
+          "institute_id": "own",
+          "actor_id": "rule-manager",
+          "created_at": "2026-01-04T00:00:00Z"
+        },
+        "lifecycle_original": null,
+        "lifecycle_unavailable_reason": "declaration_absent",
+        "diagnostics": {
+          "policy_absent": 0,
+          "future_policy": 0,
+          "future_registration": 0,
+          "invalid_event_timing": 0,
+          "care_unavailable": 0,
+          "care_unlinked_ticket": 0,
+          "care_invalid_owner_or_service": 0,
+          "care_invalid_actual_times": 0
+        }
+      },
+      "candidate": {
+        "institute_id": "own",
+        "customer_id": "customer-0",
+        "policy_original_id": "policy",
+        "rule": {
+          "trigger": "rebooking",
+          "enabled": true,
+          "offset_us": "86400000000"
+        },
+        "source": {
+          "institute_id": "own",
+          "customer_id": "customer-0",
+          "source_id": "ticket-0",
+          "source_kind": "care_episode",
+          "occurred_at": "2026-01-02T12:00:00Z",
+          "expires_at": null,
+          "remaining": null
+        },
+        "due_at": "2026-01-03T12:00:00Z",
+        "valid_until": null,
+        "captured_at": "2026-01-05T00:00:00Z",
+        "state": "due",
+        "external_message_sent": false,
+        "delivery_authorized": false
+      },
+      "estimated_value": null,
+      "confidence": "observed_care_and_declared_rule_only",
+      "recommended_action": "review_return_need_contact_permission_and_feasible_slot",
+      "action_executed": false
+    },
+    {
+      "type": "review_due_rebooking",
+      "evidence": {
+        "institute_id": "own",
+        "customer_id": "customer-1",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "customer": {
+          "institute_id": "own",
+          "customer_id": "customer-1",
+          "created_at": "2026-01-01T00:00:00Z"
+        },
+        "policy_original": {
+          "policy": {
+            "institute_id": "own",
+            "rules": [
+              {
+                "trigger": "birthday",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "post_service",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "rebooking",
+                "enabled": true,
+                "offset_us": "86400000000"
+              },
+              {
+                "trigger": "inactivity",
+                "enabled": false,
+                "offset_us": "86400000000"
+              },
+              {
+                "trigger": "package_expiry",
+                "enabled": false,
+                "offset_us": "0"
+              },
+              {
+                "trigger": "subscription_renewal",
+                "enabled": false,
+                "offset_us": "0"
+              }
+            ]
+          },
+          "previous_policy_id": null,
+          "reason": "Explicit retained rule",
+          "idempotency_key": "policy-key",
+          "id": "policy",
+          "institute_id": "own",
+          "actor_id": "rule-manager",
+          "created_at": "2026-01-04T00:00:00Z"
+        },
+        "lifecycle_original": {
+          "declaration": {
+            "institute_id": "own",
+            "customer_id": "customer-1",
+            "birthday": null,
+            "birthday_evidence": null,
+            "communications": [
+              {
+                "channel": "email",
+                "purpose": "service_follow_up",
+                "permission": "granted",
+                "evidence": "Explicit source evidence"
+              },
+              {
+                "channel": "email",
+                "purpose": "marketing",
+                "permission": "refused",
+                "evidence": "Explicit source evidence"
+              },
+              {
+                "channel": "sms",
+                "purpose": "service_follow_up",
+                "permission": "unknown",
+                "evidence": null
+              },
+              {
+                "channel": "sms",
+                "purpose": "marketing",
+                "permission": "refused",
+                "evidence": "Explicit source evidence"
+              }
+            ]
+          },
+          "previous_id": null,
+          "reason": "Explicit permission declaration",
+          "idempotency_key": "life-key",
+          "id": "life",
+          "institute_id": "own",
+          "customer_id": "customer-1",
+          "actor_id": "permission-manager",
+          "created_at": "2026-01-03T00:00:00Z"
+        },
+        "lifecycle_unavailable_reason": "calendar_absent",
+        "diagnostics": {
+          "policy_absent": 0,
+          "future_policy": 0,
+          "future_registration": 0,
+          "invalid_event_timing": 0,
+          "care_unavailable": 0,
+          "care_unlinked_ticket": 0,
+          "care_invalid_owner_or_service": 0,
+          "care_invalid_actual_times": 0
+        }
+      },
+      "candidate": {
+        "institute_id": "own",
+        "customer_id": "customer-1",
+        "policy_original_id": "policy",
+        "rule": {
+          "trigger": "rebooking",
+          "enabled": true,
+          "offset_us": "86400000000"
+        },
+        "source": {
+          "institute_id": "own",
+          "customer_id": "customer-1",
+          "source_id": "ticket-1",
+          "source_kind": "care_episode",
+          "occurred_at": "2026-01-02T12:00:00Z",
+          "expires_at": null,
+          "remaining": null
+        },
+        "due_at": "2026-01-03T12:00:00Z",
+        "valid_until": null,
+        "captured_at": "2026-01-05T00:00:00Z",
+        "state": "due",
+        "external_message_sent": false,
+        "delivery_authorized": false
+      },
+      "estimated_value": null,
+      "confidence": "observed_care_and_declared_rule_only",
+      "recommended_action": "review_return_need_contact_permission_and_feasible_slot",
+      "action_executed": false
+    }
+  ],
+  "examined_customers": 7,
+  "already_booked_customers": 1,
+  "scheduled_customers": 1,
+  "disabled_customers": 1,
+  "no_candidate_customers": 2,
+  "diagnostics": {
+    "policy_absent": 0,
+    "future_policy": 0,
+    "future_registration": 0,
+    "invalid_event_timing": 0,
+    "care_unavailable": 2,
+    "care_unlinked_ticket": 0,
+    "care_invalid_owner_or_service": 0,
+    "care_invalid_actual_times": 0
+  },
+  "complete_customer_history": false,
+  "delivery_authorized": false,
+  "external_message_sent": false
+}
