@@ -199,6 +199,47 @@ not performed by these owned validation fixtures. Human approve/decline/revoke,
 current-version revalidation and atomic idempotent execution/audit remain the next
 required work. No public executor, provider call or native UI is added here.
 
+##17G explicit approval decision lifecycle
+
+Signed manager `POST /approvals` accepts only operation ID/full retained SHA,
+paired previous decision ID/full SHA, explicit approve/decline/revoke, reason and
+recovery key. Actor and creation/source clocks are server supplied. Approval
+requires a pending, unexpired operation and an actual reread of the owned current
+appointment through the existing preflight; its state SHA must still match the
+prepared version. The retained decision records that verified SHA and source
+check clock. A pending operation can instead be declined without recapturing
+business eligibility. An approved operation can be revoked, including after
+expiry or source change. Declined/revoked chains are terminal; a new operation
+must be prepared for reconsideration. The preparing and deciding manager may
+be different; no unstated four-eyes restriction is invented.
+
+`GET /approval-by-key` and `/sensitive-operations/{id}/approval-state` verify the
+entire operation decision chain. Raw SHA, canonical snapshot, columns, actor,
+UTC clocks, operation full SHA, exact predecessor/full SHA, chronological order,
+transition and original source/validity binding are checked. Branches, cycles,
+disconnected or corrupt later decisions refuse even recovery of an earlier row.
+The institute lock serializes initial decisions (including SQL NULL predecessors)
+and subsequent decisions; replay and successor uniqueness constraints supplement
+the application causal guard. Replaying an approval after revocation returns its
+historical receipt without reinstating approval or reading business sources.
+Changed key terms/actor refuse. Full state reads show expiry separately from the
+retained human decision and explicitly do not revalidate current business sources.
+An `approved` history status is therefore not sufficient execution authority.
+
+These are explicit signed decision requests, not evidence of physical human input
+in a native UI; the native review/approval experience remains required. No language
+provider receives approval authority. Decisions never call cancellation or any
+external executor. The prepared original stays immutable and still describes its
+preparation effect; current approval status comes only from the verified chain.
+
+Migration `e451b293dcf5` follows `d340a182cbe4`; it adds scoped key-unique causal
+`base_approval_originals`, operation/self-predecessor FKs and history index. Empty
+online downgrade is allowed, retained decisions and offline downgrade refuse.
+Persistent application migration is not performed. Next execution must verify
+the latest approved predecessor, original validity and fresh source again, then
+commit service effects and its own idempotent receipt together. Complete BASE
+interaction audit, broader adapters/planning/language and native UX remain open.
+
 ## Evidence and remaining work
 
 Initial six-module test collection failed because inherited wildcard before-
@@ -284,7 +325,24 @@ unsafe-copy warnings only. HTTP remains SQLite; no native/frontend/whole-project
 production claim. Persistent application/provider/deployment untouched; new
 controlled deployment prerequisite is headd340a182cbe4.
 
-Next: approval lifecycle, complete interaction audit, broader planning/language handling and supported
+Phase17G final ten-module suite **89 passed122.33s**, zero failures/skips,
+terminalexit0, SQLite and actual isolated PostgreSQL. Seven new approval cases
+cover approve/revoke with different manager, historical replay after revocation,
+terminal/stale-predecessor/changed-key/actor refusal, later-decision rehashed
+corruption invalidating earlier recovery, changed/expired approval refusal and
+explicit expired decline, signed HTTP scope/identity/full SHA/unknown-action
+injection, actual PostgreSQL same-key and competing initial decisions, flush
+rollback and committed lost-ack recovery. Three migration cases cover offline
+and populated guards, owned SQLite/PostgreSQL empty roundtrip and metadata parity.
+Existing sensitive preparation/preflight, retained read plans, their migrations,
+intent and BASE signed routes/services regressions pass. Initial two-module
+13 passed26.61s before migration/full regression expansion. Existing crypt and
+intentional unsafe-copy warnings only. HTTP remains SQLite; no native physical
+human-input/frontend/whole-project/production acceptance claim. Persistent
+application/provider/deployment untouched; controlled deployment now requires
+heade451b293dcf5.
+
+Next: atomic idempotent execution, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

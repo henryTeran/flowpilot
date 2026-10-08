@@ -9,6 +9,7 @@ from app.modules.base import intents
 from app.modules.base import plans
 from app.modules.base import sensitive_capabilities as sensitive
 from app.modules.base import sensitive_originals as operations
+from app.modules.base import approvals
 from app.modules.waitlist.originals import Envelope as RetainedEnvelope
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
@@ -65,6 +66,21 @@ def operation_history(institute_id: str, offset: int = Query(0, ge=0), limit: in
 @router.get("/sensitive-operations/{identifier}", response_model=RetainedEnvelope)
 def operation_detail(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
     return operations.require(db, user, institute_id, identifier)
+
+
+@router.post("/approvals", response_model=RetainedEnvelope)
+def decision(institute_id: str, body: approvals.Request, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return approvals.decide(db, user, institute_id, body)
+
+
+@router.get("/approval-by-key", response_model=RetainedEnvelope | None)
+def recover_decision(institute_id: str, key: str = Query(min_length=1, max_length=120), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return approvals.by_key(db, user, institute_id, key)
+
+
+@router.get("/sensitive-operations/{identifier}/approval-state", response_model=approvals.State)
+def approval_state(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return approvals.state(db, user, institute_id, identifier)
 
 
 @router.post("/contexts/resolve", response_model=base.Context)
