@@ -6,6 +6,7 @@ from app.database.session import get_db
 from app.modules.waitlist import originals
 from app.modules.waitlist import lifecycle
 from app.modules.waitlist import sources
+from app.modules.waitlist import detection
 
 router = APIRouter(prefix="/waitlist/institutes/{institute_id}", tags=["waitlist"])
 
@@ -72,3 +73,13 @@ def matching(institute_id: str, root_id: str, horizon_end: sources.Horizon, chan
         user=Depends(manager), db: Session = Depends(get_db)):
     policy = sources.Policy(channel=channel, history_requirement=history_requirement, permission_requirement=permission_requirement)
     return sources.read(db, institute_id, root_id, expected_event_id, expected_event_fingerprint, horizon_end, policy)
+
+
+@router.get("/detection", response_model=detection.Detection)
+def detect(institute_id: str, horizon_end: sources.Horizon, channel: Literal["email", "sms"],
+        history_requirement: Literal["review_only", "observed_care_required", "no_recorded_care_required"],
+        permission_requirement: Literal["review_only", "recorded_grant_required"],
+        offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+        user=Depends(manager), db: Session = Depends(get_db)):
+    policy = sources.Policy(channel=channel, history_requirement=history_requirement, permission_requirement=permission_requirement)
+    return detection.read(db, institute_id, horizon_end, policy, offset, limit)

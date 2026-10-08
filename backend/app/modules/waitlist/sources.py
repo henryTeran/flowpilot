@@ -125,11 +125,16 @@ def _activity(db, institute, now):
     return appointments, sessions, tickets, lines
 
 
-def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, horizon_end, policy: Policy):
+def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, horizon_end, policy: Policy, *, _captured_at=None):
     try:
         policy = Policy.model_validate(policy.model_dump())
         lock_institute(db, institute)
-        now = utcnow()
+        # Internal aggregate readers share one locked capture; HTTP callers cannot
+        # supply an observation clock or capacity snapshot.
+        now = _captured_at if _captured_at is not None else utcnow()
+        if not isinstance(now, datetime) or now.utcoffset() is None:
+            raise ValueError("An aware server capture is required")
+        now = now.astimezone(timezone.utc)
         if not isinstance(horizon_end, datetime) or horizon_end.utcoffset() is None or horizon_end <= now:
             raise ValueError("An explicit positive future matching horizon is required")
         horizon_end = horizon_end.astimezone(timezone.utc)

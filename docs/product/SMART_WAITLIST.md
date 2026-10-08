@@ -4,7 +4,8 @@ Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
 AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
 revision and cancellation;15D adds authenticated selected-version SQL matching.
-Whole-waitlist detection, queue-projection integration and native review remain unfinished.
+15E adds whole-active-waitlist conditional detection. Queue-projection integration
+and native review remain unfinished.
 
 ## Contract and current implementation
 
@@ -49,7 +50,7 @@ is not machine verification of every real-world constraint.
 | Constraints | Unknown human review refuses;15D customer conflicts, overdue capacity/source refusal | Additional supported structured constraints, current queue implications and native review |
 | History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
 | Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
-| Auto slot detection |15D signed selected-version current SQL earliest fitting intersections | Whole-waitlist detection, source invalidation/retry and native evidence |
+| Auto slot detection |15D selected-version current SQL intersections;15E whole-active-cohort detection with shared capture and output paging | Queue projection/source invalidation, native evidence and release/load verification |
 | Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging | Native authoring/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
@@ -216,6 +217,38 @@ unsafe-copy serializer warnings from15B tests plus existing crypt deprecation.
 No schema changes (head a017d865bb4c), persistent database migration, frontend/native
 waitlist, full-project regression or production acceptance claimed.
 
-Next: whole-active-waitlist bounded detection and queue/source evidence integration,
-then native demand/lifecycle/policy authoring, recovery and matching review. All
-three Phase15 gates remain OPEN; the full26-phase objective remains active.
+## Phase15E — whole-active-waitlist detection
+
+Manager/exact-institute GET `/detection` requires explicit aware ISO horizon,
+channel and history/permission policy, with20/default50/max output pages. A single
+server clock and institute lock pins every current lifecycle/source review. The
+private capture argument of the source adapter is available only to trusted internal
+aggregate code; HTTP accepts no observation clock or source snapshot.
+
+Every activated root's complete retained chain is verified. Cancelled roots are
+counted separately; every active root's current matching sources are evaluated
+before paging. Totals count roots with/without options, with exact reason counts,
+not distinct customers, jointly feasible appointments or distinct physical slots.
+Multiple requests can independently propose the same capacity. No allocation,
+booking, contact, monetary total or inferred priority follows from these counts.
+Unactivated declarations stay outside detection and in their own retained audit.
+
+Output paging does not bound the verification cohort. Off-page corruption refuses
+the read rather than silently accepting a clean displayed subset. Internal reads
+revalidate their selected lifecycle event at the shared capture; mismatched clocks
+or state refuse. Full source review is recomputed per active root, so query count,
+whole-cohort history/resource memory and production load remain unverified. This
+is output-bounded conditional detection, not a bounded-work or performance claim.
+
+Fresh three-module regression:20 passed79.31s, no failures/skips, terminalexit0
+with SQLite and actual isolated PostgreSQL enabled; existing crypt deprecation only.
+Tests create26
+activated roots, cancel one, verify25 active reviews20/5 and a single clock without
+per-row recapture, exercise full-cohort grant-required refusal, off-page rehashed
+corruption, signed tenant/role checks and unchanged resource reservations on SQLite
+and actual isolated PostgreSQL. Existing selected-source and pure-kernel regression
+are included. No new schema, frontend, native waitlist or production gate claim.
+
+Next: integrate actual queue-projection evidence/constraints, then native demand,
+lifecycle and policy authoring/recovery/detection review. All three Phase15 gates
+remain OPEN and the full26-phase goal stays active.
