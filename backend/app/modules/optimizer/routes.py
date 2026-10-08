@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
-from app.modules.optimizer import originals
+from app.modules.optimizer import originals, sources
 from app.modules.waitlist.originals import Envelope
 
 router = APIRouter(prefix="/optimizer/institutes/{institute_id}", tags=["optimizer"])
@@ -32,3 +32,8 @@ def audit(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20
 @router.get("/policy-originals/{identifier}", response_model=Envelope)
 def detail(institute_id: str, identifier: str, user=Depends(manager), db: Session = Depends(get_db)):
     return originals.require(db, institute_id, identifier)
+
+
+@router.post("/reviews/current", response_model=sources.Read)
+def current(institute_id: str, body: sources.Request, user=Depends(manager), db: Session = Depends(get_db)):
+    return sources.read(db, institute_id, body)

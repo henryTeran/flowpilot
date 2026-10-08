@@ -5,7 +5,8 @@ EXPLANATION_EVIDENCE remain OPEN until authenticated source/policy integration,
 native review and scoped end-to-end acceptance.16A supplies the pure deterministic
 kernel;16B adds explicit normalization terms and raw-to-normalized proof. The
 full26-phase objective remains ACTIVE.16C adds retained signed policy originals;
-current factor capture and native optimizer review remain unfinished.
+16D adds authenticated current factor capture. Native optimizer review remains
+unfinished.
 
 ## Official calculation
 
@@ -180,6 +181,57 @@ tamper coverage. Existing crypt deprecation and intentional unsafe-copy serializ
 warnings are separate from test failures.
 
 No frontend/native optimizer or whole-project/production acceptance claimed.
+
+## Current source derivation (16D)
+
+POST `/optimizer/institutes/{institute}/reviews/current` is a read computation,
+not a retained write. Its strict body names selected policy ID/full fingerprint,
+waitlist root/latest event ID/full fingerprint, explicit aware horizon and the
+existing matching policy. Signed manager/exact-institute authorization applies.
+It accepts no caller clock, observations, weights, scores or capacity payloads.
+The institute lock, verified retained policy and existing matching reader share
+one server clock. A changed matching head or policy fingerprint refuses the read.
+Matching policy refusal is preserved with its complete source and no score,
+catalog or option proofs. No alternative allocator or fallback availability runs.
+
+For every sovereign option, the response preserves its complete matching source,
+selected policy original and eight raw-to-normalized factor proofs. Utilization
+uses exact proposed elapsed microseconds divided by the complete containing
+captured employee free-window microseconds; the window is included per option.
+This is a conditional fill ratio, not institute or physical utilization. Delay
+uses option start minus capture in elapsed microseconds, not measured employee
+idle time. Distinct resource fit from sovereign matching supplies a zero current
+conflict indicator. Its proof remains active even if its business weight is zero;
+it cannot predict future conflicts or authorize booking.
+
+All five remaining factors explicitly remain unknown: catalog currency is absent
+(both recorded member/passage prices are retained as conditional references),
+care history has no employee-linked continuity indicator, availability/employee
+restrictions are hard constraints rather than graded client preferences, no
+employee preference indicator exists, and declared working hours are unavailable
+for overtime measurement. Neither a selected currency nor a missing price,
+history, preference or working-hour record is converted to a measured zero.
+Enabling any unavailable factor prevents a complete ranking. Explicit zero
+weights disable its contribution while preserving the unavailable source.
+Ceiling saturation keeps the original elapsed quantity and chosen ceiling.
+
+The kernel returns option, exact score, reasons and constraint evidence; all
+reads require human review and fresh booking/contact validation. No LLM computes
+official scores. No schema change beyond16C headb128ef60a9d2, persistent
+application migration, provider action or deployment is part of16D.
+
+Validation: initial five-module51 passed34.75s. Expanded nine-module72pass/1fail
+103.12s found a fixture using a resource status already rejected by SQL CHECK;
+the fixture now uses malformed JSON capabilities without weakening the schema.
+Final complete nine-module **73 passed87.48s**, zero failures/skips, terminalexit0,
+with SQLite and actual isolated PostgreSQL. Covers current scoring/proofs and
+repeated reads, source/policy fingerprint pinning, dynamic customer occupation,
+permission refusal, each unavailable weighted factor, elapsed saturation,
+expired horizon/future policy/current source corruption, signed authorization and
+client-truth injection rejection, plus retained policy/migration/kernel/
+normalization and existing matching/current capture/detection/queue regressions.
+Native/frontend and whole-project acceptance are not claimed by this backend
+integration.
 SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
 Next: sovereign factor derivation from current matching/SQL sources, selected
 retained policy/full fingerprint, raw normalization proof and version-pinned signed
