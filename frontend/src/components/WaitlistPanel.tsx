@@ -3,6 +3,7 @@ import { WaitlistDemandWriter } from "./WaitlistDemandWriter";
 import { WaitlistOriginalHistory } from "./WaitlistOriginalHistory";
 import { WaitlistLifecycleHistory } from "./WaitlistLifecycleHistory";
 import { WaitlistMatchingReview } from "./WaitlistMatchingReview";
+import { OptimizerPolicyPanel } from "./OptimizerPolicyPanel";
 import { WaitlistLifecycleWriter, type WaitlistLifecycleChoice } from "./WaitlistLifecycleWriter";
 import { getAccessToken } from "../api/session";
 import type { WaitlistLifecycleState } from "../waitlist-lifecycle-utils";
@@ -18,6 +19,7 @@ function Panel(props: { institute: string; timezone?: string; services: Service[
   return <><WaitlistDemandWriter {...props} onRetained={() => { setMatching(undefined); setRevision(n => n+1); }} />
     <WaitlistLifecycleWriter institute={props.institute} timezone={props.timezone} choice={choice} onContext={setContext} onRetained={() => { setMatching(undefined); setRevision(n => n+1); }} />
     <WaitlistMatchingReview key={`matching-${revision}`} {...props} selection={matching} />
+    <OptimizerPolicyPanel institute={props.institute} timezone={props.timezone} />
     <WaitlistOriginalHistory key={`originals-${revision}`} institute={props.institute} timezone={props.timezone}
       onManage={envelope => setChoice({ kind: "root", envelope })} onRevise={envelope => setChoice({ kind: "target", envelope })}
       revisionFor={context?.state === "active" ? { customer: context.root.original.demand.customer_id, current: context.current_demand.original.id } : undefined} />

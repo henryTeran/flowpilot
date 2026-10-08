@@ -6840,6 +6840,9 @@ body {
 .revenue-guardian-period select { min-height: 44px; padding: 10px 14px; border: 1px solid #c7d2e2; border-radius: 8px; font: inherit; }
 .revenue-guardian-panel textarea { display: block; min-height: 80px; width: 100%; max-width: 100%; padding: 12px; font: inherit; border: 1px solid #c7d2e2; border-radius: 8px; }
 .revenue-guardian-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+.optimizer-policy-panel fieldset { min-width: 0; margin: 12px 0; border: 1px solid #dce4ef; padding: 16px; border-radius: 10px; }
+.optimizer-policy-panel label { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.optimizer-policy-panel input, .optimizer-policy-panel select, .optimizer-policy-panel textarea { min-height: 44px; min-width: 0; padding: 10px 14px; border: 1px solid #c7d2e2; border-radius: 8px; font: inherit; }
 .waitlist-demand-writer fieldset { min-width: 0; border: 1px solid #dce4ef; padding: 16px; border-radius: 10px; }
 .waitlist-demand-writer button { min-height: 44px; padding: 10px 14px; }
 .waitlist-demand-writer input, .waitlist-demand-writer select { min-height: 44px; }

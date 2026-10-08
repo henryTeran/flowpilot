@@ -266,8 +266,46 @@ five contract cases; corrected generation and final focused run include all ten
 recovery cases. Complete frontend **472 passed83.83s**, zero failures/skips,
 terminalexit0. Backend runtime is unchanged;16D backend evidence remains separate.
 
-These modules are not yet imported by the product UI. No native policy
-authoring/history/score review or complete Phase16 gate acceptance is claimed.
+At16E these modules were not yet imported by the product UI.16F integrates native
+policy authoring/history below. Complete Phase16 acceptance remains OPEN.
+
+## Native policy authoring and history (16F)
+
+`OptimizerPolicyPanel` is integrated into the existing waitlist section for signed
+institute managers. It makes no mount HTTP request. Creating a policy is an
+explicit expandable advanced action; all eight mode choices, weights, reasons and
+normalization dimensions start empty. Each mode/reason and at least one enabled
+weight are required. Disabled weight0/1 expresses deliberate exclusion; no
+current unavailable factor becomes a measured zero. Required revenue currency/
+mode/minor-unit ceiling or elapsed microsecond ceiling are visible only for the
+corresponding enabled factor. Enabled basis follows the supported explicit factor
+definition. The panel explains unknown evidence, subtraction of penalties and
+the conflict hard guard. There is no default policy activation.
+
+The form uses16E retained intent. Invalid terms perform no I/O; frozen/corrupt
+local intents lock new authoring. A committed lost acknowledgement survives
+reload and recovers by key plus independent key/ID confirmations. Successful
+retention invalidates old history/selection without automatically rereading.
+History reads are explicit,20 rows per page, verified before display, and folded
+rules/raw originals/full fingerprints remain available. Choosing an original is
+explicit and locally verified; it currently reports that no score was calculated.
+Current option scoring review remains the next integration, not a16F claim.
+Token/actor/role/scope/unmount/sequence checks guard reads, selection and writes.
+
+Validation: two preliminary focused17pass/2fail runs exposed DOM selector
+assumptions (select option text and React split nodes), corrected in tests.
+Final focused **19 passed3400.79ms**, zero failures/skips, exit0. TypeScript/Vite
+build passed184 modules; fresh signed native Edge harness rebuilt final bundle/
+CSS and used owned temporary SQLite: **2 passed45.0s** (desktop9.9s/tablet9.7s),
+exit0/fixture cleanup confirmed. Native authoring, committed lost-response
+recovery after reload (three GETs, no second POST), explicit selection,25/50-row
+histories paged20/5 and20/20/10 with unique IDs, tamper mask/retry, controls>=44px,
+panel>=600px and no horizontal overflow passed. Twenty-four additional originals
+per profile were API history fixtures, not native form authoring. Eight final
+rule/frozen/retained/history captures were individually visually inspected and
+readable on desktop/tablet. Existing bcrypt/NO_COLOR warnings only.
+Full frontend476 passed86.92s, zero failures/skips, terminalexit0. Backend16D/16C evidence remains separate;
+no persistent application migration, provider action or deployment was performed.
 SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
 Next: sovereign factor derivation from current matching/SQL sources, selected
 retained policy/full fingerprint, raw normalization proof and version-pinned signed
