@@ -490,7 +490,20 @@ complete frontend524 passed85410.74ms, zero failures/skips, terminalexit0.
 All six BASE gates remain OPEN; this bounded native flow does not close the
 canonical nine-component/six-gate Phase17 acceptance or full26-phase goal.
 
-Next: broader native refusal/revocation/stale-source acceptance, complete interaction audit, broader planning/language handling and supported
+Phase17L extends signed native acceptance to pending decline, approved revoke
+and actual peer source-history revision before approval or execution. Each server
+400 preserves frozen terms; explicit null-key correction and state reread permit
+decline/revoke despite changed source. Terminal actions disappear, execution
+receipt remains null and the actual fixture appointment remains scheduled.
+Fresh Edge desktop/tablet four tests passed1.1m, zero failures/skips, exit0 and
+owned temporary SQLite cleanup. Existing success/recovery tests8.0s/8.7s; new
+four-stop-scenario tests12.5s/11.8s. Eight stop cards visually inspected/readable.
+Only one execution attempt in each stop suite, rejected on changed source.
+No product implementation change needed; no full frontend/backend rerun claim.
+API booking/peer revision are controlled fixture setup, not native authoring or
+physical human-input/production/PostgreSQL-native/provider acceptance.
+
+Next: native expiry/independent-manager/corrupt-proof acceptance, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

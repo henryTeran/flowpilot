@@ -59,3 +59,58 @@ test("signed human cancellation recovers each committed lost acknowledgement onc
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1)).toBe(false);
   await panel.locator("article").filter({ has: page.getByRole("heading", { name: "Annulation exécutée et preuve relue", exact: true }) }).screenshot({ path: info.outputPath("base-native-executed.png") });
 });
+
+test("signed native refusal, revocation and changed-source guards preserve appointments", async ({ page, request }, info) => {
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, api = "http://127.0.0.1:4198/api/v1", institute = "demo-institute-geneve";
+  let executions = 0;
+  page.on("request", r => { if (r.method() === "POST" && r.url().endsWith("/executions")) executions++; });
+  for (const scenario of ["decline", "revoke", "stale-approval", "stale-execution"]) {
+    const index = ["decline", "revoke", "stale-approval", "stale-execution"].indexOf(scenario);
+    const day = new Date(Date.now() + (20 + index + (info.project.name.includes("tablet") ? 5 : 0)) * 86400000); day.setUTCHours(10, 0, 0, 0);
+    const created = await request.post(`${api}/appointments`, { headers, data: { institute_id: institute, employee_id: "emp-angela", service_id: "svc-soin-profond", customer_name: `BASE stop ${scenario} ${info.project.name}`, start_time: day.toISOString(), idempotency_key: `base-stop-${scenario}-${info.project.name}` } });
+    expect(created.status(), await created.text()).toBe(200); const appointment = await created.json();
+    await page.getByRole("button", { name: "RDV sous appel", exact: true }).click();
+    const panel = page.locator(".base-cancellation-panel");
+    await page.getByLabel("Date de l’agenda", { exact: true }).fill(day.toISOString().slice(0,10));
+    await expect(panel.getByRole("combobox").locator(`option[value="${appointment.id}"]`)).toHaveCount(1);
+    await panel.getByLabel("Rendez-vous à relire", { exact: true }).selectOption(appointment.id);
+    await panel.getByRole("button", { name: "Relire avant préparation", exact: true }).click();
+    await expect(panel.getByRole("heading", { name: "État relu", exact: true })).toBeVisible();
+    await panel.getByLabel("Validité jusqu’au (UTC)", { exact: true }).fill(new Date(Date.now()+3600000).toISOString().slice(0,16));
+    await panel.getByLabel("Motif de l’action", { exact: true }).fill(`Préparation arrêt ${scenario}`);
+    await panel.getByRole("button", { name: "Conserver la préparation", exact: true }).click();
+    await expect(panel.getByRole("heading", { name: "Décisions relues", exact: true })).toBeVisible();
+    const operation = await panel.getByLabel("Référence de préparation", { exact: true }).inputValue();
+    if (scenario === "revoke" || scenario === "stale-execution") {
+      await panel.getByLabel("Motif de l’action", { exact: true }).fill("Approbation examinée avant arrêt");
+      await panel.getByRole("button", { name: "Approuver cette préparation", exact: true }).click();
+      await expect(panel).toContainText("État : approuvée");
+    }
+    if (scenario.startsWith("stale")) {
+      const changed = await request.patch(`${api}/appointments/${appointment.id}`, { headers, data: { notes: "Peer source revision in owned test fixture" } }); expect(changed.status()).toBe(200);
+      await panel.getByLabel("Motif de l’action", { exact: true }).fill("Tentative après modification de source");
+      const failed = page.waitForResponse(r => r.request().method() === "POST" && r.url().endsWith(scenario === "stale-approval" ? "/approvals" : "/executions"));
+      await panel.getByRole("button", { name: scenario === "stale-approval" ? "Approuver cette préparation" : "Exécuter l’annulation approuvée", exact: true }).click();
+      expect((await failed).status()).toBe(400);
+      await expect(panel.getByRole("heading", { name: `Demande conservée — ${scenario === "stale-approval" ? "décision" : "exécution"}`, exact: true })).toBeVisible();
+      await panel.getByRole("button", { name: "Vérifier le rejet et corriger", exact: true }).click();
+      await expect(panel.getByRole("heading", { name: /Demande conservée/ })).toHaveCount(0);
+      await panel.getByRole("button", { name: "Relire préparation et décisions", exact: true }).click();
+      await expect(panel.getByRole("heading", { name: "Décisions relues", exact: true })).toBeVisible();
+    }
+    const revoke = scenario === "revoke" || scenario === "stale-execution";
+    await panel.getByLabel("Motif de l’action", { exact: true }).fill("Arrêt explicite sans annulation");
+    await panel.getByRole("button", { name: revoke ? "Révoquer l’approbation" : "Refuser cette préparation", exact: true }).click();
+    await expect(panel).toContainText(revoke ? "État : révoquée" : "État : refusée");
+    await expect(panel.getByRole("button", { name: "Exécuter l’annulation approuvée", exact: true })).toHaveCount(0);
+    const receipt = await request.get(`${api}/base/institutes/${institute}/sensitive-operations/${operation}/execution`, { headers }); expect(receipt.status()).toBe(200); expect(await receipt.json()).toBeNull();
+    const actual = await request.get(`${api}/appointments?institute_id=${institute}&day=${day.toISOString().slice(0,10)}`, { headers }); expect((await actual.json()).find((a: any) => a.id === appointment.id)?.status).toBe("scheduled");
+    await panel.locator("article").filter({ has: page.getByRole("heading", { name: "Décisions relues", exact: true }) }).screenshot({ path: info.outputPath(`base-stop-${scenario}.png`) });
+    await page.reload(); await expect(page.locator(".flow-session-exit")).toBeVisible();
+  }
+  expect(executions).toBe(1); // The only execution request was rejected by fresh source validation.
+});

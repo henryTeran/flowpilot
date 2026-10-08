@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17K_NATIVE_CANCELLATION_APPROVAL_FLOW
+CURRENT_CHECKPOINT = PHASE17L_NATIVE_CANCELLATION_STOP_GUARDS
 STATUS = ACTIVE
+
+PHASE17L_NATIVE_CANCELLATION_STOP_GUARDS:
+- Expanded signed native cancellation acceptance with four independent scenarios per viewport: pending decline, approved revoke, peer source-history revision before approval and peer revision before execution. Actual server400 retains rejected frozen request; explicit correction verifies null key, rereads historical state, then decline/revoke stops the operation despite changed source. Terminal controls disappear; per-operation execution is null and fixture appointment stays scheduled. Exactly one execution attempt per stop scenario suite, the changed-source request rejected by server.
+- Fresh owned temporary SQLite/Edge desktop+tablet four tests passed1.1m (existing success/recovery8.0s/8.7s, new stop12.5s/11.8s), zero failures/skips, terminalexit0/owned cleanup; harness rebuilds final application bundle. Eight stop cards individually visually inspected/readable. No implementation change needed; existing guards and browser correction protocol withstand real signed native paths. No full frontend/backend rerun claim; previous Phase17K524 baseline unchanged.
+- API booking and peer notes revision are controlled fixture setup, not native appointment creation/edit acceptance. Automated explicit controls are not physical human input/production/PostgreSQL-native/provider acceptance. Persistent application untouched, no migration/deployment/push. CHECKPOINT_STATUS = PARTIAL; six BASE gates OPEN; full26-phase goal ACTIVE. NEXT: native expiry and independent-manager/corrupt-proof acceptance; complete interaction audit and remaining canonical BASE adapters/planning/language.
 
 PHASE17K_NATIVE_CANCELLATION_APPROVAL_FLOW:
 - Added manager-only lazy-loaded BASE cancellation panel in appointment drawer. No mount business I/O/default selection/reason/validity. Explicit selected preview, operational captured details, reason/future UTC validity and retained preparation precede separate approval/refusal/revocation/execution. Exact operation reference rereads full causal history and per-operation execution proof, including preparations from another manager; bad reads mask action authority. Catalog names aid recognition, captured IDs/times/status are preserved. Execution says no contact/refund and refreshes agenda only after verified proof.
