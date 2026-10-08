@@ -7,6 +7,7 @@ from app.database.session import get_db
 from app.modules.base import read_capabilities as base
 from app.modules.base import intents
 from app.modules.base import plans
+from app.modules.base import sensitive_capabilities as sensitive
 from app.modules.waitlist.originals import Envelope as RetainedEnvelope
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
@@ -33,6 +34,16 @@ class Envelope(Fact):
 @router.get("/capabilities", response_model=Discovery)
 def discovery(institute_id: str, user: base.Principal = Depends(principal)):
     return Discovery(principal=user, capabilities=base.capabilities(user, institute_id))
+
+
+@router.get("/sensitive-capabilities", response_model=tuple[sensitive.Capability, ...])
+def sensitive_discovery(institute_id: str, user: base.Principal = Depends(principal)):
+    return sensitive.capabilities(user, institute_id)
+
+
+@router.post("/sensitive-previews/appointment-cancel", response_model=sensitive.Preview)
+def cancellation_preview(institute_id: str, body: sensitive.Selection, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return sensitive.preview(db, user, institute_id, body)
 
 
 @router.post("/contexts/resolve", response_model=base.Context)

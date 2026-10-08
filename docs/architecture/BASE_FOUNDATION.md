@@ -124,6 +124,42 @@ including delegated refusals; unresolved/rejected intents and other BASE reads a
 not yet a complete interaction audit. Approval lifecycle, multi-step planning,
 secured execution adapters, broader language and native UX remain required.
 
+##17E sensitive cancellation preflight and transaction boundary
+
+An independent closed sensitive registry exposes APPOINTMENT_CANCEL preparation
+metadata (LEVEL2, future LEVEL3, exact manager scope, explicit approval of a retained
+operation required). `GET /sensitive-capabilities` and explicit
+`POST /sensitive-previews/appointment-cancel` are signed manager-only. This is not
+an execution endpoint, an approval, or an extension of the read/suggest invocation
+union. Read/intention/read-plan requests still reject APPOINTMENT_CANCEL.
+
+The preview scopes the selected appointment query to the signed institute under
+the existing institute lock. It delegates status and owned-employee eligibility
+to shared appointment service guards. Known scheduled/confirmed/arrived appointments
+are cancellable; final/in-progress/unknown status or missing/foreign employee
+refuse. Employee ownership is fetched fresh with the institute predicate, so a
+stale identity-map value cannot authorize another institute's staff modification.
+The preview captures only existing operational booking snapshot fields and count/
+full hash of the complete currently recorded booking-event cohort. Names, phones
+and free-text notes are not exposed; customer IDs remain personal references,
+not anonymized data. Future recorded events refuse. The state hash covers scope,
+target, snapshot and history: a later event invalidates it even when the visible
+operational snapshot returns to its earlier value. It is not a signed token,
+retained approval or proof of complete real-world history/current future eligibility.
+
+The existing `cancel_appointment` service now accepts internal keyword-only
+`commit=False` for a caller-owned transaction. It still applies the same business
+guard, releases reservations, synchronizes the owned employee and writes the
+existing booking event. The default remains commit/refresh for current manual
+routes; non-boolean transaction mode refuses before reading. Caller-owned mode
+flushes without committing, allowing later BASE decision/execution receipt to be
+atomic with the business operation. No HTTP body controls this mode. This is a
+transaction prerequisite, not an implemented approval/execution orchestrator.
+No new schema, provider call, native UI, retained sensitive operation or approval
+is introduced here. Next work must retain the exact operation, obtain human
+approval, revalidate current eligibility and execute through this service with
+scoped idempotent audit; metadata alone never grants execution.
+
 ## Evidence and remaining work
 
 Initial six-module test collection failed because inherited wildcard before-
@@ -177,6 +213,21 @@ an indentation import error (exit4, no cases run), corrected before eight-module
 Only existing crypt/intentional unsafe-copy warnings. HTTP remains SQLite; no
 native/frontend/whole-project/production acceptance claim. Persistent application
 schema remains untouched; new deployment prerequisite is headc239f071bad3.
+
+Phase17E final nine-module suite **75 passed90.89s**, zero failures/skips,
+terminalexit0, SQLite and actual isolated PostgreSQL. Fourteen new cases cover
+all eight status cases, signed/scoped strict preview and closed discovery,
+no mutation/no private-text exposure, same-snapshot event invalidation,
+caller-owned rollback/commit including reservations and booking audit, unsafe
+selection/non-boolean transaction-mode refusal and real stale-identity-map
+ownership changes on both databases. Existing booking confirmation/move/resource
+lifecycle and BASE plan/intent/route/service regressions pass. Initial six-module
+1 failed/25 passed88.66s came from assuming a second demo institute; owned foreign
+fixture added. Scope/status guards then nine-module73 passed51.43s; fresh scoped
+employee query and two cache tests added before final75 passed. Existing crypt
+and intentional unsafe-copy warnings only. HTTP is SQLite; no native/frontend/
+whole-project/production claim. Schema headc239f071bad3 unchanged, persistent
+application/provider/deployment untouched; no new migration or public executor.
 
 Next: approval lifecycle, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,

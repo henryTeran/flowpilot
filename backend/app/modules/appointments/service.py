@@ -105,6 +105,24 @@ def _assert_not_final(appointment: Appointment) -> None:
         raise business_error("Ce rendez-vous est déjà clôturé, annulé ou marqué absent")
 
 
+def require_cancellable(appointment: Appointment) -> None:
+    """Shared authoritative eligibility for preparation and actual cancellation."""
+    _assert_not_final(appointment)
+    if appointment.status == "in_progress":
+        raise business_error("Un rendez-vous en cours doit être terminé, pas annulé")
+    if appointment.status not in {"scheduled", "confirmed", "arrived"}:
+        raise business_error("Le statut du rendez-vous doit être vérifié avant annulation")
+
+
+def require_cancellable_source(db: Session, appointment: Appointment) -> Employee:
+    require_cancellable(appointment)
+    employee = db.scalar(select(Employee).where(Employee.id == appointment.employee_id,
+        Employee.institute_id == appointment.institute_id).execution_options(populate_existing=True))
+    if employee is None:
+        raise business_error("La collaboratrice du rendez-vous doit appartenir à l'institut")
+    return employee
+
+
 def list_today_appointments(db: Session, institute_id: str) -> list[Appointment]:
     return list_appointments_for_day(db, institute_id, utcnow())
 
@@ -456,7 +474,9 @@ def mark_appointment_no_show(db: Session, appointment_id: str, actor_id: str | N
     return appointment
 
 
-def cancel_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:
+def cancel_appointment(db: Session, appointment_id: str, actor_id: str | None = None, *, commit: bool = True) -> Appointment:
+    if type(commit) is not bool:
+        raise business_error("Un mode de transaction explicite est requis")
     appointment = get_appointment(db, appointment_id)
     if not appointment:
         raise not_found("Rendez-vous introuvable")
@@ -464,20 +484,19 @@ def cancel_appointment(db: Session, appointment_id: str, actor_id: str | None = 
     db.refresh(appointment)
     before = snapshot(appointment)
 
-    _assert_not_final(appointment)
-
-    if appointment.status == "in_progress":
-        raise business_error("Un rendez-vous en cours doit être terminé, pas annulé")
+    employee = require_cancellable_source(db, appointment)
 
     from app.modules.resources.reservations import release
     release(db, appointment.institute_id, appointment_id=appointment.id)
     appointment.status = "cancelled"
-    employee = get_employee(db, appointment.employee_id)
-    if employee:
-        _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)
+    _sync_employee_status(db, employee, exclude_appointment_id=appointment.id)
 
     db.add(appointment)
     record_booking_event(db, appointment, "cancelled", before, actor_id)
-    db.commit()
-    db.refresh(appointment)
+    if commit:
+        db.commit()
+        db.refresh(appointment)
+    else:
+        # Caller owns the transaction containing its approval/execution receipt.
+        db.flush()
     return appointment
