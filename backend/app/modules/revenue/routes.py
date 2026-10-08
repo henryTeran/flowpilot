@@ -9,6 +9,7 @@ from app.modules.revenue import booking_references
 from app.modules.revenue import booking_valuation
 from app.modules.revenue import scenario_originals
 from app.modules.revenue import scenario_comparison
+from app.modules.revenue import closure_valuation_originals
 
 router = APIRouter(prefix="/revenue/institutes/{institute_id}", tags=["revenue"])
 
@@ -98,3 +99,25 @@ def booking_price_references(institute_id: str, appointment_id: str, offset: int
 def booking_closure_value(institute_id: str, appointment_id: str, request: booking_valuation.Request,
     user=Depends(manager), db: Session = Depends(get_db)):
     return booking_valuation.preview(db, institute_id, appointment_id, request, user.get("sub"))
+
+
+@router.post("/appointments/{appointment_id}/closure-value-originals", response_model=closure_valuation_originals.Envelope)
+def retain_closure_value(institute_id: str, appointment_id: str, request: closure_valuation_originals.Declaration,
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return closure_valuation_originals.create(db, institute_id, appointment_id, request, user.get("sub"))
+
+
+@router.get("/closure-value-original-by-key", response_model=closure_valuation_originals.Envelope | None)
+def recover_closure_value(institute_id: str, key: str = Query(min_length=1, max_length=120), user=Depends(manager), db: Session = Depends(get_db)):
+    return closure_valuation_originals.by_key(db, institute_id, key)
+
+
+@router.get("/closure-value-originals", response_model=closure_valuation_originals.Audit)
+def audit_closure_values(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50),
+    user=Depends(manager), db: Session = Depends(get_db)):
+    return closure_valuation_originals.audit(db, institute_id, offset, limit)
+
+
+@router.get("/closure-value-originals/{original_id}", response_model=closure_valuation_originals.Envelope)
+def original_closure_value(institute_id: str, original_id: str, user=Depends(manager), db: Session = Depends(get_db)):
+    return closure_valuation_originals.require(db, institute_id, original_id)

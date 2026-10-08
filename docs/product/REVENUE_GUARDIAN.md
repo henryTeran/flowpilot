@@ -856,3 +856,80 @@ no persistent application migration or external delivery occurred. All threePhas
 gates remain OPEN. Retained opportunity/closure-value decisions, native closure/
 rebooking/capacity-opportunity review and fullPhase14 requirement audit remain next;
 the full26-phase goal remains ACTIVE.
+
+## Phase14R — retained historical-rate closure decisions
+
+Managers can retain an explicit historical catalog-rate scenario for a verified
+cancelled/no-show booking. The declaration contains `valuation` (selected reference
+event/full fingerprint, terminal closure event, member or passage rate and exact
+meaningful reason) and `idempotency_key`. Actor, money, source evidence and capture
+clock cannot be supplied by the caller. The new routes are:
+
+- POST `/appointments/{appointment_id}/closure-value-originals`.
+- GET `/closure-value-original-by-key?key=...`.
+- GET `/closure-value-originals/{original_id}`.
+- GET `/closure-value-originals?offset=...&limit=...`, default20/max50.
+
+All are under the existing signed manager/institute revenue prefix. Independent
+declarations of the same closure may choose different historical rate scenarios;
+they are not revisions or additive losses. A chosen member/passage rate proves
+neither eligibility nor an agreed quote. Known historical values, including zero,
+are separate from missing/invalid rate or unknown-currency diagnostics. Confidence
+remains `declared_rate_scenario_not_agreed_quote`; the required opportunity type,
+evidence, estimated_value, confidence and recommended_action remain present.
+Retention does not establish causal loss or execute follow-up.
+
+The new original retains signed actor, institute/appointment identity, key/capture,
+explicit request, raw price-reference envelope, selected reference event's complete
+before/after transition, closure before/after evidence and classified historical
+value. Existing preview fields/no-retention semantics are preserved by a shared
+Calculation and exact value classifier. Only internal trusted calls can pin preview
+capture to the original's one serverclock. Fresh source capture now also checks that
+the booking employee belongs to the institute, consistently with the closure reader.
+
+Creation locks the institute, reads an existing key first and verifies exact original
+appointment/request/actor before replay. It never recaptures current sources for a
+same-key original. Fresh creation uses existing verified live reference/unique
+terminal closure checks and stores the full original plus canonical raw JSON SHA in
+one transaction. Flush failure rolls back; lost acknowledgement after a committed
+write is recovered by key. PostgreSQL concurrent same-key declarations retain one
+original. Neither current catalog changes nor later mutable employee/booking state
+rewrite the historical decision.
+
+Reads bind raw SHA and strict original schema to stored identity, appointment,
+actor/key/creation columns. They verify the retained reference event scope/transition,
+reference SHA, selected reference/closure IDs, service and chronology, captured
+terminal status-only transition, exact historical amount and uncertainty precedence.
+They validate retained closure state against itself rather than today's booking.
+Audit verifies the entire owned original cohort before returning a bounded page;
+off-page rehashed logical corruption refuses the whole audit. This proves stored
+selected-source evidence accepted at capture, not all current booking events or
+SQL-administrator authenticity. There is no SQL append-only trigger claim and no
+monetary aggregation of independent decisions.
+
+Alembic head is **8ef5b643992a**, parent7de4a532881f. The new table
+`revenue_closure_valuation_originals` stores original JSON/SHA and column bindings,
+with unique(institute,key) and institute/creation/ID history index. Appointment ID is
+a retained snapshot identity without a live appointment foreign-key deletion
+dependency. Empty online down-up is supported; any retained row or offline downgrade
+refuses. No persistent application or production database was migrated. Deployment
+must migrate before using this new table-backed code.
+
+Initial new originals/preview tests4 passed10.56s on SQLite and actual isolated
+PostgreSQL. Expanded originals/new migration/preview/prior scenario migration
+**10 passed32.23s**, zero failures/skips, exit0, covering schema metadata parity,
+empty down-up/history/offline guards, actual25 independent decisions20/5, retained
+CHF987 member/1234 passage, all three unavailable reasons, knownCHF0, Unicode/
+multiline/date-looking reasons, rollback/lost acknowledgement and PostgreSQL race.
+Final original/preview/closure/scenario-original regression modules **17 passed26.17s**,
+zero failures/skips, exit0 after the owned-employee guard, including fresh foreign
+staff refusal with unchanged original replay, no recapture on replay, recomputed
+off-page tamper/column/source/value/claim refusal, signed role/institute/read/write
+and injected actor/money/evidence rejection. Earlier booking-price migration and
+trusted marketing invocation compatibility **9 passed53.49s**, zero failures/skips,
+terminalexit0; existing crypt deprecation only.
+
+No frontend/native, whole-project backend, physical, provider, production or load
+acceptance is claimed. Native booking closure/reference review, protected valuation
+declaration/key recovery/audit and remaining opportunity review/retention are next.
+All three Phase14 gates remain OPEN and the full26-phase goal remains ACTIVE.

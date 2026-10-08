@@ -6,6 +6,7 @@ from app.modules.crm.metrics import Fact, Identifier, Minor
 from app.modules.revenue import booking_references as refs, closures
 from app.modules.revenue.billing import Window
 from app.modules.appointments.models import BookingEvent, Appointment
+from app.modules.employees.models import Employee
 from app.modules.appointments.events import snapshot
 from app.modules.tickets.repository import lock_institute
 from app.shared.exceptions import business_error, not_found
@@ -26,7 +27,7 @@ class Value(Fact):
     basis: Literal["explicit_historical_catalog_rate_scenario"] = "explicit_historical_catalog_rate_scenario"
 
 
-class Preview(Fact):
+class Calculation(Fact):
     type: Literal["review_booking_closure_reference_value"] = "review_booking_closure_reference_value"
     actor_id: str
     request: Request
@@ -36,11 +37,10 @@ class Preview(Fact):
     unavailable_reason: Literal["unknown_currency", "missing_rate", "invalid_rate"] | None
     confidence: Literal["declared_rate_scenario_not_agreed_quote"] = "declared_rate_scenario_not_agreed_quote"
     recommended_action: Literal["review_actual_agreement_eligibility_and_recovery_before_action"] = "review_actual_agreement_eligibility_and_recovery_before_action"
-    retained: Literal[False] = False
     causal_loss_proven: Literal[False] = False
     action_executed: Literal[False] = False
 
-    @field_validator("retained", "causal_loss_proven", "action_executed", mode="before")
+    @field_validator("causal_loss_proven", "action_executed", mode="before")
     @classmethod
     def no_claim(cls, value):
         if value is not False:
@@ -48,7 +48,24 @@ class Preview(Fact):
         return value
 
 
-def preview(db, institute, appointment_id, request, actor):
+class Preview(Calculation):
+    retained: Literal[False] = False
+
+    @field_validator("retained", mode="before")
+    @classmethod
+    def not_retained(cls, value):
+        if value is not False:
+            raise ValueError("A preview is not a retained declaration")
+        return value
+
+
+def value_for(terms, rate):
+    quality, amount = getattr(terms, rate+"_quality"), getattr(terms, rate+"_minor")
+    reason = "unknown_currency" if terms.currency is None else "missing_rate" if quality == "missing" else "invalid_rate" if quality == "invalid" else None
+    return (Value(currency=terms.currency, amount_minor=amount) if reason is None else None), reason
+
+
+def preview(db, institute, appointment_id, request, actor, *, captured_at=None):
     if not isinstance(actor, str) or not actor or actor != actor.strip() or len(actor) > 160:
         raise business_error("A signed valuation actor is required")
     try:
@@ -60,7 +77,9 @@ def preview(db, institute, appointment_id, request, actor):
         .execution_options(populate_existing=True))
     if appointment is None:
         raise not_found("Réservation introuvable")
-    now = utcnow()
+    if db.scalar(select(Employee.id).where(Employee.institute_id == institute, Employee.id == appointment.employee_id)) is None:
+        raise business_error("Historical closure requires an owned booking employee")
+    now = utcnow() if captured_at is None else explicit_utc_instant(captured_at)
     reference = db.scalar(select(BookingEvent).where(BookingEvent.institute_id == institute, BookingEvent.appointment_id == appointment_id,
         BookingEvent.id == request.reference_event_id).execution_options(populate_existing=True))
     closed = db.scalar(select(BookingEvent).where(BookingEvent.institute_id == institute, BookingEvent.appointment_id == appointment_id,
@@ -86,9 +105,8 @@ def preview(db, institute, appointment_id, request, actor):
         evidence = closures.Evidence(institute_id=institute, event_id=closed.id, appointment_id=appointment_id,
             event_type=closed.event_type, actor_id=closed.actor_id, occurred_at=closed_at, captured_at=now, before=closed.before, after=closed.after)
         closures.verify(evidence, closures.BookingSnapshot.model_validate(snapshot(appointment)), window)
-        quality, amount = getattr(terms, request.rate+"_quality"), getattr(terms, request.rate+"_minor")
-        reason = "unknown_currency" if terms.currency is None else "missing_rate" if quality == "missing" else "invalid_rate" if quality == "invalid" else None
+        value, reason = value_for(terms, request.rate)
         return Preview(actor_id=actor, request=request, reference=original, evidence=evidence,
-            estimated_value=Value(currency=terms.currency, amount_minor=amount) if reason is None else None, unavailable_reason=reason)
+            estimated_value=value, unavailable_reason=reason)
     except (ValueError, TypeError, KeyError, OverflowError) as error:
         raise business_error("Historical closure valuation sources require verification") from error
