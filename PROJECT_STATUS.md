@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17O_RETAINED_INTERACTION_JOURNAL_KERNEL
+CURRENT_CHECKPOINT = PHASE17_UPSTREAM_REALIGNMENT
 STATUS = ACTIVE
+
+PHASE17_UPSTREAM_REALIGNMENT:
+- User correction 2026-10-08: BASE means https://github.com/ai-swiss/base. Historical 17A-17O results prove FlowPilot application foundations only, not official framework integration. docs/architecture/BASE_UPSTREAM_INTEGRATION.md supersedes historical next-step interpretations.
+- Official revision: cc0e4d1a723565fb5ebb17c6a26664423e5226c1 (1.5.1). Official dependency installed and locked; upstream-generated corpus validates (7 resources), lexical routing examples 5/5 pass, root-relative launcher validates from repository root. Authenticated framework-to-domain adapter NOT_IMPLEMENTED. All phase acceptance gates remain OPEN pending actual evidence.
+- Uncommitted custom HTTP-journal draft safely stashed; not accepted or continued as framework integration. Draft regression: 1 failed/117 passed; native: 3 failed/5 passed. These do not change committed 17O evidence.
+- NEXT: validate upstream corpus/routing, then connect actual upstream procedure/context selection to signed FlowPilot capabilities and verify real scoped reads/refusals. Full 26-phase goal ACTIVE.
 
 PHASE17O_RETAINED_INTERACTION_JOURNAL_KERNEL:
 - Added internal retained BASE interaction attempt/result journal with21 closed action labels, exact signed scope/principal, UTC clocks, request/full successful-response digests, closed success/refusal/failure status classification and no raw request/response/utterance/private error text. Digest privacy is not anonymization/signature. Attempts commit before domain work; separately committed results reference exact pending attempt. Failed outcome append leaves unresolved attempt; neither unresolved nor failed interaction proves business effects absent. Existing domain receipt authority/atomic service transactions are preserved.

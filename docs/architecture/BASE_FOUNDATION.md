@@ -1,3 +1,5 @@
+> Correction du 2026-10-08: BASE désigne le framework AI Swiss. Les implémentations internes historiques sont des adaptateurs FlowPilot, pas le framework. Le [plan upstream](BASE_UPSTREAM_INTEGRATION.md) fait autorité pour la suite de la phase 17.
+
 # BASE foundation — Phase17
 
 Authority: Master Plan sections8/11/12/13/38, architecture foundations and accepted

@@ -1,0 +1,15 @@
+{
+  "schema_version": "base.config.v1",
+  "framework_dir": "../node_modules/@ai-swiss/base",
+  "tools": [
+    "autre"
+  ],
+  "language": "fr",
+  "egress": "local-only",
+  "routing": {
+    "fallback": {
+      "agent": "concierge-base",
+      "process": "accueil"
+    }
+  }
+}

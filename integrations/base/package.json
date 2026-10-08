@@ -1,0 +1,12 @@
+{
+  "name": "flowpilot-base-integration",
+  "private": true,
+  "scripts": {
+    "validate": "base validate --root workspace",
+    "index": "base build routing-index --write --root workspace",
+    "test": "base route-test --examples --strategy lexical --root workspace"
+  },
+  "dependencies": {
+    "@ai-swiss/base": "git+https://github.com/ai-swiss/base.git#cc0e4d1a723565fb5ebb17c6a26664423e5226c1"
+  }
+}

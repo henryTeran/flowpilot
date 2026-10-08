@@ -320,11 +320,11 @@ FLOWPILOT
 
 # 8. Rôle de BASE
 
-BASE est l'orchestrateur intelligent de FlowPilot.
+BASE désigne le framework officiel [AI Swiss BASE](https://github.com/ai-swiss/base), et non un moteur interne portant ce nom. Le framework structure les agents, procédures et ressources versionnées; les adaptateurs FlowPilot assurent les contrôles et les appels au domaine. Voir [le plan corrigé](../architecture/BASE_UPSTREAM_INTEGRATION.md).
 
 BASE n'est pas un simple chatbot.
 
-BASE doit orchestrer :
+Les adaptateurs applicatifs FlowPilot autour du framework doivent assurer :
 
 ```text
 User request
@@ -1596,7 +1596,9 @@ EXPLANATION_EVIDENCE = PASS
 
 # 38. Phase 17 — BASE Foundation
 
-Créer :
+Intégrer effectivement ai-swiss/base: dépendance officielle verrouillée, ressources `base.resource.v1`, corpus validé, routage upstream testé, puis adaptateur authentifié vers les services FlowPilot. Les checkpoints historiques 17A–17O sont des fondations applicatives, pas une preuve d’intégration upstream. Voir [le plan corrigé](../architecture/BASE_UPSTREAM_INTEGRATION.md).
+
+Responsabilités des adaptateurs FlowPilot :
 
 ## Context Resolver
 
@@ -1637,6 +1639,9 @@ Trace l'interaction.
 ## Gate
 
 ```text
+BASE_UPSTREAM_CORPUS = PASS
+BASE_UPSTREAM_ROUTING = PASS
+BASE_APPLICATION_ADAPTER = PASS
 BASE_CONTEXT = PASS
 BASE_INTENT = PASS
 BASE_CAPABILITIES = PASS

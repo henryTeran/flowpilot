@@ -9,13 +9,13 @@ FlowPilot vise une architecture IA fiable où le métier reste déterministe et 
 
 ## Decision
 
-BASE est l'orchestrateur intelligent de FlowPilot.
+Clarification acceptée le 2026-10-08: BASE est le framework officiel [ai-swiss/base](https://github.com/ai-swiss/base). Les agents, procédures et ressources suivent son standard; l'orchestration des services métier est portée par les adaptateurs FlowPilot. Voir [le plan d'intégration](../architecture/BASE_UPSTREAM_INTEGRATION.md).
 
 JV porte l'intelligence métier structurée et déterministe.
 
 Principe : JV produit les faits, LLM produit la langue.
 
-BASE orchestre :
+Les adaptateurs FlowPilot autour du framework assurent :
 
 - contexte
 - intentions

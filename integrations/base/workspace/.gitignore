@@ -1,0 +1,12 @@
+# Données locales BASE: traces, changements en attente, feedback, réglages machine. Jamais committées.
+.ai/trace/
+.ai/changes/
+.ai/feedback/
+.ai/studio.settings.json
+
+# Produit de construction: régénéré par `base index`. Le suivre en version ferait diverger
+# chaque machine sur un fichier que personne ne lit à la main.
+base.manifest.json
+
+# Brouillons de travail (fiches de proposition, notes d'entretien): ils reprennent des faits de vos documents.
+.temp/
