@@ -503,7 +503,18 @@ No product implementation change needed; no full frontend/backend rerun claim.
 API booking/peer revision are controlled fixture setup, not native authoring or
 physical human-input/production/PostgreSQL-native/provider acceptance.
 
-Next: native expiry/independent-manager/corrupt-proof acceptance, complete interaction audit, broader planning/language handling and supported
+Phase17M verifies real server expiry through bounded polling of a three-second
+owned fixture preparation. Signed API approval refuses400 after expiry. Injected
+approved status on an empty causal chain causes browser history/action masking;
+retry of genuine expired state disables approval and permits explicit native
+decline. No execution POST, no retained execution and appointment still scheduled.
+Fresh native six tests passed1.4m, zero failures/skips, exit0 and owned temporary
+SQLite cleanup; new desktop7.3s/tablet9.6s, plus prior success/stop regressions.
+No clock rewriting or persisted corruption; response injection tests browser
+proof validation. No new full frontend/backend/PostgreSQL-native/physical human
+input or production/provider claim. Product code unchanged; all six gates OPEN.
+
+Next: independent-manager acceptance, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

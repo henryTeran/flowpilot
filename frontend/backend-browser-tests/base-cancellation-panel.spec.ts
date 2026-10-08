@@ -1,6 +1,36 @@
 import { expect, test } from "@playwright/test";
 test.setTimeout(120000);
 test.use({ actionTimeout: 20000 });
+test("signed native expired preparation masks corrupted history and permits only stopping", async ({ page, request }, info) => {
+  await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
+  await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page.locator(".flow-session-exit")).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem("flowpilot.access_token"));
+  const headers = { Authorization: `Bearer ${token}` }, api = "http://127.0.0.1:4198/api/v1", institute = "demo-institute-geneve", base = `${api}/base/institutes/${institute}`;
+  const day = new Date(Date.now()+(info.project.name.includes("tablet") ? 36 : 35)*86400000); day.setUTCHours(10,0,0,0);
+  const created = await request.post(`${api}/appointments`, { headers, data: { institute_id: institute, employee_id: "emp-angela", service_id: "svc-soin-profond", customer_name: `BASE expiry ${info.project.name}`, start_time: day.toISOString(), idempotency_key: `base-expiry-${info.project.name}` } });
+  expect(created.status()).toBe(200); const appointment = await created.json();
+  const previewReply = await request.post(`${base}/sensitive-previews/appointment-cancel`, { headers, data: { appointment_id: appointment.id } }); expect(previewReply.status()).toBe(200); const preview = await previewReply.json();
+  const prepared = await request.post(`${base}/sensitive-operations`, { headers, data: { capability: "APPOINTMENT_CANCEL", selection: { appointment_id: appointment.id }, expected_state_fingerprint: preview.state_fingerprint, valid_until: new Date(Date.now()+3000).toISOString(), reason: "Short-lived owned expiry fixture", idempotency_key: `base-expiry-operation-${info.project.name}` } });
+  expect(prepared.status(), await prepared.text()).toBe(200); const operation = await prepared.json();
+  await expect.poll(async () => (await (await request.get(`${base}/sensitive-operations/${operation.original.id}/approval-state`, { headers })).json()).expired, { timeout: 15000 }).toBe(true);
+  const rejected = await request.post(`${base}/approvals`, { headers, data: { operation_id: operation.original.id, operation_fingerprint: operation.fingerprint, previous_id: null, previous_fingerprint: null, decision: "approve", reason: "Expired approval must refuse", idempotency_key: `base-expiry-reject-${info.project.name}` } }); expect(rejected.status()).toBe(400);
+  let corrupt = true, executions = 0;
+  page.on("request", r => { if (r.method() === "POST" && r.url().endsWith("/executions")) executions++; });
+  await page.route("**/base/**/approval-state", async route => { const response = await route.fetch(); const value = await response.json(); await route.fulfill({ response, json: corrupt ? { ...value, status: "approved" } : value }); });
+  await page.getByRole("button", { name: "RDV sous appel", exact: true }).click(); const panel = page.locator(".base-cancellation-panel");
+  await panel.getByLabel("Référence de préparation", { exact: true }).fill(operation.original.id);
+  await panel.getByRole("button", { name: "Relire préparation et décisions", exact: true }).click();
+  await expect(panel.getByRole("alert")).toBeVisible(); await expect(panel.getByRole("heading", { name: "Décisions relues", exact: true })).toHaveCount(0);
+  await expect(panel.getByRole("button", { name: "Exécuter l’annulation approuvée", exact: true })).toHaveCount(0);
+  corrupt = false; await panel.getByRole("button", { name: "Relire préparation et décisions", exact: true }).click();
+  await expect(panel).toContainText("validité expirée"); await expect(panel.getByRole("button", { name: "Approuver cette préparation", exact: true })).toBeDisabled();
+  await panel.getByLabel("Motif de l’action", { exact: true }).fill("Refus natif après expiration vérifiée");
+  await panel.getByRole("button", { name: "Refuser cette préparation", exact: true }).click(); await expect(panel).toContainText("État : refusée");
+  expect(executions).toBe(0);
+  const receipt = await request.get(`${base}/sensitive-operations/${operation.original.id}/execution`, { headers }); expect(await receipt.json()).toBeNull();
+  const actual = await request.get(`${api}/appointments?institute_id=${institute}&day=${day.toISOString().slice(0,10)}`, { headers }); expect((await actual.json()).find((a: any) => a.id === appointment.id)?.status).toBe("scheduled");
+});
 test("signed human cancellation recovers each committed lost acknowledgement once", async ({ page, request }, info) => {
   await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");
   await page.getByLabel("Mot de passe").fill("Browser-test-only-2026"); await page.getByRole("button", { name: "Se connecter", exact: true }).click();

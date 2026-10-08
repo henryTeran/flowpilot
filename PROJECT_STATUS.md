@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17L_NATIVE_CANCELLATION_STOP_GUARDS
+CURRENT_CHECKPOINT = PHASE17M_NATIVE_EXPIRY_AND_CORRUPT_STATE_GUARDS
 STATUS = ACTIVE
+
+PHASE17M_NATIVE_EXPIRY_AND_CORRUPT_STATE_GUARDS:
+- Added signed native real-server expiry scenario: owned fixture preparation has three-second validity; bounded polling observes actual server expiry without changing clocks. Signed API approval then refuses400. Browser receives altered approved status on an empty causal chain, masks decisions/actions, retries genuine expired state with approval disabled and permits explicit native decline. No execution POST, per-operation receipt null, fixture appointment remains scheduled.
+- Fresh complete native suite six passed1.4m, zero failures/skips, terminalexit0/owned temporary SQLite cleanup; rebuilt unchanged application bundle. New expiry/corruption desktop7.3s/tablet9.6s; existing lost-ack6.7s/8.0s and stop13.3s/12.5s. Actual expiry and no cancellation verified server-side; browser corruption is a response-injection test, not corruption of persisted data. No product implementation change needed. No new whole frontend/backend/Pg-native/physical human-input/production/provider acceptance claim; previous Phase17K524 baseline unchanged. No persistent application migration/deployment/push.
+- CHECKPOINT_STATUS = PARTIAL; six BASE gates OPEN; full26-phase goal ACTIVE. NEXT: independent signed manager acceptance and complete interaction audit; remaining canonical secured adapters/planning/language.
 
 PHASE17L_NATIVE_CANCELLATION_STOP_GUARDS:
 - Expanded signed native cancellation acceptance with four independent scenarios per viewport: pending decline, approved revoke, peer source-history revision before approval and peer revision before execution. Actual server400 retains rejected frozen request; explicit correction verifies null key, rereads historical state, then decline/revoke stops the operation despite changed source. Terminal controls disappear; per-operation execution is null and fixture appointment stays scheduled. Exactly one execution attempt per stop scenario suite, the changed-source request rejected by server.
