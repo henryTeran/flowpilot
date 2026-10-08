@@ -7,8 +7,9 @@ revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
 allocations as virtual constraints;15G adds native retained-declaration history;
 15H adds protected demand-intent transport;15I adds native declaration authoring
-and recovery;15J adds native retained lifecycle history. Native lifecycle actions
-and matching/detection review remain unfinished.
+and recovery;15J adds native retained lifecycle history;15K adds protected native
+activation/revision/cancellation and same-key recovery. Native current matching
+and detection review remain unfinished.
 
 ## Contract and current implementation
 
@@ -44,9 +45,9 @@ is not machine verification of every real-world constraint.
 
 | Section36 dimension | Current evidence | Required end-to-end work |
 | --- | --- | --- |
-| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture;15I native explicit catalog selection | Native lifecycle and current matching review |
+| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture;15I native explicit catalog selection | Current matching review |
 | Duration |15D current/declared equality and full interval fit;15I catalog-derived declaration and correction/recovery UI | Current matching review |
-| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers;15I explicit institute-calendar windows | Native lifecycle and current matching review |
+| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers;15I explicit institute-calendar windows | Current matching review |
 | Employee | Explicit restrictions;15D owned current core free-window capture | Responsive review, additional supported preferences |
 | Skills |15D current existing requirement/qualification authority | Native proof review |
 | Resources |15D owned reservation inventory/allocator;15F core projected queue resource occupations | Native evidence; revalidation before any actual booking |
@@ -54,8 +55,8 @@ is not machine verification of every real-world constraint.
 | History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
 | Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
 | Auto slot detection |15D selected-version intersections;15E whole-cohort capture/paging;15F queue allocations | Native source invalidation/evidence and release/load verification |
-| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery;15J native causal history | Native lifecycle transitions/recovery and matching integration; declarations alone are not active lifecycle |
-| Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
+| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery;15J native causal history;15K native transitions/recovery | Current matching integration; declarations alone are not active lifecycle |
+| Product/release |15G?15K native manager history, declaration and lifecycle authoring/recovery; signed desktop/tablet tests | Native current matching/detection and separate production/load/physical acceptance |
 
 ## Verification
 
@@ -464,3 +465,51 @@ Next: native explicit activation/revision/cancellation pinned to verified root,
 target and predecessor with protected same-key recovery; then current selected-version
 matching and whole-waitlist detection policy/source review. All three Phase15 gates
 remain OPEN and full26-phase goal stays active.
+
+
+## 15K protected native lifecycle transitions
+
+Explicit history selection freshly rereads the chosen original and causal state;
+replacement selection verifies the same customer and a different current target.
+Management receives focus and scrolls into view. Activation, revision and cancellation
+require an explicit reason; cancelled state exposes no action. Scope, token, role,
+timezone, unmount and request guards suppress late proof or writes. Histories clear
+after verified confirmation and require explicit reread.
+
+The protected driver retains the complete root/target/previous-state selection and
+exact nine-field request before I/O. Key-first recovery permits POST only on literal
+null. Full raw SHA and actor/request/source bindings, independent key/ID agreement,
+and a freshly verified state with the complete frozen predecessor prefix and receipt
+at the expected causal position are mandatory before cleanup. Later valid actions may
+exist: the UI distinguishes the retained receipt from the latest state. Unknown
+acknowledgement locks the decision across reload. Only definitive POST400/404/422
+permits correction after a fresh null-key read; confirmation/read errors never do.
+Correction clears the review and requires explicit fresh selection and reason.
+Invalid local shape/hash, changed storage, quota failure and authority changes refuse
+or retain safely. Shared same-storage flight locking is not cross-tab serialization;
+backend optimistic version/idempotency/source authority remains unchanged.
+
+Ten protocol and five component tests exercise all actions, lost acknowledgement,
+later-state recovery, causal/actor/source tamper, definitive correction, unknown/read
+errors, storage and authority races. Initial component failure was premature test
+synchronization, fixed before17 focused tests passed4.70s. Initial useRef TypeScript
+argument failure corrected; production build passed179 modules. Initial full frontend
+445 passed109.32s, terminalexit0. Final after-focus focused15 passed9.13s, terminalexit0;
+final complete frontend TAP summary445 passed97.21s, no failures/skips/cancellations,
+recovered after interruption; final shell exit was not recaptured.
+
+Initial native webserver60s startup timeout ran no UI tests and cleaned its owned
+fixture; isolated rerun2 passed44.2s. Final freshly rebuilt signed Edge desktop/touch
+landscape tablet2 passed1.5m (18.3s/15.6s), terminalexit0, owned temporary DB removed.
+API fixtures create customer and originals; native UI performs activation, committed
+lost-ack revision, reload/four-read recovery without another revision POST, stale
+cancellation rejection, correction requiring explicit reread and fresh cancellation.
+A second API client with the same actor advances the chain between revision and
+cancellation; this is not a second native human. Four UI POSTs/profile include one
+rejected stale cancellation; four retained chain events include the API peer revision.
+No booking or contact occurs. Focus,44px targets,width>=600 and no overflow checked;
+six final frozen/recovered/cancelled captures individually inspected and readable.
+Backend/schema unchanged (heada017d865bb4c); no persistent migration, production,
+physical/provider/load or whole-project acceptance claim. All three gates remain
+OPEN. Next: native selected-version matching and whole-waitlist detection policies,
+current source evidence and invalidation.

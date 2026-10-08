@@ -47,7 +47,7 @@ export function matchesWaitlistReceipt(e: WaitlistEnvelope, request: WaitlistReq
     && demand.availability.length === request.availability.length && demand.availability.every((window, index) =>
       instant(window.start) === instant(request.availability[index].start) && instant(window.end) === instant(request.availability[index].end));
 }
-function validOriginal(v: unknown, institute: string): v is WaitlistOriginal {
+export function validWaitlistOriginalShape(v: unknown, institute: string): v is WaitlistOriginal {
   if (!keys(v, "id institute_id actor_id created_at idempotency_key reason demand source state action")
     || !id(v.id) || v.institute_id !== institute || !text(v.actor_id, 160) || /[\x00-\x1f]/.test(v.actor_id)
     || !text(v.idempotency_key, 120) || /[\x00-\x1f]/.test(v.idempotency_key) || !text(v.reason, 240, 3)
@@ -78,7 +78,7 @@ function validOriginal(v: unknown, institute: string): v is WaitlistOriginal {
 export async function validWaitlistEnvelope(v: unknown, institute: string): Promise<boolean> {
   try {
     return keys(v, "original fingerprint") && typeof v.fingerprint === "string" && /^[0-9a-f]{64}$/.test(v.fingerprint)
-      && validOriginal(v.original, institute) && await revenueOriginalFingerprint(v.original) === v.fingerprint;
+      && validWaitlistOriginalShape(v.original, institute) && await revenueOriginalFingerprint(v.original) === v.fingerprint;
   } catch { return false; }
 }
 

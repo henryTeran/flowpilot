@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
-import { validWaitlistLifecycleAudit, type WaitlistLifecycleAudit } from "../waitlist-lifecycle-utils";
+import { validWaitlistLifecycleAudit, type WaitlistLifecycleAudit, type WaitlistLifecycleState } from "../waitlist-lifecycle-utils";
+type Props = { institute: string; timezone?: string; onManage?: (value: WaitlistLifecycleState) => void };
 
-export function WaitlistLifecycleHistory({ institute, timezone }: { institute: string; timezone?: string }) {
+export function WaitlistLifecycleHistory(props: Props) {
+  const { institute, timezone } = props;
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
-  return <Reader key={JSON.stringify([institute, timezone, getAccessToken()])} institute={institute} timezone={timezone} />;
+  return <Reader key={JSON.stringify([institute, timezone, getAccessToken()])} {...props} />;
 }
-function Reader({ institute, timezone }: { institute: string; timezone?: string }) {
+function Reader({ institute, timezone, onManage }: Props) {
   const token = getAccessToken(), sequence = useRef(0);
   const [report, setReport] = useState<WaitlistLifecycleAudit>(), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
   useEffect(() => () => { sequence.current++; }, []);
@@ -39,6 +41,7 @@ function Reader({ institute, timezone }: { institute: string; timezone?: string 
         <p>Contraintes {s.current_demand.original.demand.constraints_review === "confirmed" ? "relues selon déclaration" : "inconnues : matching à vérifier"}.</p>
         <ul>{s.current_demand.original.demand.availability.map((w, i) => <li key={i}>Disponibilité déclarée du {date(w.start)} au {date(w.end)}.</li>)}</ul>
         <p>{s.events.length} actions conservées. Dernière action : {date(s.events[s.events.length-1].original.created_at)} · {s.events[s.events.length-1].original.actor_id}.</p>
+        {onManage && <div className="revenue-guardian-period"><button onClick={() => onManage(s)}>Relire pour gérer cette liste</button></div>}
         <details><summary>Voir les actions et leurs preuves</summary>
           {s.events.map(e => <div key={e.original.id}><h4>{({ activate: "Activation", revise: "Révision", cancel: "Annulation" })[e.original.action]}</h4>
             <p>{e.original.reason} · {date(e.original.created_at)} · auteur {e.original.actor_id}.</p>

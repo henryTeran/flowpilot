@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { apiGet } from "../api/client";
 import { getAccessToken, getOperatorRole } from "../api/session";
-import { validWaitlistOriginalAudit, type WaitlistOriginalAudit } from "../waitlist-original-utils";
+import { validWaitlistOriginalAudit, type WaitlistOriginalAudit, type WaitlistEnvelope } from "../waitlist-original-utils";
+type Props = { institute: string; timezone?: string; onManage?: (value: WaitlistEnvelope) => void; onRevise?: (value: WaitlistEnvelope) => void;
+  revisionFor?: { customer: string; current: string } };
 
-export function WaitlistOriginalHistory({ institute, timezone }: { institute: string; timezone?: string }) {
+export function WaitlistOriginalHistory(props: Props) {
+  const { institute, timezone } = props;
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
-  return <Reader key={JSON.stringify([institute, timezone, getAccessToken()])} institute={institute} timezone={timezone} />;
+  return <Reader key={JSON.stringify([institute, timezone, getAccessToken()])} {...props} />;
 }
-function Reader({ institute, timezone }: { institute: string; timezone?: string }) {
+function Reader({ institute, timezone, onManage, onRevise, revisionFor }: Props) {
   const token = getAccessToken(), sequence = useRef(0);
   const [report, setReport] = useState<WaitlistOriginalAudit>(), [busy, setBusy] = useState(false), [error, setError] = useState<string>();
   useEffect(() => () => { sequence.current++; }, []);
@@ -40,6 +43,8 @@ function Reader({ institute, timezone }: { institute: string; timezone?: string 
         <p>Conservée le {date(o.created_at)} · auteur {o.actor_id}.</p>
         <p>Contraintes {o.demand.constraints_review === "confirmed" ? "relues selon déclaration" : "inconnues : matching à vérifier"}.</p>
         <ul>{o.demand.availability.map((window, index) => <li key={index}>Disponibilité déclarée du {date(window.start)} au {date(window.end)}.</li>)}</ul>
+        <div className="revenue-guardian-period">{onManage && <button onClick={() => onManage({ original: o, fingerprint })}>Relire pour gérer cette demande</button>}
+          {onRevise && revisionFor?.customer === o.demand.customer_id && revisionFor.current !== o.id && <button onClick={() => onRevise({ original: o, fingerprint })}>Choisir pour réviser la liste sélectionnée</button>}</div>
         <details><summary>Voir l’original et les sources de cette demande</summary>
           <p>Original {o.id} · clé {o.idempotency_key} · empreinte {fingerprint}.</p>
           <p>Inscription enregistrée le {date(o.source.registered_at)} · prestation source {o.source.service_id} · durée {o.source.duration_minutes} min.</p>

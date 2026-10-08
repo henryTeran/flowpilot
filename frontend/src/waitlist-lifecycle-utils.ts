@@ -44,7 +44,7 @@ export async function validWaitlistLifecycleEnvelope(v: unknown, institute: stri
 function sameEnvelope(a: { original: { id: string }; fingerprint: string }, b: { original: { id: string }; fingerprint: string }) {
   return a.original.id === b.original.id && a.fingerprint === b.fingerprint;
 }
-function bindsTarget(event: WaitlistLifecycleEvent, target: WaitlistEnvelope) {
+export function waitlistLifecycleBindsTarget(event: WaitlistLifecycleEvent, target: WaitlistEnvelope) {
   const capture = instant(event.created_at)!, original = target.original, demand = original.demand;
   if (instant(original.created_at)! > capture) return false;
   if (event.action === "cancel") return true;
@@ -77,7 +77,7 @@ export async function validWaitlistLifecycleState(v: unknown, institute: string)
     // State returns root/current originals; intermediate replacement declarations
     // stay opaque references. Backend verifies those omitted original source rows.
     for (const target of [root, current]) {
-      if (event.target_id === target.original.id && (event.target_fingerprint !== target.fingerprint || !bindsTarget(event, target))) return false;
+      if (event.target_id === target.original.id && (event.target_fingerprint !== target.fingerprint || !waitlistLifecycleBindsTarget(event, target))) return false;
     }
     targetId = event.target_id; targetFingerprint = event.target_fingerprint; cancelled = event.action === "cancel";
     seen.add(event.id); seenKeys.add(event.idempotency_key); previous = envelope;
