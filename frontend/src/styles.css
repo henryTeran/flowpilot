@@ -6839,3 +6839,4 @@ body {
 .bm-workspace-full > .revenue-guardian-panel { grid-column: 1 / -1; }
 .revenue-guardian-period select { min-height: 44px; padding: 10px 14px; border: 1px solid #c7d2e2; border-radius: 8px; font: inherit; }
 .revenue-guardian-panel textarea { display: block; min-height: 80px; width: 100%; max-width: 100%; padding: 12px; font: inherit; border: 1px solid #c7d2e2; border-radius: 8px; }
+.revenue-guardian-panel pre { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }

@@ -5,7 +5,8 @@ AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
 revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
-allocations as virtual constraints. Native authoring/review remain unfinished.
+allocations as virtual constraints;15G adds native retained-declaration history.
+Native authoring, lifecycle and matching/detection review remain unfinished.
 
 ## Contract and current implementation
 
@@ -286,6 +287,40 @@ occupation by another employee, projected occupation of the selected employee,
 whole quantity doubling, unknown qualification and restoration after cancellation,
 with unchanged physical reservations. No schema/frontend/persistent DB changes.
 
-Next: native demand/lifecycle/policy authoring, original/key recovery and matching/
-detection evidence review. All three Phase15 gates remain OPEN; full26-phase goal
-and separate production/physical/provider/load acceptance remain active/open.
+## Phase15G — native retained declaration history
+
+Pilotage exposes an explicit manager-only20-row original-history reader. It makes
+no mount request and distinguishes retained declarations from currently active
+requests, capacity or permission. Institution-zone dates, declared windows/duration,
+constraints known/unknown, captured actor/reason and folded original/source proof
+are visible. Original JSON and long proofs wrap; controls reuse44px/full-width styles.
+Reads mask old evidence while pending and clear it on error. Request sequence,
+unmount, actor token/role and institute/timezone remount guards reject stale replies.
+
+Browser validation checks exact DTO keys, full Python-compatible raw JSON SHA256,
+scope, source/demand equality, registration/capture microsecond chronology, positive
+ordered non-overlapping windows, unique employee restrictions, explicit constraints,
+strict no-action/declaration state, safe counts and exact page cardinality/order.
+Old expired availability stays valid as historical declaration, never current
+eligibility. Whole-cohort verification remains the server's authority, not a browser
+claim that off-page JSON was returned or authenticated against a SQL administrator.
+
+Pure backend DTO generator creates the checked-in Unicode/multiline vector without
+SQL/application I/O. Initial TypeScript build exposed callback narrowing of an unknown
+array; fixed by binding the validated array. Initial component run3pass/1fail asserted
+the retry before asynchronous SHA completion; it now waits for read completion.
+Final focused4 passed3.25s and complete frontend406 passed78.60s, no failures/skips,
+terminalexit0. Final TypeScript/Vite production build passed172 modules.
+
+Native actual signed backend Edge desktop/touch landscape tablet:2 passed1.7m,
+terminalexit0 and owned temporary database removed. API-created customer/declarations
+produce25 then50 originals, real20/5 and20/20/10 paging; this is not native authoring.
+Native checks prove no mount read, folded fingerprint/unknown constraints, invalid
+reply hiding/retry,44px controls, width>=600/no document overflow and zero activated
+lifecycle roots after history reads. Both final original-card captures inspected:
+institute dates and wrapped proof are readable. No backend/schema change (head
+a017d865bb4c), persistent migration, whole-project/physical/production acceptance.
+
+Next: protected native demand authoring and original/key recovery, followed by
+explicit lifecycle transitions and matching/detection policy/evidence review. All
+three Phase15 gates remain OPEN; full26-phase goal stays active.

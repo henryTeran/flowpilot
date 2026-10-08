@@ -1,0 +1,51 @@
+{
+  "institute_id": "own",
+  "captured_at": "2026-10-08T10:01:00Z",
+  "offset": 0,
+  "limit": 20,
+  "total": 1,
+  "originals": [
+    {
+      "original": {
+        "id": "waitlist_demand_000",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:00:00Z",
+        "idempotency_key": "waitlist-vector",
+        "reason": "Demande d\u00e9clar\u00e9e\navec preuve",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:00:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues avec cliente"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "ac1479154b29f7ef9b0d556f5237a58e6157cb6ac94386d12cc8286a019c0425"
+    }
+  ],
+  "basis": "verified_retained_declarations_not_active_waitlist"
+}
