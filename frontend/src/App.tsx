@@ -906,7 +906,7 @@ export default function App({ onLogout }: { onLogout?: () => void } = {}) {
             />
             <PaymentCashflows instituteId={selectedInstituteId} />
             <Suspense fallback={<p>Chargement du Revenue Guardian…</p>}>
-              <RevenueGuardianPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} />
+              <RevenueGuardianPanel institute={selectedInstituteId} timezone={selectedInstitute?.timezone} services={services} />
             </Suspense>
           </main>
         )}

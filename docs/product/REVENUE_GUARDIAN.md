@@ -53,12 +53,12 @@ future-period and unsupported-write refusal.
 | Retail attach rate | Explicit line-classification count/coverage kernel and14K native uncertainty review implemented. |
 | Capacity utilization | 14B pinned institute-wide recorded occupation/exact ratio and14L native evidence review implemented; physical utilization remains unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
-| Employee capacity | 14B/14L expose owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Native opportunity review remains required. No confirmed reservation or opening-hours/physical-attendance proof. |
+| Employee capacity | 14B/14L expose owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority, with14U native review. No confirmed reservation or opening-hours/physical-attendance proof. |
 | Cancelled revenue | 14C/14I/J/R/S verify booking closures, historical catalog references and independent retained rate scenarios with native review.14G/H retain walk-in conditions/full-period currency values; native walk-in review is tracked in14T below. No agreed quote or causal revenue loss is claimed. |
 | No-show revenue | 14C/I/J/R/S implement source verification, explicit historical-rate scenarios, retained original/key/audit and native review. A benchmark is not an agreed quote, eligibility proof or causal loss. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
 | Projected revenue | 14D/M/N/O/P/Q implement signed exact historical-rate scenarios, durable originals/key/audit, selected comparison and native desktop/tablet review. Future prediction remains conditional/unvalidated; no scenario sum or attributed effect. |
-| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention. Remaining native rebooking/slot review and opportunity retention must be completed; no automatic contact/booking. |
+| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention;14U adds native slot review. Remaining native rebooking review and opportunity retention must be completed; no automatic contact/booking. |
 | Product acceptance | Recorded billing/capacity/scenario/booking closure native review exists; complete remaining opportunity review, evidence navigation and requirement-by-requirement Phase14 audit before closing gates. |
 
 Large-cohort memory/load behavior and report-wide evidence navigation remain
@@ -1042,3 +1042,59 @@ remaining opportunity retention and complete requirement audit are next. Head
 8ef5b643992a remains the deployment prerequisite; production, physical, provider,
 large-cohort/load and full-project backend acceptance remain separate. The full
 26-phase goal remains ACTIVE.
+
+## Phase 14U — native conditional queue/capacity opportunity
+
+The manager chooses an active service from the existing loaded catalog and an
+explicit future civil-date horizon ending at institute midnight. No service or
+horizon is chosen automatically and no opportunity request runs on mount. The
+read-only14F endpoint captures current queue, staff skills, resource needs and
+recorded occupation through the existing sovereign projection engine; the browser
+does not implement another scheduler or invent duration, employee or value.
+
+The card shows the projected local date and time at both ends, recorded duration,
+employee identity, prior queue count and unprojectable prior count. Folded conditions
+expose exact instants, required skills and resource kind/capability/quantity. Empty
+requirements mean no requirement recorded, not certification or physical availability.
+Missing resource configuration, unknown capacity and outside-horizon projection are
+separate unavailable outcomes. The estimate is conditional and has no monetary
+value, reservation or executed assignment. Opening hours and physical presence must
+be reviewed independently; reread capacity before any actual assignment.
+
+Exact browser validation binds institute/service/aware horizon/capture, outcome and
+all required opportunity fields. A positive projection must start at or after capture,
+fit entirely inside the requested horizon and preserve exact duration in integer
+microseconds. Source identities, safe counts, queue uncertainty, unique skills/resource
+needs and allowed resource quantities are checked; action/reservation/value claims
+refuse. Catalog removal, date/service edits, failed rereads and session/context changes
+invalidate prior proof; late responses cannot revive it. A confirmed native actor
+is still required by the backend manager authorization boundary.
+
+Three distinct new frontend tests initially passed3.12s; final **3 passed4.05s**
+after adding main-card projected local dates. Initial full frontend398 passed101.47s;
+final **398 passed95.63s**, zero failures/skips, terminalexit0. TypeScript/Vite build
+passes; final native harness builds the production bundle. Existing capacity and
+rebooking backend modules **4 passed62.47s** on SQLite and actual isolated PostgreSQL,
+zero failures/skips, terminalexit0. Existing crypt warning only.
+
+Initial native2 failed on exact raw-label lookup for the select; the test now uses
+its accessible combobox role/name. Next2 passed1.4m with terminalexit0. Capture review
+then exposed missing projected dates on the main card; dates are now explicit and
+verified. Fresh final desktop/tablet **2 passed2.7m**, zero failures/skips,
+BROWSER_PROCESS_EXIT=0/terminalexit0; owned temporary database cleaned. Test-only SQL
+sources configure qualified available staff, required room/capability, a prior waiting
+ticket/profile and an existing confirmed occupation ending3days later. Actual backend
+reads expose one then two prior tickets and a future20min slot. The native sequence
+distinguishes missing machine resource configuration, outside-horizon, resource
+maintenance and missing skill. An injected reservation claim hides all prior proof;
+valid retry restores it. Horizon edits clear facts; observed requests are GET and
+ticket/appointment/resource-reservation counts remain unchanged.
+
+Both final desktop/tablet captures visually reviewed: future local dates on the main
+card, complete skill/resource conditions, >=600px region,44px controls and no overflow.
+The pure Python-validated JSON vector is not SQL source evidence; SQL fixtures are
+not native booking/queue authoring. Existing bcrypt/color warnings only. No backend,
+schema or persistent database change; head8ef5b643992a remains a deployment prerequisite.
+Native rebooking review, opportunity decision retention and full Phase14 audit remain
+next. All three Phase14 gates and production/physical/provider/load acceptance remain
+OPEN; the full26-phase goal remains ACTIVE.

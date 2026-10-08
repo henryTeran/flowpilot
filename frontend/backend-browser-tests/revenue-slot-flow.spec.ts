@@ -1,0 +1,32 @@
+import { expect as baseExpect, test } from "@playwright/test";
+import { spawnSync } from "node:child_process";
+const expect = baseExpect.configure({ timeout: 15000 });
+test.setTimeout(180000);
+test("native conditional capacity review respects actual queue, skills, resources and explicit horizon", async ({ page },info) => {
+  function setup(mode: string) { const python = process.platform === "win32" ? "../.venv/Scripts/python.exe" : "../.venv/bin/python";
+    const r = spawnSync(python,["browser-tests/slot_opportunity_fixture.py",info.project.name,mode],{ encoding: "utf8", env: process.env });
+    expect(r.status,r.stderr+r.stdout).toBe(0); return JSON.parse(r.stdout.trim().split(/\r?\n/).at(-1)!); }
+  const fixture = setup("seed"); await page.goto("/"); await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com"); await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");
+  await page.getByRole("button",{ name: "Se connecter",exact: true }).click(); await expect(page.locator(".flow-session-exit")).toBeVisible();
+  let reads=0, corrupt=false; const methods: string[]=[]; let result: any;
+  await page.route("**/capacity-opportunity?**",async route => { reads++; methods.push(route.request().method()); const response=await route.fetch(); result=await response.json();
+    if(corrupt && result.opportunity) result.opportunity.capacity_reserved=true; await route.fulfill({ response,json: result }); });
+  await page.getByRole("button",{ name: "Pilotage",exact: true }).click(); const panel=page.getByRole("region",{ name: "Créneau potentiel sans rendez-vous",exact: true });
+  await expect(panel).toBeVisible(); expect(reads).toBe(0); const service=panel.getByRole("combobox",{ name: "Prestation à examiner", exact: true }), horizon=panel.getByLabel("Fin de l’horizon exclue",{ exact: true }), read=panel.getByRole("button",{ name: "Examiner un créneau potentiel",exact: true });
+  await expect(service).toHaveValue(""); await service.selectOption(fixture.machine); await horizon.fill(fixture.long); await read.click(); await expect(panel).toContainText("Configuration des ressources manquante");
+  await service.selectOption(fixture.service); await horizon.fill(fixture.short); await read.click(); await expect(panel).toContainText("se termine après l’horizon");
+  await horizon.fill(fixture.long); await read.click(); await expect(panel.getByRole("heading",{ name: /^Créneau conditionnel/ })).toBeVisible();
+  expect(result.opportunity.evidence.prior_queue_count).toBeGreaterThanOrEqual(1); expect(result.opportunity.evidence.employee_id).toBe("emp-angela"); expect(result.opportunity.evidence.duration_minutes).toBe(20);
+  expect(new Date(result.opportunity.evidence.projected_start).getTime()-new Date(result.captured_at).getTime()).toBeGreaterThan(2*86400000);
+  const localDate = new Intl.DateTimeFormat("fr-CH",{ timeZone: "Europe/Zurich", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(result.opportunity.evidence.projected_start));
+  await expect(panel.locator("article > p").first()).toContainText(localDate);
+  await panel.locator("summary").click(); await expect(panel).toContainText("slot-skill-"+info.project.name); await expect(panel).toContainText("1 × cabine");
+  expect((await panel.boundingBox())!.width).toBeGreaterThanOrEqual(600); for(const c of await panel.locator("button,select,input,summary").all()) expect((await c.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await panel.screenshot({ path: info.outputPath("native-slot-conditions.png") });
+  setup("maintenance"); await read.click(); await expect(panel).toContainText("Capacité inconnue"); await expect(panel.locator("article")).toHaveCount(0);
+  setup("restore"); setup("unqualified"); await read.click(); await expect(panel).toContainText("Capacité inconnue"); await expect(panel.locator("article")).toHaveCount(0);
+  setup("restore"); corrupt=true; await read.click(); await expect(panel.getByRole("alert")).toBeVisible(); await expect(panel.locator("article")).toHaveCount(0);
+  corrupt=false; await read.click(); await expect(panel.getByRole("alert")).toHaveCount(0); await expect(panel.locator("article")).toHaveCount(1);
+  await horizon.fill(fixture.short); await expect(panel.locator("article")).toHaveCount(0); expect(setup("counts").counts).toEqual(fixture.counts);
+  expect(methods.every(m=>m==="GET")).toBe(true); expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

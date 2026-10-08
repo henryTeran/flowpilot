@@ -1,0 +1,37 @@
+{
+  "institute_id": "own",
+  "service_id": "care",
+  "captured_at": "2026-01-02T12:00:00Z",
+  "horizon_end": "2026-01-05T00:00:00Z",
+  "opportunity": {
+    "type": "review_projected_walk_in_slot",
+    "evidence": {
+      "institute_id": "own",
+      "captured_at": "2026-01-02T12:00:00Z",
+      "horizon_end": "2026-01-05T00:00:00Z",
+      "service_id": "care",
+      "duration_minutes": 20,
+      "required_skills": [
+        "skill"
+      ],
+      "resource_needs": [
+        {
+          "kind": "room",
+          "capability": "",
+          "quantity": 1
+        }
+      ],
+      "prior_queue_count": 1,
+      "unprojectable_prior_queue_count": 0,
+      "employee_id": "employee",
+      "projected_start": "2026-01-02T13:00:00Z",
+      "projected_end": "2026-01-02T13:20:00Z"
+    },
+    "estimated_value": null,
+    "confidence": "conditional_current_queue_projection",
+    "recommended_action": "review_opening_hours_and_revalidate_capacity_before_assignment",
+    "capacity_reserved": false,
+    "action_executed": false
+  },
+  "unavailable_reason": null
+}
