@@ -5,7 +5,8 @@ AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
 revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
-allocations as virtual constraints;15G adds native retained-declaration history.
+allocations as virtual constraints;15G adds native retained-declaration history;
+15H adds a tested protected demand-intent transport, not yet a native form.
 Native authoring, lifecycle and matching/detection review remain unfinished.
 
 ## Contract and current implementation
@@ -324,3 +325,36 @@ a017d865bb4c), persistent migration, whole-project/physical/production acceptanc
 Next: protected native demand authoring and original/key recovery, followed by
 explicit lifecycle transitions and matching/detection policy/evidence review. All
 three Phase15 gates remain OPEN; full26-phase goal stays active.
+
+## Phase15H — protected demand-intent transport
+
+`frontend/src/waitlist-intent.ts` freezes the explicit request in actor/institute
+scoped storage before any request. Every attempt first reads the original by key;
+only literal null permits POST. Reload/lost acknowledgement reuses frozen terms,
+even if the draft changes. Full raw SHA, exact source/actor/request binding and
+independent key and ID reads must agree before cleanup. Equivalent timezone offsets
+compare as exact microsecond instants; expired frozen windows remain recoverable,
+while the backend still checks new declarations against its current clock.
+
+Unreadable storage or persistence failure blocks writes. Same-storage concurrent
+instances share a flight guard. Session invalidation stops late requests/cleanup.
+Only definitive POST400/404/422 rejection offers correction, and a fresh null-key
+read is required before releasing frozen terms. Recovery/confirmation read errors,
+unknown acknowledgements, divergent receipts or changed storage preserve the intent.
+Correction recovers an intervening retained original instead of discarding it.
+
+This is a dependency-injected transport contract: it has no native form, role UI,
+customer/catalog/calendar picker, lifecycle action, booking or contact. Existing
+backend authorization and source validation remain authoritative. Storage coordination
+does not claim cross-tab serialization; server idempotency remains necessary.
+Native15G evidence is unchanged, not new native authoring evidence. Backend/schema
+and persistent databases are unchanged. Next: explicit institute-calendar demand
+form using this transport, recovery UX, then lifecycle and matching/detection review.
+
+Eleven protocol tests cover persistence-before-I/O, lost acknowledgement/reload/no
+second POST, valid-but-wrong receipts, independent receipt changes, definitive
+rejection/correction, read errors, intervening retained receipt, invalid/quota storage,
+undefined recovery, changed intent, concurrent instances and session changes at each
+network boundary. Focused protocol plus original contracts:13 passed1.42s. Complete
+frontend:417 passed94.23s, no failures/skips, terminalexit0. TypeScript/Vite production
+build passed172 modules, terminalexit0. All three Phase15 gates remain OPEN.

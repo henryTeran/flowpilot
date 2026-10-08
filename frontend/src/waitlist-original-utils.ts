@@ -11,6 +11,7 @@ export type WaitlistOriginal = { id: string; institute_id: string; actor_id: str
 export type WaitlistEnvelope = { original: WaitlistOriginal; fingerprint: string };
 export type WaitlistOriginalAudit = { institute_id: string; captured_at: string; offset: number; limit: number; total: number;
   originals: WaitlistEnvelope[]; basis: "verified_retained_declarations_not_active_waitlist" };
+export type WaitlistRequest = Omit<WaitlistDemand, "institute_id" | "declared_at"> & { reason: string; idempotency_key: string };
 
 const keys = (v: unknown, names: string): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v)
   && Object.keys(v).sort().join(" ") === names.split(" ").sort().join(" ");
@@ -19,6 +20,33 @@ const text = (v: unknown, max: number, min = 1): v is string => typeof v === "st
 const id = (v: unknown): v is string => text(v, 80) && !/[\x00-\x1f]/.test(v);
 const count = (v: unknown): v is number => typeof v === "number" && Number.isSafeInteger(v) && v >= 0;
 const ids = (v: unknown): v is string[] => Array.isArray(v) && v.length <= 100 && v.every(id) && new Set(v).size === v.length;
+export function validWaitlistRequest(v: unknown): v is WaitlistRequest {
+  if (!keys(v, "customer_id service_id duration_minutes availability allowed_employee_ids constraints_review availability_evidence constraints_evidence reason idempotency_key")
+    || !id(v.customer_id) || !id(v.service_id) || !count(v.duration_minutes) || v.duration_minutes < 1 || v.duration_minutes > 1440
+    || !ids(v.allowed_employee_ids) || !text(v.reason, 240, 3) || !text(v.idempotency_key, 120)
+    || /[\x00-\x1f]/.test(v.idempotency_key) || !text(v.availability_evidence, 240, 3)
+    || !["confirmed", "unknown"].includes(String(v.constraints_review))
+    || (v.constraints_review === "confirmed" ? !text(v.constraints_evidence, 240, 3) : v.constraints_evidence !== null)
+    || !Array.isArray(v.availability) || v.availability.length < 1 || v.availability.length > 64) return false;
+  let previous: bigint | undefined;
+  for (const window of v.availability) {
+    if (!keys(window, "start end")) return false;
+    const start = instant(window.start), end = instant(window.end);
+    if (start === undefined || end === undefined || start >= end || previous !== undefined && start < previous) return false;
+    previous = end;
+  }
+  return true;
+}
+export function matchesWaitlistReceipt(e: WaitlistEnvelope, request: WaitlistRequest, actor: string): boolean {
+  const original = e.original, demand = original.demand;
+  return original.actor_id === actor && original.reason === request.reason && original.idempotency_key === request.idempotency_key
+    && demand.customer_id === request.customer_id && demand.service_id === request.service_id && demand.duration_minutes === request.duration_minutes
+    && demand.constraints_review === request.constraints_review && demand.constraints_evidence === request.constraints_evidence
+    && demand.availability_evidence === request.availability_evidence && demand.allowed_employee_ids.length === request.allowed_employee_ids.length
+    && demand.allowed_employee_ids.every((value, index) => value === request.allowed_employee_ids[index])
+    && demand.availability.length === request.availability.length && demand.availability.every((window, index) =>
+      instant(window.start) === instant(request.availability[index].start) && instant(window.end) === instant(request.availability[index].end));
+}
 function validOriginal(v: unknown, institute: string): v is WaitlistOriginal {
   if (!keys(v, "id institute_id actor_id created_at idempotency_key reason demand source state action")
     || !id(v.id) || v.institute_id !== institute || !text(v.actor_id, 160) || /[\x00-\x1f]/.test(v.actor_id)
