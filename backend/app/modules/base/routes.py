@@ -8,6 +8,7 @@ from app.modules.base import read_capabilities as base
 from app.modules.base import intents
 from app.modules.base import plans
 from app.modules.base import sensitive_capabilities as sensitive
+from app.modules.base import sensitive_originals as operations
 from app.modules.waitlist.originals import Envelope as RetainedEnvelope
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
@@ -44,6 +45,26 @@ def sensitive_discovery(institute_id: str, user: base.Principal = Depends(princi
 @router.post("/sensitive-previews/appointment-cancel", response_model=sensitive.Preview)
 def cancellation_preview(institute_id: str, body: sensitive.Selection, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
     return sensitive.preview(db, user, institute_id, body)
+
+
+@router.post("/sensitive-operations", response_model=RetainedEnvelope)
+def prepare_operation(institute_id: str, body: operations.Request, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return operations.create(db, user, institute_id, body)
+
+
+@router.get("/sensitive-operation-by-key", response_model=RetainedEnvelope | None)
+def recover_operation(institute_id: str, key: str = Query(min_length=1, max_length=120), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return operations.by_key(db, user, institute_id, key)
+
+
+@router.get("/sensitive-operations", response_model=operations.Audit)
+def operation_history(institute_id: str, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50), user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return operations.audit(db, user, institute_id, offset, limit)
+
+
+@router.get("/sensitive-operations/{identifier}", response_model=RetainedEnvelope)
+def operation_detail(institute_id: str, identifier: str, user: base.Principal = Depends(principal), db: Session = Depends(get_db)):
+    return operations.require(db, user, institute_id, identifier)
 
 
 @router.post("/contexts/resolve", response_model=base.Context)

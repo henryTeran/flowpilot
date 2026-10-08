@@ -1,7 +1,8 @@
 """Closed sensitive preparation registry; no public executor or implicit approval."""
 from types import MappingProxyType
+from datetime import timedelta
 from typing import Literal
-from pydantic import AwareDatetime
+from pydantic import AwareDatetime, model_validator
 from sqlalchemy import select
 from app.modules.base import read_capabilities as base
 from app.modules.crm.metrics import Fact, Count
@@ -31,6 +32,34 @@ class Selection(Fact):
     appointment_id: base.ExactId
 
 
+class Snapshot(Fact):
+    status: Literal["scheduled", "confirmed", "arrived"]
+    employee_id: base.ExactId
+    service_id: base.ExactId
+    customer_id: base.ExactId | None
+    start_time: base.matching.Horizon
+    end_time: base.matching.Horizon
+    booked_start_time: base.matching.Horizon | None
+    booked_end_time: base.matching.Horizon | None
+    actual_start_time: base.matching.Horizon | None
+    actual_end_time: base.matching.Horizon | None
+    checkout_ticket_id: base.ExactId | None
+
+    @model_validator(mode="after")
+    def positive_interval(self):
+        if self.end_time <= self.start_time:
+            raise ValueError("A positive recorded appointment interval is required")
+        if any(value is not None and value.utcoffset() != timedelta(0) for value in
+                (self.start_time, self.end_time, self.booked_start_time, self.booked_end_time, self.actual_start_time, self.actual_end_time)):
+            raise ValueError("Captured appointment instants must be canonical UTC")
+        return self
+
+
+def state_digest(institute, appointment_id, appointment, booking_events, history_hash):
+    return fingerprint(dict(institute_id=institute, appointment_id=appointment_id,
+        appointment=appointment, booking_events=booking_events, booking_history_fingerprint=history_hash))
+
+
 class Preview(Fact):
     principal: base.Principal
     capability: Capability
@@ -41,6 +70,15 @@ class Preview(Fact):
     booking_history_fingerprint: base.Digest
     state_fingerprint: base.Digest
     effect: Literal["cancellation_preview_only_no_approval_or_execution"] = "cancellation_preview_only_no_approval_or_execution"
+
+    @model_validator(mode="after")
+    def bound_snapshot(self):
+        value = Snapshot.model_validate(self.appointment)
+        if self.captured_at.utcoffset() != timedelta(0) or value.model_dump(mode="json") != self.appointment or self.capability != REGISTRY["APPOINTMENT_CANCEL"] or \
+                self.principal.role.value not in self.capability.roles or self.state_fingerprint != state_digest(
+                    self.principal.institute_id, self.appointment_id, self.appointment, self.booking_events, self.booking_history_fingerprint):
+            raise ValueError("Cancellation preview must preserve the complete canonical scoped snapshot")
+        return self
 
 
 def capabilities(principal, institute):
@@ -70,9 +108,11 @@ def preview(db, principal, institute, candidate):
             raise business_error("Cancellation history contains a future event")
         history.append(dict(id=event.id, event_type=event.event_type, actor_id=event.actor_id,
             occurred_at=at.isoformat(), before=event.before, after=event.after, price_reference=event.price_reference))
-    state, history_hash = snapshot(appointment), fingerprint(history)
-    digest = fingerprint(dict(institute_id=institute, appointment_id=appointment.id,
-        appointment=state, booking_events=len(history), booking_history_fingerprint=history_hash))
-    return Preview(principal=principal, capability=REGISTRY["APPOINTMENT_CANCEL"], appointment_id=appointment.id,
-        captured_at=now, appointment=state, booking_events=len(history), booking_history_fingerprint=history_hash,
-        state_fingerprint=digest)
+    try:
+        state, history_hash = Snapshot.model_validate(snapshot(appointment)).model_dump(mode="json"), fingerprint(history)
+        digest = state_digest(institute, appointment.id, state, len(history), history_hash)
+        return Preview(principal=principal, capability=REGISTRY["APPOINTMENT_CANCEL"], appointment_id=appointment.id,
+            captured_at=now, appointment=state, booking_events=len(history), booking_history_fingerprint=history_hash,
+            state_fingerprint=digest)
+    except ValueError as error:
+        raise business_error("Cancellation preview source requires verification") from error

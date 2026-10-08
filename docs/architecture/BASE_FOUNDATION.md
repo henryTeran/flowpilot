@@ -160,6 +160,45 @@ is introduced here. Next work must retain the exact operation, obtain human
 approval, revalidate current eligibility and execute through this service with
 scoped idempotent audit; metadata alone never grants execution.
 
+##17F retained pending sensitive operations
+
+Signed manager `/sensitive-operations` create/history/detail and
+`/sensitive-operation-by-key` recovery retain APPOINTMENT_CANCEL preparations.
+The request supplies only the explicit selected appointment, reviewed state SHA,
+reason, recovery key and explicit aware `valid_until`. Validity is normalized to
+UTC, with no invented deadline. Preparation locks the institute, rereads the
+current owned preview and refuses changed state or already elapsed validity.
+It stores signed actor/institute, exact request, complete canonical operational
+snapshot/history hash, server capture/creation clocks and full retained SHA.
+The immutable original effect is pending human approval and no execution; it is
+not a mutable approval state, even after a future decision.
+
+Preview snapshots now validate a complete closed typed operational shape,
+cancellable status, positive interval and UTC instants before state hashing.
+Typed snapshots use canonical JSON UTC `Z`; older unretained preview hashes may
+therefore require explicit reread. No earlier stored sensitive original exists
+to migrate; retained read/suggest plans are unaffected. Preview verification
+checks manager authority, registry metadata and the full state-hash binding.
+Retained verification checks raw full SHA, exact canonical typed snapshot,
+request/preview/actor/institute/appointment/hash binding, columns and
+capture <= creation < explicit validity. It never recaptures current state to
+interpret historical evidence. Hashes are consistency checks, not signatures.
+
+Same-key replay returns the original verified operation without rereading or
+changing validity. Different terms or actor refuse. Expired originals remain
+recoverable historical records; expiry must prohibit future approval/execution,
+not erase history or cause a duplicate preparation. History verifies the complete
+owned cohort before20-row pages, including corruption outside the requested page.
+The recorded customer IDs and staff references are personal data under institute
+manager access; this is not anonymized evidence or complete interaction audit.
+
+Migration `d340a182cbe4` follows `c239f071bad3` and adds only scoped, replay-unique
+`base_sensitive_operation_originals` and its history index. Offline downgrade and
+any downgrade deleting retained rows refuse. Persistent application migration is
+not performed by these owned validation fixtures. Human approve/decline/revoke,
+current-version revalidation and atomic idempotent execution/audit remain the next
+required work. No public executor, provider call or native UI is added here.
+
 ## Evidence and remaining work
 
 Initial six-module test collection failed because inherited wildcard before-
@@ -228,6 +267,22 @@ employee query and two cache tests added before final75 passed. Existing crypt
 and intentional unsafe-copy warnings only. HTTP is SQLite; no native/frontend/
 whole-project/production claim. Schema headc239f071bad3 unchanged, persistent
 application/provider/deployment untouched; no new migration or public executor.
+
+Phase17F final eight-module suite **79 passed125.34s**, zero failures/skips,
+terminalexit0, SQLite and actual isolated PostgreSQL. Six new retained-operation
+cases verify25-row history/recovery, expired replay without recapture, equivalent
+aware validity normalization, changed actor/terms refusal, raw/rehashed off-page
+snapshot/actor/validity/count corruption, signed HTTP role/scope/injection,
+stale reviewed version and expired new request rejection, actual same-key and
+conflicting-key races, flush rollback and committed lost-ack recovery. Three
+migration cases cover offline guard, owned SQLite/PostgreSQL empty roundtrip,
+metadata parity and populated downgrade refusal. Existing preflight, retained
+read plans/migration, intent and signed BASE route/service regressions pass.
+Initial three-module26 passed35.91s; UTC normalization/canonical snapshot checks
+and migrations were added before final79 passed. Existing crypt/intentional
+unsafe-copy warnings only. HTTP remains SQLite; no native/frontend/whole-project/
+production claim. Persistent application/provider/deployment untouched; new
+controlled deployment prerequisite is headd340a182cbe4.
 
 Next: approval lifecycle, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
