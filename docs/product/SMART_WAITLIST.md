@@ -9,8 +9,8 @@ allocations as virtual constraints;15G adds native retained-declaration history;
 15H adds protected demand-intent transport;15I adds native declaration authoring
 and recovery;15J adds native retained lifecycle history;15K adds protected native
 activation/revision/cancellation and same-key recovery;15L adds current matching
-and detection browser contracts. Native current matching/detection review remains
-unfinished.
+and detection browser contracts;15M adds native selected-version matching and
+whole-active detection review. Canonical Phase15 acceptance audit remains open.
 
 ## Contract and current implementation
 
@@ -33,8 +33,8 @@ Observed care history and dated service-follow-up email/SMS permission reference
 remain explicit context. Unknown history is not “never visited”; a refusal is not
 a grant. Neither grants nor matches authorize sending.15D applies explicit
 review/observed-care/no-recorded-care and review/recorded-grant policies;15L checks
-those refusal/source relationships in browser contracts. Native explained policy
-selection and source review remain unfinished; actual contact authority stays separate.
+those refusal/source relationships in browser contracts. 15M adds native explained policy
+selection and source review; actual contact authority stays separate.
 
 Source adapters must authenticate scope, registration, current lifecycle originals,
 catalog activity, complete bookings/sessions/absences/resource occupancy and source
@@ -555,3 +555,53 @@ its original scope. Backend runtime/schema unchanged (heada017d865bb4c); no pers
 migration/provider/deployment. All three gates remain OPEN. Next: native explicit
 manager policy/horizon selection, selected-version matching, whole-waitlist detection,
 source/refusal inspection and invalidation with actual signed desktop/tablet tests.
+
+
+## 15M native current matching and detection review
+
+Manager Pilotage now offers explicit empty horizon/channel/history/permission
+choices, using institution civil time. Missing/invalid zone blocks new reads;
+skipped hours refuse and repeated hours require an occurrence that resets on edits.
+Active lifecycle history selection validates the full SHA/causal state locally,
+focuses and scrolls the review without HTTP. Matching sends the exact selected
+latest event ID and full fingerprint; stale versions refuse and require explicit
+state reread. Confirmed retained declarations/actions clear the review. No mount
+read, automatic source refresh, booking, reservation or contact is performed.
+
+Cards expose institution dates, declared/current duration, employee labels, distinct
+resource IDs, conditional alternatives and explicit constraint/source/policy refusals.
+Recorded care and diagnostics, absent/future/current permission on the chosen channel
+and projected/unknown queue counts stay visible; unknown never becomes a grant or
+free capacity. Folded proof contains the full selected version/current capture.
+Opening hours and contact authority remain unverified. Detection counts lists,
+not customers or jointly reserved capacity, and pages20 fresh whole-cohort reads.
+Any edit/new selection/pending/error clears old results; request/unmount/scope/
+timezone/token/role guards suppress late publication and old-session requests.
+
+Five component tests plus matching contracts/lifecycle writer17 passed5.21s;
+strengthened pending-unmount test then final17 passed11.69s, zero failures/skips,
+terminalexit0. Initial ES2021 array.at build failure corrected by indexed access.
+Full frontend457 passed93.91s, zero failures/skips/cancellations, terminalexit0. Final TypeScript/Vite production build passed181 modules, terminalexit0.
+
+Initial native2 failed before matching: first-page search raced the read and select
+labels included option text. Two correction attempts (wrong cwd/path, then ASCII
+PowerShell Unicode replacement) were intentionally stopped using verified owned
+Playwright trees; harness-owned temporary database cleanup completed, no successful
+claim. Direct Unicode-safe patch verifies role-prefix selects and page-range waits.
+Final freshly rebuilt signed Edge desktop/touch landscape tablet2 passed1.2m
+(18.7s/25.4s), terminalexit0, owned temporary DB removed. API originals/activation,
+CRM permission declarations and same-actor concurrent revision are fixture setup,
+not new native authoring. Actual native reads verify explicit horizon/version/full
+fingerprint, conditional options, absent agreement refusal, current agreement,
+current refusal, stale-version400 mask/reread/new predecessor, tampered-read mask,
+25 then50 active roots with20/5 and20/20/10 unique pages, focus,44px/width>=600 and
+no overflow; zero UI waitlist POST. Eight final option/absent-refusal/current-refusal/
+detection-card captures individually inspected and readable. Native resource-unit,
+observed-care and projected-queue coverage is not claimed; existing backend15D-F
+and browser contracts/DOM15L provide those dimensions' distinct evidence.
+
+Backend runtime/schema unchanged (heada017d865bb4c); no persistent migration,
+provider/deployment or whole-project/physical/load/production acceptance claim.
+All three Phase15 gates remain OPEN pending canonical acceptance audit and fresh
+combined regressions. Next: complete Phase15 backend SQLite/PostgreSQL and all five
+native waitlist specs, requirement-by-requirement audit, then Phase16 optimizer.
