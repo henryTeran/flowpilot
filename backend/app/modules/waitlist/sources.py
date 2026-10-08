@@ -18,6 +18,8 @@ from app.modules.workforce.models import EmployeeAbsence, AbsenceCancellation
 from app.modules.resources import repository as resources
 from app.modules.resources.reservations import resource_timelines
 from app.modules.scheduling.service import availability_engine
+from app.modules.scheduling.waiting_service import waiting_projections
+from app.modules.scheduling.availability_domain import free_windows
 from app.modules.scheduling.repository import ACTIVE_APPOINTMENT_STATUSES, ACTIVE_SESSION_STATUSES
 from app.modules.tickets.repository import lock_institute
 from app.shared.time import utcnow, explicit_utc_instant
@@ -39,6 +41,14 @@ class Policy(domain.Fact):
     permission_requirement: Literal["review_only", "recorded_grant_required"]
 
 
+class QueueSlot(domain.Fact):
+    ticket_id: str
+    employee_id: str
+    start: AwareDatetime
+    end: AwareDatetime
+    resource_ids: tuple[str, ...]
+
+
 class Evidence(domain.Fact):
     registered_at: AwareDatetime
     latest_care: CareEpisode | None
@@ -50,8 +60,10 @@ class Evidence(domain.Fact):
     customer_booking_ids: tuple[str, ...]
     customer_session_ids: tuple[str, ...]
     waiting_tickets: Count
+    queue_slots: tuple[QueueSlot, ...]
+    unprojectable_queue_tickets: Count
     capacity_basis: Literal["recorded_employee_bookings_sessions_absences_and_resource_reservations"] = "recorded_employee_bookings_sessions_absences_and_resource_reservations"
-    queue_basis: Literal["waiting_queue_is_not_reserved_by_this_booking_preview"] = "waiting_queue_is_not_reserved_by_this_booking_preview"
+    queue_basis: Literal["existing_core_queue_allocations_as_virtual_blockers_not_reservations"] = "existing_core_queue_allocations_as_virtual_blockers_not_reservations"
     opening_hours: Literal["not_verified"] = "not_verified"
     contact_authority: Literal["not_granted_by_this_read"] = "not_granted_by_this_read"
     history_coverage: Literal["recorded_ticket_care_since_registration_not_complete_real_history"] = "recorded_ticket_care_since_registration_not_complete_real_history"
@@ -181,6 +193,38 @@ def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, 
             history_reference=latest_care.ticket_id if latest_care else None, history_at=latest_care.completed_at if latest_care else None,
             permission=permission, channel=policy.channel, permission_at=permission_at, permission_reference=permission_reference)
         appointments, sessions, tickets, lines = _activity(db, institute, now)
+        queue = {key: ticket for key, ticket in tickets.items() if ticket.status in {"waiting", "assigned"}}
+        owned_employees = set(db.scalars(select(Employee.id).where(Employee.institute_id == institute)))
+        need_facts = resources.resource_requirement_facts(db, institute)
+        service_facts = {row.id: row for row in db.scalars(select(Service).execution_options(populate_existing=True))}
+        missing_configuration = set()
+        for ticket in queue.values():
+            if explicit_utc_instant(ticket.arrival_time) > now or ticket.assigned_employee_id is not None and ticket.assigned_employee_id not in owned_employees \
+                    or ticket.status == "assigned" and ticket.assigned_employee_id is None:
+                raise ValueError("Queued work requires observed arrival and owned assignment")
+        for line in lines.values():
+            if line.ticket_id not in queue or line.invoice_removed_at is not None:
+                continue
+            if line.service_id not in service_facts or type(line.quantity) is not int or line.quantity <= 0 \
+                    or type(line.duration_minutes) is not int or line.duration_minutes <= 0:
+                raise ValueError("Queued work requires valid service, quantity and duration")
+            if service_facts[line.service_id].requires_machine and not need_facts.get(line.service_id):
+                missing_configuration.add(line.ticket_id)
+        queue_slots = []
+        def capture_allocation(projection, allocation):
+            interval = _interval(projection.estimated_start_time, projection.estimated_end_time)
+            if projection.ticket_id not in queue or projection.employee_id not in owned_employees or interval.start < now \
+                    or allocation.start != interval.start or allocation.end != interval.end:
+                raise ValueError("Core queue allocation must bind owned work and captured interval")
+            queue_slots.append(QueueSlot(ticket_id=projection.ticket_id, employee_id=projection.employee_id,
+                start=interval.start, end=interval.end, resource_ids=allocation.resource_ids))
+        projections = waiting_projections(db, institute, now=now, _allocation_observer=capture_allocation) if queue else {}
+        if set(projections) != set(queue) or len({slot.ticket_id for slot in queue_slots}) != len(queue_slots):
+            raise ValueError("Queue capture must preserve the complete owned cohort")
+        unprojectable = {key for key, value in projections.items() if value.reason != "projected"} | missing_configuration
+        queue_slots = [slot for slot in queue_slots if slot.ticket_id not in unprojectable]
+        if len(queue_slots)+len(unprojectable) != len(queue):
+            raise ValueError("Known queue allocations and unknown tickets must partition the cohort")
         blockers, booking_ids, session_ids, customer_capacity = [], [], [], "known"
         for row in appointments:
             if row.customer_id == customer.id:
@@ -194,6 +238,9 @@ def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, 
                 blockers.append(_interval(row.start_time, row.planned_end_time)); session_ids.append(row.id)
                 if explicit_utc_instant(row.planned_end_time) <= now:
                     customer_capacity = "unknown"
+        for slot in queue_slots:
+            if queue[slot.ticket_id].customer_id == customer.id:
+                blockers.append(domain.Window(start=slot.start, end=slot.end))
         skill_facts = resources.skill_facts(db, institute)
         employees, employee_reasons = [], {}
         for employee_id in sorted(skill_facts):
@@ -211,14 +258,19 @@ def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, 
                 start = max(now, explicit_utc_instant(slot.available_from))
                 end = min(horizon_end, explicit_utc_instant(slot.available_until)) if slot.available_until else horizon_end
                 if end > start:
-                    windows.append(domain.Window(start=start, end=end))
+                    virtual = [(slot.start, slot.end, slot.ticket_id) for slot in queue_slots if slot.employee_id == employee_id]
+                    for begin, finish, _ in free_windows(start, virtual):
+                        finish = min(finish, end) if finish is not None else end
+                        if finish > begin:
+                            windows.append(domain.Window(start=begin, end=finish))
             employee_reasons[employee_id] = "overdue_active_booking" if overdue_booking else available.current_slot.reason.value
             employees.append(domain.EmployeeCapacity(employee_id=employee_id, skills=tuple(sorted(skill_facts[employee_id])),
                 state="known" if available.current_slot.available_from is not None and not overdue_booking else "unknown", windows=tuple(windows)))
         needs = resources.resource_requirement_facts(db, institute).get(service.id, [])
         inventory = tuple(domain.ResourceCapacity(resource_id=row.resource_id, kind=row.kind,
             capabilities=tuple(sorted(row.capabilities)), state="inactive" if not row.active else "active_known" if row.capacity_known else "unknown",
-            reservations=tuple(domain.Window(start=start, end=end) for start, end in row.reservations))
+            reservations=tuple(domain.Window(start=start, end=end) for start, end in row.reservations)
+                + tuple(domain.Window(start=slot.start, end=slot.end) for slot in queue_slots if row.resource_id in slot.resource_ids))
             for row in resource_timelines(db, institute, now=now))
         capture = domain.Capture(institute_id=institute, captured_at=now,
             service=domain.ServiceCapacity(service_id=service.id, duration_minutes=service.duration_min,
@@ -226,12 +278,12 @@ def read(db, institute, root_id, expected_event_id, expected_event_fingerprint, 
                 needs=tuple(domain.Need(kind=kind, capability=capability, quantity=quantity) for kind, capability, quantity in sorted(needs)),
                 resource_configuration="unknown" if service.requires_machine and not needs else "known"),
             employees=tuple(employees), resources=inventory, customer=context,
-            customer_capacity=customer_capacity, customer_blockers=tuple(blockers))
+            customer_capacity=customer_capacity, customer_blockers=tuple(blockers), queue_capacity="unknown" if unprojectable else "known")
         review = domain.match(demand, capture)
         evidence = Evidence(registered_at=registered, latest_care=latest_care, observed_care_episodes=episode_count,
             care_diagnostics=care_diagnostics, permission_original=permission_original, permission_reason=permission_reason,
             employee_reasons=employee_reasons, customer_booking_ids=tuple(sorted(booking_ids)), customer_session_ids=tuple(sorted(session_ids)),
-            waiting_tickets=sum(ticket.status in {"waiting", "assigned"} for ticket in tickets.values()))
+            waiting_tickets=len(queue), queue_slots=tuple(queue_slots), unprojectable_queue_tickets=len(unprojectable))
         reason = None
         if policy.history_requirement == "observed_care_required" and history != "observed" \
                 or policy.history_requirement == "no_recorded_care_required" and history != "no_recorded_care":

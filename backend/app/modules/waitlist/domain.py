@@ -155,6 +155,7 @@ class Capture(Fact):
     customer: CustomerContext
     customer_capacity: Literal["known", "unknown"] = "known"
     customer_blockers: tuple[Window, ...] = ()
+    queue_capacity: Literal["known", "unknown"] = "known"
 
     @model_validator(mode="after")
     def coherent(self):
@@ -178,7 +179,7 @@ class Review(Fact):
     demand: Demand
     capture: Capture
     options: tuple[Option, ...]
-    unavailable_reason: Literal["constraints_unknown", "duration_changed", "resource_configuration_unknown", "customer_capacity_unknown", "no_matching_recorded_capacity"] | None
+    unavailable_reason: Literal["constraints_unknown", "duration_changed", "resource_configuration_unknown", "customer_capacity_unknown", "queue_projection_unknown", "no_matching_recorded_capacity"] | None
     confidence: Literal["conditional_recorded_capacity"] = "conditional_recorded_capacity"
     # Literal string avoids bool coercion; there is no action path in this kernel.
     action: Literal["manual_review_only"] = "manual_review_only"
@@ -200,6 +201,8 @@ def match(demand: Demand, capture: Capture) -> Review:
         reason = "resource_configuration_unknown"
     elif capture.customer_capacity == "unknown":
         reason = "customer_capacity_unknown"
+    elif capture.queue_capacity == "unknown":
+        reason = "queue_projection_unknown"
     options = []
     if reason is None:
         resources = tuple(ResourceTimeline(row.resource_id, row.kind, frozenset(row.capabilities),

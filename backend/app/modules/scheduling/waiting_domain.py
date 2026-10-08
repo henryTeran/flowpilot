@@ -45,7 +45,7 @@ def next_fitting_start(start: datetime, duration: int, appointments) -> datetime
 
 
 def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork],
-                  resources: tuple[ResourceTimeline, ...] = ()) -> dict[str, WaitProjection]:
+                  resources: tuple[ResourceTimeline, ...] = (), *, _allocation_observer=None) -> dict[str, WaitProjection]:
     timelines = {employee.employee_id: employee for employee in employees}
     cursors = {employee.employee_id: employee.available_from for employee in employees}
     results = {}
@@ -90,4 +90,6 @@ def project_queue(employees: list[EmployeeTimeline], queue: list[QueueWork],
                           if resource.resource_id in selected else resource for resource in usable)
         cursors[employee_id] = end
         results[work.ticket_id] = WaitProjection(work.ticket_id, employee_id, start, end, "projected")
+        if _allocation_observer is not None:
+            _allocation_observer(results[work.ticket_id], matches[employee_id])
     return results

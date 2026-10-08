@@ -4,8 +4,8 @@ Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
 AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
 revision and cancellation;15D adds authenticated selected-version SQL matching.
-15E adds whole-active-waitlist conditional detection. Queue-projection integration
-and native review remain unfinished.
+15E adds whole-active-waitlist conditional detection;15F integrates core queue
+allocations as virtual constraints. Native authoring/review remain unfinished.
 
 ## Contract and current implementation
 
@@ -46,11 +46,11 @@ is not machine verification of every real-world constraint.
 | Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers | Institute-calendar authoring and native lifecycle |
 | Employee | Explicit restrictions;15D owned current core free-window capture | Responsive review, additional supported preferences |
 | Skills |15D current existing requirement/qualification authority | Native proof review |
-| Resources |15D owned current reservation inventory and existing distinct-unit allocator | Queue projection integration; revalidation before any actual booking |
+| Resources |15D owned reservation inventory/allocator;15F core projected queue resource occupations | Native evidence; revalidation before any actual booking |
 | Constraints | Unknown human review refuses;15D customer conflicts, overdue capacity/source refusal | Additional supported structured constraints, current queue implications and native review |
 | History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
 | Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
-| Auto slot detection |15D selected-version current SQL intersections;15E whole-active-cohort detection with shared capture and output paging | Queue projection/source invalidation, native evidence and release/load verification |
+| Auto slot detection |15D selected-version intersections;15E whole-cohort capture/paging;15F queue allocations | Native source invalidation/evidence and release/load verification |
 | Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging | Native authoring/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
@@ -249,6 +249,43 @@ corruption, signed tenant/role checks and unchanged resource reservations on SQL
 and actual isolated PostgreSQL. Existing selected-source and pure-kernel regression
 are included. No new schema, frontend, native waitlist or production gate claim.
 
-Next: integrate actual queue-projection evidence/constraints, then native demand,
-lifecycle and policy authoring/recovery/detection review. All three Phase15 gates
-remain OPEN and the full26-phase goal stays active.
+## Phase15F — projected queue constraints
+
+An optional private observer in the existing pure queue engine exposes each selected
+employee/interval/resource match to the trusted source adapter. The original engine
+still owns FIFO/assignment precedence, skills, whole quantities and joint resources;
+no optimizer is copied and existing public waiting-projection DTOs stay unchanged.
+The observer performs no allocation write. Source capture validates queued arrival,
+owned assignment, line service/positive duration/quantity and complete projection
+cohort. Missing machine configuration contributes unknown queue capacity.
+
+Selected projected intervals are subtracted from employee windows and added to
+resource timelines as virtual occupations. A linked queued customer also receives
+the projected customer interval blocker. Persisted reservations remain intact;
+virtual occupations never release or create a reservation. The same joint kernel
+then finds conditional waitlist options using these augmented sources. Any queued
+ticket that cannot be projected makes queue capacity unknown and refuses options,
+rather than treating the omitted work as free capacity. This is a conservative
+review rule, not proof of physical queue execution or a dispatch/assignment policy.
+
+Evidence returns projected ticket/employee/interval/resource identities and the
+unprojectable count alongside existing waiting count and source diagnostics. All
+options remain independent alternatives; batch requests do not reserve jointly.
+Core queue projection is a conditional current snapshot; opening hours, physical
+attendance and exact future arrivals still require review and action revalidation.
+
+Initial compatibility34 passed82.07s and expanded seven-module queue/source/detection/
+kernel/waiting/resource/revenue-slot regression40 passed135.02s, terminalexit0,
+no failures/skips with actual PostgreSQL enabled. A final strengthened queue/source/
+detection run follows a partition guard: tickets lacking machine configuration
+are counted as unknown, excluded from known queue allocations, and never counted
+twice. Final strengthened three-module regression11 passed113.35s, no failures/skips,
+terminalexit0 with SQLite and actual isolated PostgreSQL; crypt deprecation only.
+New SQLite/PostgreSQL cases verify shared-room
+occupation by another employee, projected occupation of the selected employee,
+whole quantity doubling, unknown qualification and restoration after cancellation,
+with unchanged physical reservations. No schema/frontend/persistent DB changes.
+
+Next: native demand/lifecycle/policy authoring, original/key recovery and matching/
+detection evidence review. All three Phase15 gates remain OPEN; full26-phase goal
+and separate production/physical/provider/load acceptance remain active/open.

@@ -18,7 +18,7 @@ def aware(value: datetime) -> datetime:
 
 
 def waiting_projections(db: Session, institute_id: str, now: datetime | None = None,
-                        new_duration: int | None = None, new_service_ids: list[str] | None = None):
+                        new_duration: int | None = None, new_service_ids: list[str] | None = None, *, _allocation_observer=None):
     now = aware(now or utcnow())
     from app.modules.resources.repository import requirement_facts, resource_requirement_facts, skill_facts
     qualifications = skill_facts(db, institute_id)
@@ -90,4 +90,5 @@ def waiting_projections(db: Session, institute_id: str, now: datetime | None = N
         queue.append(QueueWork("__new_arrival__", new_duration, required_skills=frozenset(needed),
                               resource_needs=tuple(ResourceNeed(kind, capability, amount)
                                   for (kind, capability), amount in sorted(needs.items()))))
-    return project_queue(timelines, queue, tuple(resource_timelines(db, institute_id, now=now)))
+    return project_queue(timelines, queue, tuple(resource_timelines(db, institute_id, now=now)),
+        _allocation_observer=_allocation_observer)
