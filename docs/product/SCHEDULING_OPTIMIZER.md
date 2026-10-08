@@ -5,8 +5,8 @@ EXPLANATION_EVIDENCE remain OPEN until authenticated source/policy integration,
 native review and scoped end-to-end acceptance.16A supplies the pure deterministic
 kernel;16B adds explicit normalization terms and raw-to-normalized proof. The
 full26-phase objective remains ACTIVE.16C adds retained signed policy originals;
-16D adds authenticated current factor capture. Native optimizer review remains
-unfinished.
+16D adds authenticated current factor capture;16F/16H integrate native policy and
+current score review. Canonical Phase16 acceptance remains unfinished.
 
 ## Official calculation
 
@@ -346,8 +346,52 @@ single-element proof (no mutation); corrected duplicate-proof mutation and added
 two-option ranking/tie vectors. Final **7 passed994.68ms**, zero failures/skips,
 terminalexit0; TypeScript/Vite passed184 modules.
 Full frontend483 passed85.44s, zero failures/skips, terminalexit0. This utility is not yet imported by the product
-UI; native current scoring interaction and complete Phase16 acceptance remain
-unfinished. Backend runtime/schema unchanged;16D evidence is separate.
+UI at16G;16H integrates it below. Complete Phase16 acceptance remains unfinished.
+Backend runtime/schema unchanged;16D evidence is separate.
+
+## Native current scoring review (16H)
+
+The waitlist matching reader publishes a state/horizon/policy selection only after
+its complete selected-version response verifies. Edits, fresh matching reads,
+changed active selection and confirmed demand/lifecycle writes invalidate this
+context. `OptimizerScoringReview` combines it with the explicit retained policy
+choice, re-verifies both local selections and requires a deliberate current-source
+read. It makes no mount scoring request. Scope/token/policy fingerprint/latest
+event fingerprint/horizon/rule keys remount the reader immediately on changes;
+mounted/sequence/token/actor/role guards suppress stale results. Policy/history
+rereads invalidate the policy choice. No stale score survives an edit or new
+selection, and no result triggers automatic recapture.
+
+The strict POST/current body includes only policy ID/full fingerprint,
+root/latest event ID/full fingerprint, horizon and existing matching policy.
+The16G verifier checks the returned complete current report before publication.
+Native output shows exact score/conditional rank, all eight contribution states,
+French explanations of unavailable evidence, proposed duration and captured
+window bounds, eight captured constraint conclusions and explicit source-policy
+refusal/no-ranking/no-options states. Exact reasons, microsecond quantities,
+normalization terms and full snapshots remain in folded proof details. Visual QA
+led to moving large raw microsecond values out of the primary reading flow.
+The view explicitly limits claims to recorded occupations, unverified opening
+hours and independent alternatives requiring revalidation before booking/contact.
+
+Initial focused16 passed4229.06ms/exit0, build186 modules. First native launch used
+a nonexistent lifecycle button label and was deliberately stopped by terminating
+only its verified owned Playwright CLI subtree; wrapper exit1 and owned fixture
+cleanup confirmed. After matching the existing button and bounding action waits,
+native2 passed42.2s/exit0 (desktop9.2s/tablet8.9s), first full frontend487 passed
+82.36s. Following the primary-view refinement, fresh final signed Edge harness
+rebuilt the final bundle and temporary SQLite: **2 passed43.3s** (desktop10.4s/
+tablet9.3s), zero failures/skips, exit0/owned fixture cleanup. Covers server exact
+score, full policy/event fingerprints/strict request shape, explicit recapture,
+unknown weighted revenue/no ranking, permission refusal/no options, altered score
+mask/retry, peer revision400/reread new head, edit invalidation and no UI policy/
+waitlist writes. Initial customer/demand/activation/policies/peer revision are API
+fixtures, not native authoring claims;16F covers policy native authoring.
+Controls>=44px/panel>=600px/no horizontal overflow pass. Six final score/unknown/
+refusal captures were individually inspected and readable on desktop/tablet.
+Existing bcrypt/NO_COLOR warnings only. Final complete frontend487 passed83.90s, zero failures/skips, terminalexit0.
+Backend16D evidence remains separate; schema headb128ef60a9d2/persistent application
+migration/provider/deployment state unchanged. Phase16 gates await canonical audit.
 SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
 Next: sovereign factor derivation from current matching/SQL sources, selected
 retained policy/full fingerprint, raw normalization proof and version-pinned signed

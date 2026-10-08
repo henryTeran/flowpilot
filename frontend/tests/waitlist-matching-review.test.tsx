@@ -32,7 +32,7 @@ async function render(root: ReturnType<typeof createRoot>, props: Partial<React.
 }
 const selected = fixture.options.state as WaitlistLifecycleState;
 test("explicit selected-version review requires empty policy/horizon choices, verifies pinned GET and hides corrupt proof with retry", async () => {
-  setAccessToken(token()); const root = createRoot(document.getElementById("root")!); let value: unknown = fixture.options, calls = 0;
+  setAccessToken(token()); const root = createRoot(document.getElementById("root")!); let value: unknown = fixture.options, calls = 0, reviewed: unknown;
   globalThis.fetch = async (url, init) => {
     calls++; assert.equal(init?.method, "GET"); const u = new URL(String(url));
     assert.match(u.pathname, /lifecycle\/states\/waitlist_demand_000\/matching$/);
@@ -41,14 +41,17 @@ test("explicit selected-version review requires empty policy/horizon choices, ve
     assert.equal(u.searchParams.get("expected_event_fingerprint"), selected.events[1].fingerprint); return reply(value);
   };
   try {
-    await render(root, { selection: selected }); assert.equal(calls, 0); assert.equal(document.activeElement, document.querySelector("section"));
+    await render(root, { selection: selected, onReviewed: v => reviewed = v }); assert.equal(calls, 0); assert.equal(document.activeElement, document.querySelector("section"));
     assert.equal(button("Examiner la liste sélectionnée").disabled, true); await configure(); await click("Examiner la liste sélectionnée");
     assert.equal(document.querySelectorAll("article").length, 1); assert.match(document.body.textContent!, /Options conditionnelles/);
+    assert.ok(reviewed);
     assert.match(document.body.textContent!, /aucun soin enregistré/); assert.match(document.body.textContent!, /inconnu — aucune déclaration/);
     const broken = structuredClone(fixture.options); broken.review!.options[0].resource_ids = ["room-flex", "room-flex"]; value = broken;
     await click("Examiner la liste sélectionnée"); assert.equal(document.querySelector("article"), null); assert.ok(document.querySelector('[role="alert"]'));
+    assert.equal(reviewed, undefined);
     value = fixture.options; await click("Examiner la liste sélectionnée"); assert.ok(document.querySelector("article")); assert.equal(calls, 3);
     await change("Canal de suivi", "sms"); assert.equal(document.querySelector("article"), null); assert.equal(calls, 3);
+    assert.equal(reviewed, undefined);
   } finally { await act(async () => root.unmount()); }
 });
 test("whole-waitlist detection reads twenty then five fresh conditional reviews and masks previous page on error", async () => {

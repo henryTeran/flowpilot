@@ -4,9 +4,10 @@ import { getAccessToken, getOperatorRole } from "../api/session";
 import { instituteInstants } from "../institute-calendar";
 import { certificationInstant as instant } from "../certification-utils";
 import { validWaitlistLifecycleState, type WaitlistLifecycleState } from "../waitlist-lifecycle-utils";
-import { validWaitlistMatching, validWaitlistDetection, validWaitlistPolicy, type WaitlistPolicy, type WaitlistMatching, type WaitlistDetection } from "../waitlist-matching-utils";
+import { validWaitlistMatching, validWaitlistDetection, validWaitlistPolicy, type WaitlistPolicy, type WaitlistMatching, type WaitlistDetection, type WaitlistMatchingSelection } from "../waitlist-matching-utils";
 import type { Employee, Service } from "../types";
-type Props = { institute: string; timezone?: string; selection?: WaitlistLifecycleState; services?: Service[]; employees?: Employee[] };
+type Props = { institute: string; timezone?: string; selection?: WaitlistLifecycleState; services?: Service[]; employees?: Employee[];
+  onReviewed?: (value: WaitlistMatchingSelection | undefined) => void };
 const reasons: Record<string, string> = { cancelled: "Liste annulée", registration_unavailable: "Inscription cliente à vérifier", active_service_unavailable: "Prestation active indisponible",
   history_requirement_unmet: "L’historique enregistré ne satisfait pas la règle choisie", permission_requirement_unmet: "Aucun accord actuel enregistré pour le canal choisi",
   constraints_unknown: "Contraintes clientes inconnues", duration_changed: "La durée actuelle diffère de la déclaration", resource_configuration_unknown: "Configuration des ressources inconnue",
@@ -16,7 +17,7 @@ export function WaitlistMatchingReview(props: Props) {
   if (!props.institute || getOperatorRole() !== "responsable_institut") return null;
   return <Reader key={JSON.stringify([props.institute, props.timezone, getAccessToken()])} {...props} />;
 }
-function Reader({ institute, timezone, selection, services = [], employees = [] }: Props) {
+function Reader({ institute, timezone, selection, services = [], employees = [], onReviewed }: Props) {
   const token = getAccessToken(), sequence = useRef(0), mounted = useRef(false), section = useRef<HTMLElement>(null);
   const current = (n: number) => mounted.current && n === sequence.current && token === getAccessToken() && getOperatorRole() === "responsable_institut";
   const [selected, setSelected] = useState<WaitlistLifecycleState>(), [date, setDate] = useState(""), [time, setTime] = useState(""), [occurrence, setOccurrence] = useState("");
@@ -24,7 +25,7 @@ function Reader({ institute, timezone, selection, services = [], employees = [] 
   const [report, setReport] = useState<WaitlistMatching>(), [detection, setDetection] = useState<WaitlistDetection>();
   const [busy, setBusy] = useState(false), [error, setError] = useState<string>();
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; sequence.current++; }; }, []);
-  function clear() { sequence.current++; setReport(undefined); setDetection(undefined); setError(undefined); setBusy(false); }
+  function clear() { sequence.current++; setReport(undefined); setDetection(undefined); setError(undefined); setBusy(false); onReviewed?.(undefined); }
   useEffect(() => {
     clear(); setSelected(undefined);
     if (!selection) return;
@@ -46,6 +47,7 @@ function Reader({ institute, timezone, selection, services = [], employees = [] 
     const n = ++sequence.current, state = selected ? structuredClone(selected) : undefined;
     setReport(undefined); setDetection(undefined); setError(undefined);
     if (!current(n)) return;
+    onReviewed?.(undefined);
     if (!ready || !horizon || !validWaitlistPolicy(policy) || mode === "selected" && !state) { setError("Choisissez une fin d’horizon et toutes les règles de revue."); return; }
     const rules: WaitlistPolicy = { ...policy }, end = horizon;
     setBusy(true);
@@ -58,7 +60,7 @@ function Reader({ institute, timezone, selection, services = [], employees = [] 
         query.set("expected_event_id", latest.original.id); query.set("expected_event_fingerprint", latest.fingerprint);
         const value = await apiGet<WaitlistMatching>(`${base}/lifecycle/states/${encodeURIComponent(state.root.original.id)}/matching?${query}`);
         if (!await validWaitlistMatching(value, institute, { state, horizon_end: end, policy: rules })) throw new Error("Invalid matching proof");
-        if (current(n)) setReport(value);
+        if (current(n)) { setReport(value); onReviewed?.({ state, horizon_end: end, policy: rules }); }
       } else {
         query.set("offset", String(offset)); query.set("limit", "20");
         const value = await apiGet<WaitlistDetection>(`${base}/detection?${query}`);
