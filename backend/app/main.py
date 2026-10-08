@@ -24,6 +24,7 @@ from app.modules.auth.routes import router as auth_router
 from app.modules.dashboard.routes import router as dashboard_router
 from app.modules.revenue.routes import router as revenue_router
 from app.modules.waitlist.routes import router as waitlist_router
+from app.modules.optimizer.routes import router as optimizer_router
 from app.modules.dev.routes import router as dev_router
 from app.modules.employees.routes import router as employees_router
 from app.modules.institutes.routes import router as institutes_router
@@ -119,6 +120,7 @@ def create_app(payment_bindings=()) -> FastAPI:
     app.include_router(dashboard_router, prefix=prefix)
     app.include_router(revenue_router, prefix=prefix)
     app.include_router(waitlist_router, prefix=prefix)
+    app.include_router(optimizer_router, prefix=prefix)
     app.include_router(dev_router, prefix=prefix)
     app.include_router(realtime_router)
 

@@ -4,7 +4,8 @@ Authority: Master Plan section37. SCHEDULING_OPTIMIZER, SCORING_DETERMINISTIC an
 EXPLANATION_EVIDENCE remain OPEN until authenticated source/policy integration,
 native review and scoped end-to-end acceptance.16A supplies the pure deterministic
 kernel;16B adds explicit normalization terms and raw-to-normalized proof. The
-full26-phase objective remains ACTIVE.
+full26-phase objective remains ACTIVE.16C adds retained signed policy originals;
+current factor capture and native optimizer review remain unfinished.
 
 ## Official calculation
 
@@ -137,3 +138,49 @@ not a public client-supplied scoring endpoint. Existing services/routes/schema/
 frontend unchanged. Next: retained scoped normalization/weight originals with
 signed actor, source hash, key recovery and controlled migrations; then actual
 current factor capture and version-bound native review. All Phase16 gates OPEN.
+
+## 16C retained signed policy originals
+
+`optimizer/originals.py` and signed manager/exact-institute routes retain the full
+eight-rule terms, reason, idempotency key, server identity/actor/capture and raw
+JSON/SHA. The client cannot inject identity, scope, actor, capture or score. Policies
+are independent retained scoring assumptions: creation does not activate a global
+default, grant booking/contact authority or compute an official score. A score
+review must explicitly select its retained original and fingerprint later.
+
+Every read verifies the full raw fingerprint, strict typed snapshot/canonical
+representation, logical normalization rules, row identity/scope/actor/key/clock and
+nonfuture capture. Raw rehashed malformed claims, noncanonical trimmed terms and
+column contradictions refuse. Integrity is consistency evidence, not SQL-admin
+authenticity or an append-only-trigger claim. Key replay binds the exact retained
+request and actor; changed terms/reason/actor cannot reuse it. Scoped key/ID reads
+recover a committed acknowledgement without another original. Institute locking
+and SQL unique institute/key constraints serialize actual PostgreSQL races.
+Failures roll back; no policy is retained after failed flush.
+
+POST `/optimizer/institutes/{institute}/policy-originals` accepts only terms/reason/
+key. GET policy-original-by-key, GET policy-originals/{id}, and explicit20-row GET
+policy-originals history require the same signed manager scope. Whole retained
+cohort verifies before pagination, so corruption outside a requested page cannot
+hide behind counts. The history is not an active operational policy head.
+
+Migration `b128ef60a9d2` follows `a017d865bb4c` and registers matching runtime/Alembic
+metadata. Empty temporary SQLite/PostgreSQL down/up and metadata comparisons are
+tested; offline downgrade and removal with retained history refuse. No persistent
+application or production database is migrated by this checkpoint.
+
+Final complete eight-module regression70 passed66.82s, zero failures/skips, terminalexit0, with SQLite and actual isolated PostgreSQL. Includes actual same-key/conflicting-request races, rollback/lost acknowledgement, signed scope/injection rejection,25-row20/5 history/off-page tamper, canonical raw-proof checks, controlled migration roundtrips/metadata/history guards, and existing scoring/normalization/matching/original/migration compatibility.
+
+Initial eight-module run69 passed/1 failed83.77s: test assumed absence for an
+institute that did not exist, while the existing institute guard correctly returned
+404. Added an owned foreign institute; next69 passed/1 failed70.87s exposed its
+missing required city field. Completed the fixture without weakening production
+guards. Strengthened canonical raw-snapshot verification and rehashed whitespace
+tamper coverage. Existing crypt deprecation and intentional unsafe-copy serializer
+warnings are separate from test failures.
+
+No frontend/native optimizer or whole-project/production acceptance claimed.
+SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
+Next: sovereign factor derivation from current matching/SQL sources, selected
+retained policy/full fingerprint, raw normalization proof and version-pinned signed
+review; then native policy authoring/history/recovery and score/reason/risk review.
