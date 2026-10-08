@@ -7,7 +7,8 @@ revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
 allocations as virtual constraints;15G adds native retained-declaration history;
 15H adds protected demand-intent transport;15I adds native declaration authoring
-and recovery. Native lifecycle and matching/detection review remain unfinished.
+and recovery;15J adds native retained lifecycle history. Native lifecycle actions
+and matching/detection review remain unfinished.
 
 ## Contract and current implementation
 
@@ -53,7 +54,7 @@ is not machine verification of every real-world constraint.
 | History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
 | Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
 | Auto slot detection |15D selected-version intersections;15E whole-cohort capture/paging;15F queue allocations | Native source invalidation/evidence and release/load verification |
-| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery | Native lifecycle transitions/recovery and matching integration; declarations alone are not active lifecycle |
+| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery;15J native causal history | Native lifecycle transitions/recovery and matching integration; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
 ## Verification
@@ -413,3 +414,53 @@ native visual evidence. Backend/schema unchanged (heada017d865bb4c); no persiste
 migration, physical device/provider/load/production acceptance. All three Phase15
 gates remain OPEN; next native explicit lifecycle transitions and version/key recovery,
 then current matching/detection policy and source review. Full26-phase goal stays active.
+
+## Phase15J — native retained lifecycle history
+
+Manager-only Pilotage reader explicitly fetches20-row lifecycle pages, with no mount
+I/O. Total/active/cancelled counts describe retained request roots, not distinct
+customers or feasible appointments. Current selected declaration, institution-zone
+availability, duration and confirmed/unknown constraints are visible. Administrative
+active state is not eligibility. Cancelled chains remain terminal and readable.
+Folded proof shows causal actions, captured actor/reason/clock, original ID/key/full
+SHA, selected declaration reference and retained activation/revision registration,
+catalog duration and restrictions. Cancellation explicitly has no new eligibility
+capture. Raw event/root/current originals remain inspectable and wrap.
+
+Browser validates exact request/event/state/audit contracts, complete raw SHA,
+safe count partitions and exact20-row cardinality/root order, unique action IDs and
+keys across returned roots, one customer across root/current/source, predecessor
+ID/full fingerprint, nondecreasing microsecond clocks, initial activation, changed
+revision target, preserved cancellation target and terminal state. Equal clocks
+follow causal links, never event-ID sorting. Returned root/current declarations
+bind known target fingerprints, captured source fields and historical future-window
+conditions. Intermediate replacement originals omitted from the state response
+remain opaque references: server15C verifies their source/chronology and all off-page
+chains before paging. This is consistency evidence, not SQL-admin authenticity,
+current calendar/capacity, contact permission or inferred automatic action.
+
+Pending/error masks prior evidence; retry and request/unmount/role/token/institute/
+timezone guards suppress stale reads. Pure backend typed DTO generator creates the
+Unicode/multiline/equal-clock vector without SQL or application startup. Four pure
+and two component tests cover rehashed source/target/causal contradictions, raw
+tamper, duplicate keys, terminal/order/predecessor violations, partitions, page and
+capture bounds, corruption mask/retry and late scope/timezone/role replies. Focused
+lifecycle plus prior writer13 passed8.14s; full frontend430 passed95.48s, no failures/
+skips, terminalexit0. TypeScript/Vite production build passed177 modules, terminalexit0.
+
+Final rebuilt actual signed backend Edge desktop/touch landscape tablet2 passed
+2.0m (19.5s/13.6s), no failures/skips, terminalexit0; owned tempDB removed. API fixtures
+create25 then50 activated roots, one revised/cancelled chain per profile and additional
+unactivated declarations; these API transitions are not native transition authoring.
+Native reads prove20/5 and20/20/10 paging with unique roots,24/48 active and1/2 cancelled,
+causal three-action/current-replacement proof, unknown constraints, full original/source
+fingerprints, corrupt terminal-state mask/retry,44px controls, region width>=600/no
+overflow and unchanged lifecycle counts after reads. Four final cancelled-chain/
+active-unknown captures individually inspected: institution dates and wrapped proofs
+are readable. Backend services/schema unchanged (heada017d865bb4c); no persistent
+migration, provider, physical/load/production or whole-project acceptance claimed.
+
+Next: native explicit activation/revision/cancellation pinned to verified root,
+target and predecessor with protected same-key recovery; then current selected-version
+matching and whole-waitlist detection policy/source review. All three Phase15 gates
+remain OPEN and full26-phase goal stays active.

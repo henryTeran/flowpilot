@@ -1,0 +1,712 @@
+{
+  "audit": {
+    "institute_id": "own",
+    "captured_at": "2026-10-08T10:05:00Z",
+    "offset": 0,
+    "limit": 20,
+    "total": 2,
+    "active": 1,
+    "cancelled": 1,
+    "states": [
+      {
+        "root": {
+          "original": {
+            "id": "waitlist_demand_000",
+            "institute_id": "own",
+            "actor_id": "manager-\u00c9",
+            "created_at": "2026-10-08T10:00:00Z",
+            "idempotency_key": "demand-waitlist_demand_000",
+            "reason": "D\u00e9claration waitlist_demand_000",
+            "demand": {
+              "institute_id": "own",
+              "customer_id": "customer",
+              "service_id": "care",
+              "declared_at": "2026-10-08T10:00:00Z",
+              "duration_minutes": 30,
+              "availability": [
+                {
+                  "start": "2026-10-08T11:00:00Z",
+                  "end": "2026-10-08T12:00:00Z"
+                }
+              ],
+              "allowed_employee_ids": [
+                "employee"
+              ],
+              "constraints_review": "confirmed",
+              "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+              "constraints_evidence": "Contraintes relues"
+            },
+            "source": {
+              "customer_id": "customer",
+              "registered_at": "2026-10-05T10:00:00Z",
+              "service_id": "care",
+              "duration_minutes": 30,
+              "allowed_employee_ids": [
+                "employee"
+              ]
+            },
+            "state": "declared_only",
+            "action": "no_booking_or_contact"
+          },
+          "fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402"
+        },
+        "current_demand": {
+          "original": {
+            "id": "waitlist_demand_001",
+            "institute_id": "own",
+            "actor_id": "manager-\u00c9",
+            "created_at": "2026-10-08T10:02:00Z",
+            "idempotency_key": "demand-waitlist_demand_001",
+            "reason": "D\u00e9claration waitlist_demand_001",
+            "demand": {
+              "institute_id": "own",
+              "customer_id": "customer",
+              "service_id": "care",
+              "declared_at": "2026-10-08T10:02:00Z",
+              "duration_minutes": 30,
+              "availability": [
+                {
+                  "start": "2026-10-08T11:00:00Z",
+                  "end": "2026-10-08T12:00:00Z"
+                }
+              ],
+              "allowed_employee_ids": [
+                "employee"
+              ],
+              "constraints_review": "confirmed",
+              "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+              "constraints_evidence": "Contraintes relues"
+            },
+            "source": {
+              "customer_id": "customer",
+              "registered_at": "2026-10-05T10:00:00Z",
+              "service_id": "care",
+              "duration_minutes": 30,
+              "allowed_employee_ids": [
+                "employee"
+              ]
+            },
+            "state": "declared_only",
+            "action": "no_booking_or_contact"
+          },
+          "fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19"
+        },
+        "state": "cancelled",
+        "events": [
+          {
+            "original": {
+              "root_id": "waitlist_demand_000",
+              "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+              "previous_id": null,
+              "previous_fingerprint": null,
+              "action": "activate",
+              "target_id": "waitlist_demand_000",
+              "target_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+              "reason": "Action activate relue\navec preuve \ud83d\ude00",
+              "idempotency_key": "event-event_z",
+              "id": "event_z",
+              "institute_id": "own",
+              "actor_id": "manager-\u00c9",
+              "created_at": "2026-10-08T10:01:00Z",
+              "activation_source": {
+                "customer_id": "customer",
+                "registered_at": "2026-10-05T10:00:00Z",
+                "service_id": "care",
+                "duration_minutes": 30,
+                "allowed_employee_ids": [
+                  "employee"
+                ]
+              },
+              "effect": "waitlist_state_only_no_booking_or_contact"
+            },
+            "fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284"
+          },
+          {
+            "original": {
+              "root_id": "waitlist_demand_000",
+              "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+              "previous_id": "event_z",
+              "previous_fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284",
+              "action": "revise",
+              "target_id": "waitlist_demand_001",
+              "target_fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19",
+              "reason": "Action revise relue\navec preuve \ud83d\ude00",
+              "idempotency_key": "event-event_a",
+              "id": "event_a",
+              "institute_id": "own",
+              "actor_id": "manager-\u00c9",
+              "created_at": "2026-10-08T10:03:00Z",
+              "activation_source": {
+                "customer_id": "customer",
+                "registered_at": "2026-10-05T10:00:00Z",
+                "service_id": "care",
+                "duration_minutes": 30,
+                "allowed_employee_ids": [
+                  "employee"
+                ]
+              },
+              "effect": "waitlist_state_only_no_booking_or_contact"
+            },
+            "fingerprint": "5c88b85130c2d80691b039dd9c9c7b86e5c6b93bb8164c9cc811fa02cd93c89a"
+          },
+          {
+            "original": {
+              "root_id": "waitlist_demand_000",
+              "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+              "previous_id": "event_a",
+              "previous_fingerprint": "5c88b85130c2d80691b039dd9c9c7b86e5c6b93bb8164c9cc811fa02cd93c89a",
+              "action": "cancel",
+              "target_id": "waitlist_demand_001",
+              "target_fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19",
+              "reason": "Action cancel relue\navec preuve \ud83d\ude00",
+              "idempotency_key": "event-event_b",
+              "id": "event_b",
+              "institute_id": "own",
+              "actor_id": "manager-\u00c9",
+              "created_at": "2026-10-08T10:03:00Z",
+              "activation_source": null,
+              "effect": "waitlist_state_only_no_booking_or_contact"
+            },
+            "fingerprint": "00db378757eab9fe107af93b833a7817869f25bbfa4a52bad8fd79fac2f87171"
+          }
+        ]
+      },
+      {
+        "root": {
+          "original": {
+            "id": "waitlist_demand_002",
+            "institute_id": "own",
+            "actor_id": "manager-\u00c9",
+            "created_at": "2026-10-08T10:00:00Z",
+            "idempotency_key": "demand-waitlist_demand_002",
+            "reason": "D\u00e9claration waitlist_demand_002",
+            "demand": {
+              "institute_id": "own",
+              "customer_id": "other-customer",
+              "service_id": "care",
+              "declared_at": "2026-10-08T10:00:00Z",
+              "duration_minutes": 30,
+              "availability": [
+                {
+                  "start": "2026-10-08T11:00:00Z",
+                  "end": "2026-10-08T12:00:00Z"
+                }
+              ],
+              "allowed_employee_ids": [
+                "employee"
+              ],
+              "constraints_review": "confirmed",
+              "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+              "constraints_evidence": "Contraintes relues"
+            },
+            "source": {
+              "customer_id": "other-customer",
+              "registered_at": "2026-10-05T10:00:00Z",
+              "service_id": "care",
+              "duration_minutes": 30,
+              "allowed_employee_ids": [
+                "employee"
+              ]
+            },
+            "state": "declared_only",
+            "action": "no_booking_or_contact"
+          },
+          "fingerprint": "decfb0ed9771eba5d78db76827e2b2db808e208af8dc746f8d05770a05e3c6de"
+        },
+        "current_demand": {
+          "original": {
+            "id": "waitlist_demand_002",
+            "institute_id": "own",
+            "actor_id": "manager-\u00c9",
+            "created_at": "2026-10-08T10:00:00Z",
+            "idempotency_key": "demand-waitlist_demand_002",
+            "reason": "D\u00e9claration waitlist_demand_002",
+            "demand": {
+              "institute_id": "own",
+              "customer_id": "other-customer",
+              "service_id": "care",
+              "declared_at": "2026-10-08T10:00:00Z",
+              "duration_minutes": 30,
+              "availability": [
+                {
+                  "start": "2026-10-08T11:00:00Z",
+                  "end": "2026-10-08T12:00:00Z"
+                }
+              ],
+              "allowed_employee_ids": [
+                "employee"
+              ],
+              "constraints_review": "confirmed",
+              "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+              "constraints_evidence": "Contraintes relues"
+            },
+            "source": {
+              "customer_id": "other-customer",
+              "registered_at": "2026-10-05T10:00:00Z",
+              "service_id": "care",
+              "duration_minutes": 30,
+              "allowed_employee_ids": [
+                "employee"
+              ]
+            },
+            "state": "declared_only",
+            "action": "no_booking_or_contact"
+          },
+          "fingerprint": "decfb0ed9771eba5d78db76827e2b2db808e208af8dc746f8d05770a05e3c6de"
+        },
+        "state": "active",
+        "events": [
+          {
+            "original": {
+              "root_id": "waitlist_demand_002",
+              "root_fingerprint": "decfb0ed9771eba5d78db76827e2b2db808e208af8dc746f8d05770a05e3c6de",
+              "previous_id": null,
+              "previous_fingerprint": null,
+              "action": "activate",
+              "target_id": "waitlist_demand_002",
+              "target_fingerprint": "decfb0ed9771eba5d78db76827e2b2db808e208af8dc746f8d05770a05e3c6de",
+              "reason": "Action activate relue\navec preuve \ud83d\ude00",
+              "idempotency_key": "event-event_other",
+              "id": "event_other",
+              "institute_id": "own",
+              "actor_id": "manager-\u00c9",
+              "created_at": "2026-10-08T10:01:00Z",
+              "activation_source": {
+                "customer_id": "other-customer",
+                "registered_at": "2026-10-05T10:00:00Z",
+                "service_id": "care",
+                "duration_minutes": 30,
+                "allowed_employee_ids": [
+                  "employee"
+                ]
+              },
+              "effect": "waitlist_state_only_no_booking_or_contact"
+            },
+            "fingerprint": "713ca0dba9a100bf49a8ec73fd67249646e321609aa7365d3b465552235a3077"
+          }
+        ]
+      }
+    ]
+  },
+  "activated": {
+    "root": {
+      "original": {
+        "id": "waitlist_demand_000",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:00:00Z",
+        "idempotency_key": "demand-waitlist_demand_000",
+        "reason": "D\u00e9claration waitlist_demand_000",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:00:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402"
+    },
+    "current_demand": {
+      "original": {
+        "id": "waitlist_demand_000",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:00:00Z",
+        "idempotency_key": "demand-waitlist_demand_000",
+        "reason": "D\u00e9claration waitlist_demand_000",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:00:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402"
+    },
+    "state": "active",
+    "events": [
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "action": "activate",
+          "target_id": "waitlist_demand_000",
+          "target_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "reason": "Action activate relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_z",
+          "id": "event_z",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:01:00Z",
+          "activation_source": {
+            "customer_id": "customer",
+            "registered_at": "2026-10-05T10:00:00Z",
+            "service_id": "care",
+            "duration_minutes": 30,
+            "allowed_employee_ids": [
+              "employee"
+            ]
+          },
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284"
+      }
+    ]
+  },
+  "revised": {
+    "root": {
+      "original": {
+        "id": "waitlist_demand_000",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:00:00Z",
+        "idempotency_key": "demand-waitlist_demand_000",
+        "reason": "D\u00e9claration waitlist_demand_000",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:00:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402"
+    },
+    "current_demand": {
+      "original": {
+        "id": "waitlist_demand_001",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:02:00Z",
+        "idempotency_key": "demand-waitlist_demand_001",
+        "reason": "D\u00e9claration waitlist_demand_001",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:02:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19"
+    },
+    "state": "active",
+    "events": [
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "action": "activate",
+          "target_id": "waitlist_demand_000",
+          "target_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "reason": "Action activate relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_z",
+          "id": "event_z",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:01:00Z",
+          "activation_source": {
+            "customer_id": "customer",
+            "registered_at": "2026-10-05T10:00:00Z",
+            "service_id": "care",
+            "duration_minutes": 30,
+            "allowed_employee_ids": [
+              "employee"
+            ]
+          },
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284"
+      },
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": "event_z",
+          "previous_fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284",
+          "action": "revise",
+          "target_id": "waitlist_demand_001",
+          "target_fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19",
+          "reason": "Action revise relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_a",
+          "id": "event_a",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:03:00Z",
+          "activation_source": {
+            "customer_id": "customer",
+            "registered_at": "2026-10-05T10:00:00Z",
+            "service_id": "care",
+            "duration_minutes": 30,
+            "allowed_employee_ids": [
+              "employee"
+            ]
+          },
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "5c88b85130c2d80691b039dd9c9c7b86e5c6b93bb8164c9cc811fa02cd93c89a"
+      }
+    ]
+  },
+  "cancelled": {
+    "root": {
+      "original": {
+        "id": "waitlist_demand_000",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:00:00Z",
+        "idempotency_key": "demand-waitlist_demand_000",
+        "reason": "D\u00e9claration waitlist_demand_000",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:00:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402"
+    },
+    "current_demand": {
+      "original": {
+        "id": "waitlist_demand_001",
+        "institute_id": "own",
+        "actor_id": "manager-\u00c9",
+        "created_at": "2026-10-08T10:02:00Z",
+        "idempotency_key": "demand-waitlist_demand_001",
+        "reason": "D\u00e9claration waitlist_demand_001",
+        "demand": {
+          "institute_id": "own",
+          "customer_id": "customer",
+          "service_id": "care",
+          "declared_at": "2026-10-08T10:02:00Z",
+          "duration_minutes": 30,
+          "availability": [
+            {
+              "start": "2026-10-08T11:00:00Z",
+              "end": "2026-10-08T12:00:00Z"
+            }
+          ],
+          "allowed_employee_ids": [
+            "employee"
+          ],
+          "constraints_review": "confirmed",
+          "availability_evidence": "D\u00e9claration cliente \ud83d\ude00",
+          "constraints_evidence": "Contraintes relues"
+        },
+        "source": {
+          "customer_id": "customer",
+          "registered_at": "2026-10-05T10:00:00Z",
+          "service_id": "care",
+          "duration_minutes": 30,
+          "allowed_employee_ids": [
+            "employee"
+          ]
+        },
+        "state": "declared_only",
+        "action": "no_booking_or_contact"
+      },
+      "fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19"
+    },
+    "state": "cancelled",
+    "events": [
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "action": "activate",
+          "target_id": "waitlist_demand_000",
+          "target_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "reason": "Action activate relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_z",
+          "id": "event_z",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:01:00Z",
+          "activation_source": {
+            "customer_id": "customer",
+            "registered_at": "2026-10-05T10:00:00Z",
+            "service_id": "care",
+            "duration_minutes": 30,
+            "allowed_employee_ids": [
+              "employee"
+            ]
+          },
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284"
+      },
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": "event_z",
+          "previous_fingerprint": "995c217f957177b70a3a0ae5043a062188d64ee7f3355c6b680787c21d645284",
+          "action": "revise",
+          "target_id": "waitlist_demand_001",
+          "target_fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19",
+          "reason": "Action revise relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_a",
+          "id": "event_a",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:03:00Z",
+          "activation_source": {
+            "customer_id": "customer",
+            "registered_at": "2026-10-05T10:00:00Z",
+            "service_id": "care",
+            "duration_minutes": 30,
+            "allowed_employee_ids": [
+              "employee"
+            ]
+          },
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "5c88b85130c2d80691b039dd9c9c7b86e5c6b93bb8164c9cc811fa02cd93c89a"
+      },
+      {
+        "original": {
+          "root_id": "waitlist_demand_000",
+          "root_fingerprint": "4201fa0b7e2796c06547bb7a5d32e9ced8603a25335b87462fe7249e8084b402",
+          "previous_id": "event_a",
+          "previous_fingerprint": "5c88b85130c2d80691b039dd9c9c7b86e5c6b93bb8164c9cc811fa02cd93c89a",
+          "action": "cancel",
+          "target_id": "waitlist_demand_001",
+          "target_fingerprint": "ee9058ad79f6e136e975869f5b92adc875837bab37491df9ceef0315049fbc19",
+          "reason": "Action cancel relue\navec preuve \ud83d\ude00",
+          "idempotency_key": "event-event_b",
+          "id": "event_b",
+          "institute_id": "own",
+          "actor_id": "manager-\u00c9",
+          "created_at": "2026-10-08T10:03:00Z",
+          "activation_source": null,
+          "effect": "waitlist_state_only_no_booking_or_contact"
+        },
+        "fingerprint": "00db378757eab9fe107af93b833a7817869f25bbfa4a52bad8fd79fac2f87171"
+      }
+    ]
+  }
+}
