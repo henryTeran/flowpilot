@@ -1,6 +1,12 @@
 CURRENT_PHASE = PHASE 15
-CURRENT_CHECKPOINT = PHASE14W_CANONICAL_ACCEPTANCE_AUDIT
+CURRENT_CHECKPOINT = PHASE15A_EXPLICIT_DEMAND_MATCHING_KERNEL
 STATUS = ACTIVE
+
+PHASE15A_EXPLICIT_DEMAND_MATCHING_KERNEL:
+- Added typed scoped service/customer demand, evidenced aware customer windows, employee restrictions and explicit unknown/confirmed constraints. Pure matching intersects recorded employee windows, applies the existing skill authority and complete distinct-unit resource allocator, checks current/declared duration equality and normalizes elapsed instants to UTC across repeated civil hours. Earliest complete options sort deterministically, without invented score, reservation or dispatch. Dated history/permission context remains visible but does not yet implement history-based policy or contact eligibility.
+- Initial focused9pass/1fail exposed an overbroad source-order equality assertion, corrected to compare computed options/outcome. One compatibility command referenced a missing filename and collected no tests. Final focused11 passed0.98s; final combined pure matching/existing allocator19 passed1.68s, terminalexit0, no failures/skips. Existing crypt deprecation only. No SQL/API/native/source-capture acceptance extrapolated; no backend/schema/persistent database migration or frontend changes.
+- docs/product/SMART_WAITLIST.md maps all section36 dimensions and remaining lifecycle/source/consent/structured-constraint/native work. CHECKPOINT_STATUS = PARTIAL; WAITLIST / WAITLIST_MATCHING / AUTO_SLOT_DETECTION remain OPEN. Full26-phase goal ACTIVE; production/physical/provider/load gates separately OPEN.
+- NEXT: retained explicit demand originals, signed actor/key recovery and lifecycle, then sovereign SQL source capture and authenticated matching review. Source caller-supplied capacity is not trusted by a public endpoint.
 
 PHASE14W_CANONICAL_ACCEPTANCE_AUDIT:
 - Requirement-by-requirement audit in docs/product/REVENUE_PHASE14_ACCEPTANCE.md maps Master Plan section35 and sensitive-action audit section64 to implementation and limitations. No application/schema changes. Earlier generic opportunity retention and inferred rebooking price/slot linkage were planning hypotheses, not explicit acceptance requirements. Read-only review does not execute a decision; sensitive scenario/valuation writes already retain actor/request/source/key/originals. Unknown prices remain unavailable, never fabricated or zero.
