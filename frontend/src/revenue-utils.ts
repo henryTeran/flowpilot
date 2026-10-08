@@ -20,7 +20,7 @@ const id = (v: unknown): v is string => typeof v === "string" && v.length > 0 &&
 function ratio(v: unknown, numerator: string, denominator: string) {
   return keys(v, "numerator denominator") && v.numerator === numerator && v.denominator === denominator;
 }
-function amounts(v: unknown): v is RevenueAmounts {
+export function validRevenueAmounts(v: unknown): v is RevenueAmounts {
   if (!keys(v, "currency source_count known_amount_count missing_amount_count invalid_amount_count known_gross_minor complete_gross_minor average_minor")
     || !currency(v.currency) || !count(v.source_count) || !v.source_count || !count(v.known_amount_count)
     || !count(v.missing_amount_count) || !count(v.invalid_amount_count) || !unsigned(v.known_gross_minor)) return false;
@@ -40,7 +40,7 @@ export function validRevenueBilling(v: unknown, institute: string, period: { sta
     || start !== certificationInstant(period.start) || end !== certificationInstant(period.end)) return false;
   const counts = [v.ticket_count, v.active_line_count, v.tickets_without_active_lines, v.tickets_with_unknown_category,
     v.care_tickets, v.care_and_retail_tickets, v.institute_undated_paid_tickets];
-  if (!counts.every(count) || !Array.isArray(v.ticket_amounts) || !v.ticket_amounts.every(amounts)
+  if (!counts.every(count) || !Array.isArray(v.ticket_amounts) || !v.ticket_amounts.every(validRevenueAmounts)
     || !Array.isArray(v.service_mix)) return false;
   const total = v.ticket_count as number, care = v.care_tickets as number, attached = v.care_and_retail_tickets as number;
   if (attached > care || care > total || (v.tickets_without_active_lines as number) > total || (v.tickets_with_unknown_category as number) > total) return false;
@@ -50,7 +50,7 @@ export function validRevenueBilling(v: unknown, institute: string, period: { sta
   for (const g of v.service_mix) {
     if (!keys(g, "service_id category currency line_count units amounts") || !id(g.service_id)
       || ![null, "care", "retail"].includes(g.category as string | null) || !currency(g.currency)
-      || !count(g.line_count) || !unsigned(g.units) || !amounts(g.amounts)
+      || !count(g.line_count) || !unsigned(g.units) || !validRevenueAmounts(g.amounts)
       || g.currency !== g.amounts.currency || g.line_count !== g.amounts.source_count || BigInt(g.units) < BigInt(g.line_count)) return false;
     const key = JSON.stringify([g.service_id, g.category, g.currency]);
     if (seen.has(key)) return false; seen.add(key); lines += BigInt(g.line_count);

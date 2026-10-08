@@ -1,0 +1,355 @@
+{
+  "window": {
+    "institute_id": "own",
+    "start": "2026-01-01T00:00:00Z",
+    "end": "2026-01-03T00:00:00Z",
+    "captured_at": "2026-01-05T00:00:00Z"
+  },
+  "basis": "walk_in_cancellation_event_time",
+  "page": {
+    "offset": 0,
+    "limit": 20,
+    "total": 7
+  },
+  "opportunities": [
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-0",
+        "event_id": 1,
+        "occurred_at": "2026-01-02T12:00:00Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-0",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:00+00:00",
+            "actor_id": "Source 😀",
+            "currency": "CHF",
+            "amount_minor": "987",
+            "amount_quality": "known",
+            "lines": [
+              {
+                "id": "line-0",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "68025159a95e16908a7ad97f10cc0179460f35b49888bb351f6e511c78e26d87"
+        }
+      },
+      "estimated_value": {
+        "currency": "CHF",
+        "amount_minor": "987",
+        "basis": "recorded_cancelled_commercial_value"
+      },
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-1",
+        "event_id": 2,
+        "occurred_at": "2026-01-02T12:00:01Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-1",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:01+00:00",
+            "actor_id": "Source 😀",
+            "currency": "CHF",
+            "amount_minor": "0",
+            "amount_quality": "known",
+            "lines": [
+              {
+                "id": "line-1",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "42bbef03f5548df21e93d7cccb482d0c7c0f7c06b02eb1970a44eca3001e7cfc"
+        }
+      },
+      "estimated_value": {
+        "currency": "CHF",
+        "amount_minor": "0",
+        "basis": "recorded_cancelled_commercial_value"
+      },
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-2",
+        "event_id": 3,
+        "occurred_at": "2026-01-02T12:00:02Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-2",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:02+00:00",
+            "actor_id": "Source 😀",
+            "currency": "CHF",
+            "amount_minor": null,
+            "amount_quality": "missing",
+            "lines": [
+              {
+                "id": "line-2",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "d281cb95a6b5f6bb1b52d6bdf8f53d5e5f7b1e473e5a711ef2cdbe439e07df99"
+        }
+      },
+      "estimated_value": null,
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-3",
+        "event_id": 4,
+        "occurred_at": "2026-01-02T12:00:03Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-3",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:03+00:00",
+            "actor_id": "Source 😀",
+            "currency": "EUR",
+            "amount_minor": "1234",
+            "amount_quality": "known",
+            "lines": [
+              {
+                "id": "line-3",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "bd3fc902db9d9619557a596d66807a4c87fba70498e43a1da94d8bb3a519f419"
+        }
+      },
+      "estimated_value": {
+        "currency": "EUR",
+        "amount_minor": "1234",
+        "basis": "recorded_cancelled_commercial_value"
+      },
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-4",
+        "event_id": 5,
+        "occurred_at": "2026-01-02T12:00:04Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-4",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:04+00:00",
+            "actor_id": "Source 😀",
+            "currency": null,
+            "amount_minor": "500",
+            "amount_quality": "known",
+            "lines": [
+              {
+                "id": "line-4",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "a63384b6fe25336760b9d0febb6d0ca4cd3045e3a4cf8883620c23f83e4a3231"
+        }
+      },
+      "estimated_value": null,
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "ticket-5",
+        "event_id": 6,
+        "occurred_at": "2026-01-02T12:00:05Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": {
+          "terms": {
+            "institute_id": "own",
+            "ticket_id": "ticket-5",
+            "customer_id": null,
+            "previous_status": "waiting",
+            "status": "cancelled",
+            "occurred_at": "2026-01-02T12:00:05+00:00",
+            "actor_id": "Source 😀",
+            "currency": "EUR",
+            "amount_minor": null,
+            "amount_quality": "invalid",
+            "lines": [
+              {
+                "id": "line-5",
+                "service_id": "care",
+                "quantity": 2,
+                "duration_minutes": 30,
+                "category": "care",
+                "unit_minor": "500",
+                "unit_quality": "known",
+                "total_minor": "1000",
+                "total_quality": "known",
+                "removed_at": "2026-01-02T11:00:00+00:00"
+              }
+            ],
+            "basis": "recorded_commercial_terms_at_cancellation",
+            "realized_revenue": false,
+            "causal_loss_proven": false
+          },
+          "fingerprint": "27f6e753ed58294903d05d1591c1bf1b592490744a8313dd2cf607ee578d46be"
+        }
+      },
+      "estimated_value": null,
+      "confidence": "retained_commercial_terms_not_causal_loss",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    },
+    {
+      "type": "review_cancelled_walk_in",
+      "evidence": {
+        "institute_id": "own",
+        "ticket_id": "legacy",
+        "event_id": 7,
+        "occurred_at": "2026-01-02T12:00:07Z",
+        "captured_at": "2026-01-05T00:00:00Z",
+        "original": null
+      },
+      "estimated_value": null,
+      "confidence": "legacy_cancellation_unpriced",
+      "recommended_action": "review_cancellation_and_source_terms_before_any_recovery",
+      "action_executed": false
+    }
+  ],
+  "retained_terms_count": 6,
+  "legacy_unpriced_count": 1,
+  "retained_amounts": [
+    {
+      "currency": null,
+      "source_count": 1,
+      "known_amount_count": 1,
+      "missing_amount_count": 0,
+      "invalid_amount_count": 0,
+      "known_gross_minor": "500",
+      "complete_gross_minor": null,
+      "average_minor": null
+    },
+    {
+      "currency": "CHF",
+      "source_count": 3,
+      "known_amount_count": 2,
+      "missing_amount_count": 1,
+      "invalid_amount_count": 0,
+      "known_gross_minor": "987",
+      "complete_gross_minor": null,
+      "average_minor": null
+    },
+    {
+      "currency": "EUR",
+      "source_count": 2,
+      "known_amount_count": 1,
+      "missing_amount_count": 0,
+      "invalid_amount_count": 1,
+      "known_gross_minor": "1234",
+      "complete_gross_minor": null,
+      "average_minor": null
+    }
+  ],
+  "cancelled_revenue": null,
+  "causal_loss_proven": false
+}

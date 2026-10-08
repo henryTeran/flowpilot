@@ -48,18 +48,18 @@ future-period and unsupported-write refusal.
 
 | Requirement | Current evidence / required work |
 | --- | --- |
-| Average ticket | Exact recorded institute basket kernel and signed source API implemented; native review still required. |
-| Service mix | Recorded active invoice category/service groups implemented; native evidence drill-down still required. |
-| Retail attach rate | Explicit line-classification count/coverage kernel implemented; native review still required. |
-| Capacity utilization | 14B adds pinned institute-wide recorded occupation and exact ratio; complete physical utilization and core bookable-capacity integration remain unproven. |
+| Average ticket | Exact recorded basket kernel/API and14K native desktop/tablet review implemented. Bank settlement and complete real sales remain unproven. |
+| Service mix | Recorded active invoice category/service groups and14K native review implemented; report-level groups do not establish individual invoice navigation or complete real sales. |
+| Retail attach rate | Explicit line-classification count/coverage kernel and14K native uncertainty review implemented. |
+| Capacity utilization | 14B pinned institute-wide recorded occupation/exact ratio and14L native evidence review implemented; physical utilization remains unproven. |
 | Unused capacity | 14B computes declared person-time not covered by finalized recorded activity, with uncertainty refusal. This is not proven unused physical capacity or a saleable slot. |
-| Employee capacity | 14B exposes owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Confirmed reservation, opening-hours review and native acceptance remain required. |
-| Cancelled revenue | 14C verifies booking events but has no historical quote.14G/H retain and verify walk-in cancellation conditions and full-period currency values; legacy unpriced and source diagnostics remain explicit. No causal revenue loss is claimed. |
-| No-show revenue | 14C verifies owned closures;14I/J retain and verify catalog references and expose explicit historical-rate closure scenarios. A benchmark is not an agreed quote, eligibility proof or causal loss. Native review and retained scenario audit remain required. |
+| Employee capacity | 14B/14L expose owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority. Native opportunity review remains required. No confirmed reservation or opening-hours/physical-attendance proof. |
+| Cancelled revenue | 14C/14I/J/R/S verify booking closures, historical catalog references and independent retained rate scenarios with native review.14G/H retain walk-in conditions/full-period currency values; native walk-in review is tracked in14T below. No agreed quote or causal revenue loss is claimed. |
+| No-show revenue | 14C/I/J/R/S implement source verification, explicit historical-rate scenarios, retained original/key/audit and native review. A benchmark is not an agreed quote, eligibility proof or causal loss. |
 | Rebooking opportunities | 14E adds a pinned full-customer CRM candidate catalog, due-rule selection and active-return suppression. Native review, price/scenario valuation and feasible-slot integration remain required; no contact authorization is inferred. |
-| Projected revenue | 14D implements a signed exact constant-historical-rate preview with explicit period/currency/activity assumptions and source coverage refusal. Native review and durable scenario audit remain required. |
-| Opportunities | 14C adds two source-backed unpriced closure follow-ups with all five required fields. Rebooking/scenario/feasible-capacity opportunities and historical price basis remain to integrate. No automatic contact/booking. |
-| Product acceptance | Integrate manager desktop/tablet Revenue Guardian view, source navigation, uncertainty/refusal/retry and actual backend native verification. |
+| Projected revenue | 14D/M/N/O/P/Q implement signed exact historical-rate scenarios, durable originals/key/audit, selected comparison and native desktop/tablet review. Future prediction remains conditional/unvalidated; no scenario sum or attributed effect. |
+| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention. Remaining native rebooking/slot review and opportunity retention must be completed; no automatic contact/booking. |
+| Product acceptance | Recorded billing/capacity/scenario/booking closure native review exists; complete remaining opportunity review, evidence navigation and requirement-by-requirement Phase14 audit before closing gates. |
 
 Large-cohort memory/load behavior and report-wide evidence navigation remain
 unverified: the pure kernel retains unique ticket/line IDs and mix groups even
@@ -991,3 +991,54 @@ the deployment prerequisite. No fresh whole-backend, production, provider, physi
 or load acceptance. All three Phase14 gates remain OPEN; next are native walk-in
 cancellation, rebooking/capacity-opportunity review, remaining opportunity retention
 and the complete Phase14 requirement audit. Full26-phase goal remains ACTIVE.
+
+## Phase 14T — native walk-in cancellation commercial proof
+
+Managers explicitly read completed institute civil days with cancellation-event
+membership and independent twenty-row pages. Whole-period retained/legacy counts
+and CHF/EUR/unknown groups remain separate from page evidence. Legacy cancellations
+without originals are not assigned guessed currencies or amounts. Known subtotals
+are labelled incomplete when necessary; zero is a known value, not missing evidence.
+Unknown currency hides all monetary amounts, including otherwise known line values.
+
+Folded original proof exposes the complete canonical raw SHA, source actor/customer,
+terminal transition and commercial lines including previously removed invoice lines.
+Quantity, unit duration, category, unit amount and already-extended line amount remain
+distinct. Lines do not replace the basket total. Current mutable ticket/catalog/line
+values never reprice the original. These are recorded commercial terms, not payment,
+proven causal loss, physical presence or a dispatched recovery action.
+
+Browser verification checks exact frames, scope/aware window/capture, page cardinality,
+ordering/unique event and ticket, count/currency partitions, original raw fingerprints,
+terminal status/clock and line diagnostics/removal chronology, required opportunity
+confidence/action and exact selected historical value. Returned evidence must fit
+the whole-period counts/gross; a fully returned cohort must agree exactly. This does
+not replace14H's full off-page server verification or authenticate SQL administrators.
+Reads start only on explicit action. Date edits and failed rereads clear old proof;
+token/role/context/request/unmount guards prevent stale fact publication or new reads
+after manager authority changes. The billing amount validator is shared unchanged.
+
+Focused frontend **4 passed2.75s**, full frontend **395 passed91.17s**, zero failures/
+skips, terminalexit0; TypeScript/Vite build passes. Existing backend retention/reader
+modules **4 passed12.71s** on SQLite and actual isolated PostgreSQL, zero failures/
+skips, terminalexit0. Initial native fixtures failed before UI on import path and
+missing required invoice-removal actor/reason; both fixture defects were corrected.
+Fresh rebuilt desktop/tablet **2 passed48.0s**, zero failures/skips,
+BROWSER_PROCESS_EXIT=0/terminalexit0; owned temporary SQLite database removed.
+
+Test-only commercial SQL fixtures use actual domain cancellation for25 retained
+tickets plus one legacy/profile; mutable ticket/line prices are subsequently999.
+Native pages are20/6 then20/20/12, with originalknown0CHF, unknown currency, qty2,
+extended1.01CHF line, removal time, Unicode source actor and fullSHA. Legacy remains
+unavailable; injected causal claim hides all prior proof and valid retry restores it.
+Date edits clear facts; all requests are GET. Four final known-zero/unknown proof
+captures visually reviewed on desktop/tablet: readable full hashes, >=600px region,
+44px controls and no document overflow. Mixed-currency pure Python-validated vector
+tests are not SQL source or native ticket-authoring evidence. Existing crypt/bcrypt/
+color warnings only; no backend/schema or persistent database change.
+
+All three Phase14 gates remain OPEN. Native rebooking/capacity-opportunity review,
+remaining opportunity retention and complete requirement audit are next. Head
+8ef5b643992a remains the deployment prerequisite; production, physical, provider,
+large-cohort/load and full-project backend acceptance remain separate. The full
+26-phase goal remains ACTIVE.

@@ -8,11 +8,12 @@ import { RevenueCapacityReport } from "./RevenueCapacityReport";
 import { RevenueScenarioHistory } from "./RevenueScenarioHistory";
 import { RevenueScenarioWriter } from "./RevenueScenarioWriter";
 import { RevenueBookingClosures } from "./RevenueBookingClosures";
+import { RevenueWalkInCancellations } from "./RevenueWalkInCancellations";
 
 export function RevenueGuardianPanel({ institute, timezone }: { institute: string; timezone?: string }) {
   if (!institute || getOperatorRole() !== "responsable_institut") return null;
   return <><Reader key={JSON.stringify([institute, timezone, getAccessToken()])} institute={institute} timezone={timezone} />
-    <RevenueCapacityReport institute={institute} timezone={timezone} /><ScenarioWorkspace institute={institute} timezone={timezone} /><RevenueBookingClosures institute={institute} timezone={timezone} /></>;
+    <RevenueCapacityReport institute={institute} timezone={timezone} /><ScenarioWorkspace institute={institute} timezone={timezone} /><RevenueBookingClosures institute={institute} timezone={timezone} /><RevenueWalkInCancellations institute={institute} timezone={timezone} /></>;
 }
 function ScenarioWorkspace({ institute, timezone }: { institute: string; timezone?: string }) {
   const [revision, setRevision] = useState(0);
