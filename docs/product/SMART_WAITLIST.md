@@ -1,7 +1,9 @@
 # Smart Waitlist — Phase15
 
 Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
-AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
+AUTO_SLOT_DETECTION PASS at controlled local functional scope, proved in
+[Phase15 acceptance audit](WAITLIST_PHASE15_ACCEPTANCE.md). Production, physical,
+live-provider and large-cohort/load acceptance remain OPEN. Phase15A supplies a pure matching kernel;
 15B adds retained authenticated demand declarations;15C adds explicit activation,
 revision and cancellation;15D adds authenticated selected-version SQL matching.
 15E adds whole-active-waitlist conditional detection;15F integrates core queue
@@ -10,7 +12,8 @@ allocations as virtual constraints;15G adds native retained-declaration history;
 and recovery;15J adds native retained lifecycle history;15K adds protected native
 activation/revision/cancellation and same-key recovery;15L adds current matching
 and detection browser contracts;15M adds native selected-version matching and
-whole-active detection review. Canonical Phase15 acceptance audit remains open.
+whole-active detection review.15N completes the canonical local acceptance audit
+and fresh combined backend/native regressions. Full26-phase goal remains ACTIVE.
 
 ## Contract and current implementation
 
@@ -43,22 +46,22 @@ There is no public endpoint accepting a caller's capacity snapshot. No opening
 hours or physical attendance is inferred. A human “constraints confirmed” statement
 is not machine verification of every real-world constraint.
 
-## Remaining canonical work
+## Canonical dimensions and current evidence
 
-| Section36 dimension | Current evidence | Required end-to-end work |
+| Section36 dimension | Current evidence | Acceptance limit |
 | --- | --- | --- |
-| Service |15B retained owned registration/catalog proof;15D signed current active-catalog capture;15I native explicit catalog selection | Current matching review |
-| Duration |15D current/declared equality and full interval fit;15I catalog-derived declaration and correction/recovery UI | Current matching review |
-| Customer availability | Ordered evidenced windows,15D intersection and recorded customer booking/session blockers;15I explicit institute-calendar windows | Current matching review |
-| Employee | Explicit restrictions;15D owned current core free-window capture | Responsive review, additional supported preferences |
-| Skills |15D current existing requirement/qualification authority | Native proof review |
-| Resources |15D owned reservation inventory/allocator;15F core projected queue resource occupations | Native evidence; revalidation before any actual booking |
-| Constraints | Unknown human review refuses;15D customer conflicts, overdue capacity/source refusal | Additional supported structured constraints, current queue implications and native review |
-| History |15D sovereign care capture, latest observed episode/diagnostics and explicit review/observed/no-recorded requirement | Native explained policy; no inferred intent or complete real-history claim |
-| Consents |15D current retained lifecycle source, channel-specific service-follow-up grant/refusal/unknown; future declaration stays unknown | Native refusal/source UX; actual contact authorization/delivery stays separate |
-| Auto slot detection |15D selected-version intersections;15E whole-cohort capture/paging;15F queue allocations | Native source invalidation/evidence and release/load verification |
-| Waitlist lifecycle |15B declarations;15C explicit activation/revision/cancellation, original/key recovery, verified chains, active/cancelled counts and paging;15I native declaration authoring/recovery;15J native causal history;15K native transitions/recovery | Current matching integration; declarations alone are not active lifecycle |
-| Product/release |15G?15K native manager history, declaration and lifecycle authoring/recovery; signed desktop/tablet tests | Native current matching/detection and separate production/load/physical acceptance |
+| Service |15B retained catalog proof;15D current active-catalog capture;15I authoring;15M native current review | Unavailable current service refuses |
+| Duration |15A/D exact elapsed duration/equality/fit;15I declaration;15M declared/current values | No silent duration rewrite |
+| Customer availability | Evidenced ordered windows;15D/F recorded customer blockers;15I civil-time authoring;15M horizon/options | Declared availability, not physical presence |
+| Employee | Explicit restrictions;15D current core windows;15I restrictions;15M responsive alternatives | No invented preference or assignment |
+| Skills | Existing qualification authority;15D current capture;15L displayed-option validation | No invented skill score |
+| Resources |15D existing joint distinct-unit allocator/reservations;15F virtual queue blockers;15L assignment checks;15M source proof | Alternatives independent, not jointly reserved; no physical-unit acceptance |
+| Constraints | Explicit confirmed/unknown review;15D/F conflict/absence/overdue/queue/source refusal;15L/M checks and explanations | Human declaration, not clinical/physical verification |
+| History |15D recorded-care capture/diagnostics and explicit review policy;15L/M binding, controls and explanation | Unknown is not never visited; incomplete real history |
+| Consents |15D current channel-specific retained grant/refusal/unknown;15L/M source/policy review and native granted/refused cases | No inferred marketing/care/delivery authority |
+| Auto slot detection |15E whole-active locked capture before paging;15F queue blockers;15M current source review and real paging | Explicit horizon/policy computation; no unspecified schedule/contact |
+| Waitlist lifecycle |15B/C retained declarations/activation/revision/cancellation;15G-K native authoring/history/recovery | Administrative state is not eligibility; terminal cancellation |
+| Product/release |15N complete canonical audit,42 backend tests SQLite/PostgreSQL and10 fresh native cases;15M457 frontend baseline | Separate production/topology/provider/physical/load gates OPEN |
 
 ## Verification
 
@@ -605,3 +608,18 @@ provider/deployment or whole-project/physical/load/production acceptance claim.
 All three Phase15 gates remain OPEN pending canonical acceptance audit and fresh
 combined regressions. Next: complete Phase15 backend SQLite/PostgreSQL and all five
 native waitlist specs, requirement-by-requirement audit, then Phase16 optimizer.
+
+
+## 15N canonical local acceptance
+
+[WAITLIST_PHASE15_ACCEPTANCE.md](WAITLIST_PHASE15_ACCEPTANCE.md) records the
+requirement-by-requirement source/Definition of Done audit. Complete eight-module
+Phase15 backend42 passed169.49s, zero failures/skips, terminalexit0, SQLite and actual
+isolated PostgreSQL. Five fresh independent native specs10 passed, every production
+build/owned temporary DB cleanup passed, supervisor NATIVE_AUDIT_ALL_CASES_EXIT=0
+and terminalexit0. Unchanged26ded3b implementation retains15M457 frontend tests and
+181-module build; previous visual QA remains applicable without claiming manual
+inspection of every fresh capture. WAITLIST / WAITLIST_MATCHING / AUTO_SLOT_DETECTION
+PASS at controlled local functional scope. Full26-phase objective remains ACTIVE;
+production, physical/live-provider/large-cohort load and whole-project fresh validation
+are OPEN. Next: canonical Phase16 deterministic scheduling optimizer.
