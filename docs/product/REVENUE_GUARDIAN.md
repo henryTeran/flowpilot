@@ -1,7 +1,10 @@
 # Revenue Guardian — Phase 14
 
-Authority: Master Plan section 35. Phase status: ACTIVE; all three functional
-gates remain OPEN: REVENUE_GUARDIAN, REVENUE_EVIDENCE, OPPORTUNITY_ENGINE.
+Authority: Master Plan section35. Phase14 local functional acceptance: PASS for
+REVENUE_GUARDIAN, REVENUE_EVIDENCE and OPPORTUNITY_ENGINE after14W audit.
+See [canonical acceptance audit](REVENUE_PHASE14_ACCEPTANCE.md) for the complete
+requirement matrix, fresh64 backend/18 native evidence and explicit release limits.
+Production, physical-device, provider and large-cohort/load acceptance remain OPEN.
 
 ## 14A: recorded institute billing
 
@@ -44,7 +47,7 @@ active/removed lines, quantities, undated/unpaid/end-boundary exclusion and UTC
 offset equivalence; the signed SQLite API test covers role/scope/anonymous/date-only,
 future-period and unsupported-write refusal.
 
-## Remaining canonical acceptance
+## Canonical acceptance matrix (reconciled at14W)
 
 | Requirement | Current evidence / required work |
 | --- | --- |
@@ -56,10 +59,10 @@ future-period and unsupported-write refusal.
 | Employee capacity | 14B/14L expose owned recorded occupation;14F delegates additional-arrival projections to the core skill/resource/queue authority, with14U native review. No confirmed reservation or opening-hours/physical-attendance proof. |
 | Cancelled revenue | 14C/14I/J/R/S verify booking closures, historical catalog references and independent retained rate scenarios with native review.14G/H retain walk-in conditions/full-period currency values; native walk-in review is tracked in14T below. No agreed quote or causal revenue loss is claimed. |
 | No-show revenue | 14C/I/J/R/S implement source verification, explicit historical-rate scenarios, retained original/key/audit and native review. A benchmark is not an agreed quote, eligibility proof or causal loss. |
-| Rebooking opportunities | 14E/14V implement pinned full-customer CRM catalog, due-rule/active-return suppression and native evidence/permission review. Explicit price/scenario valuation and selected feasible-slot integration remain to audit; no contact authorization or complete history inferred. |
+| Rebooking opportunities | 14E/14V implement pinned full-customer CRM catalog, due-rule/active-return suppression and native evidence/permission review. Estimated value remains unavailable without a future service/price;14U offers explicit separate feasibility review. No contact authorization or complete history inferred. |
 | Projected revenue | 14D/M/N/O/P/Q implement signed exact historical-rate scenarios, durable originals/key/audit, selected comparison and native desktop/tablet review. Future prediction remains conditional/unvalidated; no scenario sum or attributed effect. |
-| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and rate-decision retention;14U/V add native slot/rebooking review. Remaining opportunity decision retention and full integration audit must be completed; no automatic contact/booking. |
-| Product acceptance | Recorded billing/capacity/scenario/booking closure/walk-in cancellation/rebooking/slot native review exists; complete remaining decision retention, evidence navigation and requirement-by-requirement Phase14 audit before closing gates. |
+| Opportunities | 14C/E/F/H implement closure/rebooking/current-queue-feasible-slot opportunities with all five required fields and explicit uncertainty.14S adds native booking review and sensitive rate-decision retention;14U/V add read-only slot/rebooking review.14W verifies canonical audit scope; no automatic contact/booking. |
+| Product acceptance |14W requirement audit and fresh64 backend/18 native cases PASS at controlled local scope, using unchanged402 frontend baseline. Production/physical/provider/load remain separate OPEN gates. |
 
 Large-cohort memory/load behavior and report-wide evidence navigation remain
 unverified: the pure kernel retains unique ticket/line IDs and mix groups even
