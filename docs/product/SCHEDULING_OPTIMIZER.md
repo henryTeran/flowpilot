@@ -232,6 +232,42 @@ client-truth injection rejection, plus retained policy/migration/kernel/
 normalization and existing matching/current capture/detection/queue regressions.
 Native/frontend and whole-project acceptance are not claimed by this backend
 integration.
+
+## Browser policy contracts and recovery (16E)
+
+`optimizer-policy-utils.ts` validates exactly eight distinct explicit rules and
+all normalization dimensions. Decimal weights/ceilings remain canonical strings
+with the same40-digit bounds as the backend; no floating-point comparison or
+implicit default weight is introduced. Disabled rules require disabled basis and
+null normalization parameters; monetary/elapsed/ratio rules require their own
+dimensions. Requests reject extra actor/scope/score fields. Retained originals
+verify full raw SHA, canonical UTC capture, signed actor/scope and no-action
+marker. Audits verify20-row cardinality, clock/order, unique identity/key and each
+full original. Backend whole-cohort verification remains the authority for
+off-page records. Neither browser verification nor SHA certifies SQL-admin
+authenticity.
+
+`optimizer-policy-intent.ts` retains exact request/actor/institute before reads or
+writes. Only literal null recovery authorizes a POST. Confirmation requires exact
+ordered request rules, actor and independently consistent full-SHA key/ID reads
+before clearing saved state. Unknown acknowledgement or failed verification keeps
+the frozen intent across reload. A definitive POST400/404/422 can offer correction
+only after a fresh null key read; intervening originals recover instead. Invalid
+storage, persistence failure, changed storage, concurrent same-scope instances
+and stale authority block or preserve state. No policy activates as a default.
+
+Fixtures come from the actual Python Original/Terms/Audit and SHA models through
+`backend/tests/helpers/optimizer_policy_vectors_16e.py`, without SQL or application
+startup. They include25 microsecond-dated originals/Unicode reason and20/5/empty
+pages. Fifteen focused contract/recovery tests passed594.18ms, zero failures/skips,
+terminalexit0; TypeScript/Vite build passed181 modules. Initial test-file
+generation used the wrong working path, so that preliminary run covered only the
+five contract cases; corrected generation and final focused run include all ten
+recovery cases. Complete frontend **472 passed83.83s**, zero failures/skips,
+terminalexit0. Backend runtime is unchanged;16D backend evidence remains separate.
+
+These modules are not yet imported by the product UI. No native policy
+authoring/history/score review or complete Phase16 gate acceptance is claimed.
 SCHEDULING_OPTIMIZER / SCORING_DETERMINISTIC / EXPLANATION_EVIDENCE remain OPEN.
 Next: sovereign factor derivation from current matching/SQL sources, selected
 retained policy/full fingerprint, raw normalization proof and version-pinned signed

@@ -1,0 +1,2856 @@
+{
+  "0": {
+    "institute_id": "own",
+    "captured_at": "2026-10-08T11:01:00Z",
+    "offset": 0,
+    "limit": 20,
+    "total": 25,
+    "originals": [
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-0",
+          "id": "optimizer_policy_000",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "e3b98da394345805a7d49db743603d53cd278979263dd271080bbaffc713b97b"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-1",
+          "id": "optimizer_policy_001",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000001Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "f078a23b763c8ccb27614206ef353a8fb663eb89fc2cf0d3ab9a7b1236d912c9"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-2",
+          "id": "optimizer_policy_002",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000002Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "cd4698ba249d2ec4e0cfab9212317be38cad98218e832c1135ed5fc07a9f99ae"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-3",
+          "id": "optimizer_policy_003",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000003Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "e3e57ac9a99333c2f44299d157e124a97935a53f86c43f6f94145dc0c95d3863"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-4",
+          "id": "optimizer_policy_004",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000004Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "d70355ff57eece483af67ae53201f216f7e3ef6ad76ac27ee0f42b4d9bae0a14"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-5",
+          "id": "optimizer_policy_005",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000005Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "aaa44708395f57cbe9e43d736b4a2ff4a6aa240b792230bbfcbe73396718167a"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-6",
+          "id": "optimizer_policy_006",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000006Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "355afac9ba977a36c360826bb21333b5839ffe0da23ffb2efd246e39fa0152ea"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-7",
+          "id": "optimizer_policy_007",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000007Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "9a91ae824f327293f46dcfb3d92f53305d6d1316ba23a56ce126feaaf6a97667"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-8",
+          "id": "optimizer_policy_008",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000008Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "125606ac3c717f99cbd7dc7e4f6b82713279557bf1bbc6a0b1e1f045af30ba19"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-9",
+          "id": "optimizer_policy_009",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000009Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "ec1368f0a27b025d6e83a3a84e65152d4adbb507e3d38f0927b265d69eb8491f"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-10",
+          "id": "optimizer_policy_010",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000010Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "475b8083ec7045f3e6d4db2bb09a1802407e2d57553ec3dc49cad5d09adf9dfb"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-11",
+          "id": "optimizer_policy_011",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000011Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "c7d134bf85903dc9f13455b2c3c800f9c948973b8d08703d823114326d51789b"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-12",
+          "id": "optimizer_policy_012",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000012Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "1558428262f8621455e7dcb9fe6bcbc0f284fa6c7a5f1b4211c0aeb02598df1b"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-13",
+          "id": "optimizer_policy_013",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000013Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "f08f3d1204649d06be3c0a41b34c691730e6fc04e0a1e3af2c91111dbc3dd71b"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-14",
+          "id": "optimizer_policy_014",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000014Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "725436fb972e5c25b1b20b2e49d8ffdae5e1f618a6d4bbd6ed3a58d4f79745dd"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-15",
+          "id": "optimizer_policy_015",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000015Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "bf0c653df6c41d22b1bb126fc828f5e34e88f2203f3031f8c2a5d069b2cea56c"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-16",
+          "id": "optimizer_policy_016",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000016Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "d376b1324448adcd212df129265fa03f7a32b17f2610fcede1735a839dce5e97"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-17",
+          "id": "optimizer_policy_017",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000017Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "c286823a0b5be5dee2265bcf9b07a9000e603e372fa83aa0518de2e38a11ed5b"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-18",
+          "id": "optimizer_policy_018",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000018Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "11711ab040fe5ee26ce1fea1650cc471064b2cab64140c580ed3711712ee11fb"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-19",
+          "id": "optimizer_policy_019",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000019Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "eb45cd3dfa50e532dc36470d78acd89ff64fab1ba424b8d2ec027d4ab3bae4ef"
+      }
+    ],
+    "basis": "verified_retained_scoring_assumptions_not_an_active_default"
+  },
+  "20": {
+    "institute_id": "own",
+    "captured_at": "2026-10-08T11:01:00Z",
+    "offset": 20,
+    "limit": 20,
+    "total": 25,
+    "originals": [
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-20",
+          "id": "optimizer_policy_020",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000020Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "197569b7d058d821d8f405066ff52c8c24b145bd8787504013ff4001d6d285a8"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-21",
+          "id": "optimizer_policy_021",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000021Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "12508c55f0b91b63622cb12533fad18b7883c9f0502bf9f128c89b4e950ac2dd"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-22",
+          "id": "optimizer_policy_022",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000022Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "0059fe65d599ed9eba9de12de0db0cb8f64ca40bb7c0899892aed7261063e88c"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-23",
+          "id": "optimizer_policy_023",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000023Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "62bacb524cf0929fdeb9984dc9f7cb84d4df842568b195387cee2ed37227502e"
+      },
+      {
+        "original": {
+          "terms": {
+            "rules": [
+              {
+                "factor": "revenue_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "utilization_score",
+                "weight": {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                "basis": "proposed_duration_over_free_window",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "continuity_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "client_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "employee_preference_score",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "idle_gap_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "overtime_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              },
+              {
+                "factor": "resource_conflict_penalty",
+                "weight": {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                "basis": "disabled",
+                "ceiling": null,
+                "currency": null,
+                "price_mode": null,
+                "reason": "Explicit normalization reviewed"
+              }
+            ],
+            "normalization": "exact_unit_interval_explicit_ceiling_saturation"
+          },
+          "reason": "Explicit policy reviewed \u2014 no default activation",
+          "idempotency_key": "policy-24",
+          "id": "optimizer_policy_024",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T11:00:00.000024Z",
+          "action": "scoring_assumptions_only_no_booking_or_contact"
+        },
+        "fingerprint": "836ac64888a4ee853f4e5af0789706f92dc8e78cea777167377c2715b23f62e3"
+      }
+    ],
+    "basis": "verified_retained_scoring_assumptions_not_an_active_default"
+  },
+  "40": {
+    "institute_id": "own",
+    "captured_at": "2026-10-08T11:01:00Z",
+    "offset": 40,
+    "limit": 20,
+    "total": 25,
+    "originals": [],
+    "basis": "verified_retained_scoring_assumptions_not_an_active_default"
+  }
+}
