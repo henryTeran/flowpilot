@@ -5,6 +5,7 @@ from typing import Literal
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
 from app.modules.base import read_capabilities as base
+from app.modules.base import intents
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
 
@@ -36,6 +37,11 @@ def discovery(institute_id: str, user: base.Principal = Depends(principal)):
 def context(institute_id: str, body: base.Invocation, user: base.Principal = Depends(principal)):
     value, _ = base.resolve(user, institute_id, body)
     return value
+
+
+@router.post("/intents/resolve", response_model=intents.Resolution)
+def intent(institute_id: str, body: intents.Request, user: base.Principal = Depends(principal)):
+    return intents.resolve(user, institute_id, body)
 
 
 @router.post("/reads", response_model=Envelope)

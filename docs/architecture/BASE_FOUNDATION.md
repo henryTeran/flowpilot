@@ -61,6 +61,37 @@ types likewise do not complete every Context/Evidence/Audit/Planner/Approval
 requirement. Sensitive LEVEL3 orchestration still requires the relevant permission,
 domain validation, explicit human approval, audit and idempotent workflow.
 
+##17C language proposal and explicit selection boundary
+
+`POST /base/institutes/{institute_id}/intents/resolve` accepts a bounded nonempty
+utterance and at most20 distinct, strictly typed explicit selections. Signed scope
+and selection permissions are verified before interpretation. The internal
+provider-neutral `Interpreter` receives only the utterance and permitted capability
+names; selected arguments, server identity and database handles are not supplied.
+The utterance itself may contain personal data, so this interface is not a claim
+of anonymization. No external provider is currently called.
+
+The local implementation recognizes conservative whole-utterance French/English
+phrases for the three registered capabilities, including polite prefixes and accent,
+apostrophe and terminal-punctuation normalization. Unrecognized language requires
+clarification. This is a bounded grammar, not general natural-language coverage;
+the provider layer and broader language UX remain later work. Negated, mixed and
+instruction-injection examples cannot match by substring. A future provider can
+propose only a known capability or clarification/unsupported outcome, never an
+actor, role, argument, approval or executable operation. Malformed output and
+provider failure reject with502 without local fallback or leaking diagnostics.
+Fake interpreter tests exercise this boundary without vendor SDKs.
+
+A recognized capability becomes `ready` only with exactly one matching explicit
+selection. Missing selection or multiple references require clarification; other
+selected capabilities cannot win by ordering. The returned invocation preserves
+validated source references, fingerprints, aware horizon and explicit policy.
+Resolution loads no business data and executes nothing. `ready` is neither human
+approval nor business eligibility: context is still only an authorized selection.
+Source ownership, freshness and business guards run when a subsequent registered
+read is explicitly requested. The hash covers the canonical typed request, not a
+signature, retained interaction, semantic proof or cross-actor authority.
+
 ## Evidence and remaining work
 
 Initial six-module test collection failed because inherited wildcard before-
@@ -84,8 +115,22 @@ server actor, forbidden roles/foreign scope, identity/SQL/unknown-tool injection
 preserved source refusal/stale fingerprints and unchanged original counts. Schema
 head and persistent application/provider/deployment state remain unchanged.
 
-Next: structured intent/ambiguity handling with a provider-neutral language
-boundary, followed by retained plans, approval lifecycle/audit and supported
+Phase17C final four-module suite **52 passed25.00s**, zero failures/skips,
+terminalexit0, SQLite and actual isolated PostgreSQL. Thirty-three new intent
+cases cover supported French/English formulations, negated/mixed/injected unknown
+language, missing/multiple/duplicate references, provider minimization and strict
+output, failures without fallback, unsafe copies, signed HTTP roles/scope/identity,
+input limits and all three current selections without business reads. HTTP remains
+SQLite; PostgreSQL coverage is existing delegated-service regression evidence.
+Initial run1 failed/43 passed/1 skipped35.73s exposed punctuation whitespace and
+omitted PostgreSQL environment. Corrected run51 passed24.76s; adding the all-three
+HTTP case exposed a fixture assertion comparing equivalent UTC spellings
+(1 failed/51 passed101.63s). Expected values now use the existing typed canonical
+serialization; no business/time validator was weakened. Existing crypt and
+intentional unsafe-copy serializer warnings only. No native/frontend/general
+language/live-provider/whole-project acceptance claim.
+
+Next: retained plans, approval lifecycle/audit, broader language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture
