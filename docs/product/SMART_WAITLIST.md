@@ -1,8 +1,9 @@
 # Smart Waitlist — Phase15
 
 Authority: Master Plan section36. WAITLIST, WAITLIST_MATCHING and
-AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel,
-not a working end-to-end waitlist or a production release.
+AUTO_SLOT_DETECTION remain OPEN. Phase15A supplies a pure matching kernel;
+15B adds retained authenticated demand declarations. Active waitlist lifecycle,
+SQL capacity capture and native review remain unfinished.
 
 ## Contract and current implementation
 
@@ -48,7 +49,7 @@ is not machine verification of every real-world constraint.
 | History | Explicit observed/absent/unknown context with chronology | Sovereign care-history capture and explained declared policy, without inferred intent |
 | Consents | Dated granted/refused/unknown service-follow-up context | Current retained lifecycle capture, explicit contact eligibility and refusal UX; no automatic dispatch |
 | Auto slot detection | Pure earliest complete intersection | Signed bounded detection from complete current sources, invalidation/retry and audit evidence |
-| Waitlist lifecycle | Not yet implemented | Immutable originals, actor/key recovery, revision/cancel transitions, paging, SQL migrations and concurrency |
+| Waitlist lifecycle |15B retained declarations, actor/key recovery, full-cohort verified audit, SQL migration and same-key concurrency | Revision/cancel transitions and active waitlist views; declarations alone are not active lifecycle |
 | Product/release | No waitlist UI yet | Native manager desktop/tablet, authorization/tenant/replay/tamper tests; separate production/load/physical acceptance |
 
 ## Verification
@@ -66,6 +67,43 @@ order, unknown/refused/granted context, foreign identities, duplicate sources,
 unsafe copied models, expired windows and repeated Zurich civil hour. Existing
 crypt deprecation only. No SQL fixture, migration, API or browser acceptance claimed.
 
-Next: retain explicit scoped demand originals with signed actor and idempotency-key
-recovery, then capture current sovereign SQL sources and expose authenticated review.
-Do not close any Phase15 gate from the pure19-test evidence.
+## Phase15B — retained demand declarations
+
+Manager-only `/api/v1/waitlist/institutes/{institute_id}` routes offer POST/GET
+`/originals`, GET `/original-by-key` and GET `/originals/{original_id}`. Signed
+actor and one capture clock are fixed by the server. Client-supplied actor, clock,
+source or institute fields are forbidden. New writes verify owned registration,
+registration chronology, active catalog duration and owned restricted employee
+identities under the existing institute lock. Customer IDs are retained without a
+live deletion foreign key; future matching must revalidate current registration.
+
+Every declaration records its full normalized request, source registration/catalog
+facts, actor, key and exact raw JSON/SHA256. Read verification binds SQL columns,
+logical source/demand consistency, capture and explicit `declared_only` /
+`no_booking_or_contact` claims. SHA detects alteration at this application boundary;
+it does not authenticate an administrator who can rewrite all SQL facts.
+
+Same-key recovery verifies the original before recapturing mutable customer/catalog
+facts, then requires identical request and actor. A declaration remains recoverable
+after its windows expire or the catalog changes. This does not make the old demand
+currently eligible. Audits verify the whole retained cohort before returning a20-row
+default page (maximum50). No update/delete route rewrites originals, and there is no
+claim of database-enforced append-only storage.
+
+Migration9f06c754aa3b follows8ef5b643992a. Empty online downgrade is supported;
+offline downgrade or any retained history refuses removal. No persistent application
+or production database was migrated. Deployment must apply the controlled migration.
+
+First expanded run:20 passed23.75s with actual PostgreSQL enabled, terminalexit0.
+Final strengthened six-module regression:37 passed60.29s, zero failures/skips,
+terminalexit0 with SQLite and actual isolated PostgreSQL enabled. It includes the
+existing allocator/scenario-original/closure-migration compatibility checks as well
+as actual PostgreSQL same-key race, forced-flush rollback and
+committed lost-acknowledgement recovery, signed SQLite HTTP routes, source changes,
+25-row20/5 audit, off-page rehashed corruption and migration metadata/history guards.
+Unsafe-copy tests intentionally produce Pydantic serializer warnings; existing crypt
+deprecation remains. Frontend unchanged; no native waitlist or whole-project claim.
+
+Next: explicit revision/cancellation lifecycle for retained demands, then capture
+current sovereign SQL sources and expose authenticated matching review. Do not close
+any Phase15 gate from declaration/pure-kernel evidence alone.
