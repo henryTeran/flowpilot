@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17A_CLOSED_READ_SUGGEST_CAPABILITY_FOUNDATION
+CURRENT_CHECKPOINT = PHASE17B_SIGNED_READ_ENTRYPOINT
 STATUS = ACTIVE
+
+PHASE17B_SIGNED_READ_ENTRYPOINT:
+- Registered signed BASE capability discovery, selection-context resolution and read/suggest endpoints. Server JWT supplies actor/role/institute; exact signed scope and closed capability roles precede dispatch. Context resolution loads no business data and labels references as selection, not captured facts. Actual reads delegate existing ownership/version/source/business guards unchanged. Complete evidence SHA is explicitly response integrity, not retention or a signature.
+- Added three signed HTTP test cases for discovery/context/read, server identity and complete hash, forbidden roles/foreign scope/no token, identity/approval/SQL/dynamic tool injection, preserved permission refusal/stale fingerprints and cross-institute root rejection. Read-only original counts remain unchanged. Seven-module suite61 passed187.73s, zero failures/skips, SQLite and actual isolated PostgreSQL; route HTTP tests use SQLite, PostgreSQL evidence is existing service regression coverage. Existing crypt/intentional unsafe-copy warnings only.
+- Runtime now imports BASE routes; no frontend/schema migration/provider call/persisted BASE audit, planner, approval or natural-language intent completion claim. Headb128ef60a9d2 and persistent application/deployment remain unchanged. CHECKPOINT_STATUS = PARTIAL; all six canonical BASE gates remain OPEN. Full26-phase goal ACTIVE. NEXT: provider-neutral structured intent/ambiguity boundary, retained plans/approval/audit and further secured service adapters.
 
 PHASE17A_CLOSED_READ_SUGGEST_CAPABILITY_FOUNDATION:
 - Added internal BASE module with immutable closed registry of actual WAITLIST_READ(level0), WAITLIST_MATCH/PLANNING_OPTIMIZATION(level1) adapters. Metadata permits only existing manager/exact-institute service roles; no mutation/external execution or implicit LEVEL3 capability. Server-JWT principal factory validates exact actor/institute/known role, revalidated before dispatch; discovery filters permitted capabilities. Structured discriminated requests forbid extra identity/level/approval/SQL/callable fields and unknown capabilities. No dynamic SQL/import/eval or alternate domain allocator.

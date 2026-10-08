@@ -44,9 +44,18 @@ typed result and refusal. It adds a server read-completion timestamp (not a shar
 business capture) and explicit read/suggestion-only effect; source clocks remain
 untouched. No new booking, contact, global policy activation or LLM score runs.
 
-This is an internal foundation. It adds no API route, frontend, migration, provider
-call or persisted BASE interaction audit. The module is not yet imported by the
-API runtime. `resolve` validates a structured candidate; it is not completion of
+The signed API now exposes capability discovery, selection-context resolution
+and registered reads under `/base/institutes/{institute_id}`. Server authentication
+constructs the principal; bodies cannot supply actor, institute, role or approval.
+Context resolution does not load business data or prove ownership of selected
+IDs. Actual reads run the existing service ownership and current-source guards.
+The response wraps the complete evidence with its full SHA256, explicitly labelled
+as response integrity rather than retention or a signature. Reception can discover
+an empty registry, but cannot resolve or invoke manager capabilities; other roles
+and foreign institutes are rejected at the signed entrypoint.
+
+This foundation adds no frontend, migration, provider call or persisted BASE
+interaction audit. `resolve` validates a structured candidate; it is not completion of
 the canonical natural-language Intent Resolver. The selected context/evidence
 types likewise do not complete every Context/Evidence/Audit/Planner/Approval
 requirement. Sensitive LEVEL3 orchestration still requires the relevant permission,
@@ -67,8 +76,15 @@ regressions also pass. Existing crypt and intentional unsafe-copy warnings only.
 No native/whole-project/production acceptance claim; headb128ef60a9d2 and persistent
 application/provider/deployment state are unchanged.
 
-Next: signed BASE entrypoint/discovery and authorized minimal context/evidence
-projection, structured intent/ambiguity handling with a provider-neutral language
+Phase17B adds three signed HTTP test cases to the existing service regressions:
+seven modules **61 passed187.73s**, zero failures/skips, SQLite and actual isolated
+PostgreSQL. HTTP tests use isolated SQLite; no live PostgreSQL HTTP claim is made.
+They cover discovery, context without business reads, complete response SHA,
+server actor, forbidden roles/foreign scope, identity/SQL/unknown-tool injection,
+preserved source refusal/stale fingerprints and unchanged original counts. Schema
+head and persistent application/provider/deployment state remain unchanged.
+
+Next: structured intent/ambiguity handling with a provider-neutral language
 boundary, followed by retained plans, approval lifecycle/audit and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
