@@ -1,6 +1,11 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17H_ATOMIC_APPROVED_CANCELLATION_EXECUTION
+CURRENT_CHECKPOINT = PHASE17I_BROWSER_CANCELLATION_PROOF_CONTRACTS
 STATUS = ACTIVE
+
+PHASE17I_BROWSER_CANCELLATION_PROOF_CONTRACTS:
+- Added strict browser contracts for cancellation preview, retained operation, decision, complete causal approval state and execution receipt. Exact fields, manager/institute/appointment binding, canonical UTC microseconds, full original SHA, validity and explicit lifecycle are checked. Equal decision clocks follow predecessor references, never lexicographic IDs. Expired approval history can validate an earlier receipt; it grants no fresh execution authority.
+- Typed Python-generated synthetic vectors exercise Unicode/full hashes and pending/approved/declined/revoked/expired states. Six focused tests pass825.25ms; complete frontend493 passed84352.89ms, zero failures/skips, terminalexit0; TypeScript/Vite build passes186 modules. Mutation cases cover scope, metadata, nested snapshot, rehashed references, predecessor/chronology/status/expiry and injected request fields.
+- Browser receipt consistency does not prove actual SQL booking-event existence, freshness, signature or physical human input. Those server/domain checks remain authoritative. Contracts are not yet imported into native UI; no new UX/native acceptance, production/provider/schema mutation/deployment/push claim. CHECKPOINT_STATUS = PARTIAL; all six BASE gates OPEN; full26-phase goal ACTIVE. NEXT: immutable scoped browser write/recovery protocol, then explicit native human preparation/decision/execution with server proof verification and lost-ack recovery.
 
 PHASE17H_ATOMIC_APPROVED_CANCELLATION_EXECUTION:
 - Added independent immutable APPOINTMENT_CANCEL execution registry/discovery and signed manager explicit execute/key/per-operation receipt endpoints. Strict request binds operation/full SHA/latest approval/full SHA/reason/key; institute lock verifies approved unexpired chain and rereads current owned source against prepared SHA. Existing cancel_appointment(commit=False) performs domain/resource/employee/booking-event work; one new event and exact before/after operational receipt are verified and committed atomically. Validity rechecked before confirmation. No provider/SQL-generated execution/contact/refund. Historical preparation descriptors remain unchanged, not rewritten into execution entitlements.

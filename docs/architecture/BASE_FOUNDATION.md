@@ -407,7 +407,23 @@ Only crypt/intentional unsafe-copy warnings. HTTP is SQLite; no native physical
 human-input/frontend/whole-project/production claim. Persistent app/provider/
 deployment untouched; controlled migration prerequisite is headf562c3a4edf6.
 
-Next: native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
+Phase17I adds browser proof contracts for preview, retained operation, individual
+decision, complete causal approval state and execution receipt. Exact fields,
+institute/appointment/actor bindings, canonical UTC microseconds, full SHA and
+validity/transition constraints are checked. Same-clock decisions follow explicit
+predecessor IDs and fingerprints, not lexical ordering. Historical expiry does
+not invalidate a receipt completed within the original validity interval; it
+does not authorize another execution. Pending operation effect stays immutable.
+
+Python-generated typed synthetic vectors establish cross-language canonical hash
+compatibility, including Unicode. Six focused tests pass825.25ms; full frontend
+493 passed84352.89ms, zero failures/skips, terminalexit0; TypeScript/Vite build
+passes186 modules. Browser hashes establish internal consistency, not signatures,
+SQL event existence, current source authority or physical human input. Actual
+booking-event verification remains exclusively in the server execution service.
+These contracts are not yet connected to native UI; no new UX acceptance claim.
+
+Next: immutable scoped browser write/recovery, native human review/decision/execution, complete interaction audit, broader planning/language handling and supported
 service adapters. Canonical Context Resolver, Intent Resolver, Capability Registry,
 Permission Guard, Business Rule Guard, Action Planner, Approval Manager, Evidence
 Builder and Audit Trail must all be verified before closing Phase17. Architecture

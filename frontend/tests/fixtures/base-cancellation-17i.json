@@ -1,0 +1,576 @@
+{
+  "preview": {
+    "principal": {
+      "actor_id": "signed-manager",
+      "institute_id": "own",
+      "role": "responsable_institut"
+    },
+    "capability": {
+      "name": "APPOINTMENT_CANCEL",
+      "prepare_level": 2,
+      "execution_level": 3,
+      "roles": [
+        "responsable_institut"
+      ],
+      "application_service": "appointments.service.cancel_appointment",
+      "approval": "explicit_human_approval_of_exact_retained_operation_required",
+      "public_execution": false
+    },
+    "appointment_id": "appointment",
+    "captured_at": "2026-10-08T13:00:00Z",
+    "appointment": {
+      "status": "scheduled",
+      "employee_id": "employee",
+      "service_id": "service",
+      "customer_id": null,
+      "start_time": "2026-10-08T14:00:00Z",
+      "end_time": "2026-10-08T14:30:00Z",
+      "booked_start_time": "2026-10-08T14:00:00Z",
+      "booked_end_time": "2026-10-08T14:30:00Z",
+      "actual_start_time": null,
+      "actual_end_time": null,
+      "checkout_ticket_id": null
+    },
+    "booking_events": 1,
+    "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+    "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+    "effect": "cancellation_preview_only_no_approval_or_execution"
+  },
+  "operation": {
+    "original": {
+      "capability": "APPOINTMENT_CANCEL",
+      "selection": {
+        "appointment_id": "appointment"
+      },
+      "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+      "valid_until": "2026-10-08T13:10:00Z",
+      "reason": "Annulation préparée — état examiné",
+      "idempotency_key": "operation-key",
+      "id": "operation",
+      "institute_id": "own",
+      "actor_id": "signed-manager",
+      "created_at": "2026-10-08T13:00:00.000001Z",
+      "preview": {
+        "principal": {
+          "actor_id": "signed-manager",
+          "institute_id": "own",
+          "role": "responsable_institut"
+        },
+        "capability": {
+          "name": "APPOINTMENT_CANCEL",
+          "prepare_level": 2,
+          "execution_level": 3,
+          "roles": [
+            "responsable_institut"
+          ],
+          "application_service": "appointments.service.cancel_appointment",
+          "approval": "explicit_human_approval_of_exact_retained_operation_required",
+          "public_execution": false
+        },
+        "appointment_id": "appointment",
+        "captured_at": "2026-10-08T13:00:00Z",
+        "appointment": {
+          "status": "scheduled",
+          "employee_id": "employee",
+          "service_id": "service",
+          "customer_id": null,
+          "start_time": "2026-10-08T14:00:00Z",
+          "end_time": "2026-10-08T14:30:00Z",
+          "booked_start_time": "2026-10-08T14:00:00Z",
+          "booked_end_time": "2026-10-08T14:30:00Z",
+          "actual_start_time": null,
+          "actual_end_time": null,
+          "checkout_ticket_id": null
+        },
+        "booking_events": 1,
+        "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+        "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "effect": "cancellation_preview_only_no_approval_or_execution"
+      },
+      "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+    },
+    "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+  },
+  "approved": {
+    "operation": {
+      "original": {
+        "capability": "APPOINTMENT_CANCEL",
+        "selection": {
+          "appointment_id": "appointment"
+        },
+        "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "valid_until": "2026-10-08T13:10:00Z",
+        "reason": "Annulation préparée — état examiné",
+        "idempotency_key": "operation-key",
+        "id": "operation",
+        "institute_id": "own",
+        "actor_id": "signed-manager",
+        "created_at": "2026-10-08T13:00:00.000001Z",
+        "preview": {
+          "principal": {
+            "actor_id": "signed-manager",
+            "institute_id": "own",
+            "role": "responsable_institut"
+          },
+          "capability": {
+            "name": "APPOINTMENT_CANCEL",
+            "prepare_level": 2,
+            "execution_level": 3,
+            "roles": [
+              "responsable_institut"
+            ],
+            "application_service": "appointments.service.cancel_appointment",
+            "approval": "explicit_human_approval_of_exact_retained_operation_required",
+            "public_execution": false
+          },
+          "appointment_id": "appointment",
+          "captured_at": "2026-10-08T13:00:00Z",
+          "appointment": {
+            "status": "scheduled",
+            "employee_id": "employee",
+            "service_id": "service",
+            "customer_id": null,
+            "start_time": "2026-10-08T14:00:00Z",
+            "end_time": "2026-10-08T14:30:00Z",
+            "booked_start_time": "2026-10-08T14:00:00Z",
+            "booked_end_time": "2026-10-08T14:30:00Z",
+            "actual_start_time": null,
+            "actual_end_time": null,
+            "checkout_ticket_id": null
+          },
+          "booking_events": 1,
+          "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+          "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "cancellation_preview_only_no_approval_or_execution"
+        },
+        "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+      },
+      "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+    },
+    "captured_at": "2026-10-08T13:00:00.000010Z",
+    "decisions": [
+      {
+        "original": {
+          "operation_id": "operation",
+          "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "decision": "approve",
+          "reason": "Décision explicite",
+          "idempotency_key": "approve-key",
+          "id": "z-approval",
+          "institute_id": "own",
+          "actor_id": "other-manager",
+          "created_at": "2026-10-08T13:00:00.000003Z",
+          "source_checked_at": "2026-10-08T13:00:00.000002Z",
+          "checked_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "explicit_signed_human_decision_only_no_execution"
+        },
+        "fingerprint": "5d4435c4bb05a14709817a91c1c6c1ba8bdb6c7ae11edbea4b5c2d689fdadb25"
+      }
+    ],
+    "status": "approved",
+    "expired": false,
+    "execution": "not_performed_by_approval_manager",
+    "current_source": "not_revalidated_by_historical_state_read"
+  },
+  "expired": {
+    "operation": {
+      "original": {
+        "capability": "APPOINTMENT_CANCEL",
+        "selection": {
+          "appointment_id": "appointment"
+        },
+        "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "valid_until": "2026-10-08T13:10:00Z",
+        "reason": "Annulation préparée — état examiné",
+        "idempotency_key": "operation-key",
+        "id": "operation",
+        "institute_id": "own",
+        "actor_id": "signed-manager",
+        "created_at": "2026-10-08T13:00:00.000001Z",
+        "preview": {
+          "principal": {
+            "actor_id": "signed-manager",
+            "institute_id": "own",
+            "role": "responsable_institut"
+          },
+          "capability": {
+            "name": "APPOINTMENT_CANCEL",
+            "prepare_level": 2,
+            "execution_level": 3,
+            "roles": [
+              "responsable_institut"
+            ],
+            "application_service": "appointments.service.cancel_appointment",
+            "approval": "explicit_human_approval_of_exact_retained_operation_required",
+            "public_execution": false
+          },
+          "appointment_id": "appointment",
+          "captured_at": "2026-10-08T13:00:00Z",
+          "appointment": {
+            "status": "scheduled",
+            "employee_id": "employee",
+            "service_id": "service",
+            "customer_id": null,
+            "start_time": "2026-10-08T14:00:00Z",
+            "end_time": "2026-10-08T14:30:00Z",
+            "booked_start_time": "2026-10-08T14:00:00Z",
+            "booked_end_time": "2026-10-08T14:30:00Z",
+            "actual_start_time": null,
+            "actual_end_time": null,
+            "checkout_ticket_id": null
+          },
+          "booking_events": 1,
+          "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+          "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "cancellation_preview_only_no_approval_or_execution"
+        },
+        "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+      },
+      "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+    },
+    "captured_at": "2026-10-08T13:20:00Z",
+    "decisions": [
+      {
+        "original": {
+          "operation_id": "operation",
+          "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "decision": "approve",
+          "reason": "Décision explicite",
+          "idempotency_key": "approve-key",
+          "id": "z-approval",
+          "institute_id": "own",
+          "actor_id": "other-manager",
+          "created_at": "2026-10-08T13:00:00.000003Z",
+          "source_checked_at": "2026-10-08T13:00:00.000002Z",
+          "checked_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "explicit_signed_human_decision_only_no_execution"
+        },
+        "fingerprint": "5d4435c4bb05a14709817a91c1c6c1ba8bdb6c7ae11edbea4b5c2d689fdadb25"
+      }
+    ],
+    "status": "approved",
+    "expired": true,
+    "execution": "not_performed_by_approval_manager",
+    "current_source": "not_revalidated_by_historical_state_read"
+  },
+  "pending": {
+    "operation": {
+      "original": {
+        "capability": "APPOINTMENT_CANCEL",
+        "selection": {
+          "appointment_id": "appointment"
+        },
+        "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "valid_until": "2026-10-08T13:10:00Z",
+        "reason": "Annulation préparée — état examiné",
+        "idempotency_key": "operation-key",
+        "id": "operation",
+        "institute_id": "own",
+        "actor_id": "signed-manager",
+        "created_at": "2026-10-08T13:00:00.000001Z",
+        "preview": {
+          "principal": {
+            "actor_id": "signed-manager",
+            "institute_id": "own",
+            "role": "responsable_institut"
+          },
+          "capability": {
+            "name": "APPOINTMENT_CANCEL",
+            "prepare_level": 2,
+            "execution_level": 3,
+            "roles": [
+              "responsable_institut"
+            ],
+            "application_service": "appointments.service.cancel_appointment",
+            "approval": "explicit_human_approval_of_exact_retained_operation_required",
+            "public_execution": false
+          },
+          "appointment_id": "appointment",
+          "captured_at": "2026-10-08T13:00:00Z",
+          "appointment": {
+            "status": "scheduled",
+            "employee_id": "employee",
+            "service_id": "service",
+            "customer_id": null,
+            "start_time": "2026-10-08T14:00:00Z",
+            "end_time": "2026-10-08T14:30:00Z",
+            "booked_start_time": "2026-10-08T14:00:00Z",
+            "booked_end_time": "2026-10-08T14:30:00Z",
+            "actual_start_time": null,
+            "actual_end_time": null,
+            "checkout_ticket_id": null
+          },
+          "booking_events": 1,
+          "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+          "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "cancellation_preview_only_no_approval_or_execution"
+        },
+        "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+      },
+      "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+    },
+    "captured_at": "2026-10-08T13:00:00.000010Z",
+    "decisions": [],
+    "status": "pending",
+    "expired": false,
+    "execution": "not_performed_by_approval_manager",
+    "current_source": "not_revalidated_by_historical_state_read"
+  },
+  "revoked": {
+    "operation": {
+      "original": {
+        "capability": "APPOINTMENT_CANCEL",
+        "selection": {
+          "appointment_id": "appointment"
+        },
+        "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "valid_until": "2026-10-08T13:10:00Z",
+        "reason": "Annulation préparée — état examiné",
+        "idempotency_key": "operation-key",
+        "id": "operation",
+        "institute_id": "own",
+        "actor_id": "signed-manager",
+        "created_at": "2026-10-08T13:00:00.000001Z",
+        "preview": {
+          "principal": {
+            "actor_id": "signed-manager",
+            "institute_id": "own",
+            "role": "responsable_institut"
+          },
+          "capability": {
+            "name": "APPOINTMENT_CANCEL",
+            "prepare_level": 2,
+            "execution_level": 3,
+            "roles": [
+              "responsable_institut"
+            ],
+            "application_service": "appointments.service.cancel_appointment",
+            "approval": "explicit_human_approval_of_exact_retained_operation_required",
+            "public_execution": false
+          },
+          "appointment_id": "appointment",
+          "captured_at": "2026-10-08T13:00:00Z",
+          "appointment": {
+            "status": "scheduled",
+            "employee_id": "employee",
+            "service_id": "service",
+            "customer_id": null,
+            "start_time": "2026-10-08T14:00:00Z",
+            "end_time": "2026-10-08T14:30:00Z",
+            "booked_start_time": "2026-10-08T14:00:00Z",
+            "booked_end_time": "2026-10-08T14:30:00Z",
+            "actual_start_time": null,
+            "actual_end_time": null,
+            "checkout_ticket_id": null
+          },
+          "booking_events": 1,
+          "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+          "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "cancellation_preview_only_no_approval_or_execution"
+        },
+        "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+      },
+      "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+    },
+    "captured_at": "2026-10-08T13:00:00.000010Z",
+    "decisions": [
+      {
+        "original": {
+          "operation_id": "operation",
+          "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "decision": "approve",
+          "reason": "Décision explicite",
+          "idempotency_key": "approve-key",
+          "id": "z-approval",
+          "institute_id": "own",
+          "actor_id": "other-manager",
+          "created_at": "2026-10-08T13:00:00.000003Z",
+          "source_checked_at": "2026-10-08T13:00:00.000002Z",
+          "checked_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "explicit_signed_human_decision_only_no_execution"
+        },
+        "fingerprint": "5d4435c4bb05a14709817a91c1c6c1ba8bdb6c7ae11edbea4b5c2d689fdadb25"
+      },
+      {
+        "original": {
+          "operation_id": "operation",
+          "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+          "previous_id": "z-approval",
+          "previous_fingerprint": "5d4435c4bb05a14709817a91c1c6c1ba8bdb6c7ae11edbea4b5c2d689fdadb25",
+          "decision": "revoke",
+          "reason": "Révocation explicite",
+          "idempotency_key": "revoke-key",
+          "id": "a-revocation",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T13:00:00.000003Z",
+          "source_checked_at": null,
+          "checked_state_fingerprint": null,
+          "effect": "explicit_signed_human_decision_only_no_execution"
+        },
+        "fingerprint": "a865adaf53a9f19a3c028d5f470d48c233d55bb495ce24efd08bb17f0fcfafa7"
+      }
+    ],
+    "status": "revoked",
+    "expired": false,
+    "execution": "not_performed_by_approval_manager",
+    "current_source": "not_revalidated_by_historical_state_read"
+  },
+  "declined": {
+    "operation": {
+      "original": {
+        "capability": "APPOINTMENT_CANCEL",
+        "selection": {
+          "appointment_id": "appointment"
+        },
+        "expected_state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "valid_until": "2026-10-08T13:10:00Z",
+        "reason": "Annulation préparée — état examiné",
+        "idempotency_key": "operation-key",
+        "id": "operation",
+        "institute_id": "own",
+        "actor_id": "signed-manager",
+        "created_at": "2026-10-08T13:00:00.000001Z",
+        "preview": {
+          "principal": {
+            "actor_id": "signed-manager",
+            "institute_id": "own",
+            "role": "responsable_institut"
+          },
+          "capability": {
+            "name": "APPOINTMENT_CANCEL",
+            "prepare_level": 2,
+            "execution_level": 3,
+            "roles": [
+              "responsable_institut"
+            ],
+            "application_service": "appointments.service.cancel_appointment",
+            "approval": "explicit_human_approval_of_exact_retained_operation_required",
+            "public_execution": false
+          },
+          "appointment_id": "appointment",
+          "captured_at": "2026-10-08T13:00:00Z",
+          "appointment": {
+            "status": "scheduled",
+            "employee_id": "employee",
+            "service_id": "service",
+            "customer_id": null,
+            "start_time": "2026-10-08T14:00:00Z",
+            "end_time": "2026-10-08T14:30:00Z",
+            "booked_start_time": "2026-10-08T14:00:00Z",
+            "booked_end_time": "2026-10-08T14:30:00Z",
+            "actual_start_time": null,
+            "actual_end_time": null,
+            "checkout_ticket_id": null
+          },
+          "booking_events": 1,
+          "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+          "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+          "effect": "cancellation_preview_only_no_approval_or_execution"
+        },
+        "effect": "prepared_sensitive_operation_only_pending_human_approval_no_execution"
+      },
+      "fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9"
+    },
+    "captured_at": "2026-10-08T13:00:00.000010Z",
+    "decisions": [
+      {
+        "original": {
+          "operation_id": "operation",
+          "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+          "previous_id": null,
+          "previous_fingerprint": null,
+          "decision": "decline",
+          "reason": "Refus explicite",
+          "idempotency_key": "decline-key",
+          "id": "decline",
+          "institute_id": "own",
+          "actor_id": "signed-manager",
+          "created_at": "2026-10-08T13:00:00.000003Z",
+          "source_checked_at": null,
+          "checked_state_fingerprint": null,
+          "effect": "explicit_signed_human_decision_only_no_execution"
+        },
+        "fingerprint": "dae3af6d4e3bbeb504a64b4e3bac83e0511f3c5d7401fb6b9f6d53733d21d109"
+      }
+    ],
+    "status": "declined",
+    "expired": false,
+    "execution": "not_performed_by_approval_manager",
+    "current_source": "not_revalidated_by_historical_state_read"
+  },
+  "execution": {
+    "original": {
+      "operation_id": "operation",
+      "operation_fingerprint": "7c8218f9baf27dc9e478b93fed508487b55985d76d39a6a20138845ae89d0af9",
+      "approval_id": "z-approval",
+      "approval_fingerprint": "5d4435c4bb05a14709817a91c1c6c1ba8bdb6c7ae11edbea4b5c2d689fdadb25",
+      "reason": "Exécution explicite",
+      "idempotency_key": "execution-key",
+      "id": "execution",
+      "institute_id": "own",
+      "actor_id": "signed-manager",
+      "created_at": "2026-10-08T13:00:00.000007Z",
+      "before": {
+        "principal": {
+          "actor_id": "signed-manager",
+          "institute_id": "own",
+          "role": "responsable_institut"
+        },
+        "capability": {
+          "name": "APPOINTMENT_CANCEL",
+          "prepare_level": 2,
+          "execution_level": 3,
+          "roles": [
+            "responsable_institut"
+          ],
+          "application_service": "appointments.service.cancel_appointment",
+          "approval": "explicit_human_approval_of_exact_retained_operation_required",
+          "public_execution": false
+        },
+        "appointment_id": "appointment",
+        "captured_at": "2026-10-08T13:00:00.000005Z",
+        "appointment": {
+          "status": "scheduled",
+          "employee_id": "employee",
+          "service_id": "service",
+          "customer_id": null,
+          "start_time": "2026-10-08T14:00:00Z",
+          "end_time": "2026-10-08T14:30:00Z",
+          "booked_start_time": "2026-10-08T14:00:00Z",
+          "booked_end_time": "2026-10-08T14:30:00Z",
+          "actual_start_time": null,
+          "actual_end_time": null,
+          "checkout_ticket_id": null
+        },
+        "booking_events": 1,
+        "booking_history_fingerprint": "6c2a89ff8a842ca500f09e1244454f45b23c52a5437db89a4be024d4ae5da3c4",
+        "state_fingerprint": "6001c0d9d203ec4c2b995012b289f2ef74209d530aa0bd9c9f0cea659512c91a",
+        "effect": "cancellation_preview_only_no_approval_or_execution"
+      },
+      "after": {
+        "status": "cancelled",
+        "employee_id": "employee",
+        "service_id": "service",
+        "customer_id": null,
+        "start_time": "2026-10-08T14:00:00Z",
+        "end_time": "2026-10-08T14:30:00Z",
+        "booked_start_time": "2026-10-08T14:00:00Z",
+        "booked_end_time": "2026-10-08T14:30:00Z",
+        "actual_start_time": null,
+        "actual_end_time": null,
+        "checkout_ticket_id": null
+      },
+      "booking_event_id": "synthetic-cancel-event",
+      "booking_event_fingerprint": "178f1ca9517a3369f0b47707f53bf036986c609f5cd95fc6c0c6af72ce84de91",
+      "effect": "appointment_cancelled_through_existing_service_no_contact_or_refund"
+    },
+    "fingerprint": "51d6a2f5438158d5ed7c02a81c9cf5afb6fa8f12d369e5cce7d28439c76040bd"
+  }
+}
