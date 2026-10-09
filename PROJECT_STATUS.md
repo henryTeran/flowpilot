@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_PREVIEW_UI_CONTRACT_FOUNDATION:
+- Added distinct stock proposal selection/preview contract: explicit supplier/unique1..50 items, pending-order assumption and optional closed scenario. Canonical scenario instants, scoped capture, complete/partial/no-scenario coverage, exact item set, original source/projection digests and milli-unit shortfall arithmetic checked. Whole-unit fractions refused; pending-order assumption remains conditional, no purchase/receipt/physical-stock authority.
+- Build PASS and focused contract test PASS: both pending assumptions and exact3.750/1.750 quantities accepted; rehashed wrong quantity/coverage/completeness/unit/effect, foreign scope and duplicate/extra selection refused. This is preview groundwork; retained original/recovery/form/source reads and populated API/BASE browser acceptance remain required. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_MARKETING_BROWSER_ACCEPTANCE:
 - Actual signed API/pinned official BASE desktop/tablet2 PASS53.6s (.cache/20-marketing-browser.log). Recorded permission, retained audience and literal original email template selected; preview rendered exact subject/body without interpolation. Native catalogue increases by one DRAFT only; deliberately lost POST acknowledgement then reload resumes same independent original without another write. Exactly preview/prepare browser POSTs; native revision external_message_sent=false/delivery_authorized=false. Final screenshots inspected, owned fixture removed/listeners4198/4199=0.
 - Full current frontend575 PASS remains valid: no production changes since that proof. Email/single retained page acceptance does not cover SMS/push, multi-page/large catalogue, rejection/source damage or all scope variants. Reorder interface and other populated/adverse acceptance remain open. Whole goal ACTIVE, phase gates PARTIAL.
