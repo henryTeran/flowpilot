@@ -1712,6 +1712,8 @@ VOXTRAL_ISOLATED = PASS
 FAKE_PROVIDER_TESTS = PASS
 ```
 
+Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../architecture/AI_PROVIDER_LAYER.md). La qualification distante des modèles/credentials, les futures transmissions métier et la préparation de production restent distinctes de ces gates de contrats et isolation.
+
 ---
 
 # 41. Phase 20 — FlowPilot Copilot

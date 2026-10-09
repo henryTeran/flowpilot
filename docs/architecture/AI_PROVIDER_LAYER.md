@@ -46,6 +46,20 @@ Le lifespan FastAPI construit les fournisseurs après les contrôles de bootstra
 
 Validation Windows : régression runtime/ports/OpenAI/Voxtral/noyau JV **35 réussis en 15,06 s**, zéro échec/skip. Les tests complétés de lifespan et binding fake : **7 réussis en 3,77 s**. Contrôles de démarrage existants : **2 réussis en 0,26 s**. La construction SDK réelle sans requête vérifie clients partagés, endpoints explicites, credentials masqués et fermeture; factories simulées vérifient rollback partiel et nettoyage après erreur. Le lifespan réel vérifie installation/fermeture d’un fournisseur possédé. Aucune validation d’inférence distante, proxy de déploiement, qualité de modèle ou image Linux mise à jour n’est revendiquée ici.
 
-## Acceptation restante de la phase
+## Checkpoint 19E : image Linux et audit final
 
-La phase reste **PARTIAL** en attente de l’image Linux et de l’audit final. OpenAI LLM/embedding, Voxtral STT, sélection serveur et lifecycle sont implémentés et testés. Les SDK restent dans `app.ai`. La qualification distante et les credentials de déploiement restent des preuves distinctes des contrats offline.
+La fondation de phase est désormais **PASS**. Les états partiels précédents sont l’historique des checkpoints. L’image backend réelle `sha256:9054469306d03a66dd31868f7de761c917cab463f10ddce5191cba9ec01ac187` installe les SDK verrouillés et valide le corpus/routage BASE au build. La régression des quatre modules AI, guards de démarrage, cinq modules JV et query BASE donne **69 tests réussis en 120,84 s**, zéro échec/skip, Python 3.12, SQLite et PostgreSQL 16 Linux. Les appels d’inférence SDK utilisent les transports simulés; aucune requête de modèle distante n’est revendiquée.
+
+| Gate canonique | État | Preuve |
+| --- | --- | --- |
+| LLM_ABSTRACTION | PASS | Port typé borné, fake et SDK OpenAI via frontière commune, sorties/refus testés |
+| STT_ABSTRACTION | PASS | Port audio/transcript indépendant, fake et Voxtral, octets conservés, silence et erreurs distincts |
+| OPENAI_ISOLATED | PASS | Imports seulement app.ai; Responses/embedding réels avec HTTP simulé, modèles/endpoint explicites et client partagé/fermé |
+| VOXTRAL_ISOLATED | PASS | Imports seulement app.ai; multipart/parsing natifs httpx2, timeout/retries/fermeture et réponses invalides vérifiés |
+| FAKE_PROVIDER_TESTS | PASS | Trois fournisseurs offline, réponses hostiles/panne/timeout/bornes/vecteurs invalides et lifecycle testés |
+
+Le port embedding vérifie aussi cardinalité, dimensions finies et ordre des textes. La sélection serveur et le lifecycle réel passent dans l’image; la lecture actuelle des imports confirme aucun SDK dans les modules métier. BASE/JV restent disponibles avec providers désactivés.
+
+PostgreSQL distinct sans port publié, stockage tmpfs et zéro schéma temporaire résiduel. Test retiré automatiquement, PostgreSQL et réseau supprimés après contrôle de leurs labels de propriété. Les services persistants de l’utilisateur sont inchangés. Avertissements : dépréciations SDK/HTTP existantes et copies Pydantic volontairement invalides.
+
+Cette clôture prouve contrats, isolation et runtime local. Credentials/quotas/modèles de déploiement, qualité ou disponibilité d’inférence distante, enregistrement humain réel, proxy réseau, transmission des futures données métier, charge et production restent ouverts. Le consommateur vérifie toujours les propositions et applique permissions/gardes métier. La phase suivante est **20 — FlowPilot Copilot**, gates READ/SUGGEST/PREPARE/EXECUTE_GUARDED ouverts. L’objectif global reste actif.

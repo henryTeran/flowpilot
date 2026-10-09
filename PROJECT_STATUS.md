@@ -1,12 +1,19 @@
-CURRENT_PHASE = PHASE 19
-CURRENT_CHECKPOINT = PHASE19D_EXPLICIT_SERVER_SELECTION_AND_LIFECYCLE
+CURRENT_PHASE = PHASE 20
+CURRENT_CHECKPOINT = PHASE20A_COPILOT_INTEGRATION_IN_PROGRESS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
-AI_PROVIDER_PHASE = PARTIAL
+AI_PROVIDER_PHASE = PASS
+COPILOT_PHASE = PARTIAL
+
+PHASE19E_PROVIDER_IMAGE_ACCEPTANCE_AND_CLOSURE:
+- Canonical five gates LLM_ABSTRACTION/STT_ABSTRACTION/OPENAI_ISOLATED/VOXTRAL_ISOLATED/FAKE_PROVIDER_TESTS PASS for typed/isolation/local-runtime foundation; EmbeddingProvider also implemented. docs/architecture/AI_PROVIDER_LAYER.md maps actual evidence; SDK imports confined to app.ai, no business SDK propagation. Default providers disabled; BASE/JV retained.
+- Actual image sha256:9054469306d03a66dd31868f7de761c917cab463f10ddce5191cba9ec01ac187 built with pinned SDKs and official BASE corpus/routing checks. Eleven-module AI/runtime/startup/JV/BASE query regression69 passed120.84s, zero failures/skips; real SQLite/PostgreSQL16 Linux, SDK serialization/parsing through mocked transports, no remote inference/credentials/model quality claim. Existing deprecation/intentional unsafe-copy warnings only.
+- Isolated PostgreSQL tmpfs/no published ports; random schemas verified0. Test auto-removed, exact owned PostgreSQL/network labels checked then removed. Persistent user services untouched; no deployment/migration/push/native/physical-human claim.
+- NEXT automatically PHASE20 FlowPilot Copilot: all initial customer/planning/revenue/stock/employee READ/SUGGEST integrations and progressive appointment/marketing/stock preparation with signed context, source facts, explicit human decisions and guarded domain execution. COPILOT_READ/SUGGEST/PREPARE/EXECUTE_GUARDED OPEN until actual proof. Whole26-phase goal ACTIVE; remote model qualification/data transmission/production acceptance remain open.
 
 PHASE19D_EXPLICIT_SERVER_SELECTION_AND_LIFECYCLE:
 - Added frozen validated FLOWPILOT_AI_* server-env settings: closed per-port disabled/fake/OpenAI/Voxtral selection, disabled defaults, explicit selected models/SecretStr credentials, bounded timeout and masked validation-input display. No implicit.env read, user-body selection/model/credentials or default remote model. .env.example documents disabled variables and existing Compose env_file/direct-process export semantics.
