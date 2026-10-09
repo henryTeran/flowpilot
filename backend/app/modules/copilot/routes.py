@@ -7,6 +7,7 @@ from app.modules.copilot import query as orchestration
 from app.modules.base import audit
 from app.modules.waitlist.originals import fingerprint
 from app.modules.copilot import preparation
+from app.modules.copilot import marketing
 from app.modules.base import creation_capability as creation
 from app.modules.base import executions
 from app.modules.base import move_capability as move
@@ -33,14 +34,14 @@ def query(body: orchestration.Request, user=Depends(require_ticket_manager), db:
     return orchestration.read(db, principal, body)
 
 
-@router.get("/preparation-capabilities", response_model=tuple[preparation.Capability, ...])
+@router.get("/preparation-capabilities", response_model=tuple[preparation.Capability | marketing.Capability, ...])
 def preparation_capabilities(user=Depends(require_ticket_manager)):
     principal = signed_principal(user, user.get("institute_id"))
     guard(principal, principal.institute_id)
     with audit.trace(principal, "copilot_preparation_capabilities", {}) as span:
         result = (preparation.Capability(), preparation.Capability(name="APPOINTMENT_MOVE",
             input_schema=preparation.MoveRequest.model_json_schema(),
-            preview_input_schema=preparation.MovePreviewRequest.model_json_schema()))
+            preview_input_schema=preparation.MovePreviewRequest.model_json_schema()), marketing.Capability())
         span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
         return result
 
@@ -58,6 +59,16 @@ def move_preview(body: preparation.MovePreviewRequest, user=Depends(require_tick
 @router.post("/prepare", response_model=Envelope)
 def prepare(body: preparation.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
     return preparation.prepare(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.post("/prepare-preview/marketing", response_model=marketing.Preview)
+def marketing_preview(body: marketing.PreviewRequest, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return marketing.preview(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.post("/prepare/marketing", response_model=marketing.Draft)
+def marketing_prepare(body: marketing.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return marketing.prepare(db, signed_principal(user, user.get("institute_id")), body)
 
 
 @router.get("/execution-capabilities", response_model=tuple[executions.Capability, ...])

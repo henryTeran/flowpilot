@@ -40,6 +40,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Quand l'utilisateur veut partir de ses documents existants: «importe mes procédures», «transforme ce mode d'emploi en process», «j'ai déjà tout dans un wiki». Importer mes procédures existantes; Transformer ce document en process; J'ai déjà un wiki, comment le réutiliser?
 **Éviter si**: Signaler un dysfonctionnement de l'assistant. Faire le point sur un dossier en service et dire ce qui pourrait aller mieux dans ses process.
 
+### Preparer un brouillon de campagne marketing: [`marketing-campaign-draft`](skills/processes/marketing-campaign-draft/SKILL.md)
+**Quand l'utiliser**: Preparer un brouillon de campagne marketing; Preparer un brouillon de campagne marketing; Preparer un brouillon marketing avec un modele
+**Éviter si**: Envoyer une campagne ou contacter des clientes.
+
 ### Examiner les conflits de planning: [`planning-conflicts`](skills/processes/planning-conflicts/SKILL.md)
 **Quand l'utiliser**: Examiner les conflits de planning; Examiner les conflits de planning; Detecter les chevauchements des engagements; Examiner les conflits de ressources
 **Éviter si**: Annuler une reservation.

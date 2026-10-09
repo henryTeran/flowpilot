@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20U_MARKETING_DRAFT_PREVIEW_FOUNDATION_PASS
+CURRENT_CHECKPOINT = PHASE20V_TEMPLATE_BOUND_MARKETING_DRAFT_PREPARATION_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20V_TEMPLATE_BOUND_MARKETING_DRAFT_PREPARATION:
+- Added official BASE marketing-campaign-draft process, manager-only Copilot preview/preparation and closed discovery schema. Explicit retained audience/template IDs only; literal template text and verified retained recipients resolved through original marketing services. BASE receives message only; response exposes references/count/digests, no recipient IDs, content or contact coordinates. Required reviewed content digest/reason/key; coherent changed source refused. Existing original create service retains DRAFT atomically; no review/approve/send capability registered and no provider delivery.
+- Exact actor/source/reason/key recovery returns original without recapturing template or current clock. Draft creation is level2 preparation; it neither uses booking execution receipts nor declares marketing approval/contact authorization. Marketing review/approval remains in the existing separate stage chain. Template-bound preparation is proven; free generated copy and latest packaged/UI acceptance remain unproven.
+- Official corpus28 resources validated and52/52 routes passed. Initial combined regression4 passed/2 failed62.43s due only to historical move discovery expectation of two capabilities; expectation updated for added marketing entry. Final actual SQLite/PostgreSQL marketing/domain preview/move/create preparation8 passed83.44s, zero failures/skips. Extra real PostgreSQL adapter race/rollback1 passed9.44s: same key yields one original, injected head failure rolls back draft/head. Tests cover zero preview writes, private-data minimization, signed scope/role/schema/route/forged digest/source alteration refusal, restoration and historical exact recovery. Temporary schemas0.
+- CHECKPOINT_STATUS = PASS for explicit template-bound MARKETING_CAMPAIGN_DRAFT preparation. NEXT STOCK_REORDER_PROPOSAL, full initial capability scope audit and latest packaged Linux/UI acceptance. All four Copilot gates PARTIAL; whole26-phase goal ACTIVE. No production/push/deployment or external contact claim.
 
 PHASE20U_MARKETING_DRAFT_PREVIEW_FOUNDATION:
 - Added internal read-only campaign preview_creation using original retained-audience/template resolution and original DRAFT transition validation. Explicit create request, signed actor, owned sources, exact template content and source chronology required. Returns internal content/capture/digest; recipient IDs are domain facts, never provider context. No original/head or delivery writes; no approval or send.

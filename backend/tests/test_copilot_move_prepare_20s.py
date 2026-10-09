@@ -99,7 +99,7 @@ def exercise(client, engine, institute, employee, service):
     with pytest.raises(ValueError):
         move.Preview.model_validate({**refreshed, "state_fingerprint": "0"*64})
     discovery = client.get("/api/v1/copilot/preparation-capabilities", headers=headers)
-    assert discovery.status_code == 200 and {row["name"] for row in discovery.json()} == {"APPOINTMENT_CREATE", "APPOINTMENT_MOVE"}
+    assert discovery.status_code == 200 and {row["name"] for row in discovery.json()} == {"APPOINTMENT_CREATE", "APPOINTMENT_MOVE", "MARKETING_CAMPAIGN_DRAFT"}
     capabilities = {row["name"]: row for row in discovery.json()}
     assert capabilities["APPOINTMENT_CREATE"]["input_schema"]["$defs"]["OperationRequest"]["properties"]["capability"]["const"] == "APPOINTMENT_CREATE"
     assert capabilities["APPOINTMENT_MOVE"]["input_schema"]["$defs"]["MoveOperationRequest"]["properties"]["capability"]["const"] == "APPOINTMENT_MOVE"
