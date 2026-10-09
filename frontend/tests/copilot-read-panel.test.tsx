@@ -251,6 +251,26 @@ test("opportunity form sends exclusive source selections and clears evidence whe
   }finally{await act(async()=>root.unmount());}
 });
 
+test("local opportunity horizon rejects skipped hours and requires an explicit repeated occurrence",async()=>{
+  setAccessToken(token());const queries:any[]=[];
+  globalThis.fetch=async(url,init)=>{
+    if(String(url).endsWith("/capabilities"))return reply(discovery());
+    const body=JSON.parse(init!.body as string);queries.push(body);
+    return reply(await answer("REVENUE_OPPORTUNITIES",{institute_id:"own",service_id:"service",captured_at:clock,horizon_end:body.ui_context.horizon_end,opportunity:null,unavailable_reason:"capacity_unknown"}));
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await render(root);await settle();await fill("Consultation","REVENUE_OPPORTUNITIES");await fill("Source des opportunités","capacity");await fill("Prestation sélectionnée","service");await fill("Votre question","Examiner les opportunites");
+    await fill("Horizon local","2027-03-28T02:30");await click("Consulter");assert.equal(queries.length,0);assert.match(document.querySelector('[role="alert"]')!.textContent!,/heure d’horizon valide/);
+    await fill("Horizon local","2026-10-25T02:30");await click("Consulter");assert.equal(queries.length,0);
+    const options=Array.from(document.querySelectorAll("label")).find(r=>r.textContent?.startsWith("Occurrence de l’heure répétée"))!.querySelectorAll("option");
+    assert.equal(options.length,3);assert.equal(options[1].value,"2026-10-25T00:30:00.000Z");assert.equal(options[2].value,"2026-10-25T01:30:00.000Z");
+    await fill("Occurrence de l’heure répétée",options[2].value);await click("Consulter");assert.equal(queries[0].ui_context.horizon_end,"2026-10-25T01:30:00.000Z");
+    await fill("Horizon local","2027-10-31T02:30");await click("Consulter");assert.equal(queries.length,1);
+    const select=Array.from(document.querySelectorAll("label")).find(r=>r.textContent?.startsWith("Occurrence de l’heure répétée"))!.querySelector("select")!;assert.equal(select.value,"");
+  }finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

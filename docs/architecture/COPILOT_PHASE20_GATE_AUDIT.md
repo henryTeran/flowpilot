@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Opportunity local-horizon controls: local institute date/time now reuses original instituteInstants; dedicated Copilot13-test suite verifies skipped hour/no query, repeated hour/explicit occurrence, exact selected UTC and reset after editing. Technical ISO text entry removed. Actual API/official BASE browser opportunity acceptance remains outstanding; no phase closure claim.
+
 Opportunity integrated DOM acceptance: all three source selections exercised through actual Copilot form/common evidence guards in12-test suite; exclusive payloads, verified passive displays, source-switch field/result reset and incomplete-selection no request/correction messages pass. These synthetic sources are not actual API/BASE browser evidence; that acceptance and horizon product refinement remain outstanding.
 
 Opportunity form increment: three original variants now selectable and passively displayed through official BASE query/common evidence gate. Capacity requires catalogue service/explicit timezone-bearing horizon, rebooking admits no unrelated source fields, closures uses selected observed institute period; switching source clears fields/evidence. Build and12 regression/render tests pass. Dedicated integrated controls and real browser acceptance pending; horizon input needs product refinement. Forecast and four progressive UI flows still outstanding; gates remain partial.
