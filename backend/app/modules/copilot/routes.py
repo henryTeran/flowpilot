@@ -29,18 +29,27 @@ async def voice_preview(request: Request,
     principal = signed_principal(user, user.get("institute_id"))
     guard(principal, principal.institute_id)
     media_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
-    if media_type not in {"audio/wav", "audio/mpeg", "audio/webm", "audio/mp4", "audio/ogg"}:
-        raise HTTPException(415, "Supported audio content type required")
-    audio = bytearray()
-    async for chunk in request.stream():
-        if len(audio) + len(chunk) > 10_000_000:
-            raise HTTPException(413, "Audio exceeds supported size")
-        audio.extend(chunk)
-    if not audio:
-        raise HTTPException(422, "Nonempty audio required")
-    provider = request.app.state.ai_providers.stt
-    return await run_in_threadpool(voice.preview, principal,
-        {"audio": bytes(audio), "media_type": media_type, "language": language}, provider)
+    supported = media_type in {"audio/wav", "audio/mpeg", "audio/webm", "audio/mp4", "audio/ogg"}
+    # Correlate the upstream route without logging audio, transcript or their hashes.
+    with audit.trace(principal, "copilot_voice_preview",
+                     {"media_type": media_type if supported else "unsupported", "language": language}) as span:
+        if not supported:
+            raise HTTPException(415, "Supported audio content type required")
+        audio = bytearray()
+        async for chunk in request.stream():
+            if len(audio) + len(chunk) > 10_000_000:
+                raise HTTPException(413, "Audio exceeds supported size")
+            audio.extend(chunk)
+        span.fields["audit_audio_bytes"] = len(audio)
+        if not audio:
+            raise HTTPException(422, "Nonempty audio required")
+        provider = request.app.state.ai_providers.stt
+        result = await run_in_threadpool(voice.preview, principal,
+            {"audio": bytes(audio), "media_type": media_type, "language": language}, provider)
+        span.fields["audit_route_status"] = result.route.status if result.route else "not_routed"
+        span.fields["audit_process_id"] = result.route.process_id if result.route else None
+        span.result(result.status)
+        return result
 
 
 @router.get("/capabilities", response_model=tuple[orchestration.Capability, ...])

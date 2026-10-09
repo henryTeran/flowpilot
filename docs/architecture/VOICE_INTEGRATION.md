@@ -1,5 +1,15 @@
 # Voice integration
 
+## Current checkpoint: 21O
+
+Manager-only capture/import, explicit transcription, exact signed response validation and reviewed handoff are implemented. Official BASE remains the sole language router; the operator selects typed business identities and approvals in the existing Copilot forms. No domain action is authorized by audio or transcript alone. The sections below retain historical checkpoint evidence; this section defines current scope.
+
+Operational Voice audit reuses `app.modules.base.audit.trace` and its signed upstream context. After authorization, supported media/language metadata is fingerprinted for correlation; unsupported Content-Type is replaced by a fixed value. Outcome records include bounded received byte count, preview/HTTP status and optional BASE process ID. Audio, transcript, authorization headers, provider exceptions and audio/transcript digests are not emitted by this application audit. Unauthorized callers never enter the Voice span. HTTP validation failures before the handler remain covered by the existing request log rather than a Voice span.
+
+No application audio/transcript persistence or browser storage is introduced. Files/chunks and reviewed text live in request/component memory and are discarded on navigation/session disposal. With an explicitly configured remote STT provider, the bounded audio and requested language are sent to that provider; domain records are not added. Existing official BASE trace files contain routing argument hashes and signed correlation, as documented in the BASE integration: they are not an anonymous dataset. Log/trace retention, remote-provider processing terms and physical microphone/real-audio quality remain production acceptance work; current operational audit is not a durable business receipt.
+
+Current focused Voice tests:13 PASS13.77s, including6 new audit/privacy cases; shared BASE/Copilot audit regression:6 PASS6.21s. Both terminal exit0. Linux74 regression predates this audit source edit; a new current package regression is required. Frontend585 remains current because production frontend source is unchanged. Voice gates remain PARTIAL pending real STT/audio acceptance and current Linux validation.
+
 Current contract reinforcement: preview includes original signed principal for client scope checks. Response validation binds route request_digest to exact UTF8 transcript SHA256, checks prepared process context for routed intent and forbids process/context on clarification. Silence cannot carry a route. Seven service/HTTP checks PASS3.86s, including contradictory digest refusal503 and signed silent scope. No domain authority or real audio-quality claim added.
 
 

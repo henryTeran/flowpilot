@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21O_VOICE_AUDIT_PRIVACY_FOUNDATION:
+- Voice audit/privacy foundation: existing BASE trace correlates authorized signed HTTP scope and official router context without raw audio/transcript or their digests in application logs. Bounded metadata/status/process only; unauthorized callers no Voice span.13 focusedVoice PASS13.77s and6 sharedBASE/Copilot audit PASS6.21s, terminal exit0 (.cache/21-voice-audit-regression.log; .cache/21-shared-audit-regression.log). Official BASE trace still retains routing hashes/correlation; log retention and real provider/audio acceptance are not certified. Linux74 is historical after this backend edit; new package required. Frontend585 remains current. Gates PARTIAL/goal ACTIVE.
+
 PHASE21N_CURRENT_LINUX_APPLICATION_REGRESSION:
 - Current application Linux/PostgreSQL regression:74 PASS348.60s (.cache/21-cached-runtime-regression.log), terminal exit0, temporary schemas0 and invocation-owned cleanup. Includes7 Voice tests plus existing67 Copilot/BASE/domain/migration tests. Exact validated runtime sha256:0ab9df22afd9ee645dd09c66f4c447a964ef19b1e53733d812738af23427b5f4 from98b4050, unchanged Dockerfile/dependencies/BASE verified against working tree with Windows checkout normalization; entire current app replaced. Derived image sha256:a731c8df59f8f3a5afe53af6660cbd21f3aa7ab50b3b290b61b7cb1041d31faf, Python3.12.15/Node22.23.3/PostgreSQL16.14. Explicit --cached-runtime regression avoids dependency rebuild; full Dockerfile attempts failed registry504 before tests. No fresh dependency/image build claim. Voice audit/privacy and real audio acceptance remain; gates PARTIAL, goal ACTIVE.
 
