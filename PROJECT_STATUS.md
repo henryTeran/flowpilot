@@ -1,6 +1,19 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17_UPSTREAM_REALIGNMENT
+CURRENT_CHECKPOINT = PHASE17Q_UPSTREAM_READ_VERTICAL_SLICE
 STATUS = ACTIVE
+
+BASE_PHASE_REOPENED = true
+BASE_PHASE = PARTIAL
+BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+
+PHASE17Q_UPSTREAM_READ_VERTICAL_SLICE:
+- Audit of all 13 requested gates recorded in docs/architecture/BASE_PHASE_REOPENED.md. Earlier phases and historical 17A-17O application evidence retained; custom HTTP journal draft not restored.
+- Official installed BASE 1.5.1 routeRequest/contextPack now called through bounded Node stdin bridge, pinned lexical mode, request digest validation and fail-closed 503. No DB rows/UI IDs in framework input. Four upstream procedures route to four closed READ/SUGGEST adapters: employee availability, queue assignment options, operational queue and day planning.
+- POST /api/v1/base/query and GET /api/v1/base/query-capabilities reuse signed JWT/can_manage_ticket, exact institute/resource guards, closed Pydantic input/output schemas. Response includes answer/intent/capability/source-bound SHA evidence/empty actions/request_id. Explicit selections required; no generated SQL, writes, dynamic tools or duplicated scheduling rules. Minimal operational projections omit client details, prices, notes and employee names.
+- Optional fake-test provider can only agree with routed authority; outage preserves upstream deterministic read, invalid output refuses. JV/language ports only, no implementation of next JV/provider phases. Structured outcome logs have IDs/status/digests, no raw message; not durable business originals/signatures.
+- Official corpus:11 resources validated, 13/13 lexical routing examples pass. Local real framework -> signed SQLite API: initial8 passed24.55s; expanded queue/scheduling regression26 passed42.33s; query+queue+scheduling+historical intents59 passed45.80s, zero failures/skips. Final input/version guards: fresh query module11 passed19.69s, zero failures/skips. Existing deprecation/intentional unsafe-copy warnings only.
+- Docker daemon unavailable (missing Docker Desktop Linux engine named pipe), local psycopg2 absent; no new PostgreSQL/container/deployment claim. Historical backend image lacks Node/package/corpus and safely yields503. No persistent app migration, deployment or push.
+- Gate status: actual local READ_VERTICAL_SLICE and requested context/role/isolation/provider behaviors demonstrated; whole phase remains PARTIAL. NEXT: deployable runtime packaging and actual PostgreSQL acceptance; subordinate historical intent endpoint to upstream, then complete remaining phase gates before next incomplete master-plan phase. Full 26-phase goal ACTIVE.
 
 PHASE17_UPSTREAM_REALIGNMENT:
 - User correction 2026-10-08: BASE means https://github.com/ai-swiss/base. Historical 17A-17O results prove FlowPilot application foundations only, not official framework integration. docs/architecture/BASE_UPSTREAM_INTEGRATION.md supersedes historical next-step interpretations.

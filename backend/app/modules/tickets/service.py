@@ -27,6 +27,18 @@ from app.shared.time import utcnow
 
 
 ACTIVE_SESSION_STATUSES = ["planned", "in_progress", "extended", "delayed"]
+
+
+def read_operational_queue(db: Session, institute_id: str) -> list[dict]:
+    """Minimal read projection using the existing operational queue ordering."""
+    from app.modules.tickets.repository import list_waiting_tickets, queue_positions
+    from app.shared.time import explicit_utc_instant
+    positions = queue_positions(db, institute_id)
+    return [{"ticket_id": ticket.id, "status": ticket.status,
+             "arrival_time": explicit_utc_instant(ticket.arrival_time),
+             "assigned_employee_id": ticket.assigned_employee_id,
+             "queue_position": positions.get(ticket.id)}
+            for ticket in list_waiting_tickets(db, institute_id)]
 ACTIVE_APPOINTMENT_STATUSES = ["scheduled", "confirmed", "arrived", "in_progress"]
 ASSIGNABLE_EMPLOYEE_STATUSES = {"available"}
 PAYMENT_METHODS = {"cb", "especes", "cheque", "carte_cadeau", "mixte"}

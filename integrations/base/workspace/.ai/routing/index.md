@@ -11,4 +11,4 @@ Choisissez l'agent dont le «Quand l'utiliser» couvre la demande, puis ouvrez s
 
 ## Si rien ne couvre la demande
 
-Ouvrez [`accueil`](C:/Users/CorralesSusana/Desktop/Projet/code/bodyminute-flow-manager-starter/bodyminute-flow-manager-starter/.cache/base-upstream/.ai/agents/concierge-base/skills/processes/accueil/SKILL.md) (Accueil BASE). Ce process accueille et oriente; la demande reste ainsi suivie.
+Ouvrez [`accueil`](C:/Users/CorralesSusana/Desktop/Projet/code/bodyminute-flow-manager-starter/bodyminute-flow-manager-starter/integrations/base/node_modules/@ai-swiss/base/.ai/agents/concierge-base/skills/processes/accueil/SKILL.md) (Accueil BASE). Ce process accueille et oriente; la demande reste ainsi suivie.
