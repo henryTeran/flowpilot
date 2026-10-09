@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_MARKETING_FULL_FRONTEND_REGRESSION:
+- Current full frontend575 PASS,0 failures/skips120.13s (.cache/20-marketing-frontend.log), including mounted marketing form and existing creation/move/read interfaces. This strengthens regression evidence only; populated marketing retention/recovery and actual signed API/official BASE browser acceptance remain required. Marketing browser fixture source paths inspected for the next real acceptance run. Whole goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_MARKETING_FORM_INCREMENT:
 - Manager-only Copilot marketing mode added with explicit paginated audience/template catalogues, reviewed BASE message, source reread/all retained pages and content-bound /copilot/prepare-preview/marketing. Literal subject/body and historical eligible count displayed. Explicit reason and /copilot/prepare/marketing connect scoped frozen retention/recovery; unreadable/ambiguous saved intent blocks replacement, resume and definitive rejection correction exposed. Independently confirmed native DRAFT displayed without approval/send controls. Edits/catalogue rereads clear evidence; stale scope ignored.
 - Final build PASS and24 combined Copilot/marketing targeted tests PASS (.cache/20-marketing-form-tests.log). New DOM case proves only discovery on open, source-less request no POST, explicit empty catalogue reads with correct paths and no retained draft claim. Existing source/contract/driver and creation/read regressions pass. Positive populated form retention/lost-response recovery, full current frontend regression and actual API/BASE browser acceptance remain required. Goal ACTIVE, gates PARTIAL.

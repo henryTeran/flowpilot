@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Current full frontend regression575 PASS,0 failures/skips120.13s with mounted marketing form (.cache/20-marketing-frontend.log). This does not establish populated form lifecycle or actual API/BASE browser acceptance; those remain required alongside reorder and other acceptance gaps. Gates PARTIAL.
+
 Marketing form now mounted for signed managers: explicit paginated original selection, full historical source read and official BASE preview, literal content/count, reason and separate retained DRAFT/frozen recovery controls. Build and24 targeted Copilot/marketing tests pass; new DOM coverage is discovery/empty catalogue/no-selection refusal only. Populated form lifecycle, full current frontend suite and real API/BASE browser acceptance remain outstanding. No approval/contact/delivery authority; gates PARTIAL.
 
 Marketing source reader added for native ID/key originals and all retained audience pages. Sequential cursor, selected identity/channel, independent original equality and historical content checks precede return; stale session stops continuation. Build/five source-audience tests pass including exact native route paths, contradictory keyed template/wrong page and session change. Reader is not yet mounted; source-selection form and real browser/API draft proof remain open. Gates PARTIAL.
