@@ -68,6 +68,14 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter le resume des revenus enregistres; Consulter le resume des revenus enregistres; Afficher le bilan de facturation
 **Éviter si**: Annuler une reservation.
 
+### Projeter les besoins de stock du scenario: [`stock-forecast`](skills/processes/stock-forecast/SKILL.md)
+**Quand l'utiliser**: Projeter les besoins de stock du scenario; Projeter les besoins de stock du scenario
+**Éviter si**: Annuler une reservation.
+
+### Consulter les stocks enregistres: [`stock-read`](skills/processes/stock-read/SKILL.md)
+**Quand l'utiliser**: Consulter les stocks enregistres; Consulter les stocks enregistres
+**Éviter si**: Annuler une reservation.
+
 ### Trouver des creneaux de liste d attente: [`waitlist-match`](skills/processes/waitlist-match/SKILL.md)
 **Quand l'utiliser**: Chercher des creneaux pour la liste d'attente; Chercher des creneaux pour la liste d'attente; Trouver des creneaux pour la liste d'attente; Examiner les creneaux de la liste d'attente; Find slots for the waitlist
 **Éviter si**: Modifier ou annuler une reservation.

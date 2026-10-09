@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20H_CLOSURE_BASED_LOSS_ANALYSIS_PASS
+CURRENT_CHECKPOINT = PHASE20I_STOCK_READ_AND_EXPLICIT_FORECAST_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20I_STOCK_READ_AND_EXPLICIT_FORECAST:
+- Registered STOCK_READ/FORECAST using actual official BASE processes and original inventory.outlook.read. Existing signed inventory operator permission (reception or manager) retained. Stock read accepts no unrelated selection; forecast requires explicit aware ISO scenario instants/volumes/pinned original recipe IDs, with explicit null missing norm. No inferred demand, copied stock/norm/order calculations or provider call.
+- Existing first50 item projection preserves exact stock/threshold/pending-order quantities, known/complete demand, conditional shortages and selected-norm coverage. Pending orders do not become physical stock. Missing norms remain partial; older original recipe stays selected after revision. No order/receipt/consumption/action. Source institute and generated clock bound to evidence capture and full response SHA; mutable scenario revalidated through JSON request reconstruction before source dispatch.
+- Official corpus25 resources/routing46/46 PASS. Stock/customer/original-outlook regression9 passed90.42s real SQLite/PostgreSQL, zero failures/skips. Final stock suite2 passed10.64s after evidence scope/clock guard, zero failures/skips; selected original norm revision1 gives12.375 for volume3 despite newer9.000 norm. Explicit/missing recipe, scope/security/roles/scenario date/quantity rules, original domain concurrency and zero SQL writes covered. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for recorded-stock and explicit-scenario forecasts. All12 named initial capabilities now registered; this alone does not prove complete scope or closure. NEXT initial READ/SUGGEST requirement audit, resolve remaining source/selection coverage and packaged Linux acceptance, then progressive appointment/marketing/reorder preparation and guarded execution. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20H_CLOSURE_BASED_LOSS_ANALYSIS:
 - Added REVENUE_LOSS_ANALYSIS via actual official BASE process, signed manager and explicit observed start/end period. Adapter calls original booking-closure/walk-in-cancellation readers; existing kernels verify full-cohort original transitions/retained terms, including off-page corruption. No copied valuation/cancellation rules, arbitrary client amounts or provider calls.

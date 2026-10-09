@@ -20,6 +20,8 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 | REVENUE_SUMMARY | revenue.sources.read | institute manager only | Explicit observed period recorded paid-ticket/active-line aggregates, currency-separated amounts and original quality diagnostics |
 | REVENUE_OPPORTUNITIES | revenue.slot_opportunities.read | institute manager only | Explicit service/future horizon conditional queue and capacity projection, or original unavailable reason |
 | REVENUE_LOSS_ANALYSIS | revenue.closures.read / revenue.walk_in_cancellations.read | institute manager only | Aggregate recorded closures, retained commercial amounts and unknown causal financial loss |
+| STOCK_READ | inventory.outlook.read | inventory operator (reception or institute manager) | First50 recorded stock/threshold/pending-order quantities |
+| STOCK_FORECAST | inventory.outlook.read with explicit ForecastScenario | inventory operator | Selected service volumes, pinned original recipes and exact conditional demand/shortfalls |
 
 No external language provider is called and no raw customer facts are sent to BASE routing. Only the message reaches the framework. Responses contain source facts, capture/completion clocks, SHA256 integrity and no actions. SHA256 is neither a signature nor a retained business original. BASE operational correlation records signed scope, interaction ID and digests without raw messages or customer facts.
 
@@ -67,6 +69,12 @@ REVENUE_LOSS_ANALYSIS requires manager authorization and an explicit observed pe
 
 Each projected group preserves its original observation window and a digest of the complete reader response, including that reader's bounded default page; this is not a digest of every underlying database event or a retained/signature proof. Both readers share the transaction's institute lock but retain separate capture clocks. No timing is rewritten into an invented common capture. Financial loss remains null, causal-loss proof false and complete history false. Missing, invalid and unknown-currency amounts remain exactly as represented by the sovereign source kernels. Historical commercial terms are neither revenue realized nor money causally lost; the model supplies no causes or estimates.
 
+## Recorded stocks and explicit scenarios (20I)
+
+Both stock capabilities preserve existing inventory operator authorization. STOCK_READ accepts no business selection and returns the existing outlook's first50 items. STOCK_FORECAST requires an explicit scenario from UI: aware ISO start/end instants, bounded service volumes and selected original recipe IDs (including explicit null when a norm is missing). The domain enforces original recipe/service/institute scope, positive horizon up to366 days and exact integer quantities. Copilot does not infer volumes or silently choose today's recipe. Numeric epoch scenario instants are refused at the Copilot boundary.
+
+The existing outlook reader supplies exact recorded stock, reorder thresholds, pending orders, selected-norm coverage, conditional demand and shortages. Pending orders are not physical receipts; incomplete norms remain partial with complete demand unknown. Only the existing bounded first item page is returned, not a claim to list all inventory items. This read-only forecast does not create a purchase order, receive goods, consume stock or authorize a reorder. Other observed/planned inventory projection sources and initial capability scope must still be audited before whole-phase closure.
+
 ## Remaining phase gates
 
-COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending stock integrations and the complete initial capability scope audit in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.
+COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending the complete initial capability scope audit and packaged acceptance in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.

@@ -13,7 +13,7 @@ def capabilities(user=Depends(require_ticket_manager)):
     principal = signed_principal(user, user.get("institute_id"))
     orchestration.query.guard(principal, principal.institute_id)
     return tuple(value for value in orchestration.REGISTRY.values()
-        if value.permission in {"customer_operator", "planning_operator"} or principal.role == "responsable_institut")
+        if value.permission in {"customer_operator", "planning_operator", "inventory_operator"} or principal.role == "responsable_institut")
 
 
 @router.post("/query", response_model=orchestration.Response)

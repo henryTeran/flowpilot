@@ -69,6 +69,7 @@ def test_closed_discovery_foreign_scope_and_framework_outage(client, monkeypatch
     for role, names in [("accueil", ["CLIENT_READ", "PLANNING_READ", "PLANNING_GAPS"]), ("responsable_institut", ["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY", "REVENUE_OPPORTUNITIES", "REVENUE_LOSS_ANALYSIS"])]:
         response = client.get("/api/v1/copilot/capabilities", headers=_auth_headers(role, institute))
         assert response.status_code == 200
+        names = names + ["STOCK_READ", "STOCK_FORECAST"]
         assert [item["name"] for item in response.json()] == names
         assert all(not item["mutates"] for item in response.json())
     with Session(main_module.engine) as db:

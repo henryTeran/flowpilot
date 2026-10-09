@@ -9,6 +9,8 @@ from app.modules.copilot import planning, losses
 from app.modules.revenue import capacity, sources as revenue_sources, billing, slot_opportunities
 from app.modules.workforce import conflicts
 from app.modules.resources import conflicts as resource_conflicts
+from app.modules.inventory import outlook
+from app.modules.inventory.outlook_schemas import ForecastScenario, OutlookRead
 from app.modules.institutes.models import Institute
 from app.modules.services.models import Service
 from app.modules.crm.metrics import Fact
@@ -16,10 +18,19 @@ from app.modules.customers.repository import require_customer
 from app.modules.waitlist.originals import fingerprint
 from app.shared.time import utcnow, explicit_utc_instant
 
-Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY", "REVENUE_OPPORTUNITIES", "REVENUE_LOSS_ANALYSIS"]
+Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY", "REVENUE_OPPORTUNITIES", "REVENUE_LOSS_ANALYSIS", "STOCK_READ", "STOCK_FORECAST"]
 PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY",
     "client-rebooking-opportunities": "CLIENT_REBOOKING_OPPORTUNITIES", "planning-read": "PLANNING_READ",
-    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS", "revenue-summary": "REVENUE_SUMMARY", "revenue-opportunities": "REVENUE_OPPORTUNITIES", "revenue-loss-analysis": "REVENUE_LOSS_ANALYSIS"})
+    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS", "revenue-summary": "REVENUE_SUMMARY", "revenue-opportunities": "REVENUE_OPPORTUNITIES", "revenue-loss-analysis": "REVENUE_LOSS_ANALYSIS", "stock-read": "STOCK_READ", "stock-forecast": "STOCK_FORECAST"})
+
+
+class Scenario(ForecastScenario):
+    @field_validator("starts_at", "ends_at", mode="before")
+    @classmethod
+    def explicit_instants(cls, value):
+        if not isinstance(value, (str, datetime)) or isinstance(value, str) and "T" not in value:
+            raise ValueError("Explicit aware ISO scenario instants required")
+        return value
 
 
 class Selection(Fact):
@@ -31,6 +42,7 @@ class Selection(Fact):
     start: AwareDatetime | None = None
     end: AwareDatetime | None = None
     horizon_end: AwareDatetime | None = None
+    scenario: Scenario | None = None
 
     @field_validator("horizon_end", mode="before")
     @classmethod
@@ -69,6 +81,10 @@ class OpportunitySelection(Fact):
     horizon_end: AwareDatetime
 
 
+class ForecastSelection(Fact):
+    scenario: Scenario
+
+
 class ConflictsSelection(CapacitySelection):
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
         {"required": ["employee_id"], "properties": {"employee_id": {"type": "string"}, "resource_id": {"type": "null"}}},
@@ -87,7 +103,8 @@ class ConflictsSelection(CapacitySelection):
 INPUTS = MappingProxyType({"CLIENT_READ": CustomerSelection, "CLIENT_SUMMARY": CustomerSelection,
     "CLIENT_REBOOKING_OPPORTUNITIES": CustomerSelection, "PLANNING_READ": query.EmptySelection,
     "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection, "PLANNING_CONFLICTS": ConflictsSelection,
-    "REVENUE_SUMMARY": BillingSelection, "REVENUE_OPPORTUNITIES": OpportunitySelection, "REVENUE_LOSS_ANALYSIS": BillingSelection})
+    "REVENUE_SUMMARY": BillingSelection, "REVENUE_OPPORTUNITIES": OpportunitySelection, "REVENUE_LOSS_ANALYSIS": BillingSelection,
+    "STOCK_READ": query.EmptySelection, "STOCK_FORECAST": ForecastSelection})
 
 
 class Request(query.Request):
@@ -104,7 +121,7 @@ class CustomerFacts(Fact):
 class Capability(Fact):
     name: Name
     level: Literal[0, 1] = 0
-    permission: Literal["customer_operator", "crm_manager", "planning_operator", "capacity_manager"]
+    permission: Literal["customer_operator", "crm_manager", "planning_operator", "capacity_manager", "inventory_operator"]
     input_schema: dict
     output_schema: dict
     application_service: str
@@ -123,7 +140,9 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"),
         ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"),
         ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read"),
-        ("REVENUE_LOSS_ANALYSIS", "capacity_manager", 0, losses.Read, "copilot.losses.read/revenue.closures/revenue.walk_in_cancellations"))})
+        ("REVENUE_LOSS_ANALYSIS", "capacity_manager", 0, losses.Read, "copilot.losses.read/revenue.closures/revenue.walk_in_cancellations"),
+        ("STOCK_READ", "inventory_operator", 0, OutlookRead, "inventory.outlook.read"),
+        ("STOCK_FORECAST", "inventory_operator", 1, OutlookRead, "inventory.outlook.read/explicit_scenario"))})
 
 
 class Evidence(Fact):
@@ -131,7 +150,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | losses.Read
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | losses.Read | OutlookRead
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -140,6 +159,9 @@ class Evidence(Fact):
     def coherent_capture(self):
         if self.read_completed_at < self.captured_at:
             raise ValueError("Read completion cannot precede source capture")
+        if isinstance(self.result, OutlookRead) and (self.result.institute_id != self.institute_id
+            or explicit_utc_instant(self.result.generated_at) != self.captured_at):
+            raise ValueError("Inventory source scope and capture must match evidence")
         if isinstance(self.result, (capacity.Capacity, billing.Billing)) and (
             self.result.window.institute_id != self.institute_id or self.result.window.captured_at != self.captured_at):
             raise ValueError("Capacity source scope and capture must match evidence")
@@ -174,7 +196,8 @@ def read(db, principal, candidate, router=None):
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
             "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"},
-            "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end"}, "REVENUE_LOSS_ANALYSIS": {"start", "end"}}
+            "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end"}, "REVENUE_LOSS_ANALYSIS": {"start", "end"},
+            "STOCK_READ": set(), "STOCK_FORECAST": {"scenario"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
         if name == "PLANNING_CONFLICTS" and selected.get("employee_id") and selected.get("resource_id"):
@@ -184,6 +207,8 @@ def read(db, principal, candidate, router=None):
             required = {"start", "end"}
         elif name == "REVENUE_OPPORTUNITIES":
             required = {"service_id", "horizon_end"}
+        elif name == "STOCK_FORECAST":
+            required = {"scenario"}
         missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
         if name is None or required - selected.keys() or missing_target:
             response = Response(request_id=span.id, status="clarification", capability=name,
@@ -246,6 +271,13 @@ def read(db, principal, candidate, router=None):
                 answer = "Créneau projeté à examiner; vérifiez les horaires et la capacité avant toute affectation. Valeur financière inconnue."
                 if result.unavailable_reason:
                     answer = "Opportunité de capacité indisponible : " + result.unavailable_reason + "."
+            elif name in {"STOCK_READ", "STOCK_FORECAST"}:
+                result = outlook.read(db, principal.institute_id, 50, 0,
+                    request.ui_context.scenario if name == "STOCK_FORECAST" else None)
+                captured = explicit_utc_instant(result.generated_at)
+                answer = "Stocks enregistrés et commandes en attente, première page de 50 articles."
+                if name == "STOCK_FORECAST":
+                    answer = "Projection conditionnelle du scénario explicitement sélectionné; couverture des normes : " + result.coverage + ". Aucune commande créée."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at
