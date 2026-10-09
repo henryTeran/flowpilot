@@ -326,7 +326,8 @@ def read(db, principal, candidate, router=None):
                     result = slot_opportunities.read(db, principal.institute_id, request.ui_context.service_id, request.ui_context.horizon_end)
                     answer = "Créneau projeté à examiner; vérifiez les horaires et la capacité avant toute affectation. Valeur financière inconnue."
                     if result.unavailable_reason:
-                        answer = "Opportunité de capacité indisponible : " + result.unavailable_reason + "."
+                        reason = {"resource_configuration_missing": "configuration des ressources manquante", "capacity_unknown": "capacité non établie", "outside_horizon": "aucun créneau dans l’horizon choisi"}[result.unavailable_reason]
+                        answer = "Opportunité de capacité indisponible : " + reason + "."
                 captured = result.captured_at
             elif name in {"STOCK_READ", "STOCK_FORECAST"}:
                 result = outlook.read(db, principal.institute_id, 50, 0,

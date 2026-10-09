@@ -7,13 +7,21 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.modules.appointments.models import Appointment
-from app.modules.resources.models import ResourceReservation
+from app.modules.resources.models import ResourceReservation, Resource, ResourceRequirement
+from app.modules.services.models import Service
 
 
 def seed_planning(engine, institute):
     activity_day = "2025-10-26"
     conflict_day = "2027-11-14"
     with Session(engine) as db:
+        category = db.get(Service, "svc-soin-profond").category_id
+        db.add(Service(id="browser-capacity-care", category_id=category, name="Soin capacite navigateur",
+            duration_min=50, duration_max=50, price_member=15, price_passage=20, status="active"))
+        db.add(Resource(id="browser-capacity-room", institute_id=institute, name="Salle projection navigateur",
+            kind="room", capabilities=["browser-capacity"], status="active"))
+        db.add(ResourceRequirement(id="browser-capacity-need", institute_id=institute,
+            service_id="browser-capacity-care", kind="room", capability="browser-capacity", quantity=1))
         for index, (first, last) in enumerate(((15, 45), (30, 60), (180, 195))):
             start = datetime(2025, 10, 26, tzinfo=timezone.utc)+timedelta(minutes=first)
             end = datetime(2025, 10, 26, tzinfo=timezone.utc)+timedelta(minutes=last)
@@ -40,5 +48,5 @@ def read_snapshot(engine):
     with Session(engine) as db:
         return {model.__tablename__: [dict(id=row.id, status=row.status, start=str(row.start_time),
             end=str(row.end_time), **(dict(actual_start=str(row.actual_start_time), actual_end=str(row.actual_end_time))
-            if model is Appointment else {})) for row in db.scalars(select(model).where(model.id.like("browser-%")).order_by(model.id))]
+            if model is Appointment else {})) for row in db.scalars(select(model).order_by(model.id))]
             for model in (Appointment, ResourceReservation)}
