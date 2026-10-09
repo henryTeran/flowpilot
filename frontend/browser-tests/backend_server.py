@@ -65,6 +65,12 @@ def main():
         @app.get("/_fixture/conversion")
         def conversion_manifest():
             return manifest
+    if os.environ.get("FLOWPILOT_BROWSER_CRM_HISTORY_FIXTURE") == "1":
+        from crm_history_fixture import seed_history
+        history_manifest = seed_history(engine, DEMO_INSTITUTE_ID)
+        @app.get("/_fixture/crm-history")
+        def crm_history_manifest():
+            return history_manifest
     if options.simulate_payments:
         from payment_simulator import PaymentSimulator
         from app.modules.payments.dispatch import ProviderBinding
