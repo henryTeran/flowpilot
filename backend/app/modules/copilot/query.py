@@ -43,7 +43,7 @@ class Selection(Fact):
     end: AwareDatetime | None = None
     horizon_end: AwareDatetime | None = None
     scenario: Scenario | None = None
-    opportunity_source: Literal["capacity", "rebooking"] | None = None
+    opportunity_source: Literal["capacity", "rebooking", "closures"] | None = None
 
     @field_validator("horizon_end", mode="before")
     @classmethod
@@ -80,13 +80,17 @@ class BillingSelection(Fact):
 class OpportunitySelection(Fact):
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
         {"required": ["service_id", "horizon_end"], "properties": {
-            "opportunity_source": {"const": "capacity"}, "service_id": {"type": "string"}, "horizon_end": {"type": "string"}}},
+            "opportunity_source": {"const": "capacity"}, "service_id": {"type": "string"}, "horizon_end": {"type": "string"}, "start": {"type": "null"}, "end": {"type": "null"}}},
         {"required": ["opportunity_source"], "properties": {
-            "opportunity_source": {"const": "rebooking"}, "service_id": {"type": "null"}, "horizon_end": {"type": "null"}}},
+            "opportunity_source": {"const": "rebooking"}, "service_id": {"type": "null"}, "horizon_end": {"type": "null"}, "start": {"type": "null"}, "end": {"type": "null"}}},
+        {"required": ["opportunity_source", "start", "end"], "properties": {
+            "opportunity_source": {"const": "closures"}, "service_id": {"type": "null"}, "horizon_end": {"type": "null"}, "start": {"type": "string"}, "end": {"type": "string"}}},
     ]})
-    opportunity_source: Literal["capacity", "rebooking"] = "capacity"
+    opportunity_source: Literal["capacity", "rebooking", "closures"] = "capacity"
     service_id: identity.ExactId | None = None
     horizon_end: AwareDatetime | None = None
+    start: AwareDatetime | None = None
+    end: AwareDatetime | None = None
 
     @model_validator(mode="after")
     def source_selection(self):
@@ -94,6 +98,10 @@ class OpportunitySelection(Fact):
             raise ValueError("Capacity requires an explicit service and horizon")
         if self.opportunity_source == "rebooking" and (self.service_id is not None or self.horizon_end is not None):
             raise ValueError("Rebooking does not accept capacity selections")
+        if self.opportunity_source != "closures" and (self.start is not None or self.end is not None):
+            raise ValueError("Only closure follow-up accepts an observed period")
+        if self.opportunity_source == "closures" and (self.start is None or self.end is None or self.service_id is not None or self.horizon_end is not None):
+            raise ValueError("Closure follow-up requires only an explicit period")
         return self
 
 
@@ -146,7 +154,7 @@ class Capability(Fact):
 
 
 REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, level=level,
-    input_schema=INPUTS[name].model_json_schema(), output_schema=TypeAdapter(conflicts.Read | resource_conflicts.Read).json_schema() if name == "PLANNING_CONFLICTS" else TypeAdapter(slot_opportunities.Read | opportunities.Returns).json_schema() if name == "REVENUE_OPPORTUNITIES" else output.model_json_schema(),
+    input_schema=INPUTS[name].model_json_schema(), output_schema=TypeAdapter(conflicts.Read | resource_conflicts.Read).json_schema() if name == "PLANNING_CONFLICTS" else TypeAdapter(slot_opportunities.Read | opportunities.Returns | opportunities.FollowUps).json_schema() if name == "REVENUE_OPPORTUNITIES" else output.model_json_schema(),
     application_service=service) for name, permission, level, output, service in (
         ("CLIENT_READ", "customer_operator", 0, CustomerFacts, "customers.repository.require_customer"),
         ("CLIENT_SUMMARY", "crm_manager", 0, profile.SegmentProfile, "crm.profile.read"),
@@ -156,7 +164,7 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
         ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"),
         ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"),
-        ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read/copilot.opportunities.read_returns/revenue.rebooking.read"),
+        ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read/copilot.opportunities.read_returns/copilot.opportunities.read_follow_ups"),
         ("REVENUE_LOSS_ANALYSIS", "capacity_manager", 0, losses.Read, "copilot.losses.read/revenue.closures/revenue.walk_in_cancellations"),
         ("STOCK_READ", "inventory_operator", 0, OutlookRead, "inventory.outlook.read"),
         ("STOCK_FORECAST", "inventory_operator", 1, OutlookRead, "inventory.outlook.read/explicit_scenario"))})
@@ -167,7 +175,7 @@ OUTPUT_TYPES = MappingProxyType({
     "CLIENT_REBOOKING_OPPORTUNITIES": rebooking.RebookingRead, "PLANNING_READ": query.PlanningFacts,
     "PLANNING_GAPS": planning.Gaps, "EMPLOYEE_CAPACITY": capacity.Capacity,
     "PLANNING_CONFLICTS": (conflicts.Read, resource_conflicts.Read), "REVENUE_SUMMARY": billing.Billing,
-    "REVENUE_OPPORTUNITIES": (slot_opportunities.Read, opportunities.Returns), "REVENUE_LOSS_ANALYSIS": losses.Read,
+    "REVENUE_OPPORTUNITIES": (slot_opportunities.Read, opportunities.Returns, opportunities.FollowUps), "REVENUE_LOSS_ANALYSIS": losses.Read,
     "STOCK_READ": OutlookRead, "STOCK_FORECAST": OutlookRead,
 })
 
@@ -177,7 +185,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | opportunities.Returns | losses.Read | OutlookRead
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | opportunities.Returns | opportunities.FollowUps | losses.Read | OutlookRead
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -207,7 +215,7 @@ class Evidence(Fact):
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
             or any(row.institute_id != self.institute_id for row in self.result.rows)):
             raise ValueError("Availability source scope and capture must match evidence")
-        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read, slot_opportunities.Read, opportunities.Returns, losses.Read)) and (
+        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read, slot_opportunities.Read, opportunities.Returns, opportunities.FollowUps, losses.Read)) and (
             self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
             raise ValueError("Conflict source scope and capture must match evidence")
         return self
@@ -237,6 +245,9 @@ def read(db, principal, candidate, router=None):
             "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"},
             "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end", "opportunity_source"}, "REVENUE_LOSS_ANALYSIS": {"start", "end"},
             "STOCK_READ": set(), "STOCK_FORECAST": {"scenario"}}
+        opportunity_fields = {"capacity": {"service_id", "horizon_end"}, "rebooking": set(), "closures": {"start", "end"}}
+        if name == "REVENUE_OPPORTUNITIES":
+            fields[name] = {"opportunity_source"} | opportunity_fields[request.ui_context.opportunity_source or "capacity"]
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
         if name == "PLANNING_CONFLICTS" and selected.get("employee_id") and selected.get("resource_id"):
@@ -245,9 +256,7 @@ def read(db, principal, candidate, router=None):
         if name in {"REVENUE_SUMMARY", "REVENUE_LOSS_ANALYSIS"}:
             required = {"start", "end"}
         elif name == "REVENUE_OPPORTUNITIES":
-            required = set() if request.ui_context.opportunity_source == "rebooking" else {"service_id", "horizon_end"}
-            if request.ui_context.opportunity_source == "rebooking" and ({"service_id", "horizon_end"} & selected.keys()):
-                raise HTTPException(400, "Rebooking source does not accept capacity selections")
+            required = opportunity_fields[request.ui_context.opportunity_source or "capacity"]
         elif name == "STOCK_FORECAST":
             required = {"scenario"}
         missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
@@ -307,7 +316,10 @@ def read(db, principal, candidate, router=None):
                 captured = result.captured_at
                 answer = "Annulations et absences enregistrées, avec les valeurs commerciales conservées. Perte financière causale indéterminée."
             elif name == "REVENUE_OPPORTUNITIES":
-                if request.ui_context.opportunity_source == "rebooking":
+                if request.ui_context.opportunity_source == "closures":
+                    result = opportunities.read_follow_ups(db, principal.institute_id, request.ui_context.start, request.ui_context.end)
+                    answer = f"{result.booking_total} clôture(s) de rendez-vous et {result.walk_in_total} annulation(s) sans rendez-vous à examiner. Les valeurs conservées ne prouvent ni revenu récupérable ni permission de contact."
+                elif request.ui_context.opportunity_source == "rebooking":
                     result = opportunities.read_returns(db, principal.institute_id)
                     answer = f"{result.total_candidates} reprise(s) à examiner selon les soins observés et la politique CRM; vérifiez les permissions de contact et les créneaux."
                 else:

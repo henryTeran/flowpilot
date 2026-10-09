@@ -74,7 +74,7 @@ def test_postgres_signed_rebooking_opportunities(client, postgres_flow, monkeypa
 
 def test_discovery_source_selection_contract():
     schema = query.REGISTRY["REVENUE_OPPORTUNITIES"].input_schema
-    assert len(schema["oneOf"]) == 2
+    assert len(schema["oneOf"]) == 3
     query.OpportunitySelection(opportunity_source="rebooking")
     for values in ({}, {"opportunity_source": "rebooking", "service_id": "injected"}):
         with pytest.raises(ValueError):

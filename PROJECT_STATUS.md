@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20M_INSTITUTE_REBOOKING_OPPORTUNITIES_PASS
+CURRENT_CHECKPOINT = PHASE20N_CLOSURE_FOLLOW_UP_OPPORTUNITIES_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20N_CLOSURE_FOLLOW_UP_OPPORTUNITIES:
+- REVENUE_OPPORTUNITIES accepts explicit UI source closures and observed start/end, alongside unchanged capacity/rebooking modes. Both sovereign booking/walk-in closure readers verify full source cohorts before minimal first20-per-source event projections. Full counts, separate windows/reader-response SHA, later evidence capture and original retained currency/amount-quality groups preserved. No raw customer/actor/snapshot/basket dossiers.
+- Booking follow-ups remain unpriced; walk-in retained_value preserves recorded cancelled commercial value, never estimated recovered revenue. No contact/delivery/execution authority, causal-loss or complete-history claim. Conditional schemas and closed dispatch reject cross-source fields; BASE remains sole router.25 resources validate,46/46 route examples pass.
+- Combined actual SQLite/PostgreSQL opportunity/loss regression9 passed65.88s, zero failures/skips. Extended final follow-up suite2 passed24.11s, zero failures/skips: distinct source clocks preserved and corrupted booking beyond first20 causes signed HTTP400, restoration returns200.25 booking/26 walk-in totals,20 candidates each, original digests/values, scope/selections/dates/privacy and zero SQL mutations verified. Temporary schemas0 and owned55473 PostgreSQL stopped.
+- CHECKPOINT_STATUS = PASS for recorded closure follow-ups. Current image acceptance remains required (20K precedes20L-20N). NEXT finish initial capability scope audit, progressive appointment create/move, marketing draft and reorder proposal preparation/guarded execution. READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push or external message claim.
 
 PHASE20M_INSTITUTE_REBOOKING_OPPORTUNITIES:
 - REVENUE_OPPORTUNITIES now accepts explicit UI source capacity (legacy default service/horizon) or rebooking (no capacity selections). Existing institute-wide revenue.rebooking reader remains authoritative: original CRM policy/latest observed care, already-booked suppression, full cohort counts/diagnostics and first20 due candidates. Minimal adapter excludes unrelated lifecycle/contact/actor declarations; source reader-response digest and capture retained. Money/contact/execution authority remain unknown/false; no provider call or SQL mutation.
