@@ -2,6 +2,11 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_CREATION_BROWSER_ACCEPTANCE:
+- Real signed API/pinned official BASE creation lifecycle PASS on desktop/tablet:2 tests,43.7s (.cache/20-creation-browser-resources.log). Explicit reviewed customer/name/phone/notes/interval and room survive preview, retained preparation, separate human approval, execution and lost-response reload recovery. Preparation/approval leave appointments empty; execution creates exactly one booking; recovery emits no second execution POST.
+- Another qualified employee can preview the same room before execution, then receives the specific resource-unavailability refusal after reservation. No second booking. Final screenshots inspected, owned fixture removed, listeners4198/4199=0. First run exposed a test-only expectation that frozen fields were enabled after reload; corrected helper, then both final runs passed.
+- Full frontend557 PASS remains current production-source regression. Dedicated positive decline/browser refusal, revocation, expiry/race/damaged-source cases and other three progressive interfaces remain acceptance work. Whole goal ACTIVE; all phase gates PARTIAL.
+
 PHASE20_CREATION_EXECUTION_UI_INCREMENT:
 - Full frontend suite PASS:557 tests,0 failures/skips,90.15s. Log:.cache/20-creation-frontend.log. This proves frontend regression coverage only; actual API/BASE browser lifecycle and remaining phase requirements stay open.
 - Connected distinct approved-creation execution button to current execution-registration read, exact retained operation/latest approval, explicit reason, future validity and actor-scoped frozen execution driver. Three pending/invalid request modes block replacement actions. Lost execution can resume after mode reopen; confirmed receipt independently checked and full lifecycle reread, exposing booking/interval/reservation-transaction proof without current occupancy/contact/payment claims. Existing execution hides decision/new execution controls.
