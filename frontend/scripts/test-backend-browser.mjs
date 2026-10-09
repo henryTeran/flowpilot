@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+const voiceFixture = process.argv[2] === "--voice-fixture";
 const simulatePayments = process.argv[2] === "--payment-simulator";
 const conversionFixture = process.argv[2] === "--conversion-fixture";
 const crmHistoryFixture = process.argv[2] === "--crm-history-fixture";
@@ -19,8 +20,8 @@ writeFileSync(join(directory, ".flowpilot-browser-owner"), "isolated browser fix
 let status = 1;
 try {
   const cli = createRequire(import.meta.url).resolve("@playwright/test/cli");
-  const result = spawnSync(process.execPath, [cli, "test", "--config", config, ...process.argv.slice(simulatePayments || marketingFixture || crmHistoryFixture || planningFixture || revenueFixture ? 3 : 2)], {
-    cwd: root, stdio: "inherit", env: { ...process.env, FLOWPILOT_BROWSER_DIRECTORY: directory, FLOWPILOT_BROWSER_MARKETING_FIXTURE: marketingFixture ? "1" : "0",
+  const result = spawnSync(process.execPath, [cli, "test", "--config", config, ...process.argv.slice(voiceFixture || simulatePayments || marketingFixture || crmHistoryFixture || planningFixture || revenueFixture ? 3 : 2)], {
+    cwd: root, stdio: "inherit", env: { ...process.env, FLOWPILOT_BROWSER_DIRECTORY: directory, FLOWPILOT_BROWSER_VOICE_FIXTURE: voiceFixture ? "1" : "0", FLOWPILOT_BROWSER_MARKETING_FIXTURE: marketingFixture ? "1" : "0",
       FLOWPILOT_BROWSER_CONVERSION_FIXTURE: conversionFixture ? "1" : "0", FLOWPILOT_BROWSER_CRM_HISTORY_FIXTURE: crmHistoryFixture ? "1" : "0",
       FLOWPILOT_BROWSER_PLANNING_FIXTURE: planningFixture ? "1" : "0", FLOWPILOT_BROWSER_REVENUE_FIXTURE: revenueFixture ? "1" : "0" },
   });

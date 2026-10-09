@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21F_VOICE_NATIVE_PREVIEW_ACCEPTANCE:
+- Voice native preview acceptance:2 PASS47.0s desktop/tablet (.cache/21-voice-preview-browser.log), explicit --voice-fixture sets offline fake STT only in owned temporary server; actual signed raw-audio API and pinned official BASE produce exact displayed transcript. One preview POST/no domain POST, no implicit import submit, no error, button remains usable. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. This proves integration with deterministic transcription, not real speech decoding/Voxtral quality. Current full frontend585 PASS0fail/skip124.39s (.cache/21-current-frontend-regression.log), after import UI and validator. Subsequent fixture/browser/docs changes do not change production UI. Reviewed typed handoff/microphone/real STT/audit/package remain required. Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21E_VOICE_DISABLED_BROWSER_ACCEPTANCE:
 - Voice disabled-provider native browser acceptance:2 PASS39.0s desktop/tablet (.cache/21-voice-disabled-browser.log), rebuilt actual signed backend/UI. Audio file explicitly imported, only one raw-audio preview POST, server disabled STT503, controlled French retry message/button enabled/no transcript or domain POST. Initial no-file submit disabled. Fake fixture bytes prove transport/error path, not audio decoding or speech quality. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. Voice gates PARTIAL, goal ACTIVE; successful transcript/typed handoff/microphone/real Voxtral remain required.
 

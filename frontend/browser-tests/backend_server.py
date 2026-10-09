@@ -93,6 +93,12 @@ def main():
         from app.modules.payments.dispatch import ProviderBinding
         app = create_app(payment_bindings=[ProviderBinding(DEMO_INSTITUTE_ID,
             "browser-simulator", "browser-test-account", PaymentSimulator())])
+    if os.environ.get("FLOWPILOT_BROWSER_VOICE_FIXTURE") == "1":
+        from app.ai.runtime import AISettings, Providers
+        from app.ai.fake import FakeSpeechToTextProvider
+        from app.ai.contracts import Transcript
+        app.state.ai_config = AISettings(stt_provider="fake")
+        app.state.ai_fake_bindings = Providers(stt=FakeSpeechToTextProvider(Transcript(text="Consulter les stocks enregistres")))
     try:
         uvicorn.run(app, host="127.0.0.1", port=4198, log_level="warning")
     finally:
