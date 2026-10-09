@@ -5,9 +5,9 @@ import {exactKeys,exactId} from "../copilot-read-utils";
 import {certificationInstant} from "../certification-utils";
 import {instituteInstants} from "../institute-calendar";
 import {creationUTC,validCreationRequest,validCreationEnvelope,validCreationDiscovery,validCreationSelection,validCreationPreview,type CreationSelection,type CreationPreview,type CreationEnvelope} from "../copilot-creation-utils";
-import {createCreationPreparationIntent,createCreationDecisionIntent} from "../copilot-creation-intent";
-import {validBaseDecisionRequest} from "../base-cancellation-utils";
-import {validCreationApprovalState,validCreationExecution,type CreationApprovalState,type CreationExecutionEnvelope} from "../copilot-creation-lifecycle";
+import {createCreationPreparationIntent,createCreationDecisionIntent,createCreationExecutionIntent} from "../copilot-creation-intent";
+import {validBaseDecisionRequest,validBaseExecutionRequest} from "../base-cancellation-utils";
+import {validCreationExecutionDiscovery,validCreationApprovalState,validCreationExecution,type CreationApprovalState,type CreationExecutionEnvelope} from "../copilot-creation-lifecycle";
 import type {Employee,Service} from "../types";
 type Props={institute:string;timezone:string;employees:Employee[];services:Service[]};
 type Customer={id:string;name:string;phone:string|null};
@@ -31,7 +31,9 @@ function Panel({institute,timezone,employees,services}:Props){
   const [saved,setSaved]=useState(()=>driver.state());
   const [decisionDriver]=useState(()=>createCreationDecisionIntent({institute,actor,storage,current:scopeCurrent,get:path=>apiGet(path),post:(path,body)=>apiPost(path,body)}));
   const [decisionSaved,setDecisionSaved]=useState(()=>decisionDriver.state()),[decisionReason,setDecisionReason]=useState("");
-  const pending=saved.status!=="empty" || decisionSaved.status!=="empty";
+  const [executionDriver]=useState(()=>createCreationExecutionIntent({institute,actor,storage,current:scopeCurrent,get:path=>apiGet(path),post:(path,body)=>apiPost(path,body)}));
+  const [executionSaved,setExecutionSaved]=useState(()=>executionDriver.state()),[executionReason,setExecutionReason]=useState(""),[executionAllowed,setExecutionAllowed]=useState(false);
+  const pending=saved.status!=="empty" || decisionSaved.status!=="empty" || executionSaved.status!=="empty";
   const deadlines=deadline ? instituteInstants(deadline.slice(0,10),deadline.slice(11,16),timezone) : [];
   const times=local ? instituteInstants(local.slice(0,10),local.slice(11,16),timezone) : [];
   const current=(seq:number)=>mounted.current && sequence.current===seq && token===getAccessToken() && actor===getOperatorSubject() && institute===getOperatorInstitute() && getOperatorRole()==="responsable_institut";
@@ -56,7 +58,7 @@ function Panel({institute,timezone,employees,services}:Props){
     catch{if(current(seq))setError("Créneau indisponible ou lecture à vérifier. Relisez les sélections puis relancez la vérification.");}finally{flight.current=false;if(current(seq))setBusy(false);}
   }
   async function prepare(correction=false){
-    if(flight.current || decisionSaved.status!=="empty" || !allowed || !scopeCurrent())return;
+    if(flight.current || decisionSaved.status!=="empty" || executionSaved.status!=="empty" || !allowed || !scopeCurrent())return;
     if(saved.status==="empty"){
       const selected=deadlines.length===1 ? deadlines[0] : deadlines.includes(deadlineOccurrence) ? deadlineOccurrence : undefined;
       if(!preview || !selected || Date.parse(selected)<=Date.now()){setError("Relisez les termes et choisissez une échéance future valide, avec son occurrence si elle se répète.");return;}
@@ -103,7 +105,7 @@ function Panel({institute,timezone,employees,services}:Props){
       if(current(seq)){setHistory(state as CreationApprovalState);setExecution(receipt===null ? undefined : receipt as CreationExecutionEnvelope);}
   }
   async function decide(decision?:"approve"|"decline"|"revoke",correction=false){
-    if(flight.current || saved.status!=="empty" || !allowed || !scopeCurrent())return;
+    if(flight.current || saved.status!=="empty" || executionSaved.status!=="empty" || !allowed || !scopeCurrent())return;
     if(decisionSaved.status==="empty"){
       if(!operation || !history || execution || !decision || !(history.status==="pending" && ["approve","decline"].includes(decision) || history.status==="approved" && decision==="revoke") || decision==="approve" && (history.expired || Date.parse(operation.original.valid_until)<=Date.now())){setError("Relisez la préparation et ses décisions avant de choisir une transition permise.");return;}
       if(decisionReason.trim()!==decisionReason || Array.from(decisionReason).length<3 || Array.from(decisionReason).length>240 || /[\x00-\x1f]/.test(decisionReason)){setError("Saisissez un motif exact de décision de 3 à 240 caractères.");return;}
@@ -130,10 +132,44 @@ function Panel({institute,timezone,employees,services}:Props){
     }catch{if(current(seq)){clearLifecycle();setError("Décision à vérifier. Reprenez la demande conservée ou relisez l’historique avant une nouvelle action.");}}
     finally{flight.current=false;if(current(seq)){setDecisionSaved(decisionDriver.state());setBusy(false);}}
   }
+  async function readExecutionCapabilities(){
+    if(flight.current || pending || !allowed)return;flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);setExecutionAllowed(false);
+    try{const v=await apiGet<unknown>("/copilot/execution-capabilities");if(!current(seq))return;if(!validCreationExecutionDiscovery(v))throw Error("Invalid execution registration");setExecutionAllowed(true);}
+    catch{if(current(seq))setError("Exécutions autorisées indisponibles ou à vérifier. Relancez la lecture.");}finally{flight.current=false;if(current(seq))setBusy(false);}
+  }
+  async function execute(correction=false){
+    if(flight.current || saved.status!=="empty" || decisionSaved.status!=="empty" || !allowed || !scopeCurrent())return;
+    if(executionSaved.status==="empty"){
+      if(!executionAllowed || !operation || !history || execution || history.status!=="approved" || history.expired || Date.parse(operation.original.valid_until)<=Date.now()){setError("Relisez les exécutions autorisées et une préparation approuvée encore valide.");return;}
+      if(executionReason.trim()!==executionReason || Array.from(executionReason).length<3 || Array.from(executionReason).length>240 || /[\x00-\x1f]/.test(executionReason)){setError("Saisissez un motif exact d’exécution de 3 à 240 caractères.");return;}
+    }
+    flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);
+    try{
+      let result;
+      if(correction)result=await executionDriver.correct();
+      else if(executionSaved.status!=="empty")result=await executionDriver.submit();
+      else{
+        if(!await validCreationApprovalState(history,institute,operation))throw Error("Invalid approved source");
+        const last=history!.decisions[history!.decisions.length-1];
+        const terms={operation_id:operation!.original.id,operation_fingerprint:operation!.fingerprint,approval_id:last.original.id,approval_fingerprint:last.fingerprint,reason:executionReason,idempotency_key:crypto.randomUUID()};
+        if(!validBaseExecutionRequest(terms))throw Error("Invalid execution");result=await executionDriver.submit(terms);
+      }
+      if(!current(seq))return;clearLifecycle();
+      if(result.status==="confirmed"){
+        const id=result.receipt.original.operation_id;setIdentifier(id);setPreview(undefined);setExecutionReason("");
+        const original=await apiGet<unknown>(`/base/institutes/${encodeURIComponent(institute)}/sensitive-operations/${encodeURIComponent(id)}`);if(!current(seq))return;
+        if(!await validCreationEnvelope(original,institute) || (original as CreationEnvelope).original.id!==id)throw Error("Invalid original");setOperation(original as CreationEnvelope);await loadLifecycle(original as CreationEnvelope,seq);
+      }else if(result.status==="correctable"){setOperation(undefined);setExecutionReason("");setError("Rejet vérifié. Relisez la préparation, ses décisions et le reçu avant une nouvelle exécution.");}
+      else if(result.status==="busy")setError("Une reprise d’exécution est déjà en cours.");
+    }catch{if(current(seq)){clearLifecycle();setError("Exécution à vérifier. Reprenez la demande conservée ou relisez le reçu avant une nouvelle action.");}}
+    finally{flight.current=false;if(current(seq)){setExecutionSaved(executionDriver.state());setBusy(false);}}
+  }
   function date(v:string){return new Intl.DateTimeFormat("fr-CH",{timeZone:timezone,dateStyle:"medium",timeStyle:"short"}).format(new Date(v));}
   return <section className="copilot-panel" aria-label="Copilot"><h2>Créer un rendez-vous avec le Copilot</h2><p>Vérifiez les termes avant de conserver une préparation. Cette vérification ne réserve aucune ressource et ne crée aucun rendez-vous.</p>
     {saved.status==="invalid" && <p role="alert">Demande locale illisible. Nouvelle préparation bloquée ; vérifiez la preuve conservée.</p>}
     {decisionSaved.status==="invalid" && <p role="alert">Demande de décision illisible. Nouvelles actions bloquées ; vérifiez la preuve conservée.</p>}
+    {executionSaved.status==="invalid" && <p role="alert">Demande d’exécution illisible. Nouvelles actions bloquées ; vérifiez la preuve conservée.</p>}
+    {executionSaved.status==="frozen" && <article aria-label="Demande d’exécution conservée"><h3>Exécution à reprendre</h3><p>Préparation {executionSaved.value.terms.operation_id} · {executionSaved.value.terms.reason}.</p><button type="button" disabled={busy || !allowed} onClick={()=>void execute()}>Reprendre l’exécution</button>{executionDriver.canCorrect() && <button type="button" disabled={busy || !allowed} onClick={()=>void execute(true)}>Vérifier le rejet d’exécution et corriger</button>}</article>}
     {decisionSaved.status==="frozen" && <article aria-label="Demande de décision conservée"><h3>Décision à reprendre</h3><p>{{approve:"Approbation",decline:"Refus",revoke:"Révocation"}[decisionSaved.value.terms.decision]} · préparation {decisionSaved.value.terms.operation_id} · {decisionSaved.value.terms.reason}.</p><button type="button" disabled={busy || !allowed} onClick={()=>void decide()}>Reprendre la décision</button>{decisionDriver.canCorrect() && <button type="button" disabled={busy || !allowed} onClick={()=>void decide(undefined,true)}>Vérifier le rejet de décision et corriger</button>}</article>}
     {saved.status==="frozen" && <article aria-label="Demande de préparation conservée"><h3>Demande à reprendre</h3><p>{saved.value.terms.operation.selection.customer_name} · {date(saved.value.terms.operation.selection.start_time)} · {saved.value.terms.operation.reason}.</p><button type="button" disabled={busy || !allowed} onClick={()=>void prepare()}>Reprendre la préparation</button>{driver.canCorrect() && <button type="button" disabled={busy || !allowed} onClick={()=>void prepare(true)}>Vérifier le rejet et corriger</button>}</article>}
     <form onSubmit={e=>{e.preventDefault();void review();}}><fieldset disabled={busy || pending || !allowed}>
@@ -154,6 +190,7 @@ function Panel({institute,timezone,employees,services}:Props){
     {operation && <button type="button" disabled={busy || pending || !allowed} onClick={()=>void readLifecycle()}>Relire les décisions et l’exécution</button>}
     {history && <article aria-label="Décisions de création relues"><h3>Décisions relues</h3><p>État : {{pending:"en attente",approved:"approuvée",declined:"refusée",revoked:"révoquée"}[history.status]}{history.expired ? " · validité expirée" : ""}. Lecture du {date(history.captured_at)}.</p><ol>{history.decisions.map(d=><li key={d.original.id}>{{approve:"Approbation",decline:"Refus",revoke:"Révocation"}[d.original.decision]} · {d.original.actor_id} · {date(d.original.created_at)} · {d.original.reason}.</li>)}</ol><p>Cette relecture historique ne confirme pas la disponibilité actuelle du créneau. Une décision ne crée pas de rendez-vous.</p>{!execution && <p>Aucun reçu d’exécution retourné lors de cette lecture.</p>}</article>}
     {operation && history && !execution && (history.status==="pending" || history.status==="approved") && <fieldset disabled={busy || pending || !allowed}><legend>Décider sur les termes conservés</legend><label>Motif de décision<input maxLength={240} value={decisionReason} onChange={e=>setDecisionReason(e.target.value)}/></label>{history.status==="pending" && <><button type="button" disabled={history.expired || Date.parse(operation.original.valid_until)<=Date.now()} onClick={()=>void decide("approve")}>Approuver cette préparation</button><button type="button" onClick={()=>void decide("decline")}>Refuser cette préparation</button></>}{history.status==="approved" && <button type="button" onClick={()=>void decide("revoke")}>Révoquer l’approbation</button>}<p>L’approbation vérifie de nouveau le créneau côté serveur. Elle ne crée pas de rendez-vous.</p></fieldset>}
+    {operation && history?.status==="approved" && !execution && <fieldset disabled={busy || pending || !allowed}><legend>Exécuter la création approuvée</legend><button type="button" onClick={()=>void readExecutionCapabilities()}>Lire les exécutions autorisées</button><label>Motif d’exécution<input maxLength={240} value={executionReason} onChange={e=>setExecutionReason(e.target.value)}/></label><button type="button" disabled={!executionAllowed || history.expired || Date.parse(operation.original.valid_until)<=Date.now()} onClick={()=>void execute()}>Exécuter la création approuvée</button><p>Ce clic crée le rendez-vous et réserve les ressources vérifiées dans la même transaction. Le serveur relit la préparation et sa dernière approbation.</p></fieldset>}
     {execution && <article aria-label="Preuve de création relue"><h3>Création exécutée et preuve relue</h3><p>Rendez-vous {execution.original.appointment_id}, créé le {date(execution.original.created_at)} par {execution.original.actor_id}.</p><p>Intervalle conservé : {date(execution.original.after.start_time)} — {date(execution.original.after.end_time)} ({timezone}).</p><p>Ressources vérifiées et réservées dans la transaction de création ; occupation actuelle non établie. Aucun contact ni paiement effectué par cette création.</p></article>}
   </section>;
 }

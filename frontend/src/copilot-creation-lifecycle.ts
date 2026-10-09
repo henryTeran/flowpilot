@@ -6,6 +6,10 @@ import {validBaseDecisionRequest,validBaseExecutionRequest,validBaseSnapshot,typ
 export type CreationApprovalState={operation:CreationEnvelope;captured_at:string;decisions:BaseDecisionEnvelope[];status:"pending"|"approved"|"declined"|"revoked";expired:boolean;execution:"not_performed_by_approval_manager";current_source:"not_revalidated_by_historical_state_read"};
 export type CreationExecution=BaseExecutionRequest & {id:string;institute_id:string;actor_id:string;created_at:string;before:CreationPreview;after:BaseSnapshot & {status:"scheduled"};appointment_id:string;saved_metadata_digest:string;booking_event_id:string;booking_event_fingerprint:string;effect:"appointment_created_through_existing_service_no_contact_or_payment";resource_basis:"checked_and_reserved_in_execution_transaction_not_current_occupancy"};
 export type CreationExecutionEnvelope={original:CreationExecution;fingerprint:string};
+export function validCreationExecutionDiscovery(v:unknown):boolean{
+  const services:Record<string,string>={APPOINTMENT_CREATE:"appointments.service.create_appointment_commit_false",APPOINTMENT_MOVE:"appointments.service.update_appointment_commit_false"};
+  return Array.isArray(v) && v.length===2 && new Set(v.map(r=>r?.name)).size===2 && v.every(r=>keys(r,"name level roles authority service") && Object.prototype.hasOwnProperty.call(services,r.name) && r.level===3 && Array.isArray(r.roles) && r.roles.length===1 && r.roles[0]==="responsable_institut" && r.authority==="exact_retained_operation_latest_approval_future_validity_fresh_source" && r.service===services[r.name]);
+}
 const keys=(v:unknown,names:string):v is Record<string,any>=>!!v && typeof v==="object" && !Array.isArray(v) && Object.keys(v).sort().join(" ")===names.split(" ").sort().join(" ");
 const text=(v:unknown,max=80):v is string=>typeof v==="string" && !!v && v.trim()===v && Array.from(v).length<=max && !/[\x00-\x1f]/.test(v);
 const digest=(v:unknown):v is string=>typeof v==="string" && /^[0-9a-f]{64}$/.test(v);
