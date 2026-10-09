@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Revenue summary UI evidence: selected civil-date period maps to institute midnight/exclusive end; original validRevenueBilling plus capture/response SHA guards source. Dedicated Copilot9-test suite verifies mixed CHF/EUR/unknown currency, incomplete totals, invalid-period no query/correction message, wrong period/clock/count and unsupported financial claims refused. Actual signed API/official BASE browser acceptance remains pending. Three initial UI modes and all four progressive flows remain outstanding.
+
 Conflict browser baseline now PASS:12-test actual signed API/official BASE suite, desktop/tablet explicit employee and resource selection, scoped selected DST day, zero-overlap original source, no implicit query/empty target submission and preserved physical-coverage boundary. Resource screenshots inspected, fixture cleaned/listeners0. Populated overlaps remain a browser acceptance gap; phase gates stay partial.
 
 Conflict UI evidence: both employee and resource modes now connect explicit selected day/reference to official BASE API with closed evidence validation and original half-open overlap arithmetic. Dedicated DOM controls verify no implicit catalogue read, empty-target prevention, explicit resource loading, exclusive query references and edited-result removal; build/combined10 targeted tests pass. Actual signed API/BASE browser cases remain pending. Four initial UI capabilities (three revenue modes and stock forecast) and all four progressive flows still require work.

@@ -75,7 +75,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
     if(name==="REVENUE_SUMMARY"){
       const start=instituteMidnight(periodStart,timezone),end=instituteMidnight(periodEnd,timezone);
-      if(!start || !end || certificationInstant(start)!>=certificationInstant(end)!)return;
+      if(!start || !end || certificationInstant(start)!>=certificationInstant(end)!){setError("Choisissez une date de fin postérieure au début de la période.");return;}
       selection.start=start;selection.end=end;
     }
     if(name==="PLANNING_CONFLICTS" && !(selection.resource_id ? resourceChoices.some(r=>r.id===selection.resource_id) : employees.some(r=>r.id===selection.employee_id && r.institute_id===institute)))return;

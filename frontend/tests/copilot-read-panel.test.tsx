@@ -183,6 +183,29 @@ test("conflict controls explicitly select one owned employee or loaded resource 
   }finally{await act(async()=>root.unmount());}
 });
 
+test("revenue controls bind institute midnight period and keep mixed currencies separate",async()=>{
+  const period={start:"2026-10-07T22:00:00.000Z",end:"2026-10-08T22:00:00.000Z"};
+  const amounts=(currency:string|null,minor:string)=>({currency,source_count:1,known_amount_count:1,missing_amount_count:0,invalid_amount_count:0,known_gross_minor:minor,complete_gross_minor:currency ? minor : null,average_minor:currency ? {numerator:minor,denominator:"1"} : null});
+  const source={window:{institute_id:"own",...period,captured_at:clock},basis:"recorded_paid_tickets_and_active_invoice_lines",ticket_count:3,ticket_amounts:[amounts("CHF","1200"),amounts("EUR","800"),amounts(null,"500")],active_line_count:0,service_mix:[],tickets_without_active_lines:3,tickets_with_unknown_category:0,care_tickets:0,care_and_retail_tickets:0,recorded_retail_attach_ratio:null,institute_undated_paid_tickets:1,complete_sales_history:false,settlement_confirmed:false,projected_revenue:null};
+  const check=async(v:unknown,p=period)=>validReadResponse(await answer("REVENUE_SUMMARY",v),"own","REVENUE_SUMMARY",p);
+  assert.ok(await check(source));assert.equal(await check(source,{...period,end:clock}),false);
+  for(const change of [{settlement_confirmed:true},{complete_sales_history:true},{projected_revenue:"2500"},{ticket_count:2},{ticket_amounts:[amounts(null,"500"),amounts(null,"500"),amounts(null,"500")]},{window:{...source.window,captured_at:"2026-10-09T10:00:00.123455Z"}}])assert.equal(await check({...source,...change}),false);
+  setAccessToken(token());const queries:any[]=[];
+  globalThis.fetch=async(url,init)=>{
+    if(String(url).endsWith("/capabilities"))return reply(discovery());
+    queries.push(JSON.parse(init!.body as string));return reply(await answer("REVENUE_SUMMARY",source));
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await render(root);await settle();await fill("Consultation","REVENUE_SUMMARY");await fill("Votre question","Consulter les revenus enregistres");
+    await fill("Début de période","2026-10-08");await fill("Fin de période exclue","2026-10-09");await click("Consulter");
+    assert.deepEqual(queries[0].ui_context,period);
+    assert.match(document.body.textContent!,/12.00 CHF/);assert.match(document.body.textContent!,/8.00 EUR/);assert.match(document.body.textContent!,/Devise inconnue/);
+    assert.match(document.body.textContent!,/Total complet : non établi/);
+    await fill("Fin de période exclue","2026-10-08");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);await click("Consulter");assert.equal(queries.length,1);assert.match(document.querySelector('[role="alert"]')!.textContent!,/postérieure/);
+  }finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

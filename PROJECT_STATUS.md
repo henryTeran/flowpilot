@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_REVENUE_SUMMARY_UI_INCREMENT:
+- Dedicated revenue UI/source test now PASS in Copilot9-test suite: institute midnight conversion, exact selected period, distinct CHF/EUR/unknown groups, incomplete unknown-currency total and no query for empty period. Rehashed wrong period/capture/count, duplicate currencies, settlement/history/projection claims refused. Invalid period now gives explicit correction message. Actual API/BASE browser acceptance remains pending.
 - Added REVENUE_SUMMARY with explicit start/end civil dates converted to institute midnight, exclusive end and positive period. Official BASE query source reuses validRevenueBilling and binds capture/selected period before evidence SHA display. Currency groups remain separate; unknown currency, missing/invalid amounts, incomplete totals, undated tickets, incomplete history and unconfirmed settlement remain explicit. No financial mutation.
 - Build PASS and existing Copilot DOM8 regression PASS. Dedicated new revenue controls/source evidence tests and actual API/BASE browser acceptance remain outstanding; this is not completed financial UI acceptance. Three initial UI modes and four progressive flows remain to implement; full goal ACTIVE, gates PARTIAL.
 
