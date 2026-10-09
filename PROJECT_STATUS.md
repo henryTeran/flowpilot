@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_MARKETING_SOURCE_READER_INCREMENT:
+- Added source reader using real native API paths: selected audience/template by ID, independent originals by recovery key, then every retained audience page with verified sequential cursor. Identity, literal source equality, channel and nonempty eligible audience checked before historical content reconstruction. Session/scope callback checked between reads; stale result discarded without further page reads. Reader only performs GETs and remains unmounted until form integration.
+- Build PASS and five combined source/audience tests PASS (.cache/20-marketing-reader-tests.log). Exact five-route single-page read returns original content; contradictory keyed template, wrong page and session change after initial parallel reads refused/discarded. Multi-page populated live browser evidence, form controls and real API/BASE draft acceptance remain required. Goal ACTIVE, gates PARTIAL.
+
 PHASE20_MARKETING_SOURCE_CONTENT_FOUNDATION:
 - Added historical source-content assembler for selected native audience/template originals and every retained audience page. Original page count/cursor/filter/capture/permission checks, cross-page unique customer IDs and exact customer/selected/eligible totals required; recipient order preserved. Only retained eligible IDs included; empty audience refused. Template literal channel/origin/subject/body retained without interpolation or generated replacement. No current CRM recapture or delivery authority.
 - Build PASS and five combined source/audience tests PASS (.cache/20-marketing-sources-tests.log): exact literal content/eligible ID, missing page, foreign scope, manifest mismatch, substituted template text, invalid cursor and false eligibility refused. Initial test fixture used different manifest/page segments; corrected to coherent retained filter before final run. Source reader/form/frozen controls and actual API/BASE browser proof remain required. Goal ACTIVE, phase gates PARTIAL.

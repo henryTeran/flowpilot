@@ -6,6 +6,8 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 
 ### Operator interface foundation (20Y)
 
+The marketing source reader now uses native audience/template ID and recovery-key GETs, checks the selected originals agree, then reads every historical audience page with its verified cursor. It returns reconstructed literal campaign content only for a complete nonempty eligible audience. Scope/session callback stops stale continuation. Build/five combined source-audience tests pass, with exact read paths and source/session damage checks. Form integration and actual signed API/BASE browser evidence remain required.
+
 Marketing source assembly uses the selected retained audience manifest, all historical pages and selected original template. Cursor/filter/capture/permission checks and exact manifest totals precede ordered eligible recipient reconstruction; duplicates or missing pages fail. Template text is preserved literally. Build and five combined source/audience tests pass. Live readers, source-selection form and browser proof remain required.
 
 Marketing draft recovery now retains exact BASE request under a separate signed institute/actor key before /copilot/prepare/marketing. Native /marketing/institutes/{institute}/campaigns/original/{key} and independent revision-ID reads must match the exact create-only original and content digest before cleanup. POST compact response is checked against that original; historical recovery does not recapture an audience or template. Ambiguity blocks replacement. Build and eleven combined tests pass. This driver is not yet mounted in a marketing form; source-selection and actual browser/API acceptance remain required.

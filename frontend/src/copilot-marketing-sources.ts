@@ -1,6 +1,24 @@
-import {validAudienceOriginal,validRetainedAudiencePage,type AudienceOriginal,type RetainedAudiencePage} from "./marketing-audience-utils";
-import {validTemplateOriginal,type TemplateOriginal} from "./marketing-template-utils";
+import {validAudienceOriginal,validRetainedAudiencePage,sameAudienceOriginal,type AudienceOriginal,type RetainedAudiencePage} from "./marketing-audience-utils";
+import {validTemplateOriginal,sameTemplateOriginal,type TemplateOriginal} from "./marketing-template-utils";
 import {validCampaignContent,type CampaignContent} from "./marketing-campaign-utils";
+import {validMarketingSelection,type MarketingSelection} from "./copilot-marketing-utils";
+export async function readMarketingSources(institute:string,selection:MarketingSelection,get:(path:string)=>Promise<unknown>,current:()=>boolean):Promise<{audience:AudienceOriginal;template:TemplateOriginal;content:CampaignContent}|undefined>{
+  if(!validMarketingSelection(selection) || !current())return;
+  const base=`/marketing/institutes/${encodeURIComponent(institute)}`;
+  const [a,t]=await Promise.all([get(`${base}/audience-captures/${encodeURIComponent(selection.audience_id)}`),get(`${base}/templates/${encodeURIComponent(selection.template_original_id)}`)]);
+  if(!current())return;
+  if(!validAudienceOriginal(a,institute) || a.id!==selection.audience_id || !validTemplateOriginal(t,institute) || t.id!==selection.template_original_id || a.request.channel!==t.content.channel || !a.summary.eligible_count)throw Error("Invalid selected marketing originals");
+  const [ak,tk]=await Promise.all([get(`${base}/audience-captures/original/${encodeURIComponent(a.request.idempotency_key)}`),get(`${base}/templates/original/${encodeURIComponent(t.request.idempotency_key)}`)]);
+  if(!current())return;
+  if(!validAudienceOriginal(ak,institute) || !sameAudienceOriginal(a,ak) || !validTemplateOriginal(tk,institute) || !sameTemplateOriginal(t,tk))throw Error("Independent selected originals differ");
+  const pages:RetainedAudiencePage[]=[];let after:string|null=null;
+  for(let i=0;i<a.summary.page_count;i++){
+    if(!current())return;const p=await get(`${base}/audience-captures/${encodeURIComponent(a.id)}/pages/${i}`);if(!current())return;
+    if(!validRetainedAudiencePage(p,a,i,after))throw Error("Invalid retained audience page");pages.push(p);after=p.observation.next_after;
+  }
+  const content=marketingSourceContent(institute,a,t,pages);if(!content)throw Error("Incoherent historical marketing sources");
+  return current() ? {audience:a,template:t,content} : undefined;
+}
 // Reconstruct historical recipient terms from every retained page, never the current CRM cohort.
 export function marketingSourceContent(institute:string,audience:AudienceOriginal,template:TemplateOriginal,pages:RetainedAudiencePage[]):CampaignContent|undefined{
   if(!validAudienceOriginal(audience,institute) || !validTemplateOriginal(template,institute) || template.content.channel!==audience.request.channel || !Array.isArray(pages) || pages.length!==audience.summary.page_count)return;
