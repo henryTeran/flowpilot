@@ -4,14 +4,16 @@ import { validOutlook, type Outlook } from "./outlook-utils";
 import { validSegmentProfile, type SegmentProfile } from "./crm-segment-utils";
 import { validEventCandidate, type EventCandidate } from "./crm-event-utils";
 import { automationTriggers, validAutomationPolicy, type AutomationRule } from "./crm-automation-utils";
+import { validRevenueCapacity, type RevenueCapacity } from "./revenue-capacity-utils";
+import { certificationDate } from "./certification-utils";
 
-export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", STOCK_READ: "Stock enregistré" } as const;
+export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", EMPLOYEE_CAPACITY: "Capacité enregistrée", STOCK_READ: "Stock enregistré" } as const;
 export type RebookingFacts = { institute_id:string;customer_id:string;captured_at:string;policy_original_id:string|null;policy_original_digest:string|null;
   rule:AutomationRule|null;candidate:EventCandidate|null;active_bookings:{appointment_id:string;service_id:string;start_at:string;end_at:string;status:string}[];
   invalid_booking_count:number;diagnostics:Record<string,number>;review:"available"|"already_booked"|"not_due"|"disabled"|"unavailable";
   complete_customer_history:false;external_message_sent:false;delivery_authorized:false;execution_authorized:false };
 export type ReadName = keyof typeof readLabels;
-export type ReadSelection = { customer_id?: string; service_id?: string };
+export type ReadSelection = { customer_id?: string; service_id?: string; day?:string };
 export type CustomerFacts = { customer_id: string; institute_id: string; display_name: string; created_at: string };
 export type PlanningFacts = { generated_at: string; rows: { employee_id: string; employee_status: string;
   sessions: { id: string; employee_id: string; service_id: string; start_time: string; planned_end_time: string; status: string }[] }[] };
@@ -20,7 +22,7 @@ export type Slot = { employee_id: string; institute_id: string; available_from: 
 export type Gaps = { captured_at: string; rows: { employee_id: string; institute_id: string; service_id: string | null; available: boolean;
   current_slot: Slot | null; upcoming_slots: Slot[] }[]; basis: "current_scheduling_engine_windows"; complete_work_hours: false; booking_authorized: false };
 export type ReadEvidence = { capability: ReadName; institute_id: string; captured_at: string; read_completed_at: string;
-  result: CustomerFacts | SegmentProfile | RebookingFacts | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
+  result: CustomerFacts | SegmentProfile | RebookingFacts | RevenueCapacity | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
 export type ReadResponse = { request_id: string; status: "answered" | "clarification"; answer: string; capability: ReadName | null;
   evidence: ReadEvidence | null; actions: []; framework: "ai-swiss/base@1.5.1" };
 export const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -41,6 +43,7 @@ export function validReadDiscovery(value: unknown, role: string): value is { nam
 }
 export function validReadSelection(name: ReadName, selection: ReadSelection): boolean {
   const fields = Object.keys(selection).sort().join(" ");
+  if (name === "EMPLOYEE_CAPACITY") return fields === "day" && certificationDate(selection.day);
   if (name === "CLIENT_READ" || name === "CLIENT_SUMMARY" || name === "CLIENT_REBOOKING_OPPORTUNITIES") return fields === "customer_id" && exactId(selection.customer_id);
   if (name === "PLANNING_GAPS") return fields === "" || fields === "service_id" && exactId(selection.service_id);
   return fields === "";
@@ -53,6 +56,7 @@ function validSlot(value: unknown, institute: string, employee: string): value i
     && (value.available_from === null || value.available_until === null || instant(value.available_from)! < instant(value.available_until)!);
 }
 function validFacts(name: ReadName, value: unknown, institute: string, selection: ReadSelection, capture: string): boolean {
+  if (name === "EMPLOYEE_CAPACITY") return record(value) && typeof value.timezone === "string" && validRevenueCapacity(value,institute,selection.day!,value.timezone,0) && instant(value.window.captured_at)===instant(capture);
   if (name === "CLIENT_REBOOKING_OPPORTUNITIES") return validRebooking(value,institute,selection.customer_id!,capture);
   if (name === "CLIENT_SUMMARY") return exactKeys(value,"institute_id customer_id captured_at customer policy_original undated_paid_tickets future_paid_tickets segment unavailable_reason complete_customer_history")
     && exactKeys(value.customer,"institute_id customer_id created_at") && validSegmentProfile(value,institute,selection.customer_id!)

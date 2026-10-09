@@ -142,6 +142,17 @@ test("rebooking: original due rule, active bookings and authority refusals remai
   } finally {await act(async()=>root.unmount());}
 });
 
+test("capacity binds selected completed day and preserves unavailable physical authority",async()=>{
+  const day="2026-10-08";
+  const source={window:{institute_id:"own",start:"2026-10-07T22:00:00Z",end:"2026-10-08T22:00:00Z",captured_at:clock},day,timezone:"Europe/Zurich",basis:"declared_work_intersected_with_finalized_recorded_activity",page:{offset:0,limit:20,total:0},rows:[],employee_count:0,employees_without_usable_hours:0,employees_with_uncertain_activity:0,known_declared_union_duration_us:"0",known_covered_busy_duration_us:"0",known_outside_declared_work_duration_us:"0",recorded_unoccupied_duration_us:null,recorded_utilization_ratio:null,complete_attendance:false,complete_activity:false,physical_unused_capacity:null,bookable_capacity:null,estimated_value:null};
+  const check=async(v:unknown,selected=day)=>validReadResponse(await answer("EMPLOYEE_CAPACITY",v),"own","EMPLOYEE_CAPACITY",{day:selected});
+  assert.ok(await check(source));assert.equal(await check(source,"2026-10-07"),false);
+  for(const change of [{bookable_capacity:"1"},{complete_attendance:true},{known_declared_union_duration_us:"1"},{timezone:"Invalid/Zone"},{window:{...source.window,captured_at:"2026-10-09T10:00:00.123455Z"}}])assert.equal(await check({...source,...change}),false);
+  setAccessToken(token());globalThis.fetch=async(url,init)=>String(url).endsWith("/capabilities") ? reply(discovery()) : (assert.deepEqual(JSON.parse(init!.body as string).ui_context,{day}),reply(await answer("EMPLOYEE_CAPACITY",source)));
+  const root=createRoot(document.getElementById("root")!);
+  try{await render(root);await settle();await fill("Consultation","EMPLOYEE_CAPACITY");await fill("Journée terminée",day);await fill("Votre question","Mesurer la capacite enregistree des collaboratrices");await click("Consulter");assert.match(document.body.textContent!,/capacité réservable ne sont pas établies/);assert.match(document.body.textContent!,/0 h 00 min 00 s/);}finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

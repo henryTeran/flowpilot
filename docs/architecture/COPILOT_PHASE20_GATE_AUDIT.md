@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Capacity UI increment: EMPLOYEE_CAPACITY now accepts explicit completed day and validates original recorded-capacity source, clock, scope and hash. Build/combined Copilot-capacity10 tests pass; real API/BASE browser acceptance pending. Five other initial UI capabilities and four progressive flows remain outstanding; no phase completion claim.
+
 Rebooking browser evidence: official BASE/real signed API unavailable-source case passes desktop/tablet in8-test suite (1.4m); selected customer, null care candidate, diagnostics/no authority/no phone/only query POST verified. Screenshots inspected and fixture cleaned. Due/already-booked browser acceptance is still pending; phase remains partial.
 
 Rebooking UI increment: selected-customer CLIENT_REBOOKING_OPPORTUNITIES now renders verified original rule/care dates, active bookings and uncertainty diagnostics without booking/contact authority. Build and targeted six-test Copilot DOM suite pass; real API/BASE browser acceptance remains pending. Six other initial UI capabilities and all four progressive flows still require implementation/acceptance. Gates remain partial.

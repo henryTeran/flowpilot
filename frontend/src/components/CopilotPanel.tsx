@@ -8,6 +8,8 @@ import type { Outlook } from "../outlook-utils";
 import type { SegmentProfile } from "../crm-segment-utils";
 import type { RebookingFacts } from "../copilot-read-utils";
 import { crmMoney } from "./CustomerCrmPanel";
+import type { RevenueCapacity } from "../revenue-capacity-utils";
+import { formatWorkDuration } from "../work-hours-utils";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -24,6 +26,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [available,setAvailable] = useState<ReadName[]>([]), [name,setName] = useState<ReadName | "">("");
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
+  const [day,setDay] = useState("");
   const customerMode = name === "CLIENT_READ" || name === "CLIENT_SUMMARY" || name === "CLIENT_REBOOKING_OPPORTUNITIES";
   const [response,setResponse] = useState<ReadResponse>(), [busy,setBusy] = useState(false), [error,setError] = useState<string>();
   const current = (seq: number) => mounted.current && sequence.current === seq && token === getAccessToken() && institute === getOperatorInstitute();
@@ -56,7 +59,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   }
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
-    const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
     if (customerMode && !choices.some(row => row.id === customer) || name === "PLANNING_GAPS" && service && !services.some(row => row.id === service)) {
       setError("Choisissez une référence proposée avant de consulter."); return;
     }
@@ -81,6 +84,15 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if (evidence.capability === "EMPLOYEE_CAPACITY") {
+      const value=evidence.result as RevenueCapacity;
+      return <><p>Journée sélectionnée : {value.day} ({value.timezone}). Horaires déclarés et activité finalisée enregistrée ; la présence complète et la capacité réservable ne sont pas établies.</p>
+        <dl><dt>Collaboratrices</dt><dd>{value.employee_count}</dd><dt>Sans horaires exploitables</dt><dd>{value.employees_without_usable_hours}</dd><dt>Activité incertaine</dt><dd>{value.employees_with_uncertain_activity}</dd>
+          <dt>Durée déclarée connue</dt><dd>{formatWorkDuration(value.known_declared_union_duration_us)}</dd><dt>Activité couverte connue</dt><dd>{formatWorkDuration(value.known_covered_busy_duration_us)}</dd>
+          <dt>Durée inoccupée enregistrée</dt><dd>{value.recorded_unoccupied_duration_us===null ? "Non établie" : formatWorkDuration(value.recorded_unoccupied_duration_us)}</dd></dl>
+        <p>Première page : jusqu’à 20 collaboratrices sur {value.employee_count}. Les totaux portent sur la population observée.</p>
+        {value.rows.map(row=><section key={row.employee_id}><h4>{employee(row.employee_id)}</h4><p>Durée inoccupée enregistrée : {row.recorded_unoccupied_duration_us===null ? "non établie" : formatWorkDuration(row.recorded_unoccupied_duration_us)}.</p></section>)}</>;
+    }
     if (evidence.capability === "CLIENT_REBOOKING_OPPORTUNITIES") {
       const value = evidence.result as RebookingFacts;
       const reviews = {available:"Reprise à examiner avec la cliente",already_booked:"Rendez-vous actif déjà enregistré",not_due:"Échéance de reprise non atteinte",disabled:"Règle de reprise désactivée",unavailable:"Opportunité non établie"};
@@ -138,7 +150,8 @@ function Consultations({ institute, timezone, employees, services }: Props) {
           <p>Jusqu’à 20 résultats. Affinez la recherche si nécessaire.</p></>}
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
-        <button disabled={!name || !question.trim() || customerMode && !customer}>Consulter</button>
+        {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
+        <button disabled={!name || !question.trim() || customerMode && !customer || name === "EMPLOYEE_CAPACITY" && !day}>Consulter</button>
       </fieldset>
     </form>{busy && <p role="status">Lecture en cours…</p>}{error && <p role="alert">{error}</p>}
     {response && <section aria-label="Réponse du Copilot"><h3>{response.status === "clarification" ? "Précisions nécessaires" : "Réponse"}</h3><p>{response.answer}</p>
