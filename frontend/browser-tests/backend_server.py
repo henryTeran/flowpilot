@@ -71,6 +71,12 @@ def main():
         @app.get("/_fixture/crm-history")
         def crm_history_manifest():
             return history_manifest
+    if os.environ.get("FLOWPILOT_BROWSER_PLANNING_FIXTURE") == "1":
+        from planning_fixture import seed_planning, read_snapshot
+        planning_manifest = seed_planning(engine, DEMO_INSTITUTE_ID)
+        @app.get("/_fixture/planning")
+        def planning_snapshot():
+            return dict(manifest=planning_manifest, sources=read_snapshot(engine))
     if options.simulate_payments:
         from payment_simulator import PaymentSimulator
         from app.modules.payments.dispatch import ProviderBinding
