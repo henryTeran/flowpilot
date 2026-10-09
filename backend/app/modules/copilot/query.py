@@ -125,6 +125,7 @@ class Capability(Fact):
     input_schema: dict
     output_schema: dict
     application_service: str
+    audit: Literal["signed_scope_interaction_id_and_source_digest_no_raw_message"] = "signed_scope_interaction_id_and_source_digest_no_raw_message"
     mutates: Literal[False] = False
 
 

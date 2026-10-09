@@ -77,6 +77,12 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Registry and discovery audit (20L)
+
+Every registered capability now declares its operational audit requirement: signed scope, interaction ID and source digest, with no raw message. Authorized discovery uses the existing closed BASE trace mechanism under `copilot_capabilities`, records attempt/outcome plus a digest of the role-filtered returned schemas and restores its context. Authentication/role rejection remains before domain audit and is handled by existing HTTP logging. Query tracing remains unchanged. These events are operational correlation, not durable business originals, signatures or a retention guarantee.
+
+Targeted tests capture the configured application logger directly, verify reception's five allowed capabilities, signed actor/institute, shared interaction ID, exact returned-schema digest and absence of a discovery domain span for an unauthorized role. The application logger's existing nonpropagation is preserved. The20K image proof precedes this metadata/audit change; final packaged acceptance must include the resulting code before phase closure.
+
 ### Packaged acceptance (20K)
 
 The actual backend image `sha256:c520c766fb8a9c466890a41e5b42af4a9f7ec8e7f12c576e42ca19bdf68544f3` includes the pinned official BASE runtime/corpus and current Copilot code. Its build validates25 resources and46 routing examples. All ten Copilot test modules run inside this Linux/Python3.12/Node22 image:22 passed in125.79s, zero failures/skips, actual SQLite and isolated PostgreSQL16. The only warning is the existing passlib `crypt` deprecation. Test fixtures exercise every named initial capability, signed roles/selections, original domain services, source hashes/bindings, missing/invalid sources, actual PostgreSQL scope and read-only behavior. Provider ports remain disabled; no remote inference or model quality is claimed.

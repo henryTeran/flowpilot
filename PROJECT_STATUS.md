@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20K_LINUX_INITIAL_CAPABILITY_ACCEPTANCE_PASS
+CURRENT_CHECKPOINT = PHASE20L_REGISTRY_AND_DISCOVERY_AUDIT_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,11 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20L_REGISTRY_AND_DISCOVERY_AUDIT:
+- Each capability now declares signed-scope/interaction/source-digest/no-raw-message audit requirement. Authorized role-filtered Copilot discovery uses existing BASE trace with closed copilot_capabilities action, attempt/outcome and exact response-schema SHA; signed actor/institute and restored context. Authentication/role rejection remains before domain audit, existing HTTP logging unchanged. No durable/signature/retention or execution authority claim.
+- Initial4 passed/1 failed because root caplog did not receive the application's deliberately nonpropagating logger; production emitted the intended events. Test capture attached directly to existing audit logger, without changing logging configuration. Final audit/customer regression5 passed11.35s, zero failures/skips on actual SQLite signed HTTP; reception5 allowed capabilities, shared interaction ID/scope/digest and unauthorized no-span verified.
+- CHECKPOINT_STATUS = PASS for registry/discovery operational audit.20K packaged proof remains historical and precedes this code change; final Linux regression must include latest code. NEXT revenue-opportunity scope reconciliation and progressive appointment/marketing/reorder preparation/guarded execution. READ/SUGGEST PARTIAL and PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push/external message claim.
 
 PHASE20K_LINUX_INITIAL_CAPABILITY_ACCEPTANCE:
 - Actual image sha256:c520c766fb8a9c466890a41e5b42af4a9f7ec8e7f12c576e42ca19bdf68544f3 built from current backend plus pinned official BASE, validating25 resources/46 routing examples. All10 Copilot modules22 passed125.79s, zero failures/skips, actual Linux/Python3.12/Node22 SQLite and PostgreSQL16. Existing passlib crypt deprecation only; no remote provider/credential/model-quality claim.
