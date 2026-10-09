@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_DAMAGED_RESPONSE_BROWSER_ACCEPTANCE:
+- Actual API/official BASE with deliberately altered browser response streams2 PASS44.5s desktop/tablet (.cache/20-reorder-damaged-browser.log). Incoherent original stock shortfall refused before any BASE preview POST/facts. Restored native response then succeeds. After real retained proposal/lost acknowledgement, damaged independent ID receipt fingerprint refuses confirmation, preserves frozen request, disables replacement and exposes no correction or retained facts.
+- Restoring valid independent receipt recovers same original without second retention POST; actual stocks/movements/orders unchanged. Blocked/recovered screenshots inspected, fixture removed/listeners0, exit0. This proves exercised response damage, not malicious server authenticity; hashes remain integrity checks. Production unchanged. Concurrent/multiple-tab and ambiguous server failure browser cases plus other phase gaps remain; goal ACTIVE/gates PARTIAL.
+
 PHASE20_REORDER_SUPPLIER_PAGINATION_BROWSER_ACCEPTANCE:
 - Actual API/official BASE supplier pagination2 PASS47.1s desktop/tablet (.cache/20-reorder-supplier-browser.log).21 native suppliers per project, selected last beyond first20 catalogue page, then navigate previous page: exact selected ID preserved via explicit retained selection option. Native supplier-by-ID source GET observed before checked3.750ml preview. Retained proposal preserves exact selected supplier; lost acknowledgement/reload recovers same original with one retention POST.
 - Stocks/movements/orders unchanged; final screenshots inspected, fixture removed/listeners0, exit0. Production unchanged. Supplier pagination exercised gap closed; damaged sources/ambiguous failures/concurrency browser cases and other phase acceptance gaps remain. Goal ACTIVE; phase gates PARTIAL.
