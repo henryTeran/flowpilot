@@ -105,10 +105,23 @@ def reserve_ticket(db, ticket, start, end, *, in_use=False):
     return reserve(db, ticket.institute_id, needs, start, end, ticket_id=ticket.id, in_use=in_use)
 
 
-def reserve_appointment(db, appointment, start, end, *, in_use=False):
+def appointment_resource_needs(db, institute_id, service_id):
     from app.modules.resources.allocation_domain import ResourceNeed
     from app.modules.resources.repository import resource_requirement_facts
-    facts = resource_requirement_facts(db, appointment.institute_id)
-    needs = [ResourceNeed(*need) for need in facts.get(appointment.service_id, [])]
+    facts = resource_requirement_facts(db, institute_id)
+    return [ResourceNeed(*need) for need in facts.get(service_id, [])]
+
+
+def preview_appointment_resources(db, institute_id, service_id, start, end):
+    lock_institute(db, institute_id)
+    needs = appointment_resource_needs(db, institute_id, service_id)
+    match = match_resources(resource_timelines(db, institute_id), needs, aware(start), aware(end))
+    if match is None:
+        raise business_error("Aucune combinaison de ressources disponible sur tout le creneau")
+    return match
+
+
+def reserve_appointment(db, appointment, start, end, *, in_use=False):
+    needs = appointment_resource_needs(db, appointment.institute_id, appointment.service_id)
     return reserve(db, appointment.institute_id, needs, start, end,
                    appointment_id=appointment.id, in_use=in_use)

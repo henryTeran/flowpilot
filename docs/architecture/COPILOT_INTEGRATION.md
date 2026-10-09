@@ -93,6 +93,14 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Appointment creation preview foundation (20O)
+
+The appointment domain exposes `preview_creation` for the upcoming Copilot preparation adapter. Creation and preview share the same institute-locked eligibility function: registered customer scope, existing service/employee qualification, past-time rule, recorded absences, assigned-ticket occupancy, active sessions and appointments, including overdue unknown occupancy. The preview uses the existing resource timeline/matching kernel and the same resource requirements as actual reservations. It returns the checked interval and conditional resource IDs without creating a booking, booking event or reservation.
+
+The actual create service retains its original request fingerprint/idempotent replay before current eligibility checks, and still reserves resources through the transactional reservation service. A preview always checks current sources, even if its payload carries an existing booking recovery key. This domain prerequisite is not a retained preparation, approval, capability registration or execution permission. The next adapter must retain exact submitted terms and source references, require the original human approval path and revalidate the domain at execution; a successful preview alone cannot authorize a booking.
+
+Actual SQLite/PostgreSQL domain preview and existing overdue-capacity/resource lifecycle/concurrency regression9 passed70.84s, zero failures/skips. Preview zero SQL writes, no booking/event/reservation, resource maintenance refusal, exact actual interval/resource equality, fresh conflict checks and unchanged idempotent replay are covered. PostgreSQL competing moves and duplicate creates remain serialized. Temporary schemas0 and the owned55473 server stopped. This foundation does not close the Copilot preparation/execution gates.
+
 ### Registry and discovery audit (20L)
 
 Every registered capability now declares its operational audit requirement: signed scope, interaction ID and source digest, with no raw message. Authorized discovery uses the existing closed BASE trace mechanism under `copilot_capabilities`, records attempt/outcome plus a digest of the role-filtered returned schemas and restores its context. Authentication/role rejection remains before domain audit and is handled by existing HTTP logging. Query tracing remains unchanged. These events are operational correlation, not durable business originals, signatures or a retention guarantee.

@@ -127,25 +127,11 @@ def list_today_appointments(db: Session, institute_id: str) -> list[Appointment]
     return list_appointments_for_day(db, institute_id, utcnow())
 
 
-def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None) -> Appointment:
+def _check_creation_slot(db: Session, payload: AppointmentCreate):
+    """One authoritative creation eligibility check for preview and reservation."""
     lock_institute(db, payload.institute_id)
     if len(payload.customer_name.strip()) < 2:
         raise business_error("Le nom de la cliente est requis")
-    facts = payload.model_dump(exclude={"idempotency_key"})
-    if facts.get("customer_id") is None:
-        facts.pop("customer_id", None)  # Keep legacy booking replay fingerprints stable.
-    facts["start_time"] = _ensure_aware(payload.start_time).astimezone(timezone.utc).isoformat()
-    for key in ("customer_name", "phone", "notes"):
-        if isinstance(facts.get(key), str):
-            facts[key] = facts[key].strip()
-    fingerprint = sha256(json.dumps(facts, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    if payload.idempotency_key:
-        existing = db.scalar(select(Appointment).where(Appointment.institute_id == payload.institute_id,
-                                                       Appointment.idempotency_key == payload.idempotency_key))
-        if existing:
-            if existing.creation_fingerprint != fingerprint:
-                raise business_error("La cle de rejeu appartient a une autre reservation")
-            return existing
     if payload.customer_id:
         from app.modules.customers.repository import require_customer
         require_customer(db, payload.institute_id, payload.customer_id)
@@ -212,6 +198,37 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
             raise business_error(
                 f"Conflit RDV : {employee.first_name} a déjà un rendez-vous sur ce créneau."
             )
+
+    return start_time, end_time
+
+
+def preview_creation(db: Session, payload: AppointmentCreate):
+    """Read current eligibility/resources; no booking, reservation or approval."""
+    start, end = _check_creation_slot(db, payload)
+    from app.modules.resources.reservations import preview_appointment_resources
+    return preview_appointment_resources(db, payload.institute_id, payload.service_id, start, end)
+
+
+def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None) -> Appointment:
+    lock_institute(db, payload.institute_id)
+    if len(payload.customer_name.strip()) < 2:
+        raise business_error("Le nom de la cliente est requis")
+    facts = payload.model_dump(exclude={"idempotency_key"})
+    if facts.get("customer_id") is None:
+        facts.pop("customer_id", None)  # Keep legacy booking replay fingerprints stable.
+    facts["start_time"] = _ensure_aware(payload.start_time).astimezone(timezone.utc).isoformat()
+    for key in ("customer_name", "phone", "notes"):
+        if isinstance(facts.get(key), str):
+            facts[key] = facts[key].strip()
+    fingerprint = sha256(json.dumps(facts, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    if payload.idempotency_key:
+        existing = db.scalar(select(Appointment).where(Appointment.institute_id == payload.institute_id,
+                                                       Appointment.idempotency_key == payload.idempotency_key))
+        if existing:
+            if existing.creation_fingerprint != fingerprint:
+                raise business_error("La cle de rejeu appartient a une autre reservation")
+            return existing
+    start_time, end_time = _check_creation_slot(db, payload)
 
     appointment = Appointment(
         id=new_id("appt"),

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20N_CLOSURE_FOLLOW_UP_OPPORTUNITIES_PASS
+CURRENT_CHECKPOINT = PHASE20O_APPOINTMENT_CREATION_PREVIEW_FOUNDATION_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20O_APPOINTMENT_CREATION_PREVIEW_FOUNDATION:
+- Extracted original appointment creation eligibility into shared institute-locked domain check, used by actual creation and new read-only preview_creation. Existing customer/service/employee/qualification/time/absence/assigned-ticket/session/appointment checks retained, including overdue unknown occupancy. Preview uses the existing resource timelines/matching kernel; resource needs shared with actual reservation. No copied Copilot scheduling rules.
+- Actual creation retains legacy fingerprint/idempotency replay before current conflict checks and original reservation/event/save boundary. Preview always checks fresh eligibility rather than replaying a booking receipt. Returns conditional checked interval/resource IDs only; no retained preparation, approval, booking, event or resource reservation.
+- Domain preview plus existing overdue occupancy, resource lifecycle and PostgreSQL competing-move/duplicate-create races9 passed70.84s, zero failures/skips, actual SQLite/PostgreSQL. Zero SQL preview writes, maintenance refusal, exact actual reserved interval/resource equality, current booking conflict, unchanged idempotent replay and missing employee refusal covered. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for shared creation-preview domain prerequisite. NEXT wire APPOINTMENT_CREATE through official BASE Copilot preparation with exact retained original, explicit approval and fresh execution checks; APPOINTMENT_MOVE/marketing/reorder remain required. READ/SUGGEST PARTIAL and PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE. No deployment/push/production or external message claim.
 
 PHASE20N_CLOSURE_FOLLOW_UP_OPPORTUNITIES:
 - REVENUE_OPPORTUNITIES accepts explicit UI source closures and observed start/end, alongside unchanged capacity/rebooking modes. Both sovereign booking/walk-in closure readers verify full source cohorts before minimal first20-per-source event projections. Full counts, separate windows/reader-response SHA, later evidence capture and original retained currency/amount-quality groups preserved. No raw customer/actor/snapshot/basket dossiers.
