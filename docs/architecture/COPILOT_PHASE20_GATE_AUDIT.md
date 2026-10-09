@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Reorder frozen recovery now has five combined passing contract/driver tests, including independent receipt substitution, definitive versus ambiguous rejection, concurrent driver/session change and corrupt storage blocking. No production change in this increment. Form/source/scenario/browser proof remains required; gates PARTIAL.
+
 Reorder retained-original contract now checks exact request/selection, signed actor/scope, reason/key/source fingerprint, canonical original and chronology plus full proposal preview and SHA. Build and two contract tests pass, including rehashed substitutions and false order claims. Recovery/form/source selection/browser proof remain open; gates PARTIAL.
 
 Reorder preview frontend contract groundwork added with explicit supplier/items/pending assumption/scenario, closed scoped source digest and exact milli-unit arithmetic/coverage checks. Build and focused contract test pass, including conditional pending quantities and rehashed damage refusal. Retained original/recovery, form/source reads and actual browser acceptance remain open. Gates PARTIAL.

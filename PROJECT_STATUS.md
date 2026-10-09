@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_RECOVERY_ADVERSE_ACCEPTANCE:
+- Five combined proposal tests PASS: independently rehashed different original ID preserves frozen request,400 rejection requires fresh absent-key read before cleanup,500 ambiguity cannot correct, session change during read prevents POST, concurrent driver busy and corrupt saved storage blocks replacement. Production driver unchanged; existing build evidence remains current. Form/source/scenario and actual API/BASE browser acceptance remain outstanding. Goal ACTIVE; gates PARTIAL.
+
 PHASE20_REORDER_FROZEN_INTENT_FOUNDATION:
 - Added institute/actor-scoped proposal intent storing exact BASE message and proposal before /copilot/prepare/reorder. New scoped key GET plus independent ID receipt validation required before cleanup; exact actor/request/original hashes checked. Ambiguous failures stay frozen; definitive rejection correction needs fresh absent-key read. Concurrent storage driver/session guards included.
 - Build and three combined proposal tests PASS, including lost response then new driver recovery with one POST and independent original ID read. Initial generated import/equality names corrected before final build. Adverse driver cases, form/source/scenario integration and actual browser proof remain required. Goal ACTIVE, gates PARTIAL.
