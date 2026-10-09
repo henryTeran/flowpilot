@@ -12,9 +12,16 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 | --- | --- | --- | --- |
 | CLIENT_READ | customers.repository.require_customer | customer operator (reception or institute manager) | Registered identity/name/creation time; phone and internal creation fields omitted |
 | CLIENT_SUMMARY | crm.profile.read | institute manager only | Observed CRM profile and original policy; explicit unavailable reason and incomplete history |
+| CLIENT_REBOOKING_OPPORTUNITIES | crm.rebooking.read → existing crm.event_sources.read | institute manager only | Recorded rebooking rule/candidate, policy original ID/digest, relevant diagnostics and active customer booking slots |
 
 No external language provider is called and no raw customer facts are sent to BASE routing. Only the message reaches the framework. Responses contain source facts, capture/completion clocks, SHA256 integrity and no actions. SHA256 is neither a signature nor a retained business original. BASE operational correlation records signed scope, interaction ID and digests without raw messages or customer facts.
 
+## Rebooking suggestions (20B)
+
+The existing CRM event engine supplies the latest observed completed-care anchor and the explicit retained automation rule. Copilot does not infer a return interval from language or incomplete customer history. The read-only CRM adapter projects only the rebooking candidate and relevant missing/invalid source diagnostics; unrelated birthday, communication declarations and package/membership facts are omitted. The policy digest identifies the full existing original, retrievable through the authorized CRM endpoint; it is not a signature or the hash of the projected rule alone.
+
+The institute-locked read also checks this registered customer's scoped active appointment slots using the existing active status set. A due candidate without such bookings is a review opportunity; an existing future/ongoing booking asks the manager to examine it first. This conservatively avoids suggesting an additional booking regardless of service; it does not prove the existing booking satisfies the same care need. Disabled/not-yet-due rules are explicit. Missing/invalid care sources and malformed active slots prevent an affirmative opportunity. No time, employee, service, price, consent or availability is invented. Booking, outbound contact and durable event capture remain separate guarded workflows.
+
 ## Remaining phase gates
 
-COPILOT_READ remains PARTIAL pending all initial customer, planning, revenue, stock and employee capabilities in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. Rebooking opportunities and all other required integrations remain open. COPILOT_SUGGEST, COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. This checkpoint does not establish remote model quality, user interface acceptance or production readiness.
+COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending all initial planning, revenue, stock and employee capabilities in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.

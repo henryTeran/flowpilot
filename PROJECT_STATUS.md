@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20A_CUSTOMER_COPILOT_PASS
+CURRENT_CHECKPOINT = PHASE20B_REBOOKING_SUGGESTIONS_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20B_REBOOKING_SUGGESTIONS:
+- CLIENT_REBOOKING_OPPORTUNITIES registered at SUGGEST level and exposed only to signed institute managers. Actual official BASE process dispatches CRM read-only adapter; existing event_sources/candidates compute the latest observed care and recorded policy timing, no duplicated timing engine or inferred cadence.
+- Minimal rebooking candidate/rule, original policy ID/full digest, relevant diagnostics and scoped active appointment slots. Due review/already-booked/not-due/disabled/unavailable explicit; malformed active slots and invalid care suppress affirmative opportunity. No booking/contact/execution authority or complete-history assertion. Customer unrelated birthday/communications/package/membership/name/phone fields excluded.
+- Official corpus17 resources/routing31/31 PASS. Initial12 passing SQLite/kernel tests plus3 PostgreSQL connection errors exposed temporary server default-port startup; owned instance stopped/restarted explicitly127.0.0.1:55473, database/port verified. Final four-module regression15 passed32.38s, zero failures/skips, actual SQLite/PostgreSQL including signed HTTP, whole-cohort latest source, originals/response SHA, permission/scope, invalid sources, existing/cancelled bookings and zero SQL writes. Temporary schemas0 and owned server stopped; packaged Linux Copilot acceptance remains pending.
+- CHECKPOINT_STATUS = PASS for source-bound customer rebooking suggestion. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN. NEXT planning reads/gaps/conflicts and employee capacity using existing engines, remaining revenue/stock capabilities and progressive guarded preparation/execution per Master Plan41. Whole26-phase goal ACTIVE; no deployment/push/native/production readiness claim.
 
 PHASE20A_CUSTOMER_COPILOT:
 - Added signed Copilot query and authorized closed capability discovery. Official ai-swiss/base routes two new processes to CLIENT_READ and CLIENT_SUMMARY; existing customer scoped repository and manager-only CRM profile remain authoritative. Explicit UI customer selection; no customer identifier inferred from language, no provider calls or generated SQL.

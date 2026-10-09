@@ -66,7 +66,7 @@ def test_closed_discovery_foreign_scope_and_framework_outage(client, monkeypatch
     from app.modules.institutes.models import Institute
     from app.shared.time import utcnow
     institute, customer = setup(client)
-    for role, names in [("accueil", ["CLIENT_READ"]), ("responsable_institut", ["CLIENT_READ", "CLIENT_SUMMARY"])]:
+    for role, names in [("accueil", ["CLIENT_READ"]), ("responsable_institut", ["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES"])]:
         response = client.get("/api/v1/copilot/capabilities", headers=_auth_headers(role, institute))
         assert response.status_code == 200
         assert [item["name"] for item in response.json()] == names

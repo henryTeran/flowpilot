@@ -12,6 +12,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter la fiche cliente; Consulter la fiche cliente; Lire la fiche identite client
 **Éviter si**: Annuler une reservation.
 
+### Examiner les opportunites de reprise rendez-vous: [`client-rebooking-opportunities`](skills/processes/client-rebooking-opportunities/SKILL.md)
+**Quand l'utiliser**: Examiner les opportunites de reprise rendez-vous; Examiner les opportunites de reprise rendez-vous; Quand proposer une reprise de rendez-vous
+**Éviter si**: Annuler une reservation.
+
 ### Resumer le profil CRM cliente: [`client-summary`](skills/processes/client-summary/SKILL.md)
 **Quand l'utiliser**: Resumer le profil CRM cliente; Resumer le profil CRM cliente; Resumer le segment CRM
 **Éviter si**: Annuler une reservation.

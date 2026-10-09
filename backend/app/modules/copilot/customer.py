@@ -3,14 +3,15 @@ from typing import Literal
 from fastapi import HTTPException
 from pydantic import AwareDatetime
 from app.modules.base import audit, query, upstream, read_capabilities as identity
-from app.modules.crm import profile
+from app.modules.crm import profile, rebooking
 from app.modules.crm.metrics import Fact
 from app.modules.customers.repository import require_customer
 from app.modules.waitlist.originals import fingerprint
 from app.shared.time import utcnow, explicit_utc_instant
 
-Name = Literal["CLIENT_READ", "CLIENT_SUMMARY"]
-PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY"})
+Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES"]
+PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY",
+    "client-rebooking-opportunities": "CLIENT_REBOOKING_OPPORTUNITIES"})
 
 
 class Selection(Fact):
@@ -30,7 +31,7 @@ class CustomerFacts(Fact):
 
 class Capability(Fact):
     name: Name
-    level: Literal[0] = 0
+    level: Literal[0, 1] = 0
     permission: Literal["customer_operator", "crm_manager"]
     input_schema: dict
     output_schema: dict
@@ -38,11 +39,12 @@ class Capability(Fact):
     mutates: Literal[False] = False
 
 
-REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission,
+REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, level=level,
     input_schema=Selection.model_json_schema(), output_schema=output.model_json_schema(),
-    application_service=service) for name, permission, output, service in (
-        ("CLIENT_READ", "customer_operator", CustomerFacts, "customers.repository.require_customer"),
-        ("CLIENT_SUMMARY", "crm_manager", profile.SegmentProfile, "crm.profile.read"))})
+    application_service=service) for name, permission, level, output, service in (
+        ("CLIENT_READ", "customer_operator", 0, CustomerFacts, "customers.repository.require_customer"),
+        ("CLIENT_SUMMARY", "crm_manager", 0, profile.SegmentProfile, "crm.profile.read"),
+        ("CLIENT_REBOOKING_OPPORTUNITIES", "crm_manager", 1, rebooking.RebookingRead, "crm.rebooking.read"))})
 
 
 class Evidence(Fact):
@@ -50,7 +52,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -72,7 +74,7 @@ def read(db, principal, candidate, router=None):
     with audit.trace(principal, "copilot_customer_query", request.model_dump(mode="json")) as span:
         route = upstream.Route.model_validate((router or upstream.OfficialRouter()).resolve(request.message).model_dump())
         name = PROCESSES.get(route.process_id) if route.status == "routed" else None
-        if name == "CLIENT_SUMMARY" and principal.role != "responsable_institut":
+        if name is not None and REGISTRY[name].permission == "crm_manager" and principal.role != "responsable_institut":
             raise HTTPException(403, "CRM summary requires institute manager")
         if name is None or request.ui_context.customer_id is None:
             response = Response(request_id=span.id, status="clarification", capability=name,
@@ -84,11 +86,20 @@ def read(db, principal, candidate, router=None):
                 result = CustomerFacts(customer_id=row.id, institute_id=row.institute_id,
                     display_name=row.display_name, created_at=explicit_utc_instant(row.created_at))
                 answer = "Identité enregistrée de la cliente sélectionnée."
-            else:
+            elif name == "CLIENT_SUMMARY":
                 result = profile.read(db, principal.institute_id, request.ui_context.customer_id, _captured_at=captured)
                 answer = "Profil CRM observé selon la politique enregistrée; historique complet indisponible."
                 if result.unavailable_reason:
                     answer = "Segment CRM indisponible : " + result.unavailable_reason + "."
+            else:
+                result = rebooking.read(db, principal.institute_id, request.ui_context.customer_id, _captured_at=captured)
+                answer = {
+                    "available": "Reprise à examiner selon la politique CRM et le dernier soin enregistré; vérifiez avec la cliente avant toute réservation.",
+                    "already_booked": "Un rendez-vous actif est déjà enregistré; examinez-le avant de proposer une reprise.",
+                    "not_due": "La reprise prévue par la politique CRM n'est pas encore échue.",
+                    "disabled": "La règle de reprise est désactivée dans la politique CRM.",
+                    "unavailable": "Opportunité de reprise indéterminée : consultez les diagnostics de source.",
+                }[result.review]
             evidence = Evidence(capability=name, institute_id=principal.institute_id,
                 captured_at=captured, read_completed_at=utcnow(), result=result, fingerprint="0" * 64)
             evidence = evidence.model_copy(update={"fingerprint": fingerprint(evidence.model_dump(mode="json", exclude={"fingerprint"}))})
