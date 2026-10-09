@@ -85,6 +85,13 @@ def exercise(client, engine, institute, service, monkeypatch):
     assert retained["original"]["actor_id"] == "test-user"
     identifier = retained["original"]["id"]
     assert client.get(path+"/reorder-proposals/"+identifier,headers=headers).json() == retained
+    assert client.get(path+"/reorder-proposal-by-key",params={"key":body["proposal"]["idempotency_key"]},headers=headers).json() == retained
+    absent = client.get(path+"/reorder-proposal-by-key",params={"key":"absent-reorder-key"},headers=headers)
+    assert absent.status_code == 200 and absent.json() is None
+    foreign = client.get(path+"/reorder-proposal-by-key",params={"key":body["proposal"]["idempotency_key"]},headers=_auth_headers("responsable_institut","foreign"))
+    assert foreign.status_code == 404  # the selected foreign institute does not exist
+    assert client.get(path+"/reorder-proposal-by-key",params={"key":" invalid "},headers=headers).status_code == 400
+    assert client.get(path+"/reorder-proposal-by-key",params={"key":"absent"},headers=_auth_headers("accueil",institute)).status_code == 403
     with Session(engine) as db:
         assert db.scalar(select(func.count()).select_from(StockPurchaseOrder)) == 1
         assert db.scalar(select(func.count()).select_from(StockMovement)) == 0

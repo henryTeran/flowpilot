@@ -197,6 +197,15 @@ def create(db, institute, candidate, actor):
         db.rollback();raise
 
 
+def original(db, institute, key):
+    if not isinstance(key, str) or not key or len(key) > 120 or key != key.strip() or any(ord(c) < 32 for c in key):
+        raise business_error("Exact proposal recovery key required")
+    stock.lock_institute(db, institute)
+    row = db.scalar(select(StockReorderOriginal).where(StockReorderOriginal.institute_id == institute,
+        StockReorderOriginal.idempotency_key == key).execution_options(populate_existing=True))
+    return None if row is None else verify(row, institute)
+
+
 def require(db, institute, identifier):
     stock.lock_institute(db, institute)
     row = db.scalar(select(StockReorderOriginal).where(StockReorderOriginal.institute_id==institute, StockReorderOriginal.id==identifier).execution_options(populate_existing=True))

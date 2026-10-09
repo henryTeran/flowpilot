@@ -93,6 +93,17 @@ def reorder_prepare(body: reorder.Request, user=Depends(require_ticket_manager),
     return reorder.prepare(db, signed_principal(user, user.get("institute_id")), body)
 
 
+@router.get("/reorder-proposal-by-key", response_model=reorders.Receipt | None)
+def reorder_by_key(key: str, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    principal = signed_principal(user, user.get("institute_id"))
+    guard(principal, principal.institute_id)
+    with audit.trace(principal, "copilot_reorder_recover", {"key": key}) as span:
+        result = reorders.original(db, principal.institute_id, key)
+        span.result("recovered" if result is not None else "absent", "STOCK_REORDER_PROPOSAL",
+            result.fingerprint if result is not None else None)
+        return result
+
+
 @router.get("/reorder-proposals/{identifier}", response_model=reorders.Receipt)
 def reorder_original(identifier: str, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
     principal = signed_principal(user, user.get("institute_id"))

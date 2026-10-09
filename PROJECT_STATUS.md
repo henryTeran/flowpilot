@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_KEY_RECOVERY_API:
+- Added signed-manager /copilot/reorder-proposal-by-key GET using native institute-locked original lookup and integrity verification. Absent key returns null; invalid key refused; exact scoped retained proposal returned without recapturing sources or creating another proposal. Uses existing registered recovery audit action and hashed payload.
+- Actual SQLite reorder lifecycle/source regression1 PASS15.07s,2 PostgreSQL cases deselected (.cache/20-reorder-key-tests.log), including new original-by-key/absent/invalid/role/nonexistent foreign scope checks. Initial audit-action registration failure corrected by reusing existing recovery action; nonexistent foreign institute correctly returns404. PostgreSQL/current packaged proof, frontend recovery driver/form and actual browser acceptance remain required. Goal ACTIVE, gates PARTIAL.
+
 PHASE20_REORDER_ORIGINAL_UI_CONTRACT_FOUNDATION:
 - Added distinct proposal request/native original/receipt checks. Signed institute/actor, canonical exact selection, retained reason/key/fingerprint and capture-before-creation chronology bound to validated proposal-only preview and original SHA. Extra order-execution claims refused. No cancellation/booking/marketing original reuse.
 - Build PASS and two reorder contract tests PASS: rehashed wrong actor/scope/supplier/clock/source fingerprint/order effect and changed exact recovery terms refused. Original/recovery integration, form/source selection/scenario and actual API/BASE browser acceptance remain required. Goal ACTIVE; gates PARTIAL.
