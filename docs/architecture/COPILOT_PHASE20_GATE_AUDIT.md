@@ -1,5 +1,16 @@
 # Phase 20 completion audit
 
+## Current requirement audit after progressive UI acceptance
+
+This section and the gate table below describe current implementation. Earlier checkpoint paragraphs retain historical evidence and do not describe missing interfaces today. Master Plan41 still requires all12 initial capabilities and all4 progressive capabilities; no requirement is removed by this audit.
+
+- All12 initial consultations are mounted in `CopilotPanel`; scoped source/selection/SHA guards precede facts. Browser baseline and populated original stock forecast exist. Populated CRM classifications, due/already-booked rebooking, recorded employee activity, actual employee/resource overlaps, mixed-currency revenue and nonzero closure/opportunity facts still need the previously identified UI acceptance evidence.
+- All4 progressive interfaces are mounted: creation, move, marketing draft and reorder proposal. Actual signed API/pinned BASE browser evidence proves creation room reservation/execution/lost acknowledgement/decline; default-preserving move with same appointment and room transfer/lost acknowledgement; literal email marketing DRAFT/lost acknowledgement; reorder source selection, scenarios, pending/partial receipts, pagination/50-item limit, source-change rejection, damaged response, ambiguous500 and in-flight remount recovery. These are exercised paths, not every possible domain variant.
+- Remaining progressive acceptance includes changed move employee/service and linked customer, revocation/expiry/changed approval sources and races, plus historical marketing multi-page/other-channel/adverse cases. Reorder same-document concurrency is proven; independent-tab and PostgreSQL same-key/source races belong to backend/recovery verification, not evidence from a shared frontend driver.
+- Packaged20X proof is historical backend524c554. Subsequent forecast wording and reorder original-by-key route changes mean it cannot establish current packaged code acceptance. Current isolated SQLite/PostgreSQL and Linux package verification must cover those changes. Frontend full regression after latest presentation edits is tracked separately in PROJECT_STATUS; narrow browser passes do not replace it.
+
+Next substantive acceptance work is populated consultation/suggestion evidence and current backend/package regression, followed by the remaining named progressive variants. All four gates stay PARTIAL; Voice and subsequent Master Plan phases remain open.
+
 Reorder in-flight remount acceptance now passes actual API/BASE desktop/tablet: retained response held during close/reopen, second driver reports busy/no second POST, released unmounted callback leaves frozen request, explicit resume independently recovers same original. Stocks/movements/orders unchanged. This closes same-document concurrent/remounted driver proof, not independent tabs/PostgreSQL race proof. Current packaged regression and remaining explicit phase requirements must be audited before closure; gates PARTIAL.
 
 Reorder ambiguous500 response delivery acceptance now passes four API/BASE browser tests (desktop/tablet, nontransmitted versus real committed request): exact frozen request/key survives reload with no replacement/correction authority. Committed original recovered with one POST; absent original retried using exact saved request then independently checked. Native stocks/movements/orders unchanged. Response500 is deliberate browser fault injection, not a backend crash. Concurrent/remount/session and other phase gaps remain; gates PARTIAL.
@@ -150,10 +161,10 @@ CREATE/MOVE share original signed-scope/current-approval/expiry/key/source check
 
 | Gate | Current conclusion | Evidence still required for closure |
 | --- | --- | --- |
-| COPILOT_READ | PARTIAL: scoped backend contracts exist for all12 names;20Y verifies four UI contracts | Eight remaining consultation/suggestion UI contracts and their current frontend/backend acceptance |
-| COPILOT_SUGGEST | PARTIAL: deterministic rebooking/revenue/stock suggestions exist | Operator UI must preserve partial coverage, bounded counts and conditional assumptions without claiming money/contact/booking authority |
-| COPILOT_PREPARE | PARTIAL: all4 progressive preparations exist in signed APIs | Operator UI must review exact selections/source digest and retained results, invalidate stale previews and handle uncertain acknowledgements/recovery per actor/institute |
-| COPILOT_EXECUTE_GUARDED | PARTIAL: atomic explicitly approved CREATE/MOVE exist | Operator UI for separate prepare/decision/execute steps, fresh source checks and durable receipt/replay; marketing/reorder must stay within declared preparation-only scope |
+| COPILOT_READ | PARTIAL: all12 source contracts and interfaces mounted; baseline and populated forecast browser evidence | Remaining populated CRM/planning/capacity/revenue acceptance and current packaged regression |
+| COPILOT_SUGGEST | PARTIAL: source-backed rebooking/revenue/stock presentations preserve uncertainty | Due/already-booked rebooking and populated revenue opportunity variants in actual UI; current backend/package checks |
+| COPILOT_PREPARE | PARTIAL: all4 reviewed forms and scoped frozen recovery mounted; actual positive browser paths | Remaining marketing channel/historical page/adverse variants and named source/session variants; current package proof |
+| COPILOT_EXECUTE_GUARDED | PARTIAL: separate human decisions/atomic CREATE/MOVE/receipt recovery mounted and positive browser paths proved | Move changed target/customer and decision revocation/expiry/source/race acceptance; current database/package regression |
 
 At the20X baseline, `frontend/src/App.tsx` and `FlowPilotSidebar.tsx` had no general Copilot entry.20Y now adds that entry and four consultations, described below. `BaseCancellationPanel.tsx` still covers historical cancellation only; it does not prove CREATE/MOVE/marketing/reorder UI. Existing domain panels cannot substitute for proof that the Copilot interaction uses official BASE and these contracts. No phase closure is claimed from backend API tests or this partial UI alone.
 

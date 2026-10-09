@@ -1,5 +1,7 @@
 # Copilot integration — phase 20
 
+Current interface coverage: all12 initial consultations and all4 progressive paths are mounted. Their real API/official BASE acceptance and remaining populated/variant requirements are reconciled in the [current gate audit](COPILOT_PHASE20_GATE_AUDIT.md). Earlier checkpoint paragraphs below are historical and do not imply those interfaces are still absent. Linux20X validates its backend524c554 snapshot, not subsequent forecast wording/reorder original-by-key changes. All four phase gates remain PARTIAL.
+
 The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared process context. FlowPilot owns a closed capability registry, signed institute scope, existing service dispatch and response evidence. There is no independent language router, generated SQL or model authority.
 
 ## Customer slice (20A)

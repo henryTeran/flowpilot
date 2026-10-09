@@ -1,6 +1,10 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
+CURRENT_CHECKPOINT = PHASE20Y_PROGRESSIVE_COPILOT_UI_ACCEPTANCE_PARTIAL
 STATUS = ACTIVE
+
+PHASE20_CURRENT_REQUIREMENT_RECONCILIATION:
+- Reconciled Master Plan41/current gate table/integration docs with actual all12 consultations/all4 progressive forms and accumulated API/BASE browser proof. Old checkpoint paragraphs explicitly historical; no requirement removed and no gate closed.20X package proof explicitly historical after backend wording/by-key route changes.
+- Next substantive work: remaining populated CRM/rebooking/activity/conflict/revenue/closure-opportunity UI evidence, current SQLite/PostgreSQL/Linux package regression, then named remaining move/decision/marketing variants. Reorder boundary tests establish exercised paths but do not replace those requirements. Full current frontend regression584 PASS,0 failures/skips100.32s (.cache/20-current-frontend-regression.log), after compact selection review and all mounted forms. Whole26-phase goal ACTIVE; gates PARTIAL.
 
 PHASE20_REORDER_INFLIGHT_REMOUNT_ACCEPTANCE:
 - Actual API/official BASE in-flight remount2 PASS42.3s desktop/tablet (.cache/20-reorder-remount-browser.log). Real server retention completed while response deliberately held. Close/reopen mode and attempt resume yields busy, preserves frozen request and blocks replacement; exactly one retention POST. Release original response: unmounted callback cannot clear new interface intent; explicit resume independently reads same retained original without another write.
