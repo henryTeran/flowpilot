@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 19
-CURRENT_CHECKPOINT = PHASE19B_ISOLATED_OPENAI_RESPONSES_AND_EMBEDDINGS
+CURRENT_CHECKPOINT = PHASE19C_ISOLATED_VOXTRAL_TRANSCRIPTION
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -7,6 +7,12 @@ BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PARTIAL
+
+PHASE19C_ISOLATED_VOXTRAL_TRANSCRIPTION:
+- Added only app.ai.voxtral_adapter importing Mistral SDK pinned3.2.0; official API docs and installed SDK signatures/native httpx2/lifecycle inspected. Explicit server model/bounded per-call timeout/retriesNone, validated raw audio multipart/constant MIME-derived filename/optional language/no URL or file ID, diarizationfalse, typed transcript. Empty text preserved as possible silence; malformed SDK output fails invalid-response rather than invented text. Native timeout/HTTP errors normalized, owned injected client closed.
+- Initial install in long repository validation env failedMAX_PATH; fresh standard Python3.13 short-path env C:/Users/CorralesSusana/.codex/cache/flowpilot-ai19 installs complete requirements/SDKs. No OS long-path setting or persistent app change; previous partial cache not claimed repaired. Use short env for subsequent provider Windows validation.
+- Actual Mistral/OpenAI SDK+fake contracts transport-mocked initial22 passed5.61s; final native-httpx2/malformed-output regression24 passed4.13s, zero failures/skips. Binary multipart/model/language/silence, timeout401/single call, invalid-response classification, invalid input before upload and HTTP client close verified. SDK jsonpath AST deprecations and intentional invalid-copy warning only. No remote inference, real credentials/audio recognition/model-quality/Linux/native/production claim.
+- CHECKPOINT_STATUS = PASS for isolated Voxtral STT adapter. AI_PROVIDER_PHASE PARTIAL; NEXT PHASE19D explicit per-port server settings/selection and resource lifecycle, then actual image/phase acceptance audit. Whole26-phase goal ACTIVE; no domain SDK propagation, provider activation/deployment/remote charge/persistent mutation.
 
 PHASE19B_ISOLATED_OPENAI_RESPONSES_AND_EMBEDDINGS:
 - Official Responses/embedding docs consulted via openai-docs. Added only app.ai.openai_adapter importing real SDK pinned openai2.54.0. Injected client/explicit server model names; typed LLM Responses request max output/storefalse/no tools, optional strict JSON schema, fail-closed incomplete/refusal/unrequested tool/invalid JSON. Embeddings float ordered by exact complete integer indexes with strict vector validation; no domain imports/authority.

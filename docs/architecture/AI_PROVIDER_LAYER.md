@@ -24,6 +24,18 @@ Références officielles consultées le 9 octobre 2026 : [Responses Python](http
 
 Validation SDK réel et `httpx.MockTransport`, sans réseau : première exécution 16 réussis; finale après refus/401/indices entiers, **18 réussis en 2,60 s**, zéro échec/skip. Les tests vérifient sérialisation des requêtes, parsing réel SDK, structured JSON, réponses partielles/hostiles, timeout/401 normalisés et un seul appel avec client timeout 5 s/retries 0, ordre des embeddings et doublons. Les clients de test sont fermés. La frontière commune préserve désormais la catégorie réponse invalide remontée par un adaptateur. Aucun crédit distant, credential réel, transcription OpenAI, configuration de déploiement ou qualification de modèle n’est revendiqué.
 
-## Acceptation restante
+## Checkpoint 19C : transcription Voxtral isolée
 
-La phase reste **PARTIAL**. OpenAI LLM/embedding est isolé et testé; Voxtral, sélection/configuration serveur de runtime, transcription et acceptation de phase restent ouverts. Aucun import SDK ne doit être introduit dans les modules métier. La qualification distante et les credentials de déploiement restent des preuves distinctes des contrats offline.
+`app.ai.voxtral_adapter` est le seul module applicatif important Mistral, verrouillé à `mistralai==3.2.0`. Il implémente le port de transcription avec modèle serveur explicite, timeout borné et retries désactivés pour chaque opération. Il utilise `httpx2`, la bibliothèque effective de cette version SDK, pour identifier correctement ses timeouts.
+
+Les octets validés sont envoyés au SDK en multipart avec un nom de fichier constant dérivé du type média. Aucun chemin local, URL de fichier, file ID, contexte métier ou instruction générée n’est accepté dans le contrat audio. Langue explicite optionnelle, diarisation désactivée; seule la transcription textuelle typée est rendue. Une chaîne vide peut représenter le silence; une réponse malformée ne devient pas une chaîne vide inventée. Timeouts, erreurs HTTP et erreurs de parsing SDK sont normalisés. L’adaptateur possède le client injecté et le ferme explicitement.
+
+Référence officielle consultée le 9 octobre 2026 : [API de transcription Mistral](https://docs.mistral.ai/api/endpoint/audio/transcriptions). Les signatures, bibliothèque HTTP et gestion de fermeture ont également été vérifiées dans le SDK installé. Le checkpoint ne revendique ni décodage audio local, ni transcription sémantique réelle, ni qualification d’un modèle distant.
+
+L’installation dans le chemin long de l’environnement du dépôt a échoué sur MAX_PATH. Un environnement Python 3.13 standard séparé, au chemin court `C:/Users/CorralesSusana/.codex/cache/flowpilot-ai19`, installe tous les requirements et SDK sans changer les réglages Windows. Cet environnement devient la référence de validation providers Windows; l’ancien cache d’installation partielle n’est pas présenté comme réparé.
+
+Premiers tests avec SDK réel et transport simulé : **22 réussis en 5,61 s**. Validation finale avec transport natif `httpx2` et parsing malformé : **24 réussis en 4,13 s**, zéro échec/skip, incluant OpenAI et les contrats/fakes. Multipart binaire exact, modèle/langue, silence, timeout/401 avec un seul appel, réponse invalide, refus avant upload et fermeture du client sont vérifiés. Aucune requête réseau de modèle ni credential réel n’est utilisé. Les avertissements sont des dépréciations AST d’une dépendance SDK et la copie Pydantic volontairement invalide d’un test.
+
+## Acceptation restante de la phase
+
+La phase reste **PARTIAL**. OpenAI LLM/embedding et Voxtral STT sont isolés et testés; sélection/configuration serveur de runtime, cycle de vie applicatif et acceptation complète de phase restent ouverts. Aucun import SDK ne doit être introduit dans les modules métier. La qualification distante et les credentials de déploiement restent des preuves distinctes des contrats offline.
