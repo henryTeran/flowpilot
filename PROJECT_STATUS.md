@@ -1,11 +1,18 @@
-CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18E_EXACT_ACCOUNTING_CONTRIBUTIONS
+CURRENT_PHASE = PHASE 19
+CURRENT_CHECKPOINT = PHASE19A_PROVIDER_LAYER_IN_PROGRESS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
-JV_PHASE = PARTIAL
+JV_PHASE = PASS
+AI_PROVIDER_PHASE = PARTIAL
+
+PHASE18F_JV_LINUX_ACCEPTANCE_AND_CLOSURE:
+- Canonical JV_RULES/JV_EVIDENCE/JV_PROVIDER_INDEPENDENCE PASS; docs/architecture/JV_FOUNDATION.md maps all8 Master Plan responsibilities to actual operational/financial/scoring/explainability implementations and guards. Prior partial checkpoints preserved as historical evidence. Pure source-bound analyzers, exact arithmetic, existing sovereign scoring/business rules, signed scopes and explicit unknowns; no model-generated financial causes or action authority.
+- Latest actual backend image sha256:5e35f0517623652d887872d99e838dc38951f9942b9bf26e1a4a075840411af8 built with official BASE corpus/routing checks. Eleven-module complete JV plus BASE query/audit/revenue/optimizer regression75 passed72.37s, zero failures/skips, actual SQLite and isolated PostgreSQL16 Linux; no external provider/API configuration. Existing deprecation/intentional unsafe-copy warnings only. No native/physical-human/production certification inferred.
+- Linux PostgreSQL temporary tmpfs/no published ports, random test schemas verified0. Test container auto-removed; exact owned PostgreSQL container/network labels checked then removed; persistent user services untouched. No persistent app mutation/migration/deployment/push.
+- NEXT automatically PHASE19 AI Provider Layer: LLMProvider/SpeechToTextProvider/EmbeddingProvider contracts, isolated OpenAI/Voxtral adapters and fake-provider tests. Canonical LLM_ABSTRACTION/STT_ABSTRACTION/OPENAI_ISOLATED/VOXTRAL_ISOLATED/FAKE_PROVIDER_TESTS OPEN until real implementation/evidence. Whole26-phase goal ACTIVE; production/causal/source-completeness/log-retention gates not claimed.
 
 PHASE18E_EXACT_ACCOUNTING_CONTRIBUTIONS:
 - Billing comparison v2 adds source-bound per-currency baseline/current ticket counts and exact rational volume/basket accounting terms. Fixed rule: volume=(N1-N0)*G0/N0, basket=G1-N1*G0/N0. Structured validation verifies individual formulas and exact sum G1-G0, refusing fabricated compensating terms. No float, currency conversion, duplicated billing authority or causal attribution.

@@ -1675,6 +1675,8 @@ JV_EVIDENCE = PASS
 JV_PROVIDER_INDEPENDENCE = PASS
 ```
 
+Clôture de fondation le 9 octobre 2026 : [audit 18F et preuves runtime](../architecture/JV_FOUNDATION.md). Les faits inconnus et causes non prouvées restent explicitement indisponibles; la clôture JV ne certifie pas la couche provider ni la préparation de production.
+
 ---
 
 # 40. Phase 19 — AI Provider Layer

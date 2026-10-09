@@ -55,8 +55,23 @@ Un panier de référence observé à zéro reste connu lorsque ses tickets exist
 
 Validation complète des cinq modules JV sur SQLite et PostgreSQL réel : **24 réussis en 32,96 s**, zéro échec/skip. Les nouvelles variantes couvrent fractions exactes sous faible précision décimale, séparation des devises, disparition de la cohorte courante, baseline monétaire nulle, inconnues et faux termes compensés. Les tests HTTP existants vérifient les termes sur de vraies captures payées avec zéro mutation SQL. Zéro schéma temporaire résiduel; serveur temporaire arrêté. La validation Linux et l’audit final des gates restent à réaliser avant clôture de phase.
 
-## Acceptation restante
+## Audit final : checkpoint 18F
 
-`JV_RULES`, `JV_EVIDENCE`, `JV_PROVIDER_INDEPENDENCE` restent **PARTIAL** pour la phase entière. Le noyau descriptif seul ne ferme pas la phase.
+La phase de fondation **JV = PASS** pour les responsabilités définies dans les sections 9 et 39 du Master Plan. Les états partiels des checkpoints précédents restent leur historique, et la clôture ne prétend pas couvrir les phases provider/copilot/voice/production qui suivent.
 
-La suite ajoute comparaison et scoring avec critères explicites et explications vérifiables. Les diagnostics économiques et contributions au CA doivent utiliser les faits financiers/workforce réellement enregistrés et leurs règles existantes; aucune causalité ou perte financière ne doit être inférée d’un compte de file ou d’un planning. Les tests de phase devront couvrir ces calculs, les inconnues, le scope, les refus et l’indépendance de provider avant clôture.
+| Exigence | Preuve actuelle |
+| --- | --- |
+| Règles métier analytiques et calculs structurés | Noyau opérationnel 18A, compte/CA/pourcentage exacts 18D, termes rationnels conservatifs 18E; modèles fermés et versions explicites |
+| Diagnostics | Refus métier source, données manquantes, devise et montants inconnus, baseline nulle, durées différentes, tickets sans date et exhaustivité non prouvée |
+| Comparaison | Alternatives scorées par politique retenue 18C et cohortes payées datées séparées par devise/période 18D |
+| Scoring | Réutilisation des moteurs souverains derive/scoring_policy/domain.score; contributions exactes, contraintes dures, classement/ex æquo et inconnues pondérées vérifiés |
+| Aide à la décision | Résultats conditionnels structurés, politique explicitement retenue et motifs; revue humaine/revalidation requises, aucune action exécutée |
+| Evidence | Captures signées via services existants, SHA sources/politiques/sorties, pointeurs JSON, scopes et chronologie, refus d’injection et de sorties altérées |
+| Explainability | Contributions reward/penalty et raisons du moteur; identité arithmétique volume/panier contrôlée terme par terme, distincte de causes métier |
+| Réutilisation indépendante | Noyaux purs à partir de captures typées, sans horloge/SQL supplémentaire ni import SDK/provider; routes réutilisant les permissions et sources existantes |
+
+Gates canoniques : **JV_RULES = PASS**, **JV_EVIDENCE = PASS**, **JV_PROVIDER_INDEPENDENCE = PASS**. Les cinq modules JV et les moteurs/source/bridge associés passent dans l’image backend réelle `sha256:5e35f0517623652d887872d99e838dc38951f9942b9bf26e1a4a075840411af8` : **75 tests réussis en 72,37 s**, zéro échec/skip, Python 3.12, Node réel, SQLite et PostgreSQL 16 Linux isolé. L’image build valide également le corpus BASE. Aucun fournisseur distant ni clé/API externe n’est configuré dans ce conteneur de validation. La lecture du code des modules JV confirme l’absence de SDK/appel provider; les tests d’analyse vérifient répétabilité et conservation des faits sources sans génération.
+
+PostgreSQL de validation sans port publié et stockage tmpfs; fixtures à schémas aléatoires, zéro résidu. Conteneur de test retiré automatiquement; conteneur PostgreSQL et réseau supprimés après contrôle de leur label de propriété. Les conteneurs persistants de l’utilisateur sont inchangés. Le seul client HTTP ajouté l’est dans le conteneur éphémère de test.
+
+Les limites restent explicites : pas d’attribution causale de pertes financières, pas de prédiction ni conversion monétaire, pas de certification d’exhaustivité/règlement, pas de SHA assimilé à une signature, pas de rétention de production ou de validation native/humaine supplémentaire. La suite du Master Plan est **phase 19 — AI Provider Layer** : interfaces LLM/STT/embedding, adaptateurs isolés OpenAI/Voxtral et fake providers, avec leurs gates encore ouverts. L’objectif global reste actif.
