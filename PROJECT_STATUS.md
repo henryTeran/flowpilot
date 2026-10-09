@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_FOLLOW_UP_OPPORTUNITY_UI_CONTRACT_FOUNDATION:
+- Added closed original closure-follow-up projection validation reusing loss-summary source guards. Exact selected period and separate source clocks, full totals/first20 per source, unique events, half-open event dates, typed retained currency/value/confidence and null recovery/false delivery/action/history checked. No new financial or contact eligibility engine.
+- Build PASS and two focused follow-up/loss tests PASS: valid original unpriced events and wrong window/scope/count, extra phone, unsupported recovery/delivery and legacy-value contradiction refused. Opportunity UI remains unconnected; capacity variant can reuse original validRevenueSlot, return and follow-up source validators now exist. All UI/browser acceptance and four progressive flows remain outstanding. Goal ACTIVE, gates PARTIAL.
+
 PHASE20_RETURN_OPPORTUNITY_UI_CONTRACT_FOUNDATION:
 - Added closed original institute-wide rebooking-opportunity projection validation: original event-candidate rule/care/source checks, due state, exact capture, unique first20 customers/full counts, examined-customer partition, source digest and relevant CRM diagnostics. Estimated value remains null; delivery/action/history false. No new eligibility calculation.
 - Build PASS and targeted source test PASS, including wrong candidate owner/state/timing, extra phone, cohort counts, unrelated diagnostics and authority/value refusal. This is only the rebooking source contract; capacity and closure-follow-up variants and all opportunity UI/browser acceptance remain outstanding. Full goal ACTIVE, Copilot gates PARTIAL.
