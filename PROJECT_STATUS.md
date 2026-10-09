@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_RETURN_OPPORTUNITY_UI_CONTRACT_FOUNDATION:
+- Added closed original institute-wide rebooking-opportunity projection validation: original event-candidate rule/care/source checks, due state, exact capture, unique first20 customers/full counts, examined-customer partition, source digest and relevant CRM diagnostics. Estimated value remains null; delivery/action/history false. No new eligibility calculation.
+- Build PASS and targeted source test PASS, including wrong candidate owner/state/timing, extra phone, cohort counts, unrelated diagnostics and authority/value refusal. This is only the rebooking source contract; capacity and closure-follow-up variants and all opportunity UI/browser acceptance remain outstanding. Full goal ACTIVE, Copilot gates PARTIAL.
+
 PHASE20_LOSS_UI_WIRING_INCREMENT:
 - Real signed SQLite API/official BASE browser baseline PASS desktop/tablet: suite16 passed1.7m, selected common observed period, independent scoped booking/walk-in windows, null financial loss/false causal/history, separate source displays and only query POST. Both screenshots inspected; fixture cleaned/listeners4198/4199=0. Log:.cache/20-loss-browser.log. Source cohort has zero closures; populated retained-commercial-value browser acceptance remains pending.
 - Connected REVENUE_LOSS_ANALYSIS to explicit institute civil-date period, official BASE query and common evidence SHA with original loss-source validation. Passive UI separates booking cancellations/no-shows/unpriced and institute missing-event counts from retained/legacy walk-in terms and currencies. Independent source clocks remain visible; financial loss/recovery/complete-history claims remain unavailable.
