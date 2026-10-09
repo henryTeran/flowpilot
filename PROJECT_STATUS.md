@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20A_COPILOT_INTEGRATION_IN_PROGRESS
+CURRENT_CHECKPOINT = PHASE20A_CUSTOMER_COPILOT_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20A_CUSTOMER_COPILOT:
+- Added signed Copilot query and authorized closed capability discovery. Official ai-swiss/base routes two new processes to CLIENT_READ and CLIENT_SUMMARY; existing customer scoped repository and manager-only CRM profile remain authoritative. Explicit UI customer selection; no customer identifier inferred from language, no provider calls or generated SQL.
+- Minimal registered identity excludes phone/creation internals; CRM original policy, unavailable segment reasons and incomplete history preserved. Scope/capture clocks/source SHA, empty actions and operational BASE correlation; no signature/retained-original claim.
+- Official corpus validation16 resources and routing29/29 PASS. Initial customer+BASE regression14 passed66.48s; final customer suite3 passed8.90s after discovery/real foreign-customer/outage coverage, zero failures/skips on SQLite. Existing unsafe-copy warning only in BASE regression. Actual PostgreSQL/Linux packaged Copilot acceptance remains pending; prior phase proofs do not establish this new code there.
+- CHECKPOINT_STATUS = PASS for initial customer slice. COPILOT_READ PARTIAL; SUGGEST/PREPARE/EXECUTE_GUARDED OPEN. NEXT customer rebooking and remaining Master Plan41 integrations, then packaged cross-database acceptance. Whole26-phase goal ACTIVE; no deployment/push/production readiness claim. docs/architecture/COPILOT_INTEGRATION.md describes exact scope.
 
 PHASE19E_PROVIDER_IMAGE_ACCEPTANCE_AND_CLOSURE:
 - Canonical five gates LLM_ABSTRACTION/STT_ABSTRACTION/OPENAI_ISOLATED/VOXTRAL_ISOLATED/FAKE_PROVIDER_TESTS PASS for typed/isolation/local-runtime foundation; EmbeddingProvider also implemented. docs/architecture/AI_PROVIDER_LAYER.md maps actual evidence; SDK imports confined to app.ai, no business SDK propagation. Default providers disabled; BASE/JV retained.

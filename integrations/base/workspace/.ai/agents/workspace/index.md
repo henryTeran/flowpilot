@@ -8,6 +8,14 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 
 ## Process
 
+### Consulter la fiche cliente: [`client-read`](skills/processes/client-read/SKILL.md)
+**Quand l'utiliser**: Consulter la fiche cliente; Consulter la fiche cliente; Lire la fiche identite client
+**Éviter si**: Annuler une reservation.
+
+### Resumer le profil CRM cliente: [`client-summary`](skills/processes/client-summary/SKILL.md)
+**Quand l'utiliser**: Resumer le profil CRM cliente; Resumer le profil CRM cliente; Resumer le segment CRM
+**Éviter si**: Annuler une reservation.
+
 ### Disponibilite des collaboratrices: [`employee-availability`](skills/processes/employee-availability/SKILL.md)
 **Quand l'utiliser**: Consulter la disponibilite des collaboratrices; Consulter la disponibilite des collaboratrices; Qui est disponible maintenant
 **Éviter si**: Modifier ou annuler une reservation.

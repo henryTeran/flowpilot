@@ -28,6 +28,7 @@ from app.modules.waitlist.routes import router as waitlist_router
 from app.modules.optimizer.routes import router as optimizer_router
 from app.modules.base.routes import router as base_router
 from app.modules.base.query_routes import router as base_query_router
+from app.modules.copilot.routes import router as copilot_router
 from app.modules.jv.routes import router as jv_router
 from app.modules.dev.routes import router as dev_router
 from app.modules.employees.routes import router as employees_router
@@ -133,6 +134,7 @@ def create_app(payment_bindings=(), *, ai_config=None, ai_fake_bindings=None) ->
     app.include_router(optimizer_router, prefix=prefix)
     app.include_router(base_router, prefix=prefix)
     app.include_router(base_query_router, prefix=prefix)
+    app.include_router(copilot_router, prefix=prefix)
     app.include_router(jv_router, prefix=prefix)
     app.include_router(dev_router, prefix=prefix)
     app.include_router(realtime_router)
