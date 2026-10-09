@@ -16,7 +16,7 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 | PLANNING_READ | planning.service.get_day_planning | planning operator (reception or institute manager) | Current day session IDs/services/times and employee status, without names |
 | PLANNING_GAPS | scheduling.service.availability_pool | planning operator | Current/future engine windows with original blocker IDs and unavailable reasons; optional explicit service selection |
 | EMPLOYEE_CAPACITY | revenue.capacity.read | institute manager only | Explicit completed local day recorded work/activity aggregates and bounded employee evidence |
-| PLANNING_CONFLICTS | workforce.conflicts.read | institute manager only | Selected employee/day current commitment overlaps and explicit invalid/overdue diagnostics |
+| PLANNING_CONFLICTS | workforce.conflicts.read / resources.conflicts.read | institute manager only | Selected employee OR resource/day overlaps and explicit invalid/overdue diagnostics |
 
 No external language provider is called and no raw customer facts are sent to BASE routing. Only the message reaches the framework. Responses contain source facts, capture/completion clocks, SHA256 integrity and no actions. SHA256 is neither a signature nor a retained business original. BASE operational correlation records signed scope, interaction ID and digests without raw messages or customer facts.
 
@@ -38,7 +38,13 @@ PLANNING_CONFLICTS accepts an explicitly selected employee and local institute d
 
 The response counts the full accepted cohort's overlaps and returns the first 50 deterministically, with both original source references and exact clipped intersection duration. A digest binds the ordered minimal valid source cohort; the response digest also covers diagnostics and capture clocks. More than 1000 active source records for the employee fails explicitly rather than silently truncating. Invalid active sources are counted across the captured employee cohort, because an invalid interval cannot be reliably assigned to a day. Open obligations whose planned end has passed preserve an overdue diagnostic; actual end is not guessed. Recorded commitment overlaps do not prove simultaneous physical activity.
 
-Resource conflict detection remains open: `resource_conflicts_covered=false`. This is the employee commitment slice of PLANNING_CONFLICTS, not completion of all planning conflict coverage or the whole Copilot phase.
+The employee response retains `resource_conflicts_covered=false`: a selected employee read does not examine every physical resource. The resource variant below examines a separately selected resource. Neither response establishes complete institute conflict coverage or physical occupancy.
+
+## Resource reservation conflicts (20E)
+
+PLANNING_CONFLICTS now also accepts `resource_id` instead of `employee_id`, with the same explicit day and manager permission. Selecting both is refused; missing target/day clarifies without dispatch. The closed registry exposes both result schemas and the exclusive target selection. Resource reads require the selected resource in the exact signed institute and lock that institute. Only unreleased reservations belonging to the selected resource/institute are captured; each ticket or appointment owner is independently verified in the same institute. Foreign/missing owners are counted as invalid without returning their identifiers.
+
+Reservation overlaps use the same exact half-open intersection calculation and deterministic first50/full-count presentation as employee commitments. Released reservations do not consume a source slot. Unreleased reservations whose recorded end has passed remain explicit unknown-capacity diagnostics across the selected resource cohort, matching the existing allocation timeline rule. Inactive/maintenance resource state remains visible. No resource name, customer details, inferred repair, mutation or booking authority is returned. The response describes one selected physical unit's recorded reservations, not an inventory-wide feasibility or missing-allocation audit. Existing configuration/allocation services remain authoritative for actual booking admissibility.
 
 ## Remaining phase gates
 

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20D_EMPLOYEE_COMMITMENT_CONFLICTS_PASS
+CURRENT_CHECKPOINT = PHASE20E_RESOURCE_RESERVATION_CONFLICTS_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20E_RESOURCE_RESERVATION_CONFLICTS:
+- Extended existing PLANNING_CONFLICTS to an explicit employee OR resource plus local day, preserving manager authorization. Registry exposes exclusive-target input schema and both result schemas; both targets refused, missing selection clarified. Official BASE still sole router, no separate resource language resolver.
+- Added resources application read service requiring signed resource scope/institute lock and independently checking every reservation ticket/appointment owner. Unreleased selected-resource reservations only; foreign owners counted invalid without identifiers. Existing exact half-open overlap kernel reused, first50/full-count/source SHA preserved; no resource names/customer details or mutation. Inactive/maintenance status and overdue unreleased reservations explicit unknown capacity, consistent with allocation timeline rule.1000 source bound explicit, no inventory-wide feasibility/physical-occupancy/booking guarantee.
+- Official corpus20 resources/routing38/38 PASS, including resource-conflict utterance. Resource+employee/customer regression8 passed31.74s real SQLite/PostgreSQL, zero failures/skips; final resource suite2 passed19.88s after actual appointment-owned source and exclusive-input/union-output schema assertions. Foreign resource/owner refusal, ticket+appointment source inclusion, released exclusion/adjacency/exact duration, resource maintenance, source SHA, permissions and zero SQL writes covered. Temporary schemas0 and owned55473 PostgreSQL stopped.
+- CHECKPOINT_STATUS = PASS for selected-resource reservation conflict read; selected employee and resource variants now implemented. Comprehensive institute/allocation completeness is not asserted by these target-scoped facts. NEXT remaining REVENUE_SUMMARY/LOSS_ANALYSIS/OPPORTUNITIES and stock reads/forecast, progressive guarded preparation/execution and Linux Copilot acceptance. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20D_EMPLOYEE_COMMITMENT_CONFLICTS:
 - Added source-backed PLANNING_CONFLICTS employee slice via workforce application service and actual official BASE process. Explicit employee/local day, existing manager-only employee-calendar authorization and institute lock; current active appointment/session slots and uncancelled absences. Existing active-status constants and exact half-open interval arithmetic reused; no raw SQL/domain rules in Copilot.

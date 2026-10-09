@@ -18,7 +18,7 @@ from app.shared.time import explicit_utc_instant, utcnow
 
 
 class Commitment(Fact):
-    kind: Literal["appointment", "session", "absence"]
+    kind: Literal["appointment", "session", "absence", "reservation"]
     id: Identifier
     start_at: AwareDatetime
     end_at: AwareDatetime

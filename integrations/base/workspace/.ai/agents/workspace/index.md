@@ -33,7 +33,7 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Éviter si**: Signaler un dysfonctionnement de l'assistant. Faire le point sur un dossier en service et dire ce qui pourrait aller mieux dans ses process.
 
 ### Examiner les conflits de planning: [`planning-conflicts`](skills/processes/planning-conflicts/SKILL.md)
-**Quand l'utiliser**: Examiner les conflits de planning; Examiner les conflits de planning; Detecter les chevauchements des engagements
+**Quand l'utiliser**: Examiner les conflits de planning; Examiner les conflits de planning; Detecter les chevauchements des engagements; Examiner les conflits de ressources
 **Éviter si**: Annuler une reservation.
 
 ### Consulter les creneaux libres du planning: [`planning-gaps`](skills/processes/planning-gaps/SKILL.md)

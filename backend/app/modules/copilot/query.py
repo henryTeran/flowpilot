@@ -2,12 +2,13 @@ from types import MappingProxyType
 from typing import Literal
 from datetime import date
 from fastapi import HTTPException
-from pydantic import AwareDatetime, field_validator, model_validator
+from pydantic import AwareDatetime, ConfigDict, TypeAdapter, field_validator, model_validator
 from app.modules.base import audit, query, upstream, read_capabilities as identity
 from app.modules.crm import profile, rebooking
 from app.modules.copilot import planning
 from app.modules.revenue import capacity
 from app.modules.workforce import conflicts
+from app.modules.resources import conflicts as resource_conflicts
 from app.modules.institutes.models import Institute
 from app.modules.services.models import Service
 from app.modules.crm.metrics import Fact
@@ -25,6 +26,7 @@ class Selection(Fact):
     customer_id: identity.ExactId | None = None
     service_id: identity.ExactId | None = None
     employee_id: identity.ExactId | None = None
+    resource_id: identity.ExactId | None = None
     day: date | None = None
 
     @field_validator("day", mode="before")
@@ -48,7 +50,18 @@ class CapacitySelection(Fact):
 
 
 class ConflictsSelection(CapacitySelection):
-    employee_id: identity.ExactId
+    model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
+        {"required": ["employee_id"], "properties": {"employee_id": {"type": "string"}, "resource_id": {"type": "null"}}},
+        {"required": ["resource_id"], "properties": {"resource_id": {"type": "string"}, "employee_id": {"type": "null"}}},
+    ]})
+    employee_id: identity.ExactId | None = None
+    resource_id: identity.ExactId | None = None
+
+    @model_validator(mode="after")
+    def one_target(self):
+        if (self.employee_id is None) == (self.resource_id is None):
+            raise ValueError("Select exactly one employee or resource")
+        return self
 
 
 INPUTS = MappingProxyType({"CLIENT_READ": CustomerSelection, "CLIENT_SUMMARY": CustomerSelection,
@@ -78,7 +91,7 @@ class Capability(Fact):
 
 
 REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, level=level,
-    input_schema=INPUTS[name].model_json_schema(), output_schema=output.model_json_schema(),
+    input_schema=INPUTS[name].model_json_schema(), output_schema=TypeAdapter(conflicts.Read | resource_conflicts.Read).json_schema() if name == "PLANNING_CONFLICTS" else output.model_json_schema(),
     application_service=service) for name, permission, level, output, service in (
         ("CLIENT_READ", "customer_operator", 0, CustomerFacts, "customers.repository.require_customer"),
         ("CLIENT_SUMMARY", "crm_manager", 0, profile.SegmentProfile, "crm.profile.read"),
@@ -86,7 +99,7 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("PLANNING_READ", "planning_operator", 0, query.PlanningFacts, "planning.service.get_day_planning"),
         ("PLANNING_GAPS", "planning_operator", 0, planning.Gaps, "scheduling.service.availability_pool"),
         ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
-        ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read"))})
+        ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"))})
 
 
 class Evidence(Fact):
@@ -94,7 +107,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -109,7 +122,7 @@ class Evidence(Fact):
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
             or any(row.institute_id != self.institute_id for row in self.result.rows)):
             raise ValueError("Availability source scope and capture must match evidence")
-        if isinstance(self.result, conflicts.Read) and (
+        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read)) and (
             self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
             raise ValueError("Conflict source scope and capture must match evidence")
         return self
@@ -136,11 +149,14 @@ def read(db, principal, candidate, router=None):
         selected = {k: v for k, v in request.ui_context.model_dump().items() if v is not None}
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
-            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "day"}}
+            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
-        required = {"customer_id"} if name and name.startswith("CLIENT_") else {"day"} if name == "EMPLOYEE_CAPACITY" else {"employee_id", "day"} if name == "PLANNING_CONFLICTS" else set()
-        if name is None or required - selected.keys():
+        if name == "PLANNING_CONFLICTS" and selected.get("employee_id") and selected.get("resource_id"):
+            raise HTTPException(400, "Select exactly one employee or resource")
+        required = {"customer_id"} if name and name.startswith("CLIENT_") else {"day"} if name in {"EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS"} else set()
+        missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
+        if name is None or required - selected.keys() or missing_target:
             response = Response(request_id=span.id, status="clarification", capability=name,
                 answer="Précisez la consultation et sa sélection cliente ou sa journée explicite.")
         else:
@@ -176,11 +192,17 @@ def read(db, principal, candidate, router=None):
                 result = planning.read_gaps(db, principal.institute_id, request.ui_context.service_id, captured)
                 answer = "Fenêtres du moteur de disponibilité; horaires de travail complets et réservation non établis."
             elif name == "PLANNING_CONFLICTS":
-                result = conflicts.read(db, principal.institute_id, request.ui_context.employee_id, request.ui_context.day)
+                if request.ui_context.resource_id:
+                    result = resource_conflicts.read(db, principal.institute_id, request.ui_context.resource_id, request.ui_context.day)
+                    answer = f"{result.overlap_count} chevauchement(s) de réservations enregistrées pour la ressource sélectionnée."
+                    if result.invalid_source_count or result.overdue_unreleased_source_count or result.resource_status != "active":
+                        answer += " Sources invalides, réservations dépassées ou ressource indisponible : capacité non établie."
+                else:
+                    result = conflicts.read(db, principal.institute_id, request.ui_context.employee_id, request.ui_context.day)
+                    answer = f"{result.overlap_count} chevauchement(s) d'engagements enregistrés pour la collaboratrice; conflits de ressources non couverts."
+                    if result.invalid_source_count or result.overdue_open_source_count:
+                        answer += " Certaines sources sont invalides ou dépassées; le planning réel reste incertain."
                 captured = result.captured_at
-                answer = f"{result.overlap_count} chevauchement(s) d'engagements enregistrés pour la collaboratrice; conflits de ressources non couverts."
-                if result.invalid_source_count or result.overdue_open_source_count:
-                    answer += " Certaines sources sont invalides ou dépassées; le planning réel reste incertain."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at
