@@ -6,6 +6,7 @@ from app.database.session import get_db
 from app.modules.base import query, read_capabilities as identity
 from app.modules.jv import service
 from app.modules.jv import scoring
+from app.modules.jv import economics
 from app.modules.optimizer import sources as optimizer_sources
 from app.modules.optimizer.routes import manager
 from fastapi import HTTPException
@@ -28,3 +29,9 @@ def optimization(institute_id: str, body: optimizer_sources.Request,
     except ValueError as error:
         raise HTTPException(503, "JV optimizer evidence invalid") from error
     return scoring.Response(source=source, analysis=analysis)
+
+
+@router.post("/institutes/{institute_id}/billing-comparison", response_model=economics.Response)
+def billing_comparison(institute_id: str, body: economics.Request,
+                       user=Depends(manager), db: Session = Depends(get_db)):
+    return economics.read(db, institute_id, body)

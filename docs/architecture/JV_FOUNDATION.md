@@ -32,7 +32,17 @@ Les rangs et ex æquo restent ceux du moteur souverain. Un facteur pondéré inc
 
 Validation : **29 tests réussis en 36,80 s**, aucun échec ni test ignoré, incluant routes JV opérationnelles, scoring/revue existants et nouveaux tests signés SQLite/PostgreSQL. Un test supplémentaire de source refusée et de politique étrangère réempreintée réussit (**1 en 3,20 s**). Les tests vérifient réutilisation exacte, contributions/citations, rejet de score et politique altérés, refus RBAC/injection, inconnues pondérées, contraintes et ex æquo du moteur existant. L’observateur SQL confirme zéro mutation pendant lecture et analyse. Zéro schéma temporaire résiduel; serveur temporaire arrêté.
 
-## Acceptation restante de la phase
+## Checkpoint 18D : comparaison des montants observés
+
+`POST /api/v1/jv/institutes/{institute_id}/billing-comparison` reçoit deux fenêtres explicites, positives, ordonnées et sans recouvrement. La permission manager exacte existante reste obligatoire. Le client ne fournit ni montants, ni sources, ni identité de calcul. Le service de CA existant capture chaque cohorte de tickets payés datés et ses lignes actives; JV réutilise ses agrégats vérifiés.
+
+L’analyse expose les écarts de compte de tickets et, séparément pour CHF et EUR, les totaux enregistrés complets et leur différence en unités mineures. Le pourcentage est le ratio exact `100 × différence / baseline`, sans flottant ni conversion de devise. Une base monétaire nulle donne un écart connu mais un pourcentage indisponible. Une devise inconnue ou un groupe de montants incomplet empêche une différence complète; les diagnostics restent explicites. Un groupe de devise absent d’une capture sans devise inconnue représente zéro dans cette cohorte enregistrée.
+
+Les périodes de durées différentes sont signalées; les écarts restent ceux des totaux bruts, sans ajustement quotidien. Les tickets payés sans date sont un diagnostic à l’échelle de l’institut, sans affectation inventée à une période. La source conserve ses fenêtres et ses horodatages de capture distincts; les agrégats ne certifient ni exhaustivité des ventes, ni règlement externe, ni capture globale atomique. Le SHA lie l’analyse à la capture complète et chaque comparaison cite ses deux groupes sources. Les contributions causales restent vides/inconnues : cette comparaison n’attribue pas une baisse de CA à des annulations ou à une capacité inutilisée.
+
+Validation SQLite/PostgreSQL réelle : **23 réussis en 19,82 s**, aucun échec ni test ignoré, avec régression des kernels/sources de CA et du scoring JV. Après typage des montants non négatifs et ajout du diagnostic durée/date/exhaustivité : **6 tests ciblés réussis en 6,53 s**, zéro échec/skip. SHA sources/sorties, comparaison −12,4 % exacte, séparation des devises, baseline nulle, montants/devise inconnus, durées inégales, faux drapeau d’exhaustivité, scope, injections et SQL sans mutation sont vérifiés. Zéro schéma temporaire résiduel; serveur temporaire arrêté.
+
+## Acceptation restante
 
 `JV_RULES`, `JV_EVIDENCE`, `JV_PROVIDER_INDEPENDENCE` restent **PARTIAL** pour la phase entière. Le noyau descriptif seul ne ferme pas la phase.
 

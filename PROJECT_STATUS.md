@@ -1,11 +1,17 @@
 CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18C_EXPLICIT_POLICY_SCORING_EXPLANATIONS
+CURRENT_CHECKPOINT = PHASE18D_OBSERVED_BILLING_COMPARISONS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PARTIAL
+
+PHASE18D_OBSERVED_BILLING_COMPARISONS:
+- Added signed manager-only POST /api/v1/jv/institutes/{institute_id}/billing-comparison. Two explicit aware positive ordered nonoverlapping windows captured by existing revenue sources/billing authority; no client amounts/source/actor/provider. Structured source+analysis with full source/output SHA and citations, exact count/gross-minor differences and rational percent changes separated by CHF/EUR, no floats/conversion.
+- Zero baseline yields known difference/unknown percentage; unknown currency or incomplete amounts block complete differences. Unequal durations explicitly flagged as raw-period-total comparison, no daily normalization. Institute-wide undated-paid diagnostic never becomes a period count. No invented causal contributions, complete-sales/settlement/atomic-global-snapshot claim or actions; original windows/capture clocks retained.
+- Actual isolated SQLite/PostgreSQL JV economics+revenue kernel/source+JV scoring regression23 passed19.82s, zero failures/skips. Final typed amounts/new duration-undated-false-completeness coverage6 passed6.53s, zero failures/skips. Exact -12.4% source scenario, currencies/zero/unknowns, SHA, scope, auth/injection/numeric-clock refusal, overlapping windows and zero SQL writes verified. Temporary schemas0 and server stopped; existing Starlette deprecation only.
+- CHECKPOINT_STATUS = PASS for observed billing comparison. Whole JV_PHASE PARTIAL; NEXT arithmetic source-grounded contribution/explainability rules and complete provider-independent JV closure evidence. Causal attribution remains unavailable unless actually supported by recorded source facts. Full26-phase goal ACTIVE; no native/Linux/production/deployment/persistent mutation claim.
 
 PHASE18C_EXPLICIT_POLICY_SCORING_EXPLANATIONS:
 - Added signed manager-only POST /api/v1/jv/institutes/{institute_id}/optimization reusing existing optimizer selection contract, retained policy SHA/current demand-event SHA/horizon/matching policy and exact manager scope guard. No arbitrary client scores/weights/evidence/provider admitted.
