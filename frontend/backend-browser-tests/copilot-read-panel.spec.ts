@@ -82,6 +82,29 @@ test("rebooking preserves unavailable original sources through real BASE",async 
   await page.screenshot({path:info.outputPath("copilot-rebooking.png"),fullPage:true});
 });
 
+test("recorded capacity binds the selected day through real BASE without reservation authority",async({page},info)=>{
+  const panel=await login(page),posts:any[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push({url:r.url(),body:r.postDataJSON()});});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("EMPLOYEE_CAPACITY");
+  const day="2025-10-26";
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Mesurer la capacite enregistree des collaboratrices");
+  await expect(panel.getByRole("button",{name:"Consulter",exact:true})).toBeDisabled();
+  await panel.getByLabel("Journée terminée").fill(day);
+  const result=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+  const response=await result;expect(response.status()).toBe(200);
+  const evidence=(await response.json()).evidence;
+  expect(evidence.capability).toBe("EMPLOYEE_CAPACITY");expect(evidence.result.day).toBe(day);
+  expect(evidence.result.window.institute_id).toBe(institute);
+  expect(evidence.result.complete_attendance).toBe(false);expect(evidence.result.bookable_capacity).toBeNull();
+  const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});
+  await expect(facts).toContainText(day);await expect(facts).toContainText("capacité réservable ne sont pas établies");
+  await expect(panel.getByRole("alert")).toHaveCount(0);
+  expect(posts).toEqual([{url:`${api}/copilot/query`,body:{message:"Mesurer la capacite enregistree des collaboratrices",ui_context:{day}}}]);
+  await page.screenshot({path:info.outputPath("copilot-capacity.png"),fullPage:true});
+  await panel.getByLabel("Journée terminée").fill("2025-10-27");await expect(facts).toHaveCount(0);
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");

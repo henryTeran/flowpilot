@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_CAPACITY_UI_INCREMENT:
+- Real signed API/official BASE browser capacity acceptance PASS desktop/tablet: suite10 passed1.2m. Explicit completed DST-transition day2025-10-26 bound to returned scope/day; empty date prevents submit, physical/bookable claims remain unavailable, only query POST and date edit clears evidence. Actual cohort has4 employees without usable hours; unknown duration correctly displayed. Screenshots inspected; owned fixture removed,4198/4199 listeners0. Log:.cache/20-capacity-browser.log. This does not prove populated-activity or all remaining phase requirements.
 - Added explicit completed-day EMPLOYEE_CAPACITY UI through official BASE with original validRevenueCapacity validation, selected-day/capture binding and canonical evidence SHA. Passive exact-duration display preserves unavailable attendance/physical/bookable capacity, uncertainty counts and first20 versus whole-cohort totals. No new allocator or business calculation.
 - Build PASS; combined Copilot/capacity10 tests PASS. Initial new empty-cohort fixture incorrectly asserted zero unoccupied duration; original contract correctly requires null, fixture corrected without weakening production guard. Actual browser/BASE capacity acceptance remains pending. Five initial UI capabilities and four progressive UI flows still outstanding; whole goal ACTIVE, Copilot gates PARTIAL.
 

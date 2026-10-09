@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Capacity browser acceptance: real API/official BASE suite10 passes desktop/tablet (1.2m), including selected completed DST day, scoped cohort with missing hours, no physical/bookable authority, only query POST, no empty-date submit and stale evidence cleared on date edit. Both screenshots inspected; fixture cleaned/listeners0. Populated-activity browser case and remaining phase requirements are not covered by this evidence.
+
 Capacity UI increment: EMPLOYEE_CAPACITY now accepts explicit completed day and validates original recorded-capacity source, clock, scope and hash. Build/combined Copilot-capacity10 tests pass; real API/BASE browser acceptance pending. Five other initial UI capabilities and four progressive flows remain outstanding; no phase completion claim.
 
 Rebooking browser evidence: official BASE/real signed API unavailable-source case passes desktop/tablet in8-test suite (1.4m); selected customer, null care candidate, diagnostics/no authority/no phone/only query POST verified. Screenshots inspected and fixture cleaned. Due/already-booked browser acceptance is still pending; phase remains partial.
