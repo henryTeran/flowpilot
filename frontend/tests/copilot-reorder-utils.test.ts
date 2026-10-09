@@ -2,7 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {revenueOriginalFingerprint as hash} from "../src/revenue-scenario-utils";
 import {validReorderPreview,validReorderSelection,validReorderReceipt,type ReorderRequest} from "../src/copilot-reorder-utils";
-import {readRecordedReorderSources,validReorderSources} from "../src/copilot-reorder-sources";
+import {readReorderSources,readRecordedReorderSources,validReorderSources} from "../src/copilot-reorder-sources";
+test("scenario reorder sources bind original selected recipe arithmetic and explicit missing norms",async()=>{
+  const supplier={id:"supplier",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T11:00:00Z",reference:"SUP",name:"Supplier",reason:"Supplier reviewed",idempotency_key:"supplier-key"};
+  const recipe={id:"recipe",institute_id:"own",service_id:"service",revision:1,base_revision:0,enabled:true,entries:[{item_id:"item",quantity:"1.250",unit:"ml"}],reason:"Norm reviewed",actor_id:"manager",idempotency_key:"recipe-key",created_at:"2026-10-09T11:00:00Z"};
+  const scenario={starts_at:"2026-10-10T00:00:00Z",ends_at:"2026-10-11T00:00:00Z",demands:[{service_id:"service",recipe_id:"recipe",quantity:3},{service_id:"missing-service",recipe_id:null,quantity:2}]};
+  const selection={supplier_id:"supplier",item_ids:["item"],pending_order_assumption:"ignore_pending_orders" as const,scenario};
+  const row={item_id:"item",item_sku:"SKU",item_name:"Item",category:"cabine",unit:"ml",on_hand:"1.000",threshold:"4.000",at_or_below_threshold:true,threshold_shortfall:"3.000",pending_order_quantity:"0.000",known_demand:"3.750",complete_demand:null,known_demand_shortfall:"6.750",conditional_shortfall_after_all_orders:"6.750"};
+  const page={institute_id:"own",generated_at:"2026-10-09T12:00:00Z",starts_at:scenario.starts_at,ends_at:scenario.ends_at,source:"explicit_service_volume_scenario",coverage:"partial_selected_norms",demands:scenario.demands.map(d=>({...d,service_name:"Service",recipe_revision:d.recipe_id?1:null,state:d.recipe_id?"enabled":"missing_selected_norm"})),limit:50,offset:0,items:[row]};
+  const calls:string[]=[];const get=async(p:string)=>{calls.push(p);return p.includes("suppliers/")?supplier:recipe;};
+  const post=async(p:string,b:unknown)=>{calls.push(p);assert.deepEqual(b,scenario);return page;};
+  const result=await readReorderSources("own",selection,get,post,()=>true);assert.equal(result?.rows[0].known_demand,"3.750");assert.equal(calls.length,3);assert.ok(calls[1].endsWith("/recipes/recipe"));
+  await assert.rejects(readReorderSources("own",selection,get,async()=>({...page,items:[{...row,known_demand:"4.000",known_demand_shortfall:"7.000",conditional_shortfall_after_all_orders:"7.000"}]}),()=>true),/recipe projection/);
+  await assert.rejects(readReorderSources("own",selection,async p=>p.includes("suppliers/")?supplier:{...recipe,id:"newest"},post,()=>true),/recipe original/);
+  await assert.rejects(readReorderSources("own",selection,async p=>p.includes("suppliers/")?supplier:null,post,()=>true),/missing/);
+});
 test("recorded reorder sources read beyond page one and refuse repeated, missing or stale sources",async()=>{
   const supplier={id:"supplier",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T11:00:00Z",reference:"SUP",name:"Supplier",reason:"Supplier reviewed",idempotency_key:"supplier-key"};
   const row=(i:number)=>({item_id:`item-${i}`,item_sku:`SKU-${i}`,item_name:"Item",category:"cabine",unit:"unit",on_hand:"1.000",threshold:"4.000",at_or_below_threshold:true,threshold_shortfall:"3.000",pending_order_quantity:"0.000",known_demand:"0.000",complete_demand:null,known_demand_shortfall:"3.000",conditional_shortfall_after_all_orders:"3.000"});

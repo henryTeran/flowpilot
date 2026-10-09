@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_SCENARIO_SOURCE_READER:
+- Extended native source reader to explicit multi-service forecast scenarios: exact selected recipe ID reads, institute/service validation and original norm arithmetic checked for every paginated stock row. Missing selected norms retained as partial coverage; demand summaries must remain identical across pages. Forecast POST is the existing read-only inventory projection, not proposal creation.
+- Build PASS and eight combined reorder source/contract/recovery tests PASS, including original selected recipe quantities, missing norm coverage, arithmetically coherent but norm-inconsistent projection, substituted recipe ID and absent original refusal. Form mounting, full enabled/disabled scenario UI acceptance and actual API/BASE browser evidence remain required. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_RECORDED_SOURCE_READER:
 - Added scoped native supplier and paginated recorded-stock reads, preserving source row order and supporting selected items beyond the first50. Invalid pages, duplicate IDs/SKUs across pages, missing selected rows and stale session callbacks refused. Explicitly limited to scenario=null; selected recipe originals and scenario source reads remain required.
 - Build PASS and seven combined reorder contract/recovery/source tests PASS, including selection across pages and duplicate/missing/stale sources. Reader is not yet mounted in a form; full scenario UI and actual API/BASE browser acceptance remain outstanding. Goal ACTIVE; phase gates PARTIAL.
