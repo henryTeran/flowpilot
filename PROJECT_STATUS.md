@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20G_COMMERCIAL_CAPACITY_OPPORTUNITIES_PASS
+CURRENT_CHECKPOINT = PHASE20H_CLOSURE_BASED_LOSS_ANALYSIS_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20H_CLOSURE_BASED_LOSS_ANALYSIS:
+- Added REVENUE_LOSS_ANALYSIS via actual official BASE process, signed manager and explicit observed start/end period. Adapter calls original booking-closure/walk-in-cancellation readers; existing kernels verify full-cohort original transitions/retained terms, including off-page corruption. No copied valuation/cancellation rules, arbitrary client amounts or provider calls.
+- Minimal full aggregate13-cancelled/12-no-show test counts, unpriced/terminal-without-event diagnostics,25 retained walk-in terms/legacy count and original currency/amount quality groups. Individual customer/actor/ticket/line records and opportunities excluded. Per-reader windows/capture clocks and reader-response SHA retained (bounded reader page included in digest, not every database event/signature); financial_lossnull, causal_loss_provenfalse, complete_historyfalse. No mutation or action.
+- Official corpus23 resources/routing44/44 PASS. Loss/customer discovery regression5 passed19.36s, zero failures/skips, real SQLite/PostgreSQL. Original source fixture exercises historical-price invariance, unknown/invalid/missing amounts, off-page altered terms/transitions and duplicate-event refusal before signed API projection. Exact counts/read digests/amount groups/response SHA, roles/selections/invalid periods/privacy and zero SQL writes verified. Temporary schemas0 and owned55473 PostgreSQL stopped.
+- CHECKPOINT_STATUS = PASS for recorded closure-based loss analysis with causal uncertainty preserved. NEXT stock READ/FORECAST, initial capability scope audit including remaining revenue opportunity sources, progressive guarded preparation/execution and packaged Linux Copilot acceptance. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20G_COMMERCIAL_CAPACITY_OPPORTUNITIES:
 - Registered REVENUE_OPPORTUNITIES at SUGGEST level through actual official BASE process and original revenue.slot_opportunities.read/waiting projection engine. Signed manager permission, explicit selected active service and positive aware future horizon, missing selection clarification and unrelated fields refused. No copied queue/qualification/resource allocation rules, forecast money or provider call.

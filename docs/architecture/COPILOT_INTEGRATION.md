@@ -19,6 +19,7 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 | PLANNING_CONFLICTS | workforce.conflicts.read / resources.conflicts.read | institute manager only | Selected employee OR resource/day overlaps and explicit invalid/overdue diagnostics |
 | REVENUE_SUMMARY | revenue.sources.read | institute manager only | Explicit observed period recorded paid-ticket/active-line aggregates, currency-separated amounts and original quality diagnostics |
 | REVENUE_OPPORTUNITIES | revenue.slot_opportunities.read | institute manager only | Explicit service/future horizon conditional queue and capacity projection, or original unavailable reason |
+| REVENUE_LOSS_ANALYSIS | revenue.closures.read / revenue.walk_in_cancellations.read | institute manager only | Aggregate recorded closures, retained commercial amounts and unknown causal financial loss |
 
 No external language provider is called and no raw customer facts are sent to BASE routing. Only the message reaches the framework. Responses contain source facts, capture/completion clocks, SHA256 integrity and no actions. SHA256 is neither a signature nor a retained business original. BASE operational correlation records signed scope, interaction ID and digests without raw messages or customer facts.
 
@@ -52,7 +53,7 @@ Reservation overlaps use the same exact half-open intersection calculation and d
 
 REVENUE_SUMMARY accepts explicit aware `start` and `end` instants from UI selection. Signed institute manager permission is required before source dispatch; unrelated customer/employee/service selections are refused. The existing locked revenue source service enforces an observed positive half-open period and calculates the full paid-ticket cohort and nonremoved invoice-line aggregates. Capture clocks and the entire typed aggregate are preserved, without customer/ticket/line records or external provider calls.
 
-CHF/EUR and unknown currency remain separate. Missing or invalid recorded amounts do not become complete revenue; the source's institute-wide undated-paid diagnostic is not assigned to the selected period. Recorded billing is not a proof of settlement, complete sales or causal financial loss. REVENUE_LOSS_ANALYSIS remains open for a separate source-backed integration.
+CHF/EUR and unknown currency remain separate. Missing or invalid recorded amounts do not become complete revenue; the source's institute-wide undated-paid diagnostic is not assigned to the selected period. Recorded billing is not a proof of settlement, complete sales or causal financial loss.
 
 ## Commercial capacity opportunities (20G)
 
@@ -60,6 +61,12 @@ REVENUE_OPPORTUNITIES reuses the existing commercial slot reader and its waiting
 
 The typed source retains capture time, required skills/resources, prior queue count and conditional projected slot. Estimated financial value stays null; capacity is not reserved and no assignment is executed. Opening hours and capacity must be checked again before any subsequent domain action. This is the commercial-capacity opportunity slice, not a claim that all revenue opportunities have been exhausted; closure follow-up, retained valuations and scenario integrations remain distinct sources for later scope audit.
 
+## Closure-based loss analysis (20H)
+
+REVENUE_LOSS_ANALYSIS requires manager authorization and an explicit observed period. The adapter invokes both existing institute-locked source readers, which validate original booking closure transitions and retained walk-in cancellation terms across their full cohorts, including records beyond their returned pages. It projects full aggregate cancellation/no-show/unpriced counts, terminal bookings without events, retained terms/legacy counts and currency-separated recorded commercial amount groups. Customer, actor, booking/ticket/line dossiers and individual follow-up suggestions are omitted.
+
+Each projected group preserves its original observation window and a digest of the complete reader response, including that reader's bounded default page; this is not a digest of every underlying database event or a retained/signature proof. Both readers share the transaction's institute lock but retain separate capture clocks. No timing is rewritten into an invented common capture. Financial loss remains null, causal-loss proof false and complete history false. Missing, invalid and unknown-currency amounts remain exactly as represented by the sovereign source kernels. Historical commercial terms are neither revenue realized nor money causally lost; the model supplies no causes or estimates.
+
 ## Remaining phase gates
 
-COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending all initial planning, revenue, stock and employee capabilities in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.
+COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending stock integrations and the complete initial capability scope audit in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.
