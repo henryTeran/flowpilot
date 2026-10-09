@@ -173,6 +173,31 @@ test("loss analysis retains separate real source clocks and unknown financial lo
   await page.screenshot({path:info.outputPath("copilot-losses.png"),fullPage:true});
 });
 
+test("all opportunity sources use explicit selections through real BASE",async({page},info)=>{
+  const panel=await login(page),posts:any[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push(r.postDataJSON());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("REVENUE_OPPORTUNITIES");
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Examiner les opportunites de revenus");
+  const source=panel.getByRole("combobox",{name:"Source des opportunités",exact:true});
+  async function consult(){
+    const pending=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+    await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+    const response=await pending;expect(response.status()).toBe(200);const result=await response.json();expect(result.capability).toBe("REVENUE_OPPORTUNITIES");
+    await expect(panel.getByRole("region",{name:"Réponse du Copilot",exact:true})).toBeVisible();await expect(panel.getByRole("alert")).toHaveCount(0);return result.evidence.result;
+  }
+  await source.selectOption("capacity");await panel.getByRole("combobox",{name:"Prestation sélectionnée",exact:true}).selectOption("svc-aisselles");
+  await panel.getByLabel("Horizon local").fill("2026-10-25T02:30");
+  await panel.getByRole("combobox",{name:"Occurrence de l’heure répétée",exact:true}).selectOption("2026-10-25T01:30:00.000Z");
+  const capacity=await consult();expect(capacity.service_id).toBe("svc-aisselles");expect(new Date(capacity.horizon_end).toISOString()).toBe("2026-10-25T01:30:00.000Z");
+  expect(posts[0].ui_context).toEqual({opportunity_source:"capacity",service_id:"svc-aisselles",horizon_end:"2026-10-25T01:30:00.000Z"});
+  await source.selectOption("rebooking");await expect(panel.getByRole("region",{name:"Réponse du Copilot",exact:true})).toHaveCount(0);
+  const returns=await consult();expect(returns.source).toBe("observed_care_declared_rebooking_rule");expect(returns.delivery_authorized).toBe(false);expect(posts[1].ui_context).toEqual({opportunity_source:"rebooking"});
+  await source.selectOption("closures");await panel.getByLabel("Début de période").fill("2025-10-26");await panel.getByLabel("Fin de période exclue").fill("2025-10-27");
+  const closures=await consult();expect(closures.source).toBe("recorded_closure_follow_up");expect(closures.estimated_recovered_revenue).toBeNull();expect(closures.delivery_authorized).toBe(false);
+  expect(posts[2].ui_context).toEqual({opportunity_source:"closures",start:"2025-10-25T22:00:00.000Z",end:"2025-10-26T23:00:00.000Z"});expect(posts).toHaveLength(3);
+  await page.screenshot({path:info.outputPath("copilot-opportunities.png"),fullPage:true});
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");

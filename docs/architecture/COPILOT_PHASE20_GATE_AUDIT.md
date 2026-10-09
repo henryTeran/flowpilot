@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Opportunity browser baseline: real signed API/official BASE18-test suite passes desktop/tablet (1.7m), all three exclusive source selections, second repeated local-hour capacity instant, selected closure DST period, source-switch evidence clear and no contact/recovered-revenue authority. Closure screenshots inspected, fixture cleaned/listeners0. Populated candidate/retained-value and projected-slot visual cases remain acceptance gaps. Forecast UI and four progressive flows still outstanding; gates remain partial.
+
 Opportunity local-horizon controls: local institute date/time now reuses original instituteInstants; dedicated Copilot13-test suite verifies skipped hour/no query, repeated hour/explicit occurrence, exact selected UTC and reset after editing. Technical ISO text entry removed. Actual API/official BASE browser opportunity acceptance remains outstanding; no phase closure claim.
 
 Opportunity integrated DOM acceptance: all three source selections exercised through actual Copilot form/common evidence guards in12-test suite; exclusive payloads, verified passive displays, source-switch field/result reset and incomplete-selection no request/correction messages pass. These synthetic sources are not actual API/BASE browser evidence; that acceptance and horizon product refinement remain outstanding.
