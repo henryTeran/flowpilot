@@ -206,6 +206,17 @@ test("revenue controls bind institute midnight period and keep mixed currencies 
   }finally{await act(async()=>root.unmount());}
 });
 
+test("loss consultation binds selected period and shows uncertainty without a financial loss",async()=>{
+  const period={start:"2026-10-07T22:00:00.000Z",end:"2026-10-08T22:00:00.000Z"},window={institute_id:"own",...period,captured_at:clock};
+  const source={institute_id:"own",captured_at:clock,bookings:{window,source_digest:"a".repeat(64),cancelled_count:2,no_show_count:1,unpriced_count:3,institute_terminal_bookings_without_closure_event:1},walk_ins:{window,source_digest:"b".repeat(64),retained_terms_count:0,legacy_unpriced_count:1,retained_amounts:[]},causal_loss_proven:false,complete_history:false,financial_loss:null,basis:"recorded_closure_events_not_causal_financial_loss"};
+  assert.ok(await validReadResponse(await answer("REVENUE_LOSS_ANALYSIS",source),"own","REVENUE_LOSS_ANALYSIS",period));
+  assert.equal(await validReadResponse(await answer("REVENUE_LOSS_ANALYSIS",{...source,financial_loss:"100"}),"own","REVENUE_LOSS_ANALYSIS",period),false);
+  setAccessToken(token());const queries:any[]=[];
+  globalThis.fetch=async(url,init)=>String(url).endsWith("/capabilities") ? reply(discovery()) : (queries.push(JSON.parse(init!.body as string)),reply(await answer("REVENUE_LOSS_ANALYSIS",source)));
+  const root=createRoot(document.getElementById("root")!);
+  try{await render(root);await settle();await fill("Consultation","REVENUE_LOSS_ANALYSIS");await fill("Début de période","2026-10-08");await fill("Fin de période exclue","2026-10-09");await fill("Votre question","Examiner les pertes enregistrees");await click("Consulter");assert.deepEqual(queries[0].ui_context,period);assert.match(document.body.textContent!,/2 annulation/);assert.match(document.body.textContent!,/3 événement/);assert.match(document.body.textContent!,/perte financière causale non établis/);await fill("Début de période","2026-10-07");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);}finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

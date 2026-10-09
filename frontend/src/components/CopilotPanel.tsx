@@ -13,6 +13,7 @@ import { formatWorkDuration } from "../work-hours-utils";
 import type { ConflictRead } from "../copilot-conflict-utils";
 import { revenueMoney, type RevenueBilling } from "../revenue-utils";
 import { instituteMidnight } from "../outlook-utils";
+import type { LossRead } from "../copilot-loss-utils";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -73,7 +74,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
-    if(name==="REVENUE_SUMMARY"){
+    if(name==="REVENUE_SUMMARY" || name==="REVENUE_LOSS_ANALYSIS"){
       const start=instituteMidnight(periodStart,timezone),end=instituteMidnight(periodEnd,timezone);
       if(!start || !end || certificationInstant(start)!>=certificationInstant(end)!){setError("Choisissez une date de fin postérieure au début de la période.");return;}
       selection.start=start;selection.end=end;
@@ -103,6 +104,17 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if(evidence.capability==="REVENUE_LOSS_ANALYSIS"){
+      const value=evidence.result as LossRead;
+      return <><p>Événements enregistrés sur la période sélectionnée. Historique complet et perte financière causale non établis.</p>
+        <h4>Rendez-vous</h4><p>Sources lues le {date(value.bookings.window.captured_at)}.</p>
+        <p>{value.bookings.cancelled_count} annulation(s), {value.bookings.no_show_count} absence(s) au rendez-vous, {value.bookings.unpriced_count} événement(s) sans prix retenu.</p>
+        <p>{value.bookings.institute_terminal_bookings_without_closure_event} rendez-vous terminé(s) sans événement de clôture dans l’institut.</p>
+        <h4>Passages sans rendez-vous</h4><p>Sources lues le {date(value.walk_ins.window.captured_at)}.</p>
+        <p>{value.walk_ins.retained_terms_count} annulation(s) avec conditions commerciales conservées ; {value.walk_ins.legacy_unpriced_count} annulation(s) historique(s) sans prix.</p>
+        {value.walk_ins.retained_amounts.map(group=><p key={group.currency || "unknown"}>{group.currency || "Devise inconnue"} : {revenueMoney(group.known_gross_minor)} de valeur commerciale connue, {group.missing_amount_count} montant(s) manquant(s), {group.invalid_amount_count} montant(s) invalide(s).</p>)}
+        <p>Ces valeurs commerciales ne prouvent ni un revenu encaissé ni une perte récupérable.</p></>;
+    }
     if(evidence.capability==="REVENUE_SUMMARY"){
       const value=evidence.result as RevenueBilling;
       return <><p>Du {date(value.window.start)} au {date(value.window.end)} (fin exclue). Historique complet et encaissement bancaire non établis.</p>
@@ -183,7 +195,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
-        {name === "REVENUE_SUMMARY" && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
+        {(name === "REVENUE_SUMMARY" || name === "REVENUE_LOSS_ANALYSIS") && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
         {name === "PLANNING_CONFLICTS" && <><label>Journée à examiner<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>
           <button type="button" onClick={()=>void loadResources()}>Lire les ressources</button>
           <label>Collaboratrice ou ressource<select value={target} onChange={event=>{edit();setTarget(event.target.value);}}><option value="">Choisir une référence</option>{employees.filter(r=>r.institute_id===institute).map(r=><option key={r.id} value={`employee:${r.id}`}>{r.first_name}</option>)}{resourceChoices.map(r=><option key={r.id} value={`resource:${r.id}`}>{r.name}</option>)}</select></label></>}

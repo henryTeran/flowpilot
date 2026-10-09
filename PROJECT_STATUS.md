@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_LOSS_UI_WIRING_INCREMENT:
+- Connected REVENUE_LOSS_ANALYSIS to explicit institute civil-date period, official BASE query and common evidence SHA with original loss-source validation. Passive UI separates booking cancellations/no-shows/unpriced and institute missing-event counts from retained/legacy walk-in terms and currencies. Independent source clocks remain visible; financial loss/recovery/complete-history claims remain unavailable.
+- Build PASS; combined loss/Copilot11 tests PASS including selected period, original counts, null financial-loss refusal and clearing edited evidence. Real signed API/BASE browser acceptance remains pending. Two initial UI capabilities (opportunities and stock forecast) and all four progressive flows remain outstanding; whole goal ACTIVE, all phase gates PARTIAL.
+
 PHASE20_LOSS_UI_CONTRACT_FOUNDATION:
 - Added closed original copilot.losses.Read validator, selected institute/period/capture, independent booking/walk-in clocks and max capture, source digests/counts, booking unpriced partition, original currency amount checks and retained-cohort sums. Financial loss remains null, causal loss/history false; no inferred economic loss.
 - Build PASS and targeted source test PASS (independent microsecond clocks and wrong scope/period/count/contact fields/financial claims refused). Not yet connected to Copilot controls/rendering; dedicated UI and real API/BASE browser evidence remain outstanding. Whole goal ACTIVE, all Copilot gates PARTIAL.
