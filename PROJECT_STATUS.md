@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_CREATION_DECLINE_BROWSER_ACCEPTANCE:
+- Actual signed API/official BASE creation suite4 PASS57.9s desktop/tablet (.cache/20-creation-decline-browser.log): positive human decline survives deliberately lost acknowledgement and reload, independently recovers original decision without second decision POST, displays retained refusal/reason and removes approval/decline/revoke/execution controls. No appointments before or after; exactly preview/preparation/decision browser POSTs. Existing positive execution/recovery/resource cases also pass.
+- Final decline screenshots inspected and owned fixture removed. Positive decline browser gap is closed; revocation, expiry/races/damaged-source browser paths and move/marketing/reorder interfaces remain open. Full goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_CREATION_BROWSER_ACCEPTANCE:
 - Real signed API/pinned official BASE creation lifecycle PASS on desktop/tablet:2 tests,43.7s (.cache/20-creation-browser-resources.log). Explicit reviewed customer/name/phone/notes/interval and room survive preview, retained preparation, separate human approval, execution and lost-response reload recovery. Preparation/approval leave appointments empty; execution creates exactly one booking; recovery emits no second execution POST.
 - Another qualified employee can preview the same room before execution, then receives the specific resource-unavailability refusal after reservation. No second booking. Final screenshots inspected, owned fixture removed, listeners4198/4199=0. First run exposed a test-only expectation that frozen fields were enabled after reload; corrected helper, then both final runs passed.
