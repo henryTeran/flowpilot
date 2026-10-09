@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21N_CURRENT_LINUX_APPLICATION_REGRESSION:
+- Current application Linux/PostgreSQL regression:74 PASS348.60s (.cache/21-cached-runtime-regression.log), terminal exit0, temporary schemas0 and invocation-owned cleanup. Includes7 Voice tests plus existing67 Copilot/BASE/domain/migration tests. Exact validated runtime sha256:0ab9df22afd9ee645dd09c66f4c447a964ef19b1e53733d812738af23427b5f4 from98b4050, unchanged Dockerfile/dependencies/BASE verified against working tree with Windows checkout normalization; entire current app replaced. Derived image sha256:a731c8df59f8f3a5afe53af6660cbd21f3aa7ab50b3b290b61b7cb1041d31faf, Python3.12.15/Node22.23.3/PostgreSQL16.14. Explicit --cached-runtime regression avoids dependency rebuild; full Dockerfile attempts failed registry504 before tests. No fresh dependency/image build claim. Voice audit/privacy and real audio acceptance remain; gates PARTIAL, goal ACTIVE.
+
 PHASE21M_VOICE_RESPONSE_DISPOSAL_ACCEPTANCE:
 - Voice response integrity/disposal acceptance:2 PASS1.2m desktop/tablet (.cache/21-voice-disposal-browser.log). Actual signed API/official BASE with offline STT: transport changes transcript without digest; UI refuses facts/handoff, then native retry succeeds. Third native reply held until navigation; reopening has no retained audio/transcript, submit disabled. Three preview POSTs only/no domain action. Initial2 failures were incorrect test button name, corrected to existing label; no production edit. Fixture removed/terminal exit0. Real speech and remote Voxtral remain unproven; current environment has no configured STT selector/model/Mistral key (values not disclosed). Voice gates PARTIAL, goal ACTIVE.
 
