@@ -1,5 +1,8 @@
 # Copilot integration — phase 20
 
+Push marketing refusal acceptance:2 PASS42.3s desktop/tablet (.cache/20-marketing-push-refusal-browser.log). Native retained push audience has eligible_count0 because recorded permission is unsupported_channel; literal push original template selected. Copilot displays admissible-audience refusal, no preview/retain control and zero UI POSTs; native campaign catalogue unchanged. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. This is local eligibility refusal, not BASE routing evidence (no language request dispatched). No production change; package67/frontend584 baselines remain current. Historical catalogue pagination and other named progressive variants remain open; goal ACTIVE, Phase20 PARTIAL.
+
+
 SMS marketing browser acceptance:2 PASS58.9s desktop/tablet (.cache/20-marketing-sms-browser.log), actual signed API/pinned official BASE. Native explicit SMS marketing permission, retained NEW audience and SMS original template with null subject/literal placeholder/whitespace/emoji. Preview and stored DRAFT retain exact body/source identities; lost retention acknowledgement recovered after reload, exactly one retention POST/one new campaign, external_message_sent and delivery_authorized false. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Email and SMS positive paths proved; push is domain unsupported_channel and needs adverse UI acceptance, as do historical catalogue pagination and remaining adverse variants. Whole goal ACTIVE, Phase20 gates PARTIAL.
 
 
