@@ -38,5 +38,25 @@ test("BASE rebooking reads completed care, explicit policy and linked active boo
   const booking=await post("/appointments",{institute_id:institute,employee_id:"emp-angela",service_id:"svc-aisselles",customer_id:customer.id,customer_name:name,start_time:`${day}T09:00:00Z`,idempotency_key:key+"-booking"});
   const path=`/appointments?institute_id=${institute}&day=${day}`,before=await get(path);
   const booked=await consult("already_booked","Rendez-vous actif déjà enregistré");expect(booked.active_bookings.map((b:any)=>b.appointment_id)).toEqual([booking.id]);expect(booked.candidate.source).toEqual(available.candidate.source);
-  expect(await get(path)).toEqual(before);expect(await get(policies+"/current")).toEqual(previous);expect(writes).toEqual(Array(4).fill(`${api}/copilot/query`));
+  expect(await get(path)).toEqual(before);expect(await get(policies+"/current")).toEqual(previous);
+  const second=await post(`/customers/institutes/${institute}`,{display_name:`Reprise institut ${info.project.name}`,idempotency_key:key+"-second"});
+  const secondTicket=await post("/tickets",{institute_id:institute,service_id:"svc-aisselles",customer_id:second.id,idempotency_key:key+"-second-ticket"});
+  const secondSession=await post("/planning/sessions/start",{ticket_id:secondTicket.id,service_id:"svc-aisselles",employee_id:"emp-angela"});
+  const completed=await request.patch(`${api}/planning/sessions/${secondSession.id}/finish`,{headers});expect(completed.status(),await completed.text()).toBe(200);
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("REVENUE_OPPORTUNITIES");await panel.getByRole("combobox",{name:"Source des opportunités",exact:true}).selectOption("rebooking");await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Examiner les opportunites de revenus");
+  async function instituteReturns(expectedTotal:number){
+    const original=await get(`/revenue/institutes/${institute}/rebooking`),appointmentsBefore=await get(path);
+    const pending=page.waitForResponse(r=>r.url().endsWith("/copilot/query")&&r.request().method()==="POST");await panel.getByRole("button",{name:"Consulter",exact:true}).click();const response=await pending;expect(response.status()).toBe(200);const evidence=(await response.json()).evidence,value=evidence.result;
+    expect(evidence.capability).toBe("REVENUE_OPPORTUNITIES");expect(value.source).toBe("observed_care_declared_rebooking_rule");expect(value.total_candidates).toBe(expectedTotal);expect(value.total_candidates).toBe(original.page.total);
+    for(const field of ["examined_customers","already_booked_customers","scheduled_customers","disabled_customers","no_candidate_customers","diagnostics"])expect(value[field]).toEqual(original[field]);
+    const stable=(candidate:any)=>{const {captured_at,...facts}=candidate;return facts;};
+    expect(value.candidates.map(stable)).toEqual(original.opportunities.map((row:any)=>stable(row.candidate)));
+    expect(value.delivery_authorized).toBe(false);expect(value.action_executed).toBe(false);expect(value.complete_customer_history).toBe(false);expect(value.estimated_value).toBeNull();
+    const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});await expect(facts).toContainText(`Premières ${expectedTotal} candidates sur ${expectedTotal}`);await expect(facts).toContainText("Aucun message envoyé ni revenu estimé");await expect(panel).not.toContainText("+33999111222");await expect(panel.getByRole("alert")).toHaveCount(0);
+    expect(await get(path)).toEqual(appointmentsBefore);expect(await get(policies+"/current")).toEqual(previous);await page.screenshot({path:info.outputPath(`rebooking-institute-${expectedTotal}.png`),fullPage:true});return value;
+  }
+  const due=await instituteReturns(1);expect(due.candidates[0].customer_id).toBe(second.id);expect(due.candidates[0].source.source_id).toBe(secondTicket.id);expect(due.candidates[0].policy_original_id).toBe(previous.id);expect(due.already_booked_customers).toBeGreaterThanOrEqual(1);
+  await post("/appointments",{institute_id:institute,employee_id:"emp-angela",service_id:"svc-aisselles",customer_id:second.id,customer_name:second.display_name,start_time:`${day}T10:00:00Z`,idempotency_key:key+"-second-booking"});
+  const suppressed=await instituteReturns(0);expect(suppressed.candidates).toEqual([]);expect(suppressed.already_booked_customers).toBe(due.already_booked_customers+1);
+  expect(writes).toEqual(Array(6).fill(`${api}/copilot/query`));
 });
