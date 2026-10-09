@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21D_VOICE_AUDIO_IMPORT_UI:
+- Manager Copilot audio mode imports compatible bounded file, explicit transcription POST and exact signed-scope/transcript-digest response validation. Loading/error/silence states, sequence/unmount/session guards, no persisted audio or automatic domain action. TypeScript/Vite build PASS; validator1 PASS674ms covers scope/actor/transcript substitution and silence. Initial build caught redundant early-return mode comparison, fixed with shared mode navigation. Actual DOM/browser/API audio import acceptance, microphone capture, reviewed typed form handoff and real STT remain required. Prior frontend584 is historical after this UI change; Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21C_VOICE_RESPONSE_BINDING:
 - Preview now includes signed actor/institute/role and validates exact transcript SHA against official route, routed context versus clarification and silent no-route boundary. Contradictory bridge result controlled503. Seven focused service/HTTP tests PASS3.86s; UI/audio capture and reviewed typed capability handoff remain next. No real STT acceptance, Voice gates PARTIAL, goal ACTIVE.
 

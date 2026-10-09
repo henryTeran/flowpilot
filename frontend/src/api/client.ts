@@ -50,3 +50,5 @@ async function request<T>(path: string, options: RequestInit): Promise<T> {
 
   return payload as T;
 }
+
+export async function apiAudio<T>(path:string,audio:Blob):Promise<T>{return request<T>(path,{method:"POST",headers:{"Content-Type":audio.type},body:audio});}

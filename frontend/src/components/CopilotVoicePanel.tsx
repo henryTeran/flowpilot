@@ -1,0 +1,12 @@
+import {useEffect,useRef,useState} from "react";
+import {apiAudio} from "../api/client";
+import {getAccessToken,getOperatorInstitute,getOperatorSubject,getOperatorRole} from "../api/session";
+import {validVoicePreview,type VoicePreview} from "../voice-utils";
+export function CopilotVoicePanel({institute}:{institute:string}){
+ const [file,setFile]=useState<File>(),[busy,setBusy]=useState(false),[error,setError]=useState(""),[preview,setPreview]=useState<VoicePreview>();const sequence=useRef(0),mounted=useRef(false);const token=getAccessToken(),actor=getOperatorSubject();
+ useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;sequence.current++;};},[]);
+ const current=(n:number)=>mounted.current&&sequence.current===n&&token===getAccessToken()&&actor===getOperatorSubject()&&institute===getOperatorInstitute()&&getOperatorRole()==="responsable_institut";
+ async function transcribe(){if(busy||!file||!actor)return;const n=++sequence.current;setPreview(undefined);setError("");if(!file.size||file.size>10000000||!["audio/wav","audio/mpeg","audio/webm","audio/mp4","audio/ogg"].includes(file.type)){setError("Choisissez un fichier audio compatible de moins de 10 Mo.");return;}setBusy(true);try{const v=await apiAudio<VoicePreview>("/copilot/voice/preview?language=fr",file);if(!current(n))return;if(!await validVoicePreview(v,institute,actor))throw Error("Invalid voice preview");if(current(n))setPreview(v);}catch{if(current(n))setError("Transcription indisponible ou à vérifier. Vous pouvez réessayer.");}finally{if(current(n))setBusy(false);}}
+ if(getOperatorRole()!=="responsable_institut"||institute!==getOperatorInstitute())return null;
+ return <section className="copilot-panel" aria-label="Copilot vocal"><h2>Demande vocale</h2><p>Importez un audio en français puis relisez sa transcription.</p><label>Fichier audio<input type="file" accept="audio/wav,audio/mpeg,audio/webm,audio/mp4,audio/ogg" disabled={busy} onChange={e=>{sequence.current++;setFile(e.target.files?.[0]);setPreview(undefined);setError("");}}/></label><button type="button" disabled={busy||!file} onClick={()=>void transcribe()}>Transcrire l’audio</button>{busy&&<p role="status">Transcription en cours…</p>}{error&&<p role="alert">{error}</p>}{preview&&<article aria-label="Transcription relue"><h3>Transcription</h3><p>{preview.status==="silent"?"Aucune parole reconnue.":preview.transcript}</p><p>Aucune action effectuée. Relisez le texte avant de choisir votre parcours dans le Copilot.</p></article>}</section>;
+}
