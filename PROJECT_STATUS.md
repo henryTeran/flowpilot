@@ -2,6 +2,11 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_BROWSER_ACCEPTANCE:
+- Actual signed API/pinned official BASE reorder browser lifecycle2 PASS51.9s desktop/tablet (.cache/20-reorder-browser.log). Explicit owned supplier/item and ignore-pending assumption produce exact3.750ml proposal from5.000ml threshold/1.250ml stock. Lost retention acknowledgement then reload independently recovers same original with exactly one retention POST; key/ID receipt equals retained result. Actual item snapshot, movement list and purchase-order list unchanged across preview/retention/recovery.
+- Owned isolated fixture removed, listeners4198/4199=0; screenshots inspected. PowerShell wrapper reports exit1 while redirected native warning stream includes bcrypt/NO_COLOR warnings; Playwright reports2 passed and cleanup completes. No production source correction needed for this exercised path. Full584 frontend/build evidence remains current.
+- This proves recorded-stock/no-pending single-item flow, not full scenario or every adverse case. Scenario enabled/disabled norms, pending orders, large/multi-page selections, refusal/race/damaged-source browser cases remain. Screenshots expose technical coverage labels and dense table/checkbox presentation requiring UI polish. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_FORM_INCREMENT:
 - Added manager-only Copilot reorder mode with explicit paginated supplier/item catalogues, up to50 selected items retained across pages, mandatory pending-order assumption and optional multi-service scenario using original recipe selection and institute-local midnight periods. Native source reads and exact selection/source digest required before official BASE preview. Edited terms clear evidence; stale/scope responses ignored.
 - Explicit reason and frozen actor/institute request driver connected to proposal retention. Lost response blocks replacement; resume independently rereads key and original ID before displaying retained quantities. No purchase/contact/payment/receipt/stock action controls. Build and nine targeted reorder tests PASS, including integrated lost-response mode reopen/recovery with one retention POST. Full frontend584 PASS,0 failures/skips114.47s (.cache/20-reorder-frontend.log).
