@@ -29,6 +29,8 @@ def invoke(method, request, result_model):
         raw = method(request)
     except (TimeoutError, ProviderTimeout) as error:
         raise ProviderTimeout() from error
+    except InvalidProviderResponse as error:
+        raise InvalidProviderResponse() from error
     except Exception as error:
         raise ProviderUnavailable() from error
     try:

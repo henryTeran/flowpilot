@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 19
-CURRENT_CHECKPOINT = PHASE19A_TYPED_PORTS_AND_OFFLINE_FAKES
+CURRENT_CHECKPOINT = PHASE19B_ISOLATED_OPENAI_RESPONSES_AND_EMBEDDINGS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -7,6 +7,12 @@ BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PARTIAL
+
+PHASE19B_ISOLATED_OPENAI_RESPONSES_AND_EMBEDDINGS:
+- Official Responses/embedding docs consulted via openai-docs. Added only app.ai.openai_adapter importing real SDK pinned openai2.54.0. Injected client/explicit server model names; typed LLM Responses request max output/storefalse/no tools, optional strict JSON schema, fail-closed incomplete/refusal/unrequested tool/invalid JSON. Embeddings float ordered by exact complete integer indexes with strict vector validation; no domain imports/authority.
+- Adapter SDK timeout/unavailability normalized; common boundary preserves invalid-response category. Clients expose close lifecycle. No business-route remote activation, default model, real credential, SDK STT or remote qualification claim; selection/runtime settings remain next work.
+- First real-SDK mocked-HTTP +port regression16 passed2.48s; final18 passed2.60s, zero failures/skips after401/refusal/tool/embedding index cases. Request serialization/storefalse/schema, SDK parsing, timeout401 stable private-free public messages, retry0/single call, embedding order/duplicate rejection verified with MockTransport only. Existing Starlette/intentional unsafe-copy warnings only.
+- CHECKPOINT_STATUS = PASS for isolated OpenAI LLM/embedding adapter; AI_PROVIDER_PHASE PARTIAL. NEXT isolated Voxtral transcription SDK, explicit runtime selection/configuration/timeouts and full provider-layer acceptance. Docs retain API sources and no universal retention claim from storefalse. Whole26-phase goal ACTIVE; no deployment/persistent mutation/remote charges.
 
 PHASE19A_TYPED_PORTS_AND_OFFLINE_FAKES:
 - Added app.ai provider-independent LLMProvider/SpeechToTextProvider/EmbeddingProvider protocols and bounded strict/frozen DTOs for messages, structured JSON/text, binary audio and finite equal-dimension embeddings. No SDK/domain import or business authority in provider contracts. Transport limits are not tokenizer/audio-decoder quality claims.

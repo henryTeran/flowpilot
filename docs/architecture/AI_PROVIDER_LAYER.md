@@ -14,6 +14,16 @@ Les timeouts et indisponibilités deviennent des exceptions stables sans détail
 
 Validation : **20 tests réussis en 4,77 s**, zéro échec/skip, incluant les contrats providers, les contributions JV et le noyau opérationnel avec capture BASE réelle. Les avertissements sont la dépréciation Starlette existante et les constructions volontairement invalides de tests. Aucun SDK, requête distante, décodage audio réel, embedding sémantique ou performance de modèle n’est revendiqué à ce checkpoint.
 
-## Suite et gates
+## Checkpoint 19B : adaptateur OpenAI Responses/embedding
 
-La phase reste **PARTIAL**. Les ports et faux fournisseurs sont implémentés; `OPENAI_ISOLATED` et `VOXTRAL_ISOLATED` restent manquants. La suite ajoute les adaptateurs spécifiques dans `app.ai`, sélection/configuration serveur explicites, timeouts et tests de transport mocké via les SDK réels. Aucun import SDK ne doit être introduit dans les modules métier. La qualification distante et les credentials de déploiement restent des preuves distinctes des contrats offline.
+`app.ai.openai_adapter` est le seul module applicatif important le SDK OpenAI, verrouillé à `2.54.0`. Il reçoit un client et deux noms de modèle explicitement configurés côté serveur; aucun modèle par défaut implicite ni activation distante dans les routes métier n’est ajouté.
+
+Le port LLM utilise l’API Responses avec messages typés, limite de sortie, outils vides et `store=false`. Le schéma optionnel passe dans `text.format` en mode JSON Schema strict. Les réponses incomplètes, refus, appels d’outil inattendus, JSON malformé et sorties de forme incorrecte sont refusés. Le port embedding demande des vecteurs float, rétablit l’ordre des textes via les indices et refuse indices manquants/dupliqués/non entiers ou vecteurs invalides. Le consommateur vérifie toujours le contrat métier; l’adaptateur ne transforme pas un texte en autorisation.
+
+Références officielles consultées le 9 octobre 2026 : [Responses Python](https://developers.openai.com/api/reference/python/resources/responses/methods/create), [Embeddings Python](https://developers.openai.com/api/reference/python/resources/embeddings/methods/create). `store=false` décrit le paramètre d’état de l’API, sans constituer une garantie universelle de rétention des données.
+
+Validation SDK réel et `httpx.MockTransport`, sans réseau : première exécution 16 réussis; finale après refus/401/indices entiers, **18 réussis en 2,60 s**, zéro échec/skip. Les tests vérifient sérialisation des requêtes, parsing réel SDK, structured JSON, réponses partielles/hostiles, timeout/401 normalisés et un seul appel avec client timeout 5 s/retries 0, ordre des embeddings et doublons. Les clients de test sont fermés. La frontière commune préserve désormais la catégorie réponse invalide remontée par un adaptateur. Aucun crédit distant, credential réel, transcription OpenAI, configuration de déploiement ou qualification de modèle n’est revendiqué.
+
+## Acceptation restante
+
+La phase reste **PARTIAL**. OpenAI LLM/embedding est isolé et testé; Voxtral, sélection/configuration serveur de runtime, transcription et acceptation de phase restent ouverts. Aucun import SDK ne doit être introduit dans les modules métier. La qualification distante et les credentials de déploiement restent des preuves distinctes des contrats offline.
