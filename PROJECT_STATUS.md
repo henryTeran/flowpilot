@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21_CURRENT_FRONTEND_REGRESSION:
+- Current frontend regression after reviewed/progressive handoff and microphone capture:585 PASS, zero failures/skips,115.51s (.cache/21-microphone-frontend-regression.log), terminal exit0. This supersedes the earlier585 baseline for current UI source. Linux package regression extended to test_voice_*.py alongside Copilot/BASE/domain/migration checks is running; no packaged Voice success claimed before terminal output. Microphone bound/adverse, signed response disposal and real audio-quality acceptance remain open. Voice gates PARTIAL, whole goal ACTIVE.
+
 PHASE21K_MICROPHONE_PERMISSION_ACCEPTANCE:
 - Microphone permission/disposal acceptance:2 PASS38.7s desktop/tablet (.cache/21-voice-permission-browser.log), actual rebuilt signed UI/backend with browser media interface simulated. Permission denial yields controlled error/retry; pending permission after unmount stops newly returned track exactly once, no audio/transcript survives reopen, zero POSTs. No physical device/permission dialog certification. Fixture removed/terminal exit0. No production edit; microphone time/size bounds and real audio acceptance remain unverified. Voice gates PARTIAL, goal ACTIVE.
 
