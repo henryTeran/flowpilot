@@ -4,6 +4,12 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 
 ## Customer slice (20A)
 
+### Operator interface foundation (20Y)
+
+The App/sidebar now exposes a lazy Copilot entry for reception/manager in the selected signed institute. Four consultations are implemented: CLIENT_READ, PLANNING_READ, PLANNING_GAPS and STOCK_READ. Empty selections/question, explicit owned customer search, optional catalogue service and no automatic query. Official BASE remains the language router through the existing query API. Closed typed scope/selection/clock/action/framework checks and canonical evidence SHA precede rendering; editing clears facts and stale institute/token responses are discarded. Original unknown planning reasons, incomplete hours/no booking authority, received versus pending/conditional stock quantities, first50 limit and capture clocks remain visible. Phone/contact fields are not rendered; no mutation or preparation controls are inferred.
+
+Build PASS, full frontend528 passed90.91s and target DOM4 passed23.21s. Real signed SQLite API/official BASE browser suite final4 passed54.5s, desktop/tablet, no failures/skips; screenshots inspected and numeric table wrapping corrected. Evidence damage/restoration, real role403, true unknown clarification, no implicit query/only query POSTs and unchanged stock verified. Owned fixture removed and4198/4199 listeners0. This proves four consultation UI contracts only. [Gate audit](COPILOT_PHASE20_GATE_AUDIT.md) preserves the remaining eight consultation/suggestion interfaces and all four progressive preparation/decision/execution/recovery paths. All Copilot gates stay PARTIAL;20X backend image evidence remains applicable because backend/corpus code is unchanged.
+
 `POST /api/v1/copilot/query` accepts a nonblank bounded message and an explicit `ui_context.customer_id`. Institute, role and actor come from JWT claims. Missing selection or unsupported process returns clarification without business reads. Unknown or foreign customer references return the existing scoped not-found error.
 
 `GET /api/v1/copilot/capabilities` exposes only authorized registered schemas and services:

@@ -1,0 +1,16 @@
+.copilot-panel { background: #fff; border-radius: 16px; padding: 24px; min-width: 0; }
+.copilot-panel fieldset { border: 0; padding: 0; display: grid; gap: 14px; max-width: 760px; }
+.copilot-panel label { display: grid; gap: 6px; }
+.copilot-panel input, .copilot-panel select, .copilot-panel button, .copilot-panel summary { min-height: 44px; }
+.copilot-panel textarea { min-height: 96px; resize: vertical; }
+.copilot-panel input, .copilot-panel textarea, .copilot-panel select { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #c7d4da; border-radius: 8px; font: inherit; }
+.copilot-panel button { justify-self: start; padding: 10px 18px; border-radius: 8px; border: 1px solid #c7d4da; font: inherit; cursor: pointer; }
+.copilot-panel section { margin-top: 20px; overflow-wrap: anywhere; }
+.copilot-panel dl { display: grid; grid-template-columns: minmax(130px, 1fr) 2fr; gap: 8px; }
+.copilot-panel dd { margin: 0; }
+.copilot-table { overflow-x: auto; }
+.copilot-table table { border-collapse: collapse; width: 100%; min-width: 900px; }
+.copilot-table th, .copilot-table td { padding: 10px; text-align: left; border-bottom: 1px solid #dce5e8; overflow-wrap: normal; word-break: normal; }
+.copilot-table td { white-space: nowrap; }
+.copilot-panel [role="alert"] { color: #a32020; }
+@media (max-width: 700px) { .copilot-panel { padding: 14px; } .copilot-panel dl { grid-template-columns: 1fr; } }

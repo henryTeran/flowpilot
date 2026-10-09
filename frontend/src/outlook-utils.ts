@@ -9,18 +9,18 @@ export function validScenario(v: unknown): v is Scenario {
   const s = v as Scenario;
   return !!s && instant(s.starts_at) && instant(s.ends_at) && Date.parse(s.ends_at) > Date.parse(s.starts_at) && Date.parse(s.ends_at) - Date.parse(s.starts_at) <= 366 * 86400000 && Array.isArray(s.demands) && s.demands.length > 0 && s.demands.length <= 50 && s.demands.every(d => !!d && purchaseText(d.service_id, 80) && (d.recipe_id === null || purchaseText(d.recipe_id, 80)) && Number.isInteger(d.quantity) && d.quantity >= 1 && d.quantity <= 100000) && new Set(s.demands.map(d => d.service_id)).size === s.demands.length;
 }
-export function validOutlook(v: unknown, institute: string, offset: number, scenario?: Scenario): v is Outlook {
+export function validOutlook(v: unknown, institute: string, offset: number, scenario?: Scenario, pageSize = 20): v is Outlook {
   const s = v as Outlook;
-  if (!s || s.institute_id !== institute || s.limit !== 20 || s.offset !== offset || !instant(s.generated_at) || !Array.isArray(s.items) || s.items.length > 20 || !Array.isArray(s.demands)) return false;
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 50 || !s || s.institute_id !== institute || s.limit !== pageSize || s.offset !== offset || !instant(s.generated_at) || !Array.isArray(s.items) || s.items.length > pageSize || !Array.isArray(s.demands)) return false;
   const complete = !!scenario && scenario.demands.every(d => d.recipe_id !== null);
   if (scenario) {
     if (!validScenario(scenario) || !instant(s.starts_at) || !instant(s.ends_at) || Date.parse(s.starts_at) !== Date.parse(scenario.starts_at) || Date.parse(s.ends_at) !== Date.parse(scenario.ends_at) || s.source !== "explicit_service_volume_scenario" || s.coverage !== (complete ? "complete_selected_norms" : "partial_selected_norms") || s.demands.length !== scenario.demands.length || new Set(s.demands.map(d => d?.service_id)).size !== s.demands.length) return false;
     if (!s.demands.every(d => { const chosen = scenario.demands.find(row => row.service_id === d?.service_id); return !!chosen && d.recipe_id === chosen.recipe_id && d.quantity === chosen.quantity && purchaseText(d.service_name, 160) && (chosen.recipe_id === null ? d.state === "missing_selected_norm" && d.recipe_revision === null : ["enabled", "disabled"].includes(d.state) && Number.isInteger(d.recipe_revision) && d.recipe_revision! > 0); })) return false;
   } else if (s.source !== "recorded_stock" || s.coverage !== "not_applicable" || s.starts_at !== null || s.ends_at !== null || s.demands.length) return false;
-  return validOutlookItems(s.items, complete, !scenario);
+  return validOutlookItems(s.items, complete, !scenario, pageSize);
 }
-export function validOutlookItems(items: OutlookItem[], complete: boolean, zero = false): boolean {
-  if (!Array.isArray(items) || items.length > 20) return false;
+export function validOutlookItems(items: OutlookItem[], complete: boolean, zero = false, pageSize = 20): boolean {
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 50 || !Array.isArray(items) || items.length > pageSize) return false;
   return items.every(row => {
     if (!row || !purchaseText(row.item_id, 80) || !purchaseReference(row.item_sku) || !purchaseText(row.item_name, 120) || !Object.prototype.hasOwnProperty.call(stockUnits, row.unit) || !Object.prototype.hasOwnProperty.call(stockCategories, row.category) || !exact(row.on_hand, row.unit, true) || !exact(row.threshold, row.unit, true) || ![row.threshold_shortfall, row.pending_order_quantity, row.known_demand, row.known_demand_shortfall, row.conditional_shortfall_after_all_orders].every(q => exact(q, row.unit))) return false;
     const hand = stockMilli(row.on_hand), threshold = stockMilli(row.threshold), demand = stockMilli(row.known_demand), pending = stockMilli(row.pending_order_quantity), max = (v: bigint) => v < 0n ? 0n : v;

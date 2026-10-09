@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20X_CURRENT_PACKAGED_BACKEND_AND_GATE_AUDIT_PASS
+CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20Y_INITIAL_COPILOT_READ_UI:
+- Added lazy Copilot App/sidebar entry for reception/manager and signed-institute presentation guard. Four initial consultations implemented: CLIENT_READ, PLANNING_READ, PLANNING_GAPS, STOCK_READ. Empty mode/question/customer defaults, explicit owned customer search/selection and optional explicit service. Discovery only on mount; no implicit domain query. Question goes to existing official BASE query API; no frontend language classifier. Editing input clears evidence; institute/token/timezone remount and sequence checks discard old results.
+- Closed response/source/scope/selection/capability/clock/microsecond/history/action/framework guards and canonical response SHA validation before display. Customer phone omitted from choices/evidence; planning/gaps retain original unknown/constraint reasons and incomplete-work-hours/booking boundaries. Stock first50 displayed with exact received/threshold/pending/conditional deficit values. Existing outlook arithmetic verifier generalized with explicit pageSize, default20 unchanged. No booking/contact/mutation controls. Responsive stock quantities cannot split across lines; desktop/tablet screenshots visually inspected.
+- Build PASS after initial compile corrections (over-broad App text replacement, ES2020 hasOwn compatibility and TS narrowing). Target DOM4 passed23.21s; full frontend528 passed90.91s, zero failures/skips. Real signed SQLite API/official BASE backend browser manager/reception suite desktop/tablet final4 passed54.5s. Proves all four reads, explicit customer target/no phone, zero implicit query and only query POSTs, unchanged physical stock, evidence damage refusal/restoration, real manager-only403 refusal and unknown-route clarification. Initial browser4 failures were strict implicit-label test locators; role/name locators fixed. Second run2 passed/2 failed from an incorrectly assumed unknown phrase that BASE actually routes to manager-only capability; fixture now verifies its real403 and uses proven Bonjour clarification. Existing passlib/bcrypt and NO_COLOR warnings remain. Owned fixture removed, loopback4198/4199 listeners0.
+- CHECKPOINT_STATUS = PASS for this four-consultation UI slice only. All12 initial and4 progressive requirements retained in gate audit; NEXT eight remaining consultation/suggestion UI contracts, then all4 preparation and separate CREATE/MOVE approval/execution/recovery UI. All Copilot gates PARTIAL, Voice/later phases incomplete, whole26-phase goal ACTIVE. Backend unchanged:20X packaged64-test proof still applies to backend only. No deployment/push/provider call/contact/production claim.
 
 PHASE20X_CURRENT_PACKAGED_BACKEND_AND_GATE_AUDIT:
 - Added docs/architecture/COPILOT_PHASE20_GATE_AUDIT.md: all12 initial and4 progressive Master §41 requirements matched to source contracts, named tests and limits. Current signed adapters provide scoped ANSWER/EVIDENCE and separate preparation/approval/execution; no provider-selected IDs or second language router. Actual App/sidebar lack general Copilot, and cancellation-only panel does not prove new capabilities. All four gates stay PARTIAL; UI completion/acceptance required, not replaced by API tests or existing domain panels.

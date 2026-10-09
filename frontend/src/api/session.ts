@@ -24,3 +24,11 @@ export function getOperatorSubject() {
     return typeof claims.sub === "string" && claims.sub.trim() ? claims.sub : undefined;
   } catch { return undefined; }
 }
+
+// Presentation only; institute authorization remains on the server.
+export function getOperatorInstitute() {
+  try {
+    const claims = JSON.parse(atob((getAccessToken() || "").split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof claims.institute_id === "string" && claims.institute_id.trim() === claims.institute_id ? claims.institute_id : undefined;
+  } catch { return undefined; }
+}

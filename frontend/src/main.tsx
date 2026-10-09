@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { SessionGate } from "./components/SessionGate";
 import "./styles.css";
 import "./components/inventory.css";
+import "./components/copilot.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
