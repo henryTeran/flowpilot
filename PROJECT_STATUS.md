@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_SCENARIO_BROWSER_ACCEPTANCE:
+- Actual signed API/pinned official BASE scenario2 PASS54.7s desktop/tablet (.cache/20-reorder-scenario-browser.log). Original active norm remains selected despite newer disabled revision;3x1.250ml known demand with5.000ml threshold,1.250ml stock and2.000ml pending yields5.500ml under explicit all-pending-received assumption. Added missing norm keeps complete_demand null/partial coverage; removing it clears evidence and produces complete3.750ml demand. Choosing exact disabled norm produces known/complete0.000ml and1.750ml proposal, retained and independently reread.
+- Selected institute-local2026-10-25/26 period preserves actual25h UTC interval. Native item/movements/orders unchanged across all previews and retention. Final screenshots inspected; owned fixture removed/listeners0, terminal exit0. Production source unchanged; existing build/frontend evidence retained. Multi-item/large paginated selections, partial pending receipts and refusal/race/damaged-source browser cases remain; phase gates PARTIAL, goal ACTIVE.
+
 PHASE20_REORDER_PRESENTATION_POLISH:
 - Translated coverage states into recorded-stock/complete/partial norm explanations. Scoped compact22px checkboxes retain44px label targets; proposal table uses padded shared table styles and keyboard-focusable horizontal scrolling, with wrapped original item references. No lifecycle or authority changes.
 - Build and focused form test PASS. Actual signed API/official BASE browser2 PASS48.4s desktop/tablet with coverage label, checkbox width and no document horizontal overflow assertions; lost retention recovery/unchanged stock and orders still pass (.cache/20-reorder-polish-browser.log). Final screenshots inspected; owned fixture removed/listeners0, wrapper exit0. Full584 regression is evidence before this presentation change, not rerun. Remaining populated/adverse scenario gates stay PARTIAL; goal ACTIVE.
