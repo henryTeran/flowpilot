@@ -21,6 +21,7 @@ import type { Employee, Service } from "../types";
 import {CopilotForecastSelection} from "./CopilotForecastSelection";
 import {validForecastSelection,validForecastOriginals,type ForecastDraft} from "../copilot-forecast-utils";
 import {validRecipe} from "../recipe-utils";
+import {CopilotCreationPanel} from "./CopilotCreationPanel";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
 type Choice = { id: string; display_name: string };
@@ -28,7 +29,11 @@ const statuses: Record<string,string> = { available: "Disponible", busy: "En soi
 const reasons: Record<string,string> = { available_now: "Disponible maintenant", in_progress_session: "Soin en cours", upcoming_appointment: "Rendez-vous enregistré", employee_pause: "Collaboratrice en pause", employee_absent: "Collaboratrice absente", employee_offline: "Collaboratrice hors service", busy_until: "Disponibilité différée", session_overdue: "Fin du soin en cours non confirmée", capacity_unknown: "Capacité non établie", skills_missing: "Qualification nécessaire manquante", resource_capacity_unknown: "Disponibilité de ressource non établie", resource_reserved: "Ressource réservée", scheduled_absence: "Absence enregistrée" };
 export function CopilotPanel(props: Props) {
   if (!props.institute || props.institute !== getOperatorInstitute() || !["accueil","responsable_institut"].includes(getOperatorRole() || "")) return null;
-  return <Consultations key={JSON.stringify([props.institute,getAccessToken(),props.timezone])} {...props} />;
+  return <CopilotModes key={JSON.stringify([props.institute,getAccessToken(),props.timezone])} {...props} />;
+}
+function CopilotModes(props:Props){
+  const [creation,setCreation]=useState(false);
+  return <>{getOperatorRole()==="responsable_institut" && <div role="group" aria-label="Parcours du Copilot"><button type="button" aria-pressed={!creation} onClick={()=>setCreation(false)}>Consulter avec le Copilot</button><button type="button" aria-pressed={creation} onClick={()=>setCreation(true)}>Créer un rendez-vous avec le Copilot</button></div>}{creation ? <CopilotCreationPanel {...props}/> : <Consultations {...props}/>}</>;
 }
 function Consultations({ institute, timezone, employees, services }: Props) {
   const token = getAccessToken(), role = getOperatorRole() || "";

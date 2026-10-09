@@ -6,6 +6,7 @@ import { CopilotPanel } from "../src/components/CopilotPanel";
 import { setAccessToken } from "../src/api/session";
 import { revenueOriginalFingerprint as hash } from "../src/revenue-scenario-utils";
 import { validReadResponse, validReadDiscovery } from "../src/copilot-read-utils";
+import {canonicalCreationSelection} from "../src/copilot-creation-utils";
 const dom = new JSDOM("<div id='root'></div>",{ url:"http://localhost" });
 Object.assign(globalThis,{ window:dom.window,document:dom.window.document,sessionStorage:dom.window.sessionStorage,IS_REACT_ACT_ENVIRONMENT:true });
 const { createRoot } = await import("react-dom/client");
@@ -299,6 +300,32 @@ test("forecast controls retain multiple selected services, original quantities a
     changed=true;const queries=calls.filter(c=>c.body).length;await click("Consulter");assert.equal(calls.filter(c=>c.body).length,queries);assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);
     changed=false;wrongQuantity=true;await click("Consulter");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);assert.ok(document.querySelector('[role="alert"]'));
     assert.ok(calls.every(c=>!c.body || c.path.endsWith("/copilot/query")));
+  }finally{await act(async()=>root.unmount());}
+});
+
+test("creation form uses official preview with explicit owned customer and repeated local-hour selection",async()=>{
+  setAccessToken(token());const calls:{path:string;body:any}[]=[];let damaged=false;
+  const registrations=Object.entries({APPOINTMENT_CREATE:["base.sensitive_originals.create","retained_pending_preparation_no_approval_or_execution"],APPOINTMENT_MOVE:["base.sensitive_originals.create","retained_pending_preparation_no_approval_or_execution"],MARKETING_CAMPAIGN_DRAFT:["marketing.campaign_originals.execute_create_only","retained_draft_only_no_campaign_approval_contact_or_delivery"],STOCK_REORDER_PROPOSAL:["inventory.reorders.create","retained_reorder_proposal_no_order_contact_payment_receipt_or_stock_write"]}).map(([name,[application_service,effect]])=>({name,level:2,permission:"signed_institute_manager",input_schema:{},preview_input_schema:{},output_schema:{},application_service,effect,audit:"signed_scope_interaction_id_and_source_digest_no_raw_message"}));
+  globalThis.fetch=async(url,init)=>{
+    const path=String(url),body=init?.body ? JSON.parse(init.body as string) : undefined;calls.push({path,body});
+    if(path.endsWith("/preparation-capabilities"))return reply(registrations);
+    if(path.endsWith("/capabilities"))return reply(discovery());
+    if(path.includes("/customers/"))return reply([{id:"customer",institute_id:"own",display_name:"Cliente revue",phone:"+33999000000",created_at:clock}]);
+    assert.ok(path.endsWith("/copilot/prepare-preview"));const selection=canonicalCreationSelection({...body.ui_context,...(damaged ? {notes:null} : {})}),end_time="2026-10-25T01:40:00Z",resource_ids=["room"];
+    return reply({principal:{actor_id:"manager",institute_id:"own",role:"responsable_institut"},capability:{name:"APPOINTMENT_CREATE",prepare_level:2,roles:["responsable_institut"],application_service:"appointments.service.preview_creation",approval:"explicit_human_approval_of_exact_retained_operation_required",execution_registered:true},selection,captured_at:clock,end_time,resource_ids,state_fingerprint:await hash({institute_id:"own",selection,end_time:end_time.replace("Z","+00:00"),resource_ids}),basis:"exact_creation_terms_and_current_eligible_interval_resources_not_full_database_digest",effect:"creation_preview_only_no_reservation_approval_or_execution"});
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await render(root);await settle();await click("Créer un rendez-vous avec le Copilot");assert.equal(calls.length,2);assert.equal(calls.filter(c=>c.body).length,0);
+    await fill("Votre demande de création","Preparer la creation du rendez-vous");await fill("Collaboratrice sélectionnée","employee");await fill("Prestation sélectionnée","service");await fill("Nom revu pour le rendez-vous","Cliente saisie");
+    await fill("Début local du rendez-vous","2027-03-28T02:30");await click("Vérifier les termes de création");assert.equal(calls.filter(c=>c.body).length,0);assert.match(document.querySelector('[role="alert"]')!.textContent!,/heure locale valide/);
+    await fill("Début local du rendez-vous","2026-10-25T02:30");await click("Vérifier les termes de création");assert.equal(calls.filter(c=>c.body).length,0);
+    await fill("Occurrence de l’heure répétée","2026-10-25T01:30:00.000Z");await fill("Rechercher une cliente","Cliente");await click("Rechercher les clientes");await fill("Cliente enregistrée","customer");await fill("Notes revues","Note revue");await click("Vérifier les termes de création");
+    assert.deepEqual(calls.at(-1)!.body,{message:"Preparer la creation du rendez-vous",ui_context:{employee_id:"employee",service_id:"service",customer_id:"customer",customer_name:"Cliente revue",phone:"+33999000000",notes:"Note revue",start_time:"2026-10-25T01:30:00.000Z"}});
+    assert.ok(document.querySelector('[aria-label="Termes de création vérifiés"]'));assert.match(document.body.textContent!,/aucune réservation effectuée/);assert.equal(document.querySelectorAll("button").length>0,true);
+    await fill("Notes revues","Note corrigée");assert.equal(document.querySelector('[aria-label="Termes de création vérifiés"]'),null);damaged=true;await click("Vérifier les termes de création");assert.equal(document.querySelector('[aria-label="Termes de création vérifiés"]'),null);assert.ok(document.querySelector('[role="alert"]'));
+    assert.ok(calls.every(c=>!c.body || c.path.endsWith("/copilot/prepare-preview")));assert.ok(!Array.from(document.querySelectorAll("button")).some(b=>/Approuver|Exécuter/.test(b.textContent!)));
+    await click("Consulter avec le Copilot");await fill("Consultation","STOCK_READ");assert.equal(document.querySelector('[aria-label="Termes de création vérifiés"]'),null);
   }finally{await act(async()=>root.unmount());}
 });
 
