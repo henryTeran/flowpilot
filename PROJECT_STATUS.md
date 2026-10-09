@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21K_MICROPHONE_PERMISSION_ACCEPTANCE:
+- Microphone permission/disposal acceptance:2 PASS38.7s desktop/tablet (.cache/21-voice-permission-browser.log), actual rebuilt signed UI/backend with browser media interface simulated. Permission denial yields controlled error/retry; pending permission after unmount stops newly returned track exactly once, no audio/transcript survives reopen, zero POSTs. No physical device/permission dialog certification. Fixture removed/terminal exit0. No production edit; microphone time/size bounds and real audio acceptance remain unverified. Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21J_MICROPHONE_CAPTURE_FOUNDATION:
 - Microphone capture foundation: recording uses explicit browser permission, supported MediaRecorder type, 60s auto-stop and10MB chunk bound. Stop produces local file only; separate transcription click required. Unmount/stale permission releases all owned media tracks, drops callbacks/timer. Unsupported/denied/error paths show controlled retry. Initial TypeScript optional refs corrected; native production rebuild then2 PASS1.3m desktop/tablet (.cache/21-voice-microphone-browser.log). Browser recorder/device simulated: verifies stop/unmount track counters, no POST until explicit transcription and real API/official BASE offline-STT reply. Not physical microphone/audio decoding/real Voxtral evidence. Fixture removed/listeners0/terminal exit0. Recording bound/permission adverse and stale-request tests, current full regression/package and real audio acceptance remain; Voice gates PARTIAL, goal ACTIVE.
 
