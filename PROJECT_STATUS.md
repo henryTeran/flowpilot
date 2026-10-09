@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_CONFLICT_UI_WIRING_INCREMENT:
+- Connected PLANNING_CONFLICTS discovery, explicit day and one owned employee/resource selection to official BASE query, common response SHA and original conflict validation with institute timezone. Resource choices require explicit read; no domain fetch on mount. Passive display retains source/invalid/overdue counts, first50 overlaps, exact durations and incomplete coverage. Empty selection prevents submit.
+- Build PASS before final disabled-button refinement; final targeted conflict/Copilot regression9 PASS. New employee/resource controls and real API/BASE browser acceptance still require dedicated tests; no phase gate closed. Four other initial UI capabilities and all four progressive flows remain outstanding. Whole goal ACTIVE.
+
 PHASE20_CONFLICT_UI_CONTRACT_FOUNDATION:
 - Added closed frontend validation for both original employee-commitment and resource-reservation conflict readers: selected institute/reference/day, DST-aware day bounds/capture, source digest/counts, false coverage/physical/booking markers, first50 count, distinct source pairs and exact clipped microsecond intersections. No new conflict detector or allocator.
 - Build PASS; two focused tests PASS for valid employee/resource evidence and wrong scope, digest, extra context, timing/arithmetic, source kind, duplicate pairs and authority refusal. Validator is not yet connected to Copilot controls/evidence rendering; UI/browser acceptance remains outstanding. Whole goal ACTIVE, all Copilot gates PARTIAL.

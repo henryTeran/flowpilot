@@ -10,6 +10,7 @@ import type { RebookingFacts } from "../copilot-read-utils";
 import { crmMoney } from "./CustomerCrmPanel";
 import type { RevenueCapacity } from "../revenue-capacity-utils";
 import { formatWorkDuration } from "../work-hours-utils";
+import type { ConflictRead } from "../copilot-conflict-utils";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -27,6 +28,15 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
   const [day,setDay] = useState("");
+  const [target,setTarget]=useState(""),[resourceChoices,setResourceChoices]=useState<{id:string;name:string}[]>([]);
+  async function loadResources(){
+    if(flight.current)return;flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);setResponse(undefined);
+    try{const rows=await apiGet<unknown>(`/resources/institutes/${encodeURIComponent(institute)}`);
+      if(!current(seq))return;
+      if(!Array.isArray(rows) || new Set(rows.map(r=>r?.id)).size!==rows.length || !rows.every(r=>exactKeys(r,"id institute_id name kind capabilities status") && exactId(r.id) && r.institute_id===institute && typeof r.name==="string" && !!r.name.trim() && r.name.length<=120 && ["active","inactive","maintenance"].includes(r.status as string) && ["room","equipment","bed","chair","device"].includes(r.kind as string) && Array.isArray(r.capabilities) && r.capabilities.every(c=>typeof c==="string")))throw Error("Invalid resources");
+      setResourceChoices(rows.map(r=>({id:r.id,name:r.name})));
+    }catch{if(current(seq))setError("Ressources indisponibles. Relancez la lecture.");}finally{flight.current=false;if(current(seq))setBusy(false);}
+  }
   const customerMode = name === "CLIENT_READ" || name === "CLIENT_SUMMARY" || name === "CLIENT_REBOOKING_OPPORTUNITIES";
   const [response,setResponse] = useState<ReadResponse>(), [busy,setBusy] = useState(false), [error,setError] = useState<string>();
   const current = (seq: number) => mounted.current && sequence.current === seq && token === getAccessToken() && institute === getOperatorInstitute();
@@ -59,7 +69,8 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   }
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
-    const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    if(name==="PLANNING_CONFLICTS" && !(selection.resource_id ? resourceChoices.some(r=>r.id===selection.resource_id) : employees.some(r=>r.id===selection.employee_id && r.institute_id===institute)))return;
     if (customerMode && !choices.some(row => row.id === customer) || name === "PLANNING_GAPS" && service && !services.some(row => row.id === service)) {
       setError("Choisissez une référence proposée avant de consulter."); return;
     }
@@ -68,7 +79,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
     try {
       const value = await apiPost<unknown>("/copilot/query",{ message:question.trim(),ui_context:selection });
       if (!current(seq)) return;
-      if (!await validReadResponse(value,institute,name,selection)) throw new Error("Invalid evidence");
+      if (!await validReadResponse(value,institute,name,selection,timezone)) throw new Error("Invalid evidence");
       if (current(seq)) setResponse(value as ReadResponse);
     } catch { if (current(seq)) setError("Réponse indisponible ou à vérifier. Relisez les sélections puis relancez la consultation."); }
     finally { flight.current = false; if (current(seq)) setBusy(false); }
@@ -84,6 +95,12 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if(evidence.capability==="PLANNING_CONFLICTS"){
+      const value=evidence.result as ConflictRead;
+      return <><p>Conflits enregistrés pour {value.employee_id ? employee(value.employee_id) : resourceChoices.find(r=>r.id===value.resource_id)?.name || "Ressource sélectionnée"}, le {value.day}. La couverture complète de l’institut et l’activité physique ne sont pas établies.</p>
+        <p>{value.source_count} source(s), {value.invalid_source_count} source(s) invalide(s), {value.overdue_open_source_count ?? value.overdue_unreleased_source_count} engagement(s) expiré(s) encore ouvert(s).</p>
+        <p>{value.overlap_count} conflit(s) observé(s), jusqu’à 50 affichés.</p><ul>{value.overlaps.map((o,index)=><li key={index}>{date(o.start_at)} — {date(o.end_at)} · {formatWorkDuration(o.duration_us)}</li>)}</ul></>;
+    }
     if (evidence.capability === "EMPLOYEE_CAPACITY") {
       const value=evidence.result as RevenueCapacity;
       return <><p>Journée sélectionnée : {value.day} ({value.timezone}). Horaires déclarés et activité finalisée enregistrée ; la présence complète et la capacité réservable ne sont pas établies.</p>
@@ -151,7 +168,10 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
-        <button disabled={!name || !question.trim() || customerMode && !customer || name === "EMPLOYEE_CAPACITY" && !day}>Consulter</button>
+        {name === "PLANNING_CONFLICTS" && <><label>Journée à examiner<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>
+          <button type="button" onClick={()=>void loadResources()}>Lire les ressources</button>
+          <label>Collaboratrice ou ressource<select value={target} onChange={event=>{edit();setTarget(event.target.value);}}><option value="">Choisir une référence</option>{employees.filter(r=>r.institute_id===institute).map(r=><option key={r.id} value={`employee:${r.id}`}>{r.first_name}</option>)}{resourceChoices.map(r=><option key={r.id} value={`resource:${r.id}`}>{r.name}</option>)}</select></label></>}
+        <button disabled={!name || !question.trim() || customerMode && !customer || name === "EMPLOYEE_CAPACITY" && !day || name === "PLANNING_CONFLICTS" && (!day || !target)}>Consulter</button>
       </fieldset>
     </form>{busy && <p role="status">Lecture en cours…</p>}{error && <p role="alert">{error}</p>}
     {response && <section aria-label="Réponse du Copilot"><h3>{response.status === "clarification" ? "Précisions nécessaires" : "Réponse"}</h3><p>{response.answer}</p>
