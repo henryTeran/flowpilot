@@ -11,6 +11,8 @@ import { crmMoney } from "./CustomerCrmPanel";
 import type { RevenueCapacity } from "../revenue-capacity-utils";
 import { formatWorkDuration } from "../work-hours-utils";
 import type { ConflictRead } from "../copilot-conflict-utils";
+import { revenueMoney, type RevenueBilling } from "../revenue-utils";
+import { instituteMidnight } from "../outlook-utils";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -28,6 +30,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
   const [day,setDay] = useState("");
+  const [periodStart,setPeriodStart]=useState(""),[periodEnd,setPeriodEnd]=useState("");
   const [target,setTarget]=useState(""),[resourceChoices,setResourceChoices]=useState<{id:string;name:string}[]>([]);
   async function loadResources(){
     if(flight.current)return;flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);setResponse(undefined);
@@ -70,6 +73,11 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    if(name==="REVENUE_SUMMARY"){
+      const start=instituteMidnight(periodStart,timezone),end=instituteMidnight(periodEnd,timezone);
+      if(!start || !end || certificationInstant(start)!>=certificationInstant(end)!)return;
+      selection.start=start;selection.end=end;
+    }
     if(name==="PLANNING_CONFLICTS" && !(selection.resource_id ? resourceChoices.some(r=>r.id===selection.resource_id) : employees.some(r=>r.id===selection.employee_id && r.institute_id===institute)))return;
     if (customerMode && !choices.some(row => row.id === customer) || name === "PLANNING_GAPS" && service && !services.some(row => row.id === service)) {
       setError("Choisissez une référence proposée avant de consulter."); return;
@@ -95,6 +103,13 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if(evidence.capability==="REVENUE_SUMMARY"){
+      const value=evidence.result as RevenueBilling;
+      return <><p>Du {date(value.window.start)} au {date(value.window.end)} (fin exclue). Historique complet et encaissement bancaire non établis.</p>
+        <p>{value.ticket_count} ticket(s) payé(s) enregistré(s), {value.active_line_count} ligne(s) active(s).</p>
+        {value.ticket_amounts.map(group=><section key={group.currency || "unknown"}><h4>{group.currency || "Devise inconnue"}</h4><p>Montant connu : {revenueMoney(group.known_gross_minor)}{group.currency ? ` ${group.currency}` : " (devise non établie)"}.</p><p>{group.missing_amount_count} montant(s) manquant(s), {group.invalid_amount_count} montant(s) invalide(s).</p><p>Total complet : {group.complete_gross_minor===null ? "non établi" : `${revenueMoney(group.complete_gross_minor)} ${group.currency}`}.</p></section>)}
+        <p>{value.institute_undated_paid_tickets} ticket(s) payé(s) sans date dans l’institut ; {value.tickets_without_active_lines} ticket(s) sans ligne active sur la période.</p></>;
+    }
     if(evidence.capability==="PLANNING_CONFLICTS"){
       const value=evidence.result as ConflictRead;
       return <><p>Conflits enregistrés pour {value.employee_id ? employee(value.employee_id) : resourceChoices.find(r=>r.id===value.resource_id)?.name || "Ressource sélectionnée"}, le {value.day}. La couverture complète de l’institut et l’activité physique ne sont pas établies.</p>
@@ -168,6 +183,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
+        {name === "REVENUE_SUMMARY" && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
         {name === "PLANNING_CONFLICTS" && <><label>Journée à examiner<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>
           <button type="button" onClick={()=>void loadResources()}>Lire les ressources</button>
           <label>Collaboratrice ou ressource<select value={target} onChange={event=>{edit();setTarget(event.target.value);}}><option value="">Choisir une référence</option>{employees.filter(r=>r.institute_id===institute).map(r=><option key={r.id} value={`employee:${r.id}`}>{r.first_name}</option>)}{resourceChoices.map(r=><option key={r.id} value={`resource:${r.id}`}>{r.name}</option>)}</select></label></>}

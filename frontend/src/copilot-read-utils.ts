@@ -7,14 +7,15 @@ import { automationTriggers, validAutomationPolicy, type AutomationRule } from "
 import { validRevenueCapacity, type RevenueCapacity } from "./revenue-capacity-utils";
 import { certificationDate } from "./certification-utils";
 import { validConflictRead, type ConflictRead } from "./copilot-conflict-utils";
+import { validRevenueBilling, type RevenueBilling } from "./revenue-utils";
 
-export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", EMPLOYEE_CAPACITY: "Capacité enregistrée", PLANNING_CONFLICTS: "Conflits de planning", STOCK_READ: "Stock enregistré" } as const;
+export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", EMPLOYEE_CAPACITY: "Capacité enregistrée", PLANNING_CONFLICTS: "Conflits de planning", REVENUE_SUMMARY: "Revenus enregistrés", STOCK_READ: "Stock enregistré" } as const;
 export type RebookingFacts = { institute_id:string;customer_id:string;captured_at:string;policy_original_id:string|null;policy_original_digest:string|null;
   rule:AutomationRule|null;candidate:EventCandidate|null;active_bookings:{appointment_id:string;service_id:string;start_at:string;end_at:string;status:string}[];
   invalid_booking_count:number;diagnostics:Record<string,number>;review:"available"|"already_booked"|"not_due"|"disabled"|"unavailable";
   complete_customer_history:false;external_message_sent:false;delivery_authorized:false;execution_authorized:false };
 export type ReadName = keyof typeof readLabels;
-export type ReadSelection = { customer_id?: string; service_id?: string; day?:string; employee_id?:string;resource_id?:string };
+export type ReadSelection = { customer_id?: string; service_id?: string; day?:string; employee_id?:string;resource_id?:string;start?:string;end?:string };
 export type CustomerFacts = { customer_id: string; institute_id: string; display_name: string; created_at: string };
 export type PlanningFacts = { generated_at: string; rows: { employee_id: string; employee_status: string;
   sessions: { id: string; employee_id: string; service_id: string; start_time: string; planned_end_time: string; status: string }[] }[] };
@@ -23,7 +24,7 @@ export type Slot = { employee_id: string; institute_id: string; available_from: 
 export type Gaps = { captured_at: string; rows: { employee_id: string; institute_id: string; service_id: string | null; available: boolean;
   current_slot: Slot | null; upcoming_slots: Slot[] }[]; basis: "current_scheduling_engine_windows"; complete_work_hours: false; booking_authorized: false };
 export type ReadEvidence = { capability: ReadName; institute_id: string; captured_at: string; read_completed_at: string;
-  result: CustomerFacts | SegmentProfile | RebookingFacts | RevenueCapacity | ConflictRead | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
+  result: CustomerFacts | SegmentProfile | RebookingFacts | RevenueBilling | RevenueCapacity | ConflictRead | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
 export type ReadResponse = { request_id: string; status: "answered" | "clarification"; answer: string; capability: ReadName | null;
   evidence: ReadEvidence | null; actions: []; framework: "ai-swiss/base@1.5.1" };
 export const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -44,6 +45,7 @@ export function validReadDiscovery(value: unknown, role: string): value is { nam
 }
 export function validReadSelection(name: ReadName, selection: ReadSelection): boolean {
   const fields = Object.keys(selection).sort().join(" ");
+  if(name === "REVENUE_SUMMARY") return fields==="end start" && date(selection.start) && date(selection.end) && instant(selection.start)!<instant(selection.end)!;
   if(name === "PLANNING_CONFLICTS") return certificationDate(selection.day) && (fields === "day employee_id" && exactId(selection.employee_id) || fields === "day resource_id" && exactId(selection.resource_id));
   if (name === "EMPLOYEE_CAPACITY") return fields === "day" && certificationDate(selection.day);
   if (name === "CLIENT_READ" || name === "CLIENT_SUMMARY" || name === "CLIENT_REBOOKING_OPPORTUNITIES") return fields === "customer_id" && exactId(selection.customer_id);
@@ -58,6 +60,7 @@ function validSlot(value: unknown, institute: string, employee: string): value i
     && (value.available_from === null || value.available_until === null || instant(value.available_from)! < instant(value.available_until)!);
 }
 function validFacts(name: ReadName, value: unknown, institute: string, selection: ReadSelection, capture: string, timezone?:string): boolean {
+  if(name === "REVENUE_SUMMARY") return validRevenueBilling(value,institute,{start:selection.start!,end:selection.end!}) && instant(value.window.captured_at)===instant(capture);
   if(name === "PLANNING_CONFLICTS") return typeof timezone==="string" && validConflictRead(value,institute,selection.day!,timezone,selection.employee_id ? {employee_id:selection.employee_id} : {resource_id:selection.resource_id},capture);
   if (name === "EMPLOYEE_CAPACITY") return record(value) && typeof value.timezone === "string" && validRevenueCapacity(value,institute,selection.day!,value.timezone,0) && instant(value.window.captured_at)===instant(capture);
   if (name === "CLIENT_REBOOKING_OPPORTUNITIES") return validRebooking(value,institute,selection.customer_id!,capture);

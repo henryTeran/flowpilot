@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REVENUE_SUMMARY_UI_INCREMENT:
+- Added REVENUE_SUMMARY with explicit start/end civil dates converted to institute midnight, exclusive end and positive period. Official BASE query source reuses validRevenueBilling and binds capture/selected period before evidence SHA display. Currency groups remain separate; unknown currency, missing/invalid amounts, incomplete totals, undated tickets, incomplete history and unconfirmed settlement remain explicit. No financial mutation.
+- Build PASS and existing Copilot DOM8 regression PASS. Dedicated new revenue controls/source evidence tests and actual API/BASE browser acceptance remain outstanding; this is not completed financial UI acceptance. Three initial UI modes and four progressive flows remain to implement; full goal ACTIVE, gates PARTIAL.
+
 PHASE20_CONFLICT_UI_WIRING_INCREMENT:
 - Real signed SQLite API/official BASE browser suite12 PASS1.4m, desktop/tablet employee and explicitly loaded resource queries bind selected day/reference, no empty target submit, unchanged false physical coverage and only two query POSTs. Both resource screenshots inspected; owned fixture removed/listeners4198/4199=0. Log:.cache/20-conflicts-browser.log. Actual cases have zero overlaps; populated conflicts browser acceptance remains pending. Existing bcrypt/NO_COLOR warnings plus one Windows connection-reset callback did not fail tests.
 - Dedicated control/evidence test now PASS: explicit employee and explicitly loaded resource each issue exactly one selected-reference/day query; no resource read on mount, empty target disables submit, resource read/date edit clear results. Common response gate rejects wrong timezone and simultaneous employee/resource selection. Final build PASS and combined10 tests PASS. Real API/official BASE browser conflict acceptance remains pending.
