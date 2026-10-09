@@ -1,5 +1,8 @@
 # Copilot integration — phase 20
 
+Move changed-source browser acceptance:2 PASS1.0m desktop/tablet (.cache/20-move-source-change-browser.log), actual signed API/pinned official BASE. Native appointment notes changed after exact retained preparation/human approval; UI execution receives400, retains frozen request/no receipt, and explicit rejection verification clears intent only after independent absence read. Exactly one execution POST; edited original booking remains unchanged by execution, original room still blocked/proposed slot free. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Source-change refusal proves this move path, not all decision races or expiry. Goal ACTIVE; remaining creation revocation/expiry/race and marketing historical-page/channel/adverse acceptance required.
+
+
 Move revocation browser acceptance:2 PASS1.1m desktop/tablet (.cache/20-move-revocation-browser.log), actual signed API/pinned official BASE. Exact retained preview and approval followed by explicit UI revocation bound to original approval ID; independently reread chain remains revoked, execution control absent/no execution POST/receipt, original appointment unchanged. Native resource previews confirm original room still blocked and proposed interval free. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. Production source unchanged; current packaged67 and frontend584 baselines remain current. This proves move revocation UI only; creation revocation, expiry, changed-source/race and marketing variants remain required. Goal ACTIVE, progressive gates PARTIAL.
 
 
