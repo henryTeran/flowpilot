@@ -2,6 +2,11 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_FORECAST_FORM_INCREMENT:
+- Full frontend suite PASS:546 tests,0 failures/skips,136.80s. Log:.cache/20-forecast-frontend.log. Forecast API/official BASE browser acceptance remains unproven; no phase closure claim.
+- STOCK_FORECAST now presented through official BASE/common response gate. Explicit institute-midnight period and up to50 unique catalogue services, integer volumes1..100000, selected original recipe or deliberate missing norm. Norm catalogue reads are explicit/paginated; chosen originals reread before query, returned revision/state and exact quantity-by-volume arithmetic checked against originals. Editing scenario clears evidence; received stock, known/complete demand and conditional pending-order shortfalls displayed separately. No order or physical consumption operation.
+- Build PASS; combined Copilot/source15 targeted tests PASS, including multiple services, missing norm/partial coverage,25h DST period, invalid-volume no query, complete selected norms, changed original no query and rehashed internally coherent demand that contradicts the original refused. Full frontend suite in progress. Real API/official BASE forecast browser acceptance and all four progressive flows remain outstanding; full goal ACTIVE, gates PARTIAL.
+
 PHASE20_FORECAST_SELECTION_FOUNDATION:
 - Added closed STOCK_FORECAST selection/source guard using original validScenario and validOutlook: explicit period, 1..50 unique service volumes, selected recipe references or explicit missing norm, original first50 scope and exact microsecond capture/period binding. Missing norms remain partial; no inferred demand or purchase authority.
 - Build PASS and focused forecast contract test PASS: extra customer/contact fields, zero/duplicate volumes, false complete coverage, wrong institute/capture/period/page size and altered demand refused. Actual Copilot form/common-response integration, original recipe selection and browser acceptance remain outstanding. Goal ACTIVE; phase gates PARTIAL.

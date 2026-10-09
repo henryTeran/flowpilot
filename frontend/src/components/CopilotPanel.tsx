@@ -18,6 +18,9 @@ import {CopilotOpportunityFacts} from "./CopilotOpportunityFacts";
 import type {OpportunityFacts} from "../copilot-opportunity-utils";
 import {instituteInstants} from "../institute-calendar";
 import type { Employee, Service } from "../types";
+import {CopilotForecastSelection} from "./CopilotForecastSelection";
+import {validForecastSelection,validForecastOriginals,type ForecastDraft} from "../copilot-forecast-utils";
+import {validRecipe} from "../recipe-utils";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
 type Choice = { id: string; display_name: string };
@@ -34,6 +37,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
   const [day,setDay] = useState("");
+  const [forecast,setForecast]=useState<ForecastDraft>({start:"",end:"",rows:[]});
   const [periodStart,setPeriodStart]=useState(""),[periodEnd,setPeriodEnd]=useState("");
   const [opportunitySource,setOpportunitySource]=useState<""|"capacity"|"rebooking"|"closures">(""),[horizon,setHorizon]=useState("");
   const [horizonOccurrence,setHorizonOccurrence]=useState("");
@@ -80,6 +84,11 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    if(name==="STOCK_FORECAST"){
+      const scenario={starts_at:instituteMidnight(forecast.start,timezone),ends_at:instituteMidnight(forecast.end,timezone),demands:forecast.rows.map(r=>({service_id:r.service_id,recipe_id:r.recipe?.id??null,quantity:/^[1-9]\d{0,5}$/.test(r.quantity) ? Number(r.quantity) : 0}))};
+      if(!validForecastSelection({scenario}) || forecast.rows.some(r=>!services.some(s=>s.id===r.service_id))){setError("Choisissez une période valide et des volumes entiers de 1 à 100000, pour au plus 50 prestations et 366 jours.");return;}
+      selection.scenario=scenario as NonNullable<ReadSelection["scenario"]>;
+    }
     if(name==="REVENUE_OPPORTUNITIES"){
       if(!opportunitySource){setError("Choisissez une source d’opportunités avant de consulter.");return;}
       selection.opportunity_source=opportunitySource;
@@ -101,9 +110,16 @@ function Consultations({ institute, timezone, employees, services }: Props) {
     flight.current = true; const seq = ++sequence.current;
     setBusy(true); setError(undefined); setResponse(undefined);
     try {
+      if(name==="STOCK_FORECAST")for(const row of forecast.rows){
+        if(!row.recipe)continue;
+        const original=await apiGet<unknown>(`/inventory/institutes/${encodeURIComponent(institute)}/recipes/${encodeURIComponent(row.recipe.id)}`);
+        if(!current(seq))return;
+        if(!validRecipe(original,institute,row.service_id) || JSON.stringify(original)!==JSON.stringify(row.recipe))throw Error("Changed original");
+      }
       const value = await apiPost<unknown>("/copilot/query",{ message:question.trim(),ui_context:selection });
       if (!current(seq)) return;
       if (!await validReadResponse(value,institute,name,selection,timezone)) throw new Error("Invalid evidence");
+      if(name==="STOCK_FORECAST" && (value as ReadResponse).evidence && !validForecastOriginals((value as ReadResponse).evidence!.result as Outlook,forecast.rows,institute))throw Error("Invalid original quantities");
       if (current(seq)) setResponse(value as ReadResponse);
     } catch { if (current(seq)) setError("Réponse indisponible ou à vérifier. Relisez les sélections puis relancez la consultation."); }
     finally { flight.current = false; if (current(seq)) setBusy(false); }
@@ -195,6 +211,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
           {!!row.upcoming_slots.length && <details><summary>Créneaux suivants ({row.upcoming_slots.length})</summary>{row.upcoming_slots.map((value,index) => <div key={index}>{slot(value)}</div>)}</details>}</section>)}</>;
     }
     const value = evidence.result as Outlook;
+    if(evidence.capability==="STOCK_FORECAST")return <><p>Du {date(value.starts_at!)} au {date(value.ends_at!)} (fin exclue).</p><p>{value.coverage==="partial_selected_norms" ? "Couverture partielle : besoins totaux inconnus." : "Besoins du scénario uniquement : toutes les normes choisies sont connues."}</p><ul>{value.demands.map(d=><li key={d.service_id}>{d.service_name} · volume {d.quantity} · {d.recipe_revision===null ? "norme non sélectionnée" : `norme originale v${d.recipe_revision} · ${d.state==="enabled" ? "active" : "désactivée"}`}</li>)}</ul><p>Première page : jusqu’à 50 articles. Les commandes en attente ne sont pas du stock reçu. Le résultat après commandes reste conditionnel, sans date de livraison garantie. Aucune commande ni consommation physique créée.</p><div className="copilot-table"><table><caption>Besoins du scénario et stock enregistré</caption><thead><tr><th>Article</th><th>Unité</th><th>Stock reçu</th><th>Besoins connus</th><th>Besoins complets</th><th>Commandes en attente</th><th>Manque physique avec seuil</th><th>Manque si toutes arrivent</th></tr></thead><tbody>{value.items.map(i=><tr key={i.item_id}><th scope="row">{i.item_name} · {i.item_sku}</th><td>{stockUnits[i.unit]}</td><td>{stockDisplay(i.on_hand)}</td><td>{stockDisplay(i.known_demand)}</td><td>{i.complete_demand===null ? "Inconnus" : stockDisplay(i.complete_demand)}</td><td>{stockDisplay(i.pending_order_quantity)}</td><td>{stockDisplay(i.known_demand_shortfall)}</td><td>{stockDisplay(i.conditional_shortfall_after_all_orders)}</td></tr>)}</tbody></table></div>{!value.items.length && <p>Aucun article retourné.</p>}</>;
     return <><p>Jusqu’à 50 articles de la première page du catalogue. Les commandes en attente restent distinctes du stock reçu.</p>
       {!value.items.length && <p>Aucun article retourné.</p>}<div className="copilot-table"><table><caption>Stock enregistré et seuils</caption><thead><tr><th>Article</th><th>Unité</th><th>Stock reçu</th><th>Seuil</th><th>Déficit au seuil</th><th>Commandes en attente</th><th>Déficit si toutes arrivent</th></tr></thead>
         <tbody>{value.items.map(item => <tr key={item.item_id}><th scope="row">{item.item_name} · {item.item_sku}</th><td>{stockUnits[item.unit]}</td>
@@ -202,7 +219,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   }
   return <section className="copilot-panel" aria-label="Copilot"><h2>Consulter avec le Copilot</h2>
     <form onSubmit={event => { event.preventDefault(); void consult(); }}>
-      <fieldset disabled={busy || !available.length}><label>Consultation<select value={name} onChange={event => { edit(); setName(event.target.value as ReadName | ""); setCustomer(""); setChoices([]); setService(""); }}>
+      <fieldset disabled={busy || !available.length}><label>Consultation<select value={name} onChange={event => { edit(); setName(event.target.value as ReadName | ""); setCustomer(""); setChoices([]); setService(""); setForecast({start:"",end:"",rows:[]}); }}>
         <option value="">Choisir une consultation</option>{available.map(value => <option key={value} value={value}>{readLabels[value as keyof typeof readLabels]}</option>)}</select></label>
         {customerMode && <><label>Rechercher une cliente<input value={customerQuery} maxLength={160} onChange={event => { edit(); setCustomerQuery(event.target.value); setChoices([]); setCustomer(""); }} /></label>
           <button type="button" disabled={customerQuery.trim().length < 2} onClick={() => void search()}>Rechercher les clientes</button>
@@ -211,6 +228,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
+        {name==="STOCK_FORECAST" && <CopilotForecastSelection institute={institute} timezone={timezone} services={services} value={forecast} onChange={v=>{edit();setForecast(v);}}/>}
         {name === "REVENUE_OPPORTUNITIES" && <><label>Source des opportunités<select value={opportunitySource} onChange={event=>{edit();setOpportunitySource(event.target.value as typeof opportunitySource);setService("");setHorizon("");setPeriodStart("");setPeriodEnd("");}}><option value="">Choisir une source</option><option value="capacity">Capacité conditionnelle</option><option value="rebooking">Reprises clientes</option><option value="closures">Suivi des annulations</option></select></label>
           {opportunitySource==="capacity" && <><label>Prestation sélectionnée<select value={service} onChange={event=>{edit();setService(event.target.value);}}><option value="">Choisir une prestation</option>{services.filter(r=>r.status==="active").map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label><label>Horizon local<input type="datetime-local" value={horizon} onChange={event=>{edit();setHorizon(event.target.value);setHorizonOccurrence("");}} /></label><p>Heure locale de l’institut : {timezone}.</p>{horizonChoices.length>1 && <label>Occurrence de l’heure répétée<select value={horizonOccurrence} onChange={event=>{edit();setHorizonOccurrence(event.target.value);}}><option value="">Choisir une occurrence</option>{horizonChoices.map((value,index)=><option key={value} value={value}>{index===0 ? "Première occurrence" : "Seconde occurrence"}</option>)}</select></label>}</>}
         </>}

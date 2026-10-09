@@ -1,5 +1,18 @@
 import {validScenario,validOutlook,type Scenario,type Outlook} from "./outlook-utils";
 import {certificationInstant as instant} from "./certification-utils";
+import {validRecipe,type Recipe} from "./recipe-utils";
+import {stockMilli} from "./inventory-utils";
+export type ForecastRow={service_id:string;recipe:Recipe|null;quantity:string};
+export type ForecastDraft={start:string;end:string;rows:ForecastRow[]};
+export function validForecastOriginals(value:Outlook,rows:ForecastRow[],institute:string):boolean{
+  if(!rows.length || rows.length>50 || new Set(rows.map(r=>r.service_id)).size!==rows.length || value.demands.length!==rows.length || rows.some(r=>!id(r.service_id) || !/^[1-9]\d{0,5}$/.test(r.quantity) || Number(r.quantity)>100000 || r.recipe && !validRecipe(r.recipe,institute,r.service_id)))return false;
+  if(!value.demands.every(d=>{const row=rows.find(r=>r.service_id===d.service_id);return !!row && d.recipe_id===(row.recipe?.id??null) && d.quantity===Number(row.quantity) && d.recipe_revision===(row.recipe?.revision??null) && d.state===(row.recipe ? row.recipe.enabled ? "enabled" : "disabled" : "missing_selected_norm");}))return false;
+  return value.items.every(item=>{
+    let expected=0n;
+    for(const row of rows)if(row.recipe?.enabled)for(const entry of row.recipe.entries)if(entry.item_id===item.item_id){if(entry.unit!==item.unit)return false;expected+=stockMilli(entry.quantity)*BigInt(row.quantity);}
+    return stockMilli(item.known_demand)===expected;
+  });
+}
 const keys=(v:unknown,names:string):v is Record<string,unknown>=>!!v && typeof v==="object" && !Array.isArray(v) && Object.keys(v).sort().join(" ")===names.split(" ").sort().join(" ");
 const id=(v:unknown):v is string=>typeof v==="string" && !!v && v.trim()===v && Array.from(v).length<=80 && !/[\x00-\x1f]/.test(v);
 export function validForecastSelection(v:unknown):v is {scenario:Scenario}{

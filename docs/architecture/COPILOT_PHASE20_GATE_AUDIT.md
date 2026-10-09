@@ -1,5 +1,9 @@
 # Phase 20 completion audit
 
+Forecast increment regression result: full frontend suite546 PASS,0 failures/skips,136.80s (log:.cache/20-forecast-frontend.log). This is frontend evidence only; actual forecast API/BASE browser acceptance remains pending.
+
+Forecast form increment: all12 initial consultations now have frontend presentations, including explicit multi-service volumes/selected recipe originals or missing norms, original reread before official BASE query and exact recipe arithmetic validation. Build and combined15 targeted tests pass; synthetic multi-service partial/complete,DST25h, changed-original and internally coherent wrong-demand refusals covered. Full frontend suite is in progress. Actual forecast API/BASE browser evidence, populated acceptance gaps and all four progressive interfaces remain required; registration/presentation does not close any gate.
+
 Forecast contract foundation: original scenario/outlook validators now have a closed Copilot selection and source adapter binding institute, selected period and microsecond capture. Explicit missing norms retain partial coverage. Build and focused contract test pass; actual forecast form, original recipe selection, common response integration and browser acceptance remain outstanding. Phase gates stay partial.
 
 Opportunity browser baseline: real signed API/official BASE18-test suite passes desktop/tablet (1.7m), all three exclusive source selections, second repeated local-hour capacity instant, selected closure DST period, source-switch evidence clear and no contact/recovered-revenue authority. Closure screenshots inspected, fixture cleaned/listeners0. Populated candidate/retained-value and projected-slot visual cases remain acceptance gaps. Forecast UI and four progressive flows still outstanding; gates remain partial.

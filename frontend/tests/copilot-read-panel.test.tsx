@@ -271,6 +271,37 @@ test("local opportunity horizon rejects skipped hours and requires an explicit r
   }finally{await act(async()=>root.unmount());}
 });
 
+test("forecast controls retain multiple selected services, original quantities and explicit missing norms",async()=>{
+  setAccessToken(token());const calls:{path:string;body:any}[]=[];let changed=false,wrongQuantity=false;
+  const original={id:"recipe",institute_id:"own",service_id:"service",revision:1,base_revision:0,enabled:true,entries:[{item_id:"item-0",quantity:"1.250",unit:"ml"}],reason:"Norme originale",actor_id:"manager",idempotency_key:"original",created_at:clock};
+  globalThis.fetch=async(url,init)=>{
+    const path=String(url),body=init?.body ? JSON.parse(init.body as string) : undefined;calls.push({path,body});
+    if(path.endsWith("/capabilities"))return reply(discovery());
+    if(path.includes("/services/service/recipes"))return reply([original]);
+    if(path.endsWith("/recipes/recipe"))return reply(changed ? {...original,reason:"Changed original"} : original);
+    assert.ok(path.endsWith("/copilot/query"));const scenario=body.ui_context.scenario,complete=scenario.demands.every((d:any)=>d.recipe_id!==null);
+    const item={...stock().items[0],known_demand:wrongQuantity ? "4.000" : "3.750",complete_demand:complete ? wrongQuantity ? "4.000" : "3.750" : null,known_demand_shortfall:wrongQuantity ? "7.125" : "6.875",conditional_shortfall_after_all_orders:wrongQuantity ? "5.125" : "4.875"};
+    const response=await answer("STOCK_FORECAST",{...stock(),...scenario,source:"explicit_service_volume_scenario",coverage:complete ? "complete_selected_norms" : "partial_selected_norms",demands:scenario.demands.map((d:any)=>({...d,service_name:d.service_id==="service" ? "Soin" : "Autre soin",recipe_revision:d.recipe_id ? 1 : null,state:d.recipe_id ? "enabled" : "missing_selected_norm"})),items:[item]});
+    assert.ok(await validReadResponse(response,"own","STOCK_FORECAST",body.ui_context));
+    return reply(response);
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await act(async()=>root.render(<CopilotPanel institute="own" timezone="Europe/Zurich" employees={[]} services={[{id:"service",name:"Soin",status:"active"},{id:"other",name:"Autre soin",status:"active"}] as any}/>));await settle();
+    await fill("Consultation","STOCK_FORECAST");await fill("Votre question","Projeter les besoins de stock");await click("Consulter");assert.equal(calls.length,1);assert.match(document.querySelector('[role="alert"]')!.textContent!,/volumes entiers/);
+    await fill("Premier jour du scénario","2026-10-25");await fill("Fin du scénario exclue","2026-10-26");await fill("Prestation du scénario","service");assert.equal(calls.length,1);
+    await click("Lire les normes originales");await fill("Norme du scénario","recipe");await click("Ajouter au scénario");await fill("Volume de Soin","3");
+    await fill("Prestation du scénario","other");await fill("Norme du scénario","missing");await click("Ajouter au scénario");await fill("Volume de Autre soin","2");await click("Consulter");
+    assert.deepEqual(calls.at(-1)!.body.ui_context,{scenario:{starts_at:"2026-10-24T22:00:00.000Z",ends_at:"2026-10-25T23:00:00.000Z",demands:[{service_id:"service",recipe_id:"recipe",quantity:3},{service_id:"other",recipe_id:null,quantity:2}]}});
+    assert.match(document.body.textContent!,/Couverture partielle/);assert.match(document.body.textContent!,/Aucune commande ni consommation physique créée/);assert.equal(document.querySelectorAll("tbody tr").length,1);assert.match(document.querySelector("tbody")!.textContent!,/3,75|3\.75/);
+    await fill("Volume de Soin","0");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);const before=calls.length;await click("Consulter");assert.equal(calls.length,before);
+    await fill("Volume de Soin","3");await click("Retirer Autre soin du scénario");await click("Consulter");assert.match(document.body.textContent!,/toutes les normes choisies sont connues/);
+    changed=true;const queries=calls.filter(c=>c.body).length;await click("Consulter");assert.equal(calls.filter(c=>c.body).length,queries);assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);
+    changed=false;wrongQuantity=true;await click("Consulter");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);assert.ok(document.querySelector('[role="alert"]'));
+    assert.ok(calls.every(c=>!c.body || c.path.endsWith("/copilot/query")));
+  }finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);
