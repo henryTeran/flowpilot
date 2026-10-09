@@ -1,6 +1,6 @@
-"""Future JV port: deterministic claims must cite captured application evidence.
+"""JV port: deterministic claims must cite captured application evidence.
 
-No JV engine or concrete language provider is implemented in this phase.
+OperationalAnalyzer implements the deterministic port; language remains optional.
 """
 from typing import Protocol
 from app.modules.crm.metrics import Fact

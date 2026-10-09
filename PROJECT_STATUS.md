@@ -1,11 +1,17 @@
 CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18A_JV_FOUNDATION_IN_PROGRESS
+CURRENT_CHECKPOINT = PHASE18A_SOURCE_BOUND_OPERATIONAL_ANALYSIS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PARTIAL
+
+PHASE18A_SOURCE_BOUND_OPERATIONAL_ANALYSIS:
+- Added internal provider-independent JV OperationalAnalyzer implementing existing deterministic port. Four BASE service evidence types yield structured descriptive counts and source-owned availability/assignment diagnostics. Every metric/diagnostic cites evidence SHA and JSON pointer; output has scoped rule version/full SHA/explicit missing facts/empty actions. No duplicated availability/assignment rules, revenue inference, predictive or causal claim.
+- Evidence boundary reconstructs nested unsafe copies, verifies full SHA, closed canonical registry metadata/capability-result type, capture chronology and nested scope/resource ownership. Internal trusted-source contract only: hashes are not authentication/freshness; no client-supplied-evidence HTTP endpoint.
+- First targeted run1 failed4 passed4.54s due test fixture hashing before materializing default evidence fields; normalized fixture corrected. Final JV+actual BASE query regression17 passed31.17s, zero failures/skips. Real official BASE -> signed API -> four services -> JV source pointers/replay/SHA verified; tampering/wrong metadata/wrong result/reversed chronology/foreign nested scope/unsafe copies refused; zero vs unknown and source-owned refusal preserved. Existing deprecation and intentional unsafe-copy warnings only.
+- CHECKPOINT_STATUS = PASS for internal descriptive kernel. Whole JV_PHASE PARTIAL: HTTP integration, comparisons/scoring, economic diagnostics/source contributions and full provider-independent evidence gates remain incomplete. NEXT PHASE18B: signed fresh-service analysis integration; then remaining canonical JV calculations/decision support. docs/architecture/JV_FOUNDATION.md records scope and acceptance boundaries. Full26-phase goal ACTIVE; no deployment/persistent mutation/production claim.
 
 PHASE17V_BASE_FOUNDATION_CLOSURE:
 - Final13 requested gates and9 canonical Master Plan gates PASS within proven local foundation scope; docs/architecture/BASE_PHASE_REOPENED.md records gate-to-evidence mapping. Official ai-swiss/base revision remains canonical, not custom engine. Historical checkpoints retain original proof scope and failures;17U green implementation commit b103b1b.
