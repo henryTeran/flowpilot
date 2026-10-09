@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20B_REBOOKING_SUGGESTIONS_PASS
+CURRENT_CHECKPOINT = PHASE20C_PLANNING_AND_CAPACITY_READS_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20C_PLANNING_AND_CAPACITY_READS:
+- Common Copilot orchestration moved from customer to query module, retaining real official BASE routing, signed scope, original customer/rebooking behavior and closed registry. Added PLANNING_READ via existing day service, PLANNING_GAPS via availability_pool and EMPLOYEE_CAPACITY via original recorded-capacity service. Reception planning reads, manager-only capacity, capability-specific schemas/selections and explicit ISO completed day; no arbitrary clocks/actor/provider/SQL.
+- Minimal planning session/status projections omit names/customer contact/notes. Engine windows preserve unknown reasons/blocker references and do not prove complete work hours or a bookable care slot. Capacity preserves whole-institute recorded aggregates, bounded first employee page, missing-hours/uncertain-activity unknowns and null physical/bookable capacity. Source capture clocks/scope retained and completion chronology validated; no mutations/actions/provider calls.
+- Official corpus19 resources, routing35/35 PASS. Initial regression8 passed/1 failed because PostgreSQL returned equivalent timestamp with local offset; test corrected to compare instants, not serialized timezone text. Final four-module customer/rebooking/planning/capacity regression9 passed68.26s, zero failures/skips, real SQLite/PostgreSQL signed HTTP and original capacity kernel. Source/blocker SHA, roles, invalid selections/dates/services, future-day refusal, foreign employees, privacy and zero SQL writes covered. Temporary schemas0; isolated owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for these3 read integrations. PLANNING_CONFLICTS remains unimplemented and explicit. NEXT source-backed planning conflicts, remaining revenue/stock reads/suggestions, progressive preparations and guarded execution; packaged Linux full Copilot acceptance pending. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20B_REBOOKING_SUGGESTIONS:
 - CLIENT_REBOOKING_OPPORTUNITIES registered at SUGGEST level and exposed only to signed institute managers. Actual official BASE process dispatches CRM read-only adapter; existing event_sources/candidates compute the latest observed care and recorded policy timing, no duplicated timing engine or inferred cadence.

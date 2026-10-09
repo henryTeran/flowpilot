@@ -24,9 +24,17 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter la disponibilite des collaboratrices; Consulter la disponibilite des collaboratrices; Qui est disponible maintenant
 **Éviter si**: Modifier ou annuler une reservation.
 
+### Mesurer la capacite enregistree des collaboratrices: [`employee-capacity`](skills/processes/employee-capacity/SKILL.md)
+**Quand l'utiliser**: Mesurer la capacite enregistree des collaboratrices; Mesurer la capacite enregistree des collaboratrices; Consulter la capacite enregistree du personnel
+**Éviter si**: Annuler une reservation.
+
 ### Importer l'existant: [`importer-l-existant`](skills/processes/importer-l-existant/SKILL.md)
 **Quand l'utiliser**: Quand l'utilisateur veut partir de ses documents existants: «importe mes procédures», «transforme ce mode d'emploi en process», «j'ai déjà tout dans un wiki». Importer mes procédures existantes; Transformer ce document en process; J'ai déjà un wiki, comment le réutiliser?
 **Éviter si**: Signaler un dysfonctionnement de l'assistant. Faire le point sur un dossier en service et dire ce qui pourrait aller mieux dans ses process.
+
+### Consulter les creneaux libres du planning: [`planning-gaps`](skills/processes/planning-gaps/SKILL.md)
+**Quand l'utiliser**: Consulter les creneaux libres du planning; Consulter les creneaux libres du planning; Consulter les creneaux libres
+**Éviter si**: Annuler une reservation.
 
 ### Comparer les scores du planning: [`planning-optimization`](skills/processes/planning-optimization/SKILL.md)
 **Quand l'utiliser**: Optimiser le planning; Optimiser le planning; Comparer les scores du planning; Calculer les scores du planning; Optimize the schedule; Score the schedule

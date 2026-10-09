@@ -4,7 +4,7 @@ from sqlalchemy import event
 from sqlalchemy.orm import Session
 import app.main as main_module
 from app.database.session import get_db
-from app.modules.copilot import customer
+from app.modules.copilot import query as customer
 from app.modules.crm import automation_originals, rebooking
 from app.modules.customers.models import Customer
 from app.modules.appointments.models import Appointment
