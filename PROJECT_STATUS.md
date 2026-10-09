@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_MAXIMUM_SELECTION_BROWSER_ACCEPTANCE:
+- Actual API/official BASE maximum selection2 PASS1.1m desktop/tablet (.cache/20-reorder-maximum-browser.log).61 original items per project,49 selected whole-unit items plus one ml item beyond first50; exact50 source rows previewed and retained. Unselected51st checkbox disabled while selected checkbox remains removable; uncheck enables additional choice, recheck restores limit. Direct API51-item preview refused422. Exact49x2.000unit and1x3.125ml projections match original; native items/orders unchanged.
+- Final full-page captures inspected at reduced scale, showing complete long list/table but exposing excessive50-button removal-list length; compact selection review remains UI polish work, not hidden proof of visual completion. Fixture removed/listeners0, exit0. Production unchanged. Supplier pagination and damaged/ambiguous/race browser acceptance remain; goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_REORDER_PARTIAL_RECEIPT_BROWSER_ACCEPTANCE:
 - Actual API/official BASE scenario suite expanded to received0.000ml/0.500ml cases on desktop/tablet:4 PASS1.3m (.cache/20-reorder-partial-receipt-browser.log). Native partial receipt raises stock1.250->1.750ml and reduces pending2.000->1.500ml. Active norm3.750ml demand yields conditional5.500ml in both cases; ignoring pending yields7.500ml versus7.000ml. Selected disabled norm yields conditional1.750ml. Partial/missing/complete norms and25h period assertions still pass.
 - Native order progress and retained purchase-receipt list additionally unchanged by proposal preview/retention, alongside items/movements/orders. Partial-receipt final screenshots inspected; fixture removed/listeners0, exit0. Production unchanged; existing build evidence retained. Maximum50 selection, supplier pagination and damaged/ambiguous/race browser cases remain. Goal ACTIVE; phase gates PARTIAL.
