@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_LOSS_UI_CONTRACT_FOUNDATION:
+- Added closed original copilot.losses.Read validator, selected institute/period/capture, independent booking/walk-in clocks and max capture, source digests/counts, booking unpriced partition, original currency amount checks and retained-cohort sums. Financial loss remains null, causal loss/history false; no inferred economic loss.
+- Build PASS and targeted source test PASS (independent microsecond clocks and wrong scope/period/count/contact fields/financial claims refused). Not yet connected to Copilot controls/rendering; dedicated UI and real API/BASE browser evidence remain outstanding. Whole goal ACTIVE, all Copilot gates PARTIAL.
+
 PHASE20_REVENUE_SUMMARY_UI_INCREMENT:
 - Real signed SQLite API/official BASE browser baseline PASS desktop/tablet: suite14 passed1.8m, selected DST-day period exactly25h, scoped returned period, false history/settlement and null projection, only query POST, invalid-period correction/no second query. Screenshots inspected; fixture cleaned/listeners4198/4199=0. Log:.cache/20-revenue-browser.log. Actual source has zero tickets; populated mixed-currency browser case remains outstanding (DOM evidence is not a substitute).
 - Dedicated revenue UI/source test now PASS in Copilot9-test suite: institute midnight conversion, exact selected period, distinct CHF/EUR/unknown groups, incomplete unknown-currency total and no query for empty period. Rehashed wrong period/capture/count, duplicate currencies, settlement/history/projection claims refused. Invalid period now gives explicit correction message. Actual API/BASE browser acceptance remains pending.
