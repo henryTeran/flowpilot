@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20E_RESOURCE_RESERVATION_CONFLICTS_PASS
+CURRENT_CHECKPOINT = PHASE20F_RECORDED_REVENUE_SUMMARY_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20F_RECORDED_REVENUE_SUMMARY:
+- Registered REVENUE_SUMMARY through actual official BASE process and existing locked revenue.sources.read. Manager-only signed institute, explicit aware start/end UI instants, missing-period clarification and unrelated selection refusal. Existing domain validates observed positive half-open interval; no copied billing arithmetic, currency conversion, customer records, SQL mutation or provider calls.
+- Preserved typed original aggregates, separate currency/amount-quality groups, institute-wide undated diagnostic, source capture clocks and full response SHA. Recorded billing does not imply settlement, complete sales or causal loss. Registry schemas/discovery updated; new selection fields cannot be reused across other routed capabilities.
+- Official corpus21 resources/routing40/40 PASS. Revenue/customer/original-source regression7 passed26.42s, zero failures/skips real SQLite/PostgreSQL. Final revenue scope suite2 passed11.75s includes a foreign institute paid basket without contamination; fixture initially used nonexistent customer_name ticket field, corrected before final green run. Exact original-service result equality,25-ticket/25-active-line cohort, removed-line exclusion, original source SHA, roles/invalid dates/future periods/selection denial and zero SQL writes verified. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for recorded revenue summary. NEXT source-backed REVENUE_LOSS_ANALYSIS and REVENUE_OPPORTUNITIES, remaining stock reads/forecast, progressive guarded preparation/execution and Linux Copilot acceptance. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20E_RESOURCE_RESERVATION_CONFLICTS:
 - Extended existing PLANNING_CONFLICTS to an explicit employee OR resource plus local day, preserving manager authorization. Registry exposes exclusive-target input schema and both result schemas; both targets refused, missing selection clarified. Official BASE still sole router, no separate resource language resolver.

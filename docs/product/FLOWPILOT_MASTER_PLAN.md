@@ -1718,7 +1718,7 @@ Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../ar
 
 # 41. Phase 20 — FlowPilot Copilot
 
-Checkpoints 20A–20E : lectures cliente, profil CRM, opportunités de reprise, planning, fenêtres de disponibilité, capacité enregistrée et chevauchements d'engagements d'une collaboratrice ou de réservations d'une ressource raccordés au routage BASE officiel et aux services métier. Suggestions issues de la politique originale et des soins enregistrés, rendez-vous actifs vérifiés, aucune réservation ou communication automatique. Capacités revenus/stock et préparation/exécution encore ouvertes. [Périmètre et limites](../architecture/COPILOT_INTEGRATION.md). Les gates ci-dessous sont les critères de clôture ; leur état actuel reste PARTIAL/OPEN dans PROJECT_STATUS.md.
+Checkpoints 20A–20F : lectures cliente, profil CRM, opportunités de reprise, planning, fenêtres de disponibilité, capacité enregistrée, chevauchements d'engagements d'une collaboratrice ou de réservations d'une ressource et résumé de facturation sur période explicite raccordés au routage BASE officiel et aux services métier. Suggestions issues de la politique originale et des soins enregistrés, rendez-vous actifs vérifiés, aucune réservation ou communication automatique. Analyse/opportunités de revenus, stock et préparation/exécution encore ouverts. [Périmètre et limites](../architecture/COPILOT_INTEGRATION.md). Les gates ci-dessous sont les critères de clôture ; leur état actuel reste PARTIAL/OPEN dans PROJECT_STATUS.md.
 
 Capacités initiales :
 

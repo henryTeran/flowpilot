@@ -17,6 +17,7 @@ The Copilot uses the pinned official `ai-swiss/base@1.5.1` router and prepared p
 | PLANNING_GAPS | scheduling.service.availability_pool | planning operator | Current/future engine windows with original blocker IDs and unavailable reasons; optional explicit service selection |
 | EMPLOYEE_CAPACITY | revenue.capacity.read | institute manager only | Explicit completed local day recorded work/activity aggregates and bounded employee evidence |
 | PLANNING_CONFLICTS | workforce.conflicts.read / resources.conflicts.read | institute manager only | Selected employee OR resource/day overlaps and explicit invalid/overdue diagnostics |
+| REVENUE_SUMMARY | revenue.sources.read | institute manager only | Explicit observed period recorded paid-ticket/active-line aggregates, currency-separated amounts and original quality diagnostics |
 
 No external language provider is called and no raw customer facts are sent to BASE routing. Only the message reaches the framework. Responses contain source facts, capture/completion clocks, SHA256 integrity and no actions. SHA256 is neither a signature nor a retained business original. BASE operational correlation records signed scope, interaction ID and digests without raw messages or customer facts.
 
@@ -45,6 +46,12 @@ The employee response retains `resource_conflicts_covered=false`: a selected emp
 PLANNING_CONFLICTS now also accepts `resource_id` instead of `employee_id`, with the same explicit day and manager permission. Selecting both is refused; missing target/day clarifies without dispatch. The closed registry exposes both result schemas and the exclusive target selection. Resource reads require the selected resource in the exact signed institute and lock that institute. Only unreleased reservations belonging to the selected resource/institute are captured; each ticket or appointment owner is independently verified in the same institute. Foreign/missing owners are counted as invalid without returning their identifiers.
 
 Reservation overlaps use the same exact half-open intersection calculation and deterministic first50/full-count presentation as employee commitments. Released reservations do not consume a source slot. Unreleased reservations whose recorded end has passed remain explicit unknown-capacity diagnostics across the selected resource cohort, matching the existing allocation timeline rule. Inactive/maintenance resource state remains visible. No resource name, customer details, inferred repair, mutation or booking authority is returned. The response describes one selected physical unit's recorded reservations, not an inventory-wide feasibility or missing-allocation audit. Existing configuration/allocation services remain authoritative for actual booking admissibility.
+
+## Recorded revenue summary (20F)
+
+REVENUE_SUMMARY accepts explicit aware `start` and `end` instants from UI selection. Signed institute manager permission is required before source dispatch; unrelated customer/employee/service selections are refused. The existing locked revenue source service enforces an observed positive half-open period and calculates the full paid-ticket cohort and nonremoved invoice-line aggregates. Capture clocks and the entire typed aggregate are preserved, without customer/ticket/line records or external provider calls.
+
+CHF/EUR and unknown currency remain separate. Missing or invalid recorded amounts do not become complete revenue; the source's institute-wide undated-paid diagnostic is not assigned to the selected period. Recorded billing is not a proof of settlement, complete sales or causal financial loss. REVENUE_LOSS_ANALYSIS and REVENUE_OPPORTUNITIES remain open for separate source-backed integrations.
 
 ## Remaining phase gates
 

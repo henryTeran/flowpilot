@@ -56,6 +56,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter la file operationnelle; Consulter la file operationnelle; Afficher la file des clientes
 **Éviter si**: Modifier ou annuler une reservation.
 
+### Consulter le resume des revenus enregistres: [`revenue-summary`](skills/processes/revenue-summary/SKILL.md)
+**Quand l'utiliser**: Consulter le resume des revenus enregistres; Consulter le resume des revenus enregistres; Afficher le bilan de facturation
+**Éviter si**: Annuler une reservation.
+
 ### Trouver des creneaux de liste d attente: [`waitlist-match`](skills/processes/waitlist-match/SKILL.md)
 **Quand l'utiliser**: Chercher des creneaux pour la liste d'attente; Chercher des creneaux pour la liste d'attente; Trouver des creneaux pour la liste d'attente; Examiner les creneaux de la liste d'attente; Find slots for the waitlist
 **Éviter si**: Modifier ou annuler une reservation.

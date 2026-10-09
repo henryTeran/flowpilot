@@ -6,7 +6,7 @@ from pydantic import AwareDatetime, ConfigDict, TypeAdapter, field_validator, mo
 from app.modules.base import audit, query, upstream, read_capabilities as identity
 from app.modules.crm import profile, rebooking
 from app.modules.copilot import planning
-from app.modules.revenue import capacity
+from app.modules.revenue import capacity, sources as revenue_sources, billing
 from app.modules.workforce import conflicts
 from app.modules.resources import conflicts as resource_conflicts
 from app.modules.institutes.models import Institute
@@ -16,10 +16,10 @@ from app.modules.customers.repository import require_customer
 from app.modules.waitlist.originals import fingerprint
 from app.shared.time import utcnow, explicit_utc_instant
 
-Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS"]
+Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY"]
 PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY",
     "client-rebooking-opportunities": "CLIENT_REBOOKING_OPPORTUNITIES", "planning-read": "PLANNING_READ",
-    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS"})
+    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS", "revenue-summary": "REVENUE_SUMMARY"})
 
 
 class Selection(Fact):
@@ -28,6 +28,8 @@ class Selection(Fact):
     employee_id: identity.ExactId | None = None
     resource_id: identity.ExactId | None = None
     day: date | None = None
+    start: AwareDatetime | None = None
+    end: AwareDatetime | None = None
 
     @field_validator("day", mode="before")
     @classmethod
@@ -49,6 +51,11 @@ class CapacitySelection(Fact):
     day: date
 
 
+class BillingSelection(Fact):
+    start: AwareDatetime
+    end: AwareDatetime
+
+
 class ConflictsSelection(CapacitySelection):
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
         {"required": ["employee_id"], "properties": {"employee_id": {"type": "string"}, "resource_id": {"type": "null"}}},
@@ -66,7 +73,8 @@ class ConflictsSelection(CapacitySelection):
 
 INPUTS = MappingProxyType({"CLIENT_READ": CustomerSelection, "CLIENT_SUMMARY": CustomerSelection,
     "CLIENT_REBOOKING_OPPORTUNITIES": CustomerSelection, "PLANNING_READ": query.EmptySelection,
-    "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection, "PLANNING_CONFLICTS": ConflictsSelection})
+    "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection, "PLANNING_CONFLICTS": ConflictsSelection,
+    "REVENUE_SUMMARY": BillingSelection})
 
 
 class Request(query.Request):
@@ -99,7 +107,8 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("PLANNING_READ", "planning_operator", 0, query.PlanningFacts, "planning.service.get_day_planning"),
         ("PLANNING_GAPS", "planning_operator", 0, planning.Gaps, "scheduling.service.availability_pool"),
         ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
-        ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"))})
+        ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"),
+        ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"))})
 
 
 class Evidence(Fact):
@@ -107,7 +116,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -116,7 +125,7 @@ class Evidence(Fact):
     def coherent_capture(self):
         if self.read_completed_at < self.captured_at:
             raise ValueError("Read completion cannot precede source capture")
-        if isinstance(self.result, capacity.Capacity) and (
+        if isinstance(self.result, (capacity.Capacity, billing.Billing)) and (
             self.result.window.institute_id != self.institute_id or self.result.window.captured_at != self.captured_at):
             raise ValueError("Capacity source scope and capture must match evidence")
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
@@ -149,16 +158,19 @@ def read(db, principal, candidate, router=None):
         selected = {k: v for k, v in request.ui_context.model_dump().items() if v is not None}
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
-            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"}}
+            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"},
+            "REVENUE_SUMMARY": {"start", "end"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
         if name == "PLANNING_CONFLICTS" and selected.get("employee_id") and selected.get("resource_id"):
             raise HTTPException(400, "Select exactly one employee or resource")
         required = {"customer_id"} if name and name.startswith("CLIENT_") else {"day"} if name in {"EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS"} else set()
+        if name == "REVENUE_SUMMARY":
+            required = {"start", "end"}
         missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
         if name is None or required - selected.keys() or missing_target:
             response = Response(request_id=span.id, status="clarification", capability=name,
-                answer="Précisez la consultation et sa sélection cliente ou sa journée explicite.")
+                answer="Précisez la consultation et les sélections requises : cliente, cible, journée ou période explicite.")
         else:
             captured = utcnow()
             if db.get(Institute, principal.institute_id) is None:
@@ -203,6 +215,10 @@ def read(db, principal, candidate, router=None):
                     if result.invalid_source_count or result.overdue_open_source_count:
                         answer += " Certaines sources sont invalides ou dépassées; le planning réel reste incertain."
                 captured = result.captured_at
+            elif name == "REVENUE_SUMMARY":
+                result = revenue_sources.read(db, principal.institute_id, request.ui_context.start, request.ui_context.end)
+                captured = result.window.captured_at
+                answer = "Facturation enregistrée sur la période sélectionnée, séparée par devise; encaissement et exhaustivité non établis."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at
