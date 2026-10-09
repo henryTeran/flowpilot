@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_CRM_SUMMARY_UI_INCREMENT:
+- Added explicit selected-customer CLIENT_SUMMARY consultation through the existing official BASE query API. Reuses original CRM profile validation, adds closed profile/registration keys and exact evidence capture binding. Passive display preserves absent-policy/unavailable states, observed window, separate currencies, unknown amounts and incomplete history. No additional domain fetch, mutation or contact.
+- Frontend build PASS; targeted Copilot DOM/response suite5 passed (including absent-policy presentation and rehashed wrong customer/clock/history/extra-field refusals). Real browser coverage for this new CRM mode and retained-policy display remains outstanding;20Y browser proof covers its original four modes only. Current checkpoint remains20Y; all Copilot gates PARTIAL, whole goal ACTIVE.
+
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V

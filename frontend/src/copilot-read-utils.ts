@@ -1,8 +1,9 @@
 import { revenueOriginalFingerprint as hash } from "./revenue-scenario-utils";
 import { certificationInstant as instant } from "./certification-utils";
 import { validOutlook, type Outlook } from "./outlook-utils";
+import { validSegmentProfile, type SegmentProfile } from "./crm-segment-utils";
 
-export const readLabels = { CLIENT_READ: "Fiche cliente", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", STOCK_READ: "Stock enregistré" } as const;
+export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", STOCK_READ: "Stock enregistré" } as const;
 export type ReadName = keyof typeof readLabels;
 export type ReadSelection = { customer_id?: string; service_id?: string };
 export type CustomerFacts = { customer_id: string; institute_id: string; display_name: string; created_at: string };
@@ -13,7 +14,7 @@ export type Slot = { employee_id: string; institute_id: string; available_from: 
 export type Gaps = { captured_at: string; rows: { employee_id: string; institute_id: string; service_id: string | null; available: boolean;
   current_slot: Slot | null; upcoming_slots: Slot[] }[]; basis: "current_scheduling_engine_windows"; complete_work_hours: false; booking_authorized: false };
 export type ReadEvidence = { capability: ReadName; institute_id: string; captured_at: string; read_completed_at: string;
-  result: CustomerFacts | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
+  result: CustomerFacts | SegmentProfile | PlanningFacts | Gaps | Outlook; fingerprint: string; integrity: "response_sha256_not_signature_or_retained_original"; complete_customer_history: false };
 export type ReadResponse = { request_id: string; status: "answered" | "clarification"; answer: string; capability: ReadName | null;
   evidence: ReadEvidence | null; actions: []; framework: "ai-swiss/base@1.5.1" };
 export const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -34,7 +35,7 @@ export function validReadDiscovery(value: unknown, role: string): value is { nam
 }
 export function validReadSelection(name: ReadName, selection: ReadSelection): boolean {
   const fields = Object.keys(selection).sort().join(" ");
-  if (name === "CLIENT_READ") return fields === "customer_id" && exactId(selection.customer_id);
+  if (name === "CLIENT_READ" || name === "CLIENT_SUMMARY") return fields === "customer_id" && exactId(selection.customer_id);
   if (name === "PLANNING_GAPS") return fields === "" || fields === "service_id" && exactId(selection.service_id);
   return fields === "";
 }
@@ -46,6 +47,9 @@ function validSlot(value: unknown, institute: string, employee: string): value i
     && (value.available_from === null || value.available_until === null || instant(value.available_from)! < instant(value.available_until)!);
 }
 function validFacts(name: ReadName, value: unknown, institute: string, selection: ReadSelection, capture: string): boolean {
+  if (name === "CLIENT_SUMMARY") return exactKeys(value,"institute_id customer_id captured_at customer policy_original undated_paid_tickets future_paid_tickets segment unavailable_reason complete_customer_history")
+    && exactKeys(value.customer,"institute_id customer_id created_at") && validSegmentProfile(value,institute,selection.customer_id!)
+    && instant(value.captured_at) === instant(capture);
   if (name === "CLIENT_READ") return exactKeys(value,"customer_id institute_id display_name created_at") && value.customer_id === selection.customer_id
     && value.institute_id === institute && text(value.display_name,160) && date(value.created_at);
   if (name === "STOCK_READ") return exactKeys(value,"institute_id generated_at starts_at ends_at source coverage demands limit offset items")

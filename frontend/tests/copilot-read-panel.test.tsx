@@ -97,6 +97,30 @@ test("response gate: owned typed source, clocks, coverage/action boundaries and 
   assert.equal(await validReadResponse(await answer("PLANNING_GAPS",{...gaps,booking_authorized:true}),"own","PLANNING_GAPS",{service_id:"service"}),false);
 });
 
+test("CRM summary: absent policy remains explicit and rehashed wrong source is rejected",async () => {
+  const profile = {institute_id:"own",customer_id:"customer",captured_at:clock,customer:{institute_id:"own",customer_id:"customer",created_at:clock},policy_original:null,undated_paid_tickets:0,future_paid_tickets:0,segment:null,unavailable_reason:"policy_absent",complete_customer_history:false};
+  assert.ok(await validReadResponse(await answer("CLIENT_SUMMARY",profile),"own","CLIENT_SUMMARY",{customer_id:"customer"}));
+  for (const change of [{customer_id:"foreign"},{captured_at:"2026-10-09T10:00:00.123455Z"},{unavailable_reason:null},{phone:"PRIVATE"},{complete_customer_history:true}]) {
+    assert.equal(await validReadResponse(await answer("CLIENT_SUMMARY",{...profile,...change}),"own","CLIENT_SUMMARY",{customer_id:"customer"}),false);
+  }
+  setAccessToken(token());
+  globalThis.fetch = async (url,init) => {
+    if (String(url).endsWith("/capabilities")) return reply(discovery());
+    if (String(url).includes("/customers/")) return reply([{id:"customer",institute_id:"own",display_name:"Cliente",phone:null,created_at:clock}]);
+    assert.deepEqual(JSON.parse(init!.body as string).ui_context,{customer_id:"customer"});
+    return reply(await answer("CLIENT_SUMMARY",profile));
+  };
+  const root = createRoot(document.getElementById("root")!);
+  try {
+    await render(root);await settle();await fill("Consultation","CLIENT_SUMMARY");
+    await fill("Rechercher une cliente","Cliente");await click("Rechercher les clientes");await fill("Cliente","customer");
+    await fill("Votre question","Resumer le profil CRM cliente");await click("Consulter");
+    assert.match(document.body.textContent!,/Politique CRM non configurée/);
+    assert.match(document.body.textContent!,/historique complet/);
+    assert.equal(document.querySelectorAll("tbody tr").length,0);
+  } finally {await act(async () => root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

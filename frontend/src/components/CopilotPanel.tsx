@@ -5,6 +5,8 @@ import { exactId, exactKeys, readLabels, validReadDiscovery, validReadResponse, 
 import { certificationInstant } from "../certification-utils";
 import { stockDisplay, stockUnits } from "../inventory-utils";
 import type { Outlook } from "../outlook-utils";
+import type { SegmentProfile } from "../crm-segment-utils";
+import { crmMoney } from "./CustomerCrmPanel";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -21,6 +23,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [available,setAvailable] = useState<ReadName[]>([]), [name,setName] = useState<ReadName | "">("");
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
+  const customerMode = name === "CLIENT_READ" || name === "CLIENT_SUMMARY";
   const [response,setResponse] = useState<ReadResponse>(), [busy,setBusy] = useState(false), [error,setError] = useState<string>();
   const current = (seq: number) => mounted.current && sequence.current === seq && token === getAccessToken() && institute === getOperatorInstitute();
   function edit() { sequence.current++; setResponse(undefined); setError(undefined); }
@@ -52,8 +55,8 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   }
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
-    const selection: ReadSelection = name === "CLIENT_READ" ? { customer_id:customer } : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
-    if (name === "CLIENT_READ" && !choices.some(row => row.id === customer) || name === "PLANNING_GAPS" && service && !services.some(row => row.id === service)) {
+    const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
+    if (customerMode && !choices.some(row => row.id === customer) || name === "PLANNING_GAPS" && service && !services.some(row => row.id === service)) {
       setError("Choisissez une référence proposée avant de consulter."); return;
     }
     flight.current = true; const seq = ++sequence.current;
@@ -77,6 +80,18 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if (evidence.capability === "CLIENT_SUMMARY") {
+      const value = evidence.result as SegmentProfile, segment = value.segment;
+      const labels: Record<string,string> = { NEW:"Nouvelle cliente",ACTIVE:"Active",LOYAL:"Fidèle",VIP:"VIP",AT_RISK:"À risque",DORMANT:"Inactive" };
+      const unavailable: Record<string,string> = { policy_absent:"Politique CRM non configurée",future_policy:"Date de politique à vérifier",future_registration:"Date d’inscription à vérifier",future_closings:"Dates de paiement à vérifier",unrepresentable_horizon:"Période de politique à vérifier" };
+      return <><p>Profil calculé selon la politique CRM enregistrée et les tickets clôturés observés. L’historique complet de la cliente reste indisponible.</p>
+        {!segment ? <p>{unavailable[value.unavailable_reason || ""] || "Profil indisponible"}.</p> : <><h4>{segment.state ? labels[segment.state] : "Segment non établi"}</h4>
+          <p>Période observée : du {date(segment.billing.window.start)} au {date(segment.billing.window.end)}.</p>
+          <p>{segment.billing.closed_tickets} ticket(s) clôturé(s). {segment.billing.last_recorded_closed_at ? `Dernière clôture observée : ${date(segment.billing.last_recorded_closed_at)}.` : "Aucune clôture datée observée."}</p>
+          {segment.billing.currencies.map(row => <p key={row.currency}>{crmMoney(row.known_gross_minor,row.currency)} de montants connus ; {row.missing_amount_tickets} montant(s) manquant(s), {row.invalid_amount_tickets} montant(s) invalide(s).</p>)}
+          <p>{segment.billing.unknown_currency_tickets} ticket(s) de devise inconnue.</p></>}
+        <p>{value.undated_paid_tickets} ticket(s) payé(s) sans date de clôture ; {value.future_paid_tickets} clôture(s) datée(s) dans le futur.</p></>;
+    }
     if (evidence.capability === "CLIENT_READ") {
       const value = evidence.result as CustomerFacts;
       return <dl><dt>Cliente sélectionnée</dt><dd>{value.display_name}</dd><dt>Inscription enregistrée</dt><dd>{date(value.created_at)}</dd></dl>;
@@ -105,13 +120,13 @@ function Consultations({ institute, timezone, employees, services }: Props) {
     <form onSubmit={event => { event.preventDefault(); void consult(); }}>
       <fieldset disabled={busy || !available.length}><label>Consultation<select value={name} onChange={event => { edit(); setName(event.target.value as ReadName | ""); setCustomer(""); setChoices([]); setService(""); }}>
         <option value="">Choisir une consultation</option>{available.map(value => <option key={value} value={value}>{readLabels[value]}</option>)}</select></label>
-        {name === "CLIENT_READ" && <><label>Rechercher une cliente<input value={customerQuery} maxLength={160} onChange={event => { edit(); setCustomerQuery(event.target.value); setChoices([]); setCustomer(""); }} /></label>
+        {customerMode && <><label>Rechercher une cliente<input value={customerQuery} maxLength={160} onChange={event => { edit(); setCustomerQuery(event.target.value); setChoices([]); setCustomer(""); }} /></label>
           <button type="button" disabled={customerQuery.trim().length < 2} onClick={() => void search()}>Rechercher les clientes</button>
           <label>Cliente<select value={customer} onChange={event => { edit(); setCustomer(event.target.value); }}><option value="">Choisir une cliente</option>{choices.map(row => <option key={row.id} value={row.id}>{row.display_name}</option>)}</select></label>
           <p>Jusqu’à 20 résultats. Affinez la recherche si nécessaire.</p></>}
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
-        <button disabled={!name || !question.trim() || name === "CLIENT_READ" && !customer}>Consulter</button>
+        <button disabled={!name || !question.trim() || customerMode && !customer}>Consulter</button>
       </fieldset>
     </form>{busy && <p role="status">Lecture en cours…</p>}{error && <p role="alert">{error}</p>}
     {response && <section aria-label="Réponse du Copilot"><h3>{response.status === "clarification" ? "Précisions nécessaires" : "Réponse"}</h3><p>{response.answer}</p>
