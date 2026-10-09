@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_SOURCE_BINDING_FOUNDATION:
+- Added compact proposal binding to independently supplied native supplier and complete selected original stock rows/demands. Exact supplier identity, selected item set/order, original quantities and conditional shortfall fields checked; full supplier/demand/item SHA must match retained source_digest. This helper does not itself fetch or certify source provenance; form must use validated native reads and selected recipe originals.
+- Build and six combined proposal contract/driver tests PASS, including changed independent supplier name/item name refused despite unchanged compact projection. Actual paginated source reads, scenario recipe binding, form and real API/BASE browser evidence remain outstanding. Goal ACTIVE; gates PARTIAL.
+
 PHASE20_REORDER_RECOVERY_ADVERSE_ACCEPTANCE:
 - Five combined proposal tests PASS: independently rehashed different original ID preserves frozen request,400 rejection requires fresh absent-key read before cleanup,500 ambiguity cannot correct, session change during read prevents POST, concurrent driver busy and corrupt saved storage blocks replacement. Production driver unchanged; existing build evidence remains current. Form/source/scenario and actual API/BASE browser acceptance remain outstanding. Goal ACTIVE; gates PARTIAL.
 
