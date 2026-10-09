@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_PRESENTATION_POLISH:
+- Translated coverage states into recorded-stock/complete/partial norm explanations. Scoped compact22px checkboxes retain44px label targets; proposal table uses padded shared table styles and keyboard-focusable horizontal scrolling, with wrapped original item references. No lifecycle or authority changes.
+- Build and focused form test PASS. Actual signed API/official BASE browser2 PASS48.4s desktop/tablet with coverage label, checkbox width and no document horizontal overflow assertions; lost retention recovery/unchanged stock and orders still pass (.cache/20-reorder-polish-browser.log). Final screenshots inspected; owned fixture removed/listeners0, wrapper exit0. Full584 regression is evidence before this presentation change, not rerun. Remaining populated/adverse scenario gates stay PARTIAL; goal ACTIVE.
+
 PHASE20_REORDER_BROWSER_ACCEPTANCE:
 - Actual signed API/pinned official BASE reorder browser lifecycle2 PASS51.9s desktop/tablet (.cache/20-reorder-browser.log). Explicit owned supplier/item and ignore-pending assumption produce exact3.750ml proposal from5.000ml threshold/1.250ml stock. Lost retention acknowledgement then reload independently recovers same original with exactly one retention POST; key/ID receipt equals retained result. Actual item snapshot, movement list and purchase-order list unchanged across preview/retention/recovery.
 - Owned isolated fixture removed, listeners4198/4199=0; screenshots inspected. PowerShell wrapper reports exit1 while redirected native warning stream includes bcrypt/NO_COLOR warnings; Playwright reports2 passed and cleanup completes. No production source correction needed for this exercised path. Full584 frontend/build evidence remains current.

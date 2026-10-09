@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Current reorder interface supersedes the earlier groundwork-only notes below: manager form, paginated native supplier/stock reads, selected recipe scenario source validation, exact BASE preview and scoped frozen retention/recovery are mounted. Build and full584 frontend regression passed at6f88d88. Actual recorded-stock browser lifecycle passes desktop/tablet, including lost retention acknowledgement, independent original recovery with one retention POST and unchanged stock/movements/orders. Presentation follow-up also passes both browsers with translated coverage, compact checkbox and document overflow checks. This is not full scenario/adverse acceptance: enabled/disabled/missing selected norms, pending orders, large multi-page selections and refusal/race/damaged-source browser cases remain. All phase gates remain PARTIAL.
+
 Reorder frozen recovery now has five combined passing contract/driver tests, including independent receipt substitution, definitive versus ambiguous rejection, concurrent driver/session change and corrupt storage blocking. No production change in this increment. Form/source/scenario/browser proof remains required; gates PARTIAL.
 
 Reorder retained-original contract now checks exact request/selection, signed actor/scope, reason/key/source fingerprint, canonical original and chronology plus full proposal preview and SHA. Build and two contract tests pass, including rehashed substitutions and false order claims. Recovery/form/source selection/browser proof remain open; gates PARTIAL.
