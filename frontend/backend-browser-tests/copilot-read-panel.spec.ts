@@ -132,6 +132,27 @@ test("conflicts use explicit employee and resource references through real BASE"
   await page.screenshot({path:info.outputPath("copilot-conflicts.png"),fullPage:true});
 });
 
+test("revenue summary binds institute period through real BASE and preserves financial limits",async({page},info)=>{
+  const panel=await login(page),posts:any[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push(r.postDataJSON());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("REVENUE_SUMMARY");
+  await panel.getByLabel("Début de période").fill("2025-10-26");
+  await panel.getByLabel("Fin de période exclue").fill("2025-10-27");
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Consulter les revenus enregistres");
+  const result=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+  const response=await result;expect(response.status()).toBe(200);const value=await response.json();
+  expect(value.capability).toBe("REVENUE_SUMMARY");const source=value.evidence.result;
+  expect(source.window.institute_id).toBe(institute);expect(source.complete_sales_history).toBe(false);expect(source.settlement_confirmed).toBe(false);expect(source.projected_revenue).toBeNull();
+  expect(new Date(source.window.end).getTime()-new Date(source.window.start).getTime()).toBe(25*3600000);
+  const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});
+  await expect(facts).toContainText("encaissement bancaire non établis");await expect(facts).toContainText("ticket(s) payé(s)");
+  expect(posts).toEqual([{message:"Consulter les revenus enregistres",ui_context:{start:"2025-10-25T22:00:00.000Z",end:"2025-10-26T23:00:00.000Z"}}]);
+  await page.screenshot({path:info.outputPath("copilot-revenue.png"),fullPage:true});
+  await panel.getByLabel("Fin de période exclue").fill("2025-10-26");await expect(facts).toHaveCount(0);
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();await expect(panel.getByRole("alert")).toContainText("postérieure");expect(posts).toHaveLength(1);
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");
