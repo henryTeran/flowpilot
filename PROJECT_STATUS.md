@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_INFLIGHT_REMOUNT_ACCEPTANCE:
+- Actual API/official BASE in-flight remount2 PASS42.3s desktop/tablet (.cache/20-reorder-remount-browser.log). Real server retention completed while response deliberately held. Close/reopen mode and attempt resume yields busy, preserves frozen request and blocks replacement; exactly one retention POST. Release original response: unmounted callback cannot clear new interface intent; explicit resume independently reads same retained original without another write.
+- Native stocks/movements/orders unchanged. Final screenshots inspected, fixture removed/listeners0, exit0. Production unchanged. This exercises concurrent drivers in the same browser document, not independent-tab coordination or PostgreSQL races. Remaining phase requirements/current packaged regression require audit before closure; goal ACTIVE/gates PARTIAL.
+
 PHASE20_REORDER_AMBIGUOUS_SERVER_RESPONSE_ACCEPTANCE:
 - Actual API/official BASE with browser-injected500 response before transmission or after real successful retention:4 PASS1.0m desktop/tablet (.cache/20-reorder-ambiguous-browser.log). Both outcomes preserve exact saved request/key across reload, disable replacement and expose no definitive correction. Committed outcome recovers identical native original with one retention POST; nontransmitted outcome retries exact frozen terms/key after absence and independently confirms retained original.
 - Actual native item/movements/orders unchanged in both outcomes; independent key/ID original equals receipt. Representative committed desktop/uncommitted tablet final screenshots inspected. Fixture removed/listeners0, exit0. This simulates ambiguous response delivery, not an actual backend500 bug. Production unchanged. Concurrent/remount session acceptance and other phase gaps remain; goal ACTIVE/gates PARTIAL.
