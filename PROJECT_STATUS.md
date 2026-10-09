@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_PARTIAL_RECEIPT_BROWSER_ACCEPTANCE:
+- Actual API/official BASE scenario suite expanded to received0.000ml/0.500ml cases on desktop/tablet:4 PASS1.3m (.cache/20-reorder-partial-receipt-browser.log). Native partial receipt raises stock1.250->1.750ml and reduces pending2.000->1.500ml. Active norm3.750ml demand yields conditional5.500ml in both cases; ignoring pending yields7.500ml versus7.000ml. Selected disabled norm yields conditional1.750ml. Partial/missing/complete norms and25h period assertions still pass.
+- Native order progress and retained purchase-receipt list additionally unchanged by proposal preview/retention, alongside items/movements/orders. Partial-receipt final screenshots inspected; fixture removed/listeners0, exit0. Production unchanged; existing build evidence retained. Maximum50 selection, supplier pagination and damaged/ambiguous/race browser cases remain. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_PAGINATION_BROWSER_ACCEPTANCE:
 - Actual API/official BASE paginated selection2 PASS1.1m desktop/tablet (.cache/20-reorder-pagination-browser-final.log).61 original items per project, selected first/last on separate20-row catalogue pages, selected IDs retained across navigation and stock source reader actually requests offset50. Exact2.000unit/3.125ml preview items match retained original. Full native item catalogue and orders unchanged.
 - Initial run desktop failed because test counted checkboxes before initial catalogue render and skipped first page; tablet passed. Fixed test to wait for read completion/enabled catalogue control before checking each page. No production correction. Final screenshots inspected; fixture removed/listeners0, exit0. Maximum50 selected items, supplier pagination, partial receipts and damaged/ambiguous/race browser cases remain; phase gates PARTIAL and goal ACTIVE.
