@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_PROGRESSIVE_COPILOT_UI_ACCEPTANCE_PARTIAL
 STATUS = ACTIVE
 
+PHASE20_CREATION_EXPIRY_ACCEPTANCE:
+- Creation actual expiry acceptance:2 PASS2.7m desktop/tablet (.cache/20-creation-expiry-browser.log). Real signed API/pinned official BASE, explicit near-future institute-local deadline, separate human approval and actual elapsed time (no server/browser clock override). Independently signed state becomes expired; UI reread shows validity expired/disabled execution. Zero execution POSTs, native agenda empty and room still available. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Both CREATE/MOVE expiry and revocation presentations now proved; final requirement/gate reconciliation remains required, not automatic phase closure. Whole26-phase goal ACTIVE, Phase20 PARTIAL.
+
 PHASE20_MOVE_EXPIRY_ACCEPTANCE:
 - Move actual expiry browser acceptance:2 PASS2.7m desktop/tablet (.cache/20-move-expiry-browser.log). Real signed API/pinned official BASE, explicit next-minute preparation deadline at least20s ahead in Europe/Zurich, separate approval. Real elapsed wall time/unchanged server and browser clocks: independently polled signed approval-state becomes expired; explicit UI reread displays validity expired and disables execution, zero execution POSTs. Booking unchanged/original room blocked/proposed interval free. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 current. This establishes move expiry UI, backend package separately covers execution refusal; creation expiry and final scope reconciliation remain open. Whole26-phase goal ACTIVE, Phase20 PARTIAL.
 
