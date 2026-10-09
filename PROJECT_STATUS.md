@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20T_ATOMIC_GUARDED_APPOINTMENT_MOVE_PASS
+CURRENT_CHECKPOINT = PHASE20U_MARKETING_DRAFT_PREVIEW_FOUNDATION_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,11 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20U_MARKETING_DRAFT_PREVIEW_FOUNDATION:
+- Added internal read-only campaign preview_creation using original retained-audience/template resolution and original DRAFT transition validation. Explicit create request, signed actor, owned sources, exact template content and source chronology required. Returns internal content/capture/digest; recipient IDs are domain facts, never provider context. No original/head or delivery writes; no approval or send.
+- Actual SQLite/PostgreSQL preview plus original campaign chain/recovery/atomicity/source/HTTP/race regression5 passed33.89s, zero failures/skips. SQL write observer confirms zero preview mutations; foreign institute, blank actor, non-create action, template mismatch and earlier source clock refused. Actual creation equals preview content, stays DRAFT without delivery authority and recovers exact original.
+- CHECKPOINT_STATUS = PASS for domain preview prerequisite only. NEXT official BASE MARKETING_CAMPAIGN_DRAFT adapter with minimal context, pinned sources and retained draft, then STOCK_REORDER_PROPOSAL and latest packaged Linux/UI/scope acceptance. All Copilot gates PARTIAL; whole26-phase goal ACTIVE. No external contact, push or deployment.
 
 PHASE20T_ATOMIC_GUARDED_APPOINTMENT_MOVE:
 - Registered MOVE beside CREATE/CANCEL in shared exact-current-approval/validity/signed-scope/actor/key/fresh-source execution lifecycle. Copilot execution discovery and explicit-reference endpoint support creation/move. Original update service commit=False used; actual booking must equal approved proposed snapshot, customer metadata unchanged, exact reserved IDs/intervals and one new modification event verified before single booking/resource/event/receipt commit.

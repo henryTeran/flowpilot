@@ -1,5 +1,7 @@
 """Signed retained campaign drafting/review/approval/send declaration; no provider dispatch."""
 from typing import Literal
+from dataclasses import dataclass
+from datetime import datetime
 from pydantic import model_validator
 from sqlalchemy import select,func
 from app.modules.crm.metrics import Fact,Identifier,Count
@@ -83,6 +85,27 @@ def source_content(db,institute,value,at):
         template=original_template.content
         if (template.channel,template.origin,template.subject,template.body)!=(value.channel,value.origin,value.subject,value.body):raise business_error("Template-bound campaign must retain the exact template content")
     return campaigns.CampaignContent(institute_id=institute,channel=value.channel,origin=value.origin,subject=value.subject,body=value.body,template_original_id=value.template_original_id,audience=audience)
+
+@dataclass(frozen=True)
+class DraftPreview:
+    """Internal domain facts, including recipient IDs; never a provider context."""
+    content: campaigns.CampaignContent
+    captured_at: datetime
+    content_digest: str
+
+def preview_creation(db,institute,payload,actor):
+    """Check new draft terms with the original source and transition rules, without writes."""
+    payload=Request.model_validate(payload.model_dump())
+    if payload.action!="create":raise business_error("Only a new campaign draft can be previewed")
+    if not isinstance(actor,str) or not actor.strip() or actor.strip()!=actor or len(actor)>160:
+        raise business_error("Signed campaign actor required")
+    now=utcnow()
+    try:
+        # These local validation identifiers are not retained or returned.
+        revision=campaigns.create("preview_revision","preview_campaign",source_content(db,institute,payload.content,now),actor,payload.reason,now)
+    except ValueError as error:raise business_error(str(error)) from error
+    return DraftPreview(revision.content,now,campaigns.digest(revision.content))
+
 def execute(db,institute,payload,actor):
     payload=Request.model_validate(payload.model_dump())
     if not isinstance(actor,str) or not actor.strip() or actor.strip()!=actor or len(actor)>160:raise business_error("Signed campaign actor required")

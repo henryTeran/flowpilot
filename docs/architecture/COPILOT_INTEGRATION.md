@@ -93,6 +93,12 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Marketing draft domain preview prerequisite (20U)
+
+`marketing.campaign_originals.preview_creation` resolves the explicitly selected retained audience and optional exact template through the existing original readers, then validates the existing DRAFT creation transition without retaining a campaign. The internal result contains content, capture time and its digest. Its recipient IDs remain internal domain data and must not enter BASE/provider context. It neither approves a campaign nor authorizes contact or delivery. The existing creation service retains its original idempotent transaction and stages.
+
+Actual SQLite/PostgreSQL preview and original campaign regression:5 passed33.89s, no failures/skips. An SQL observer verifies no preview mutations; foreign scope, invalid actor/action, mismatched template and source chronology are refused. Actual retained draft content equals the preview and retains no delivery authority. This is a domain prerequisite only: official BASE routing, minimal Copilot output, source binding and retained preparation integration remain open, as do all four Copilot gates.
+
 ### Atomic guarded appointment move (20T)
 
 APPOINTMENT_MOVE now uses the same exact-current-approval, validity, signed scope, actor/key and fresh-source checks as creation/cancellation. The common Copilot execution endpoint/discovery registers both creation and move. The move adapter calls the original update service with caller-owned commit, checks the actual booking against the proposed snapshot, preserves customer metadata and verifies exact reserved resource IDs/intervals plus one new modification event. Booking, released/reassigned resources, event and receipt commit once; failures before commit restore the original booking/resources without an execution receipt.
