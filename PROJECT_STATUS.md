@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21M_VOICE_RESPONSE_DISPOSAL_ACCEPTANCE:
+- Voice response integrity/disposal acceptance:2 PASS1.2m desktop/tablet (.cache/21-voice-disposal-browser.log). Actual signed API/official BASE with offline STT: transport changes transcript without digest; UI refuses facts/handoff, then native retry succeeds. Third native reply held until navigation; reopening has no retained audio/transcript, submit disabled. Three preview POSTs only/no domain action. Initial2 failures were incorrect test button name, corrected to existing label; no production edit. Fixture removed/terminal exit0. Real speech and remote Voxtral remain unproven; current environment has no configured STT selector/model/Mistral key (values not disclosed). Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21L_MICROPHONE_BOUNDS_ACCEPTANCE:
 - Desktop/tablet2 PASS39.6s: simulated recording stops at60s and rejects10,000,001 bytes, releasing tracks with zero POSTs (.cache/21-voice-bounds-browser.log). Physical audio and real STT remain unproven; full Docker rebuilds failed before tests on registry504. Voice PARTIAL, goal ACTIVE.
 
