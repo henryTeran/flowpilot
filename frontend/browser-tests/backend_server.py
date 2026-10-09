@@ -95,10 +95,13 @@ def main():
             "browser-simulator", "browser-test-account", PaymentSimulator())])
     if os.environ.get("FLOWPILOT_BROWSER_VOICE_FIXTURE") == "1":
         from app.ai.runtime import AISettings, Providers
-        from app.ai.fake import FakeSpeechToTextProvider
         from app.ai.contracts import Transcript
         app.state.ai_config = AISettings(stt_provider="fake")
-        app.state.ai_fake_bindings = Providers(stt=FakeSpeechToTextProvider(Transcript(text="Consulter les stocks enregistres")))
+        class VoiceFixtureProvider:
+            def transcribe(self, request):
+                text = "Preparer la creation d'un rendez-vous" if request.audio == b"fixture creation audio" else "Consulter les stocks enregistres"
+                return Transcript(text=text)
+        app.state.ai_fake_bindings = Providers(stt=VoiceFixtureProvider())
     try:
         uvicorn.run(app, host="127.0.0.1", port=4198, log_level="warning")
     finally:
