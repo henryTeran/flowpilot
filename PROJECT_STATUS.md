@@ -1,11 +1,18 @@
 CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18B_SIGNED_FRESH_SOURCE_ANALYSIS
+CURRENT_CHECKPOINT = PHASE18C_EXPLICIT_POLICY_SCORING_EXPLANATIONS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PARTIAL
+
+PHASE18C_EXPLICIT_POLICY_SCORING_EXPLANATIONS:
+- Added signed manager-only POST /api/v1/jv/institutes/{institute_id}/optimization reusing existing optimizer selection contract, retained policy SHA/current demand-event SHA/horizon/matching policy and exact manager scope guard. No arbitrary client scores/weights/evidence/provider admitted.
+- JV verifies policy/demand original hashes/scope, shared capture chronology, complete normalization proofs and scoring result by reusing existing derive/scoring_policy/domain.score. Output includes exact rational score/rank/state/reasons/contributions/hard constraints per alternative with source SHA/JSON pointer, full analysis SHA and retained policy SHA. No duplicated eligibility/normalization/calculation engine; no booking/contact actions.
+- Weighted unknown remains unavailable and prevents complete ranking; refused source yields explicit source_unavailable/no alternatives. Catalog prices without currency do not become profit/revenue/prediction. Existing core preserves hard constraints, negative scores and exact ties under permutation; source service remains current admission authority.
+- SQLite+actual PostgreSQL/JV operational routes+optimizer regression29 passed36.80s, zero failures/skips; additional refused-source/foreign-rehashed-policy test1 passed3.20s. Signed capture/output/source/policy hashes, exact contributions, altered score/policy refusal, permission/injection and zero SQL writes verified. Temporary schemas0; owned server stopped. Existing deprecation/intentional unsafe-copy warnings only.
+- CHECKPOINT_STATUS = PASS for source-grounded alternative scoring/explanation. JV_PHASE remains PARTIAL. NEXT source-grounded economic comparisons/diagnostics/contributions and final provider-independent JV acceptance, without claiming observed causal contributions from projections. Full26-phase goal ACTIVE; no Linux/native/production/deployment/persistent mutation claim.
 
 PHASE18B_SIGNED_FRESH_SOURCE_ANALYSIS:
 - Added POST /api/v1/jv/query using existing signed JWT/ticket-manager RBAC, closed BASE message/UI-context contract and existing official framework/service orchestration. No client evidence/analysis/actor/institute/SQL/provider accepted. Response pairs original BASE source with deterministic JV analysis referencing exact source SHA; clarification yields null analysis, upstream outage refuses and invalid JV source returns sanitized503.

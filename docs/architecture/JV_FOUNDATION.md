@@ -22,7 +22,17 @@ Le logger applicatif JV associe résultat et SHA d’analyse à l’ID d’inter
 
 Validation Windows SQLite/PostgreSQL 16.15 : **22 tests réussis en 49,74 s**, aucun échec ni test ignoré, couvrant routes JV, noyau et régression query BASE. Les quatre captures signées, empreintes liées, refus inter-instituts et file étrangère vide sont vérifiés sur les deux moteurs; un observateur SQL confirme l’absence d’écriture pendant ces lectures. Les fixtures PostgreSQL possèdent des schémas aléatoires supprimés après les tests; zéro schéma résiduel et serveur temporaire arrêté. Les tests de contrat vérifient injection/auth avant routage, clarification sans analyse et refus de panne/preuve invalide sans détail privé. Aucune validation Linux/native/production supplémentaire n’est revendiquée.
 
-## Acceptation restante
+## Checkpoint 18C : scoring explicable des alternatives
+
+`POST /api/v1/jv/institutes/{institute_id}/optimization` réutilise la permission manager exacte de l’optimiseur et son contrat de sélection : politique retenue et SHA, demande retenue et événement/SHA courants, horizon et politique de matching. Aucun score, poids libre, observation, capacité ou provider du client ne fait autorité.
+
+Le service existant capture les faits et applique la politique explicitement enregistrée. JV vérifie les empreintes et scopes des originaux de politique/demande, la chronologie, les preuves de normalisation et le résultat, en réutilisant `sources.derive`, `policy.scoring_policy` et `domain.score`. Il ne recopie pas leurs calculs. L’analyse expose chaque alternative avec score rationnel exact, rang, contraintes, raisons et contributions reward/penalty, avec pointeur JSON et SHA de la capture complète. La sortie possède également son SHA et le SHA de politique.
+
+Les rangs et ex æquo restent ceux du moteur souverain. Un facteur pondéré inconnu empêche un classement complet; il n’est pas remplacé par zéro. Une contrainte dure ne se compense pas par un score. Une source refusée reste `source_unavailable`, avec le motif existant et aucune alternative. Les valeurs de catalogue sans devise ne deviennent pas un revenu observé, un profit, une prédiction ou une autorisation de réservation. Toute action nécessite toujours revue humaine et revalidation métier.
+
+Validation : **29 tests réussis en 36,80 s**, aucun échec ni test ignoré, incluant routes JV opérationnelles, scoring/revue existants et nouveaux tests signés SQLite/PostgreSQL. Un test supplémentaire de source refusée et de politique étrangère réempreintée réussit (**1 en 3,20 s**). Les tests vérifient réutilisation exacte, contributions/citations, rejet de score et politique altérés, refus RBAC/injection, inconnues pondérées, contraintes et ex æquo du moteur existant. L’observateur SQL confirme zéro mutation pendant lecture et analyse. Zéro schéma temporaire résiduel; serveur temporaire arrêté.
+
+## Acceptation restante de la phase
 
 `JV_RULES`, `JV_EVIDENCE`, `JV_PROVIDER_INDEPENDENCE` restent **PARTIAL** pour la phase entière. Le noyau descriptif seul ne ferme pas la phase.
 
