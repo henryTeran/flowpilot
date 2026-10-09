@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_OPPORTUNITY_LOCAL_HORIZON_INCREMENT:
+- Replaced technical timezone-bearing text horizon with local date/time input using original instituteInstants calendar. Unique occurrence maps to UTC; skipped/invalid hour refuses query, repeated hour exposes explicit first/second occurrence selection. Selected instant remains bound by original capacity/evidence validation. No browser-local timezone assumption.
+- Final build and Copilot12-test suite PASS, including integrated local13:00 Europe/Zurich to11:00Z query. Intermediate test failure resulted from incomplete field/test migration after a PowerShell quoting error; final component and fixture corrected. Dedicated repeated/skipped-hour control tests and actual API/BASE browser opportunity acceptance remain outstanding. Goal ACTIVE, gates PARTIAL.
+
 PHASE20_OPPORTUNITY_FORM_WIRING_INCREMENT:
 - Dedicated integrated three-source controls test now PASS in Copilot12-test suite: exact selected capacity service/horizon, no-extra-field rebooking, institute-midnight closure period, verified respective rendering, changed-source evidence/fields cleared, incomplete capacity/source makes no request. Empty source now gives explicit correction message. Actual API/BASE browser acceptance and horizon product refinement remain pending.
 - Mounted all three original opportunity displays in Copilot; discovery now exposes REVENUE_OPPORTUNITIES for authorized manager. Explicit empty-default source selection: active selected catalogue service plus timezone-bearing horizon for capacity, no extra selections for institute rebooking, selected institute civil-date observed period for closures. Source changes clear service/horizon/period and previous response. Requests use existing official BASE query and common evidence guard; no implicit read/contact/execution.

@@ -243,8 +243,8 @@ test("opportunity form sends exclusive source selections and clears evidence whe
   try{
     await render(root);await settle();await fill("Consultation","REVENUE_OPPORTUNITIES");await fill("Votre question","Examiner les opportunites");
     await click("Consulter");assert.equal(queries.length,0);assert.match(document.querySelector('[role="alert"]')!.textContent!,/Choisissez une source/);
-    await fill("Source des opportunités","capacity");await fill("Prestation sélectionnée","service");await fill("Horizon avec fuseau","2026-10-09T11:00:00Z");await click("Consulter");
-    assert.deepEqual(queries[0].ui_context,{opportunity_source:"capacity",service_id:"service",horizon_end:"2026-10-09T11:00:00Z"});assert.match(document.body.textContent!,/Capacité non établie/);
+    await fill("Source des opportunités","capacity");await fill("Prestation sélectionnée","service");await fill("Horizon local","2026-10-09T13:00");await click("Consulter");
+    assert.deepEqual(queries[0].ui_context,{opportunity_source:"capacity",service_id:"service",horizon_end:"2026-10-09T11:00:00.000Z"});assert.match(document.body.textContent!,/Capacité non établie/);
     await fill("Source des opportunités","rebooking");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);await click("Consulter");assert.deepEqual(queries[1].ui_context,{opportunity_source:"rebooking"});assert.match(document.body.textContent!,/Aucun message envoyé/);
     await fill("Source des opportunités","closures");await fill("Début de période","2026-10-08");await fill("Fin de période exclue","2026-10-09");await click("Consulter");assert.deepEqual(queries[2].ui_context,{opportunity_source:"closures",...period});assert.match(document.body.textContent!,/Aucun contact effectué/);
     await fill("Source des opportunités","capacity");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);await click("Consulter");assert.equal(queries.length,3);assert.match(document.querySelector('[role="alert"]')!.textContent!,/prestation/);

@@ -16,6 +16,7 @@ import { instituteMidnight } from "../outlook-utils";
 import type { LossRead } from "../copilot-loss-utils";
 import {CopilotOpportunityFacts} from "./CopilotOpportunityFacts";
 import type {OpportunityFacts} from "../copilot-opportunity-utils";
+import {instituteInstants} from "../institute-calendar";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -35,6 +36,8 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [day,setDay] = useState("");
   const [periodStart,setPeriodStart]=useState(""),[periodEnd,setPeriodEnd]=useState("");
   const [opportunitySource,setOpportunitySource]=useState<""|"capacity"|"rebooking"|"closures">(""),[horizon,setHorizon]=useState("");
+  const [horizonOccurrence,setHorizonOccurrence]=useState("");
+  const horizonChoices=horizon ? instituteInstants(horizon.slice(0,10),horizon.slice(11,16),timezone) : [];
   const [target,setTarget]=useState(""),[resourceChoices,setResourceChoices]=useState<{id:string;name:string}[]>([]);
   async function loadResources(){
     if(flight.current)return;flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);setResponse(undefined);
@@ -81,8 +84,9 @@ function Consultations({ institute, timezone, employees, services }: Props) {
       if(!opportunitySource){setError("Choisissez une source d’opportunités avant de consulter.");return;}
       selection.opportunity_source=opportunitySource;
       if(opportunitySource==="capacity"){
-        if(!services.some(r=>r.id===service && r.status==="active") || certificationInstant(horizon)===undefined){setError("Choisissez une prestation et un horizon daté avec fuseau.");return;}
-        selection.service_id=service;selection.horizon_end=horizon;
+        const selectedHorizon=horizonChoices.length===1 ? horizonChoices[0] : horizonChoices.includes(horizonOccurrence) ? horizonOccurrence : undefined;
+        if(!services.some(r=>r.id===service && r.status==="active") || !selectedHorizon){setError("Choisissez une prestation et une heure d’horizon valide ; précisez son occurrence si l’heure se répète.");return;}
+        selection.service_id=service;selection.horizon_end=selectedHorizon;
       }
     }
     if(name==="REVENUE_SUMMARY" || name==="REVENUE_LOSS_ANALYSIS" || name==="REVENUE_OPPORTUNITIES" && opportunitySource==="closures"){
@@ -208,7 +212,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
         {name === "REVENUE_OPPORTUNITIES" && <><label>Source des opportunités<select value={opportunitySource} onChange={event=>{edit();setOpportunitySource(event.target.value as typeof opportunitySource);setService("");setHorizon("");setPeriodStart("");setPeriodEnd("");}}><option value="">Choisir une source</option><option value="capacity">Capacité conditionnelle</option><option value="rebooking">Reprises clientes</option><option value="closures">Suivi des annulations</option></select></label>
-          {opportunitySource==="capacity" && <><label>Prestation sélectionnée<select value={service} onChange={event=>{edit();setService(event.target.value);}}><option value="">Choisir une prestation</option>{services.filter(r=>r.status==="active").map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label><label>Horizon avec fuseau<input value={horizon} placeholder="2026-10-09T18:00:00+02:00" onChange={event=>{edit();setHorizon(event.target.value);}} /></label><p>Indiquez une date future avec heure et décalage UTC explicite.</p></>}
+          {opportunitySource==="capacity" && <><label>Prestation sélectionnée<select value={service} onChange={event=>{edit();setService(event.target.value);}}><option value="">Choisir une prestation</option>{services.filter(r=>r.status==="active").map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label><label>Horizon local<input type="datetime-local" value={horizon} onChange={event=>{edit();setHorizon(event.target.value);setHorizonOccurrence("");}} /></label><p>Heure locale de l’institut : {timezone}.</p>{horizonChoices.length>1 && <label>Occurrence de l’heure répétée<select value={horizonOccurrence} onChange={event=>{edit();setHorizonOccurrence(event.target.value);}}><option value="">Choisir une occurrence</option>{horizonChoices.map((value,index)=><option key={value} value={value}>{index===0 ? "Première occurrence" : "Seconde occurrence"}</option>)}</select></label>}</>}
         </>}
         {(name === "REVENUE_SUMMARY" || name === "REVENUE_LOSS_ANALYSIS" || name === "REVENUE_OPPORTUNITIES" && opportunitySource==="closures") && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
         {name === "PLANNING_CONFLICTS" && <><label>Journée à examiner<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>
