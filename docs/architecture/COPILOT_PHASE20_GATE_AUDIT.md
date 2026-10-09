@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Forecast actual browser acceptance:20-test signed API/official BASE suite passes desktop/tablet2.1m. Populated selected original remains active despite later disabled version; exact demand/shortfalls, partial→complete coverage, selected25h DST period and unchanged physical item/movements/orders verified. Final answer wording removes technical coverage enum; focused final browser2 PASS1.0m and backend SQLite1 PASS7.21s (Postgres case deselected). Screenshots inspected, fixture removed/listeners0. Linux20X remains evidence of its earlier backend snapshot. Other populated acceptance gaps and four progressive flows keep gates partial.
+
 Forecast increment regression result: full frontend suite546 PASS,0 failures/skips,136.80s (log:.cache/20-forecast-frontend.log). This is frontend evidence only; actual forecast API/BASE browser acceptance remains pending.
 
 Forecast form increment: all12 initial consultations now have frontend presentations, including explicit multi-service volumes/selected recipe originals or missing norms, original reread before official BASE query and exact recipe arithmetic validation. Build and combined15 targeted tests pass; synthetic multi-service partial/complete,DST25h, changed-original and internally coherent wrong-demand refusals covered. Full frontend suite is in progress. Actual forecast API/BASE browser evidence, populated acceptance gaps and all four progressive interfaces remain required; registration/presentation does not close any gate.

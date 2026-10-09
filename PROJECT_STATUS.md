@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_FORECAST_BROWSER_ACCEPTANCE:
+- Real signed API/official BASE suite20 PASS desktop/tablet2.1m, including populated forecast with selected earlier active original despite newer disabled norm, two services/explicit missing norm,25h DST period, exact3.750ml demand and6.875ml shortfall, partial→complete selected coverage, only two Copilot query POSTs and unchanged item/movements/orders. Initial screenshot identified technical coverage code in answer; replaced with readable French and verified final focused browser2 PASS1.0m plus backend SQLite source test1 PASS7.21s (Postgres case deselected).
+- Final desktop/tablet screenshots inspected; owned fixture removed/listeners4198/4199=0. Logs:.cache/20-forecast-browser.log and20-forecast-browser-final.log. Backend wording changed after20X image evidence:64-test Linux snapshot remains historical, not a fresh build of this wording change. All12 initial consultations now presented, but other populated browser gaps and all four progressive interfaces remain required. Goal ACTIVE; all phase gates PARTIAL.
+
 PHASE20_FORECAST_FORM_INCREMENT:
 - Full frontend suite PASS:546 tests,0 failures/skips,136.80s. Log:.cache/20-forecast-frontend.log. Forecast API/official BASE browser acceptance remains unproven; no phase closure claim.
 - STOCK_FORECAST now presented through official BASE/common response gate. Explicit institute-midnight period and up to50 unique catalogue services, integer volumes1..100000, selected original recipe or deliberate missing norm. Norm catalogue reads are explicit/paginated; chosen originals reread before query, returned revision/state and exact quantity-by-volume arithmetic checked against originals. Editing scenario clears evidence; received stock, known/complete demand and conditional pending-order shortfalls displayed separately. No order or physical consumption operation.

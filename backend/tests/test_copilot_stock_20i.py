@@ -40,6 +40,8 @@ def exercise(client, engine, institute, service):
             assert result["institute_id"] == institute and result["limit"] == 50
             assert '"actor_id"' not in response.text
             if name == "STOCK_FORECAST":
+                assert "normes sélectionnées connues" in value["answer"]
+                assert "complete_selected_norms" not in value["answer"]
                 assert result["coverage"] == "complete_selected_norms"
                 assert result["demands"][0]["recipe_revision"] == 1
                 assert next(row for row in result["items"] if row["item_id"] == serum)["known_demand"] == "12.375"
@@ -49,7 +51,10 @@ def exercise(client, engine, institute, service):
     assert post(forecast_message).json()["status"] == "clarification"
     assert post(read_message, selected).status_code == 400
     assert post(read_message, role="collaboratrice").status_code == 403
-    absent = post(forecast_message, {"scenario": scenario(service, None)}).json()["evidence"]["result"]
+    missing = post(forecast_message, {"scenario": scenario(service, None)}).json()
+    assert "couverture partielle, besoins totaux inconnus" in missing["answer"]
+    assert "partial_selected_norms" not in missing["answer"]
+    absent = missing["evidence"]["result"]
     assert absent["coverage"] == "partial_selected_norms"
     assert post(forecast_message, {"scenario": {**selected["scenario"], "starts_at": 1}}).status_code == 422
 

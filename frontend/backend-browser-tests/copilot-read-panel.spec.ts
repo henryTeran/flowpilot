@@ -12,6 +12,39 @@ async function login(page: any, email = "manager@browser.example.com") {
   await expect(panel.getByRole("combobox",{name:"Consultation",exact:true})).toBeEnabled();
   return panel;
 }
+
+test("real BASE stock forecast pins an original recipe and preserves explicit missing norms",async({page,request},info)=>{
+  const session=await request.post(`${api}/auth/login`,{data:{email:"manager@browser.example.com",password:"Browser-test-only-2026"}});
+  expect(session.status()).toBe(200);const headers={Authorization:`Bearer ${(await session.json()).access_token}`},base=`${api}/inventory/institutes/${institute}`,key=`forecast-${info.project.name}`;
+  const created=await request.post(`${base}/items`,{headers,data:{sku:`FC-${info.project.name}`,name:`Projection ${info.project.name}`,category:"cabine",unit:"ml",reorder_threshold:"4.125",reason:"Owned forecast browser fixture",idempotency_key:`${key}-item`}});
+  expect(created.status(),await created.text()).toBe(200);const item=await created.json();
+  const receipt=await request.post(`${base}/items/${item.id}/movements`,{headers,data:{kind:"receipt",quantity:"1.000",reason:"Owned physical stock fixture",idempotency_key:`${key}-receipt`}});expect(receipt.status(),await receipt.text()).toBe(200);
+  const current=await request.get(`${base}/services/svc-aisselles/recipe`,{headers});expect(current.status()).toBe(200);const predecessor=await current.json();
+  const createdNorm=await request.post(`${base}/services/svc-aisselles/recipes`,{headers,data:{base_revision:predecessor?.revision??0,enabled:true,entries:[{item_id:item.id,quantity:"1.250"}],reason:"Owned original forecast norm",idempotency_key:`${key}-norm`}});
+  expect(createdNorm.status(),await createdNorm.text()).toBe(200);const norm=await createdNorm.json();
+  const laterNorm=await request.post(`${base}/services/svc-aisselles/recipes`,{headers,data:{base_revision:norm.revision,enabled:false,entries:[],reason:"Owned later disabled norm",idempotency_key:`${key}-later`}});expect(laterNorm.status(),await laterNorm.text()).toBe(200);
+  const beforeItem=await (await request.get(`${base}/items/${item.id}`,{headers})).json(),beforeMoves=await (await request.get(`${base}/items/${item.id}/movements`,{headers})).json(),beforeOrders=await (await request.get(`${base}/orders`,{headers})).json();
+  const panel=await login(page);const posts:any[]=[];page.on("request",r=>{if(r.method()==="POST")posts.push({url:r.url(),body:r.postDataJSON()});});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_FORECAST");
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Projeter les besoins de stock du scenario");
+  await panel.getByLabel("Premier jour du scénario",{exact:true}).fill("2026-10-25");await panel.getByLabel("Fin du scénario exclue",{exact:true}).fill("2026-10-26");
+  await panel.getByRole("combobox",{name:"Prestation du scénario",exact:true}).selectOption("svc-aisselles");
+  await panel.getByRole("button",{name:"Lire les normes originales",exact:true}).click();
+  await expect(panel.getByRole("combobox",{name:"Norme du scénario",exact:true}).locator(`option[value="${norm.id}"]`)).toHaveCount(1);
+  await panel.getByRole("combobox",{name:"Norme du scénario",exact:true}).selectOption(norm.id);await panel.getByRole("button",{name:"Ajouter au scénario",exact:true}).click();await panel.getByRole("textbox",{name:"Volume de Aisselles",exact:true}).fill("3");
+  await panel.getByRole("combobox",{name:"Prestation du scénario",exact:true}).selectOption("svc-soin-profond");await panel.getByRole("combobox",{name:"Norme du scénario",exact:true}).selectOption("missing");await panel.getByRole("button",{name:"Ajouter au scénario",exact:true}).click();await panel.getByRole("textbox",{name:"Volume de Soin profond",exact:true}).fill("2");
+  const pending=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");await panel.getByRole("button",{name:"Consulter",exact:true}).click();const response=await pending;expect(response.status(),await response.text()).toBe(200);
+  const payload=await response.json();expect(payload.answer).toContain("couverture partielle, besoins totaux inconnus");expect(payload.answer).not.toContain("partial_selected_norms");const result=payload.evidence.result;expect(result.coverage).toBe("partial_selected_norms");expect(result.starts_at).toBe("2026-10-24T22:00:00Z");expect(result.ends_at).toBe("2026-10-25T23:00:00Z");
+  expect(result.demands.find((d:any)=>d.service_id==="svc-aisselles")).toMatchObject({recipe_id:norm.id,recipe_revision:norm.revision,state:"enabled",quantity:3});
+  expect(result.demands.find((d:any)=>d.service_id==="svc-soin-profond")).toMatchObject({recipe_id:null,recipe_revision:null,state:"missing_selected_norm",quantity:2});
+  expect(result.items.find((i:any)=>i.item_id===item.id)).toMatchObject({on_hand:"1.000",known_demand:"3.750",complete_demand:null,known_demand_shortfall:"6.875",pending_order_quantity:"0.000",conditional_shortfall_after_all_orders:"6.875"});
+  const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});await expect(facts).toContainText("Couverture partielle");await expect(facts).toContainText("Aucune commande ni consommation physique créée");await expect(facts.locator("tbody tr").filter({hasText:item.name})).toContainText("3,75");await expect(panel.getByRole("alert")).toHaveCount(0);
+  await page.screenshot({path:info.outputPath("copilot-forecast.png"),fullPage:true});
+  await panel.getByRole("button",{name:"Retirer Soin profond du scénario",exact:true}).click();await expect(facts).toHaveCount(0);
+  const next=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");await panel.getByRole("button",{name:"Consulter",exact:true}).click();expect((await next).status()).toBe(200);await expect(facts).toContainText("toutes les normes choisies sont connues");
+  expect(posts).toHaveLength(2);expect(posts.every(p=>p.url===`${api}/copilot/query`)).toBe(true);expect(posts[0].body.ui_context.scenario.demands).toEqual([{service_id:"svc-aisselles",recipe_id:norm.id,quantity:3},{service_id:"svc-soin-profond",recipe_id:null,quantity:2}]);
+  expect(await (await request.get(`${base}/items/${item.id}`,{headers})).json()).toEqual(beforeItem);expect(await (await request.get(`${base}/items/${item.id}/movements`,{headers})).json()).toEqual(beforeMoves);expect(await (await request.get(`${base}/orders`,{headers})).json()).toEqual(beforeOrders);
+});
 test("real BASE consultations preserve selected identity, planning and physical versus pending stock",async ({page,request},info) => {
   const session = await request.post(`${api}/auth/login`,{data:{email:"manager@browser.example.com",password:"Browser-test-only-2026"}});
   expect(session.status()).toBe(200);

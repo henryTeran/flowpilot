@@ -334,7 +334,8 @@ def read(db, principal, candidate, router=None):
                 captured = explicit_utc_instant(result.generated_at)
                 answer = "Stocks enregistrés et commandes en attente, première page de 50 articles."
                 if name == "STOCK_FORECAST":
-                    answer = "Projection conditionnelle du scénario explicitement sélectionné; couverture des normes : " + result.coverage + ". Aucune commande créée."
+                    coverage = "normes sélectionnées connues" if result.coverage == "complete_selected_norms" else "couverture partielle, besoins totaux inconnus"
+                    answer = "Projection conditionnelle du scénario explicitement sélectionné ; " + coverage + ". Aucune commande créée."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at
