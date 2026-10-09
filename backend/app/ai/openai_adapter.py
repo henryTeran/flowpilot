@@ -6,8 +6,8 @@ from app.ai.boundary import validated, InvalidProviderResponse, ProviderTimeout,
 
 
 class OpenAIProvider:
-    def __init__(self, client: OpenAI, *, model: str, embedding_model: str):
-        if not model.strip() or not embedding_model.strip():
+    def __init__(self, client: OpenAI, *, model: str | None = None, embedding_model: str | None = None):
+        if not (model or embedding_model) or any(value is not None and not value.strip() for value in (model, embedding_model)):
             raise ValueError("Explicit server models required")
         self.client, self.model, self.embedding_model = client, model, embedding_model
 
@@ -21,6 +21,8 @@ class OpenAIProvider:
 
     def complete(self, candidate: c.CompletionRequest) -> c.Completion:
         request = validated(c.CompletionRequest, candidate)
+        if self.model is None:
+            raise ProviderUnavailable()
         arguments = dict(model=self.model, input=[m.model_dump() for m in request.messages],
             max_output_tokens=request.max_output_tokens, store=False, tools=[])
         if request.output_schema is not None:
@@ -45,6 +47,8 @@ class OpenAIProvider:
 
     def embed(self, candidate: c.EmbeddingRequest) -> c.Embeddings:
         request = validated(c.EmbeddingRequest, candidate)
+        if self.embedding_model is None:
+            raise ProviderUnavailable()
         result = self._call(self.client.embeddings.create, model=self.embedding_model,
             input=list(request.texts), encoding_format="float")
         try:

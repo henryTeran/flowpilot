@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy import text
 
 from app.core.config import settings
+from app.ai.runtime import AISettings, build as build_ai
 from app.core.errors import configure_exception_handlers
 from app.core.http import configure_http_middleware
 from app.database.base import Base
@@ -42,7 +43,7 @@ from app.modules.tickets.routes import router as tickets_router
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     # Mode bootstrap local uniquement. En production, utiliser Alembic.
     if settings.AUTO_CREATE_SCHEMA_ON_STARTUP:
         if settings.is_production_like_env:
@@ -55,10 +56,14 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
                 "Refus du bootstrap SQLAlchemy: SECRET_KEY faible/default hors environnement local/dev/test."
             )
         Base.metadata.create_all(bind=engine)
-    yield
+    application.state.ai_providers = build_ai(application.state.ai_config, application.state.ai_fake_bindings)
+    try:
+        yield
+    finally:
+        application.state.ai_providers.close()
 
 
-def create_app(payment_bindings=()) -> FastAPI:
+def create_app(payment_bindings=(), *, ai_config=None, ai_fake_bindings=None) -> FastAPI:
     settings.validate_runtime_security()
 
     app = FastAPI(
@@ -70,6 +75,8 @@ def create_app(payment_bindings=()) -> FastAPI:
     )
     from app.modules.payments.registry import PaymentRegistry
     app.state.payment_registry = PaymentRegistry(payment_bindings)
+    app.state.ai_config = ai_config if ai_config is not None else AISettings()
+    app.state.ai_fake_bindings = ai_fake_bindings
 
     app.add_middleware(
         CORSMiddleware,

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 19
-CURRENT_CHECKPOINT = PHASE19C_ISOLATED_VOXTRAL_TRANSCRIPTION
+CURRENT_CHECKPOINT = PHASE19D_EXPLICIT_SERVER_SELECTION_AND_LIFECYCLE
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -7,6 +7,13 @@ BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PARTIAL
+
+PHASE19D_EXPLICIT_SERVER_SELECTION_AND_LIFECYCLE:
+- Added frozen validated FLOWPILOT_AI_* server-env settings: closed per-port disabled/fake/OpenAI/Voxtral selection, disabled defaults, explicit selected models/SecretStr credentials, bounded timeout and masked validation-input display. No implicit.env read, user-body selection/model/credentials or default remote model. .env.example documents disabled variables and existing Compose env_file/direct-process export semantics.
+- Lazy SDK factory confines imports to app.ai, fixes official endpoints, timeout/retries0/None and trust_envfalse HTTP clients. LLM+embedding share one OpenAI adapter/client; unused port models no longer required. Explicit fake bindings borrowed, remote clients factory-owned. No API call at construction or implicit remote activation of business routes.
+- FastAPI lifespan initializes providers after existing bootstrap guards, stores server state and closes owned clients at shutdown. Partial failure rollback, reverse/idempotent close and attempt-all cleanup after errors covered; standard business flow remains usable with disabled ports.
+- Runtime+all provider ports/SDKs+actual JV kernel regression35 passed15.06s, zero failures/skips; completed owned-provider lifespan/fake-binding suite7 passed3.77s; existing startup guards2 passed0.26s. Actual SDK construction without requests verifies sharing/explicit endpoints/secrets/close, simulated factories verify partial-failure cleanup; no external credits/data/model qualification. Existing dependency deprecation/intentional invalid-copy warnings only.
+- CHECKPOINT_STATUS = PASS for explicit selection/resource lifecycle. AI_PROVIDER_PHASE PARTIAL pending packaged Linux SDK/runtime regression and canonical5-gate audit. NEXT PHASE19E actual image acceptance, resolve remaining gaps then next incomplete Master Plan phase automatically. Full26-phase goal ACTIVE; no deployment/persistent mutation/native/production/provider remote activation claim.
 
 PHASE19C_ISOLATED_VOXTRAL_TRANSCRIPTION:
 - Added only app.ai.voxtral_adapter importing Mistral SDK pinned3.2.0; official API docs and installed SDK signatures/native httpx2/lifecycle inspected. Explicit server model/bounded per-call timeout/retriesNone, validated raw audio multipart/constant MIME-derived filename/optional language/no URL or file ID, diarizationfalse, typed transcript. Empty text preserved as possible silence; malformed SDK output fails invalid-response rather than invented text. Native timeout/HTTP errors normalized, owned injected client closed.
