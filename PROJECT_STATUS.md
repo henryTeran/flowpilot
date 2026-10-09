@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21L_MICROPHONE_BOUNDS_ACCEPTANCE:
+- Desktop/tablet2 PASS39.6s: simulated recording stops at60s and rejects10,000,001 bytes, releasing tracks with zero POSTs (.cache/21-voice-bounds-browser.log). Physical audio and real STT remain unproven; full Docker rebuilds failed before tests on registry504. Voice PARTIAL, goal ACTIVE.
+
 PHASE21_CURRENT_FRONTEND_REGRESSION:
 - Current frontend regression after reviewed/progressive handoff and microphone capture:585 PASS, zero failures/skips,115.51s (.cache/21-microphone-frontend-regression.log), terminal exit0. This supersedes the earlier585 baseline for current UI source. Linux package regression extended to test_voice_*.py alongside Copilot/BASE/domain/migration checks is running; no packaged Voice success claimed before terminal output. Microphone bound/adverse, signed response disposal and real audio-quality acceptance remain open. Voice gates PARTIAL, whole goal ACTIVE.
 
