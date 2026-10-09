@@ -1,10 +1,17 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17R_UPSTREAM_LANGUAGE_ALIGNMENT
+CURRENT_CHECKPOINT = PHASE17S_RUNTIME_PACKAGING
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = true
 BASE_PHASE = PARTIAL
 BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+
+PHASE17S_RUNTIME_PACKAGING:
+- Backend Dockerfile now builds from root context with a Node stage installing the locked official package without install scripts, validating corpus and route examples; Python image receives Node/package/corpus/runtime at /opt/flowpilot-base. Compose preserves app mount and targets this Dockerfile; root .dockerignore allowlists needed inputs and excludes local secrets/traces/cache.
+- BASE_RUNTIME_DIRECTORY is trusted deployment configuration only. Relocated complete upstream package+corpus executes through actual Python/Node bridge; missing configured directory refuses503 with no repository fallback.
+- docker compose config --quiet exit0, without starting services. Initial relocation regression1 failed/13 passed66.75s exposed Windows MAX_PATH while copying upstream nested examples. Extended-length paths preserve complete package:2 focused passed2.70s; final packaging/query/recovery14 passed25.27s, zero failures/skips. Existing warnings only.
+- Docker daemon still unavailable, so image build/Linux smoke NOT_VERIFIED. Portable PostgreSQL16.15-5 binaries downloaded from the official EDB link for independent owned validation (archiveSHA25643bb45f173a6f08cf1d29a97a6d8deb119e8e8093a24c00d2d1001a0ccaa8281); no persistent database/services started or modified. PostgreSQL acceptance pending.
+- CHECKPOINT_STATUS = PARTIAL; phase and full26-phase goal ACTIVE. NEXT: isolated actual PostgreSQL acceptance, container build/smoke when engine available, remaining phase gate audit. No migration/deployment/push.
 
 PHASE17R_UPSTREAM_LANGUAGE_ALIGNMENT:
 - Legacy signed /intents/resolve and new retained plan preparations now explicitly use the same official upstream bridge; no public application language path uses the pure historical LocalInterpreter as its router. Three specialized resources select WAITLIST_READ/MATCH/PLANNING_OPTIMIZATION; signed selections/permissions and existing services retain authority.

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "FlowPilot Institut Manager"
     APP_ENV: str = "local"
     APP_DEBUG: bool = True
+    # Trusted deployment location only; never accepted in a BASE HTTP request.
+    BASE_RUNTIME_DIRECTORY: str | None = None
     API_V1_PREFIX: str = "/api/v1"
 
     SECRET_KEY: str = "change-me"

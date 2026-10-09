@@ -26,7 +26,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: flowpilot_backend
     restart: unless-stopped
     env_file:

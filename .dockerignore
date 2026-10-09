@@ -1,0 +1,24 @@
+# The backend build needs the official BASE integration as well as Python code.
+# Use an allowlist so expanding the context does not send local secrets or data.
+**
+!backend/
+!backend/Dockerfile
+!backend/requirements.txt
+!backend/app/
+!backend/app/**
+!integrations/
+!integrations/base/
+!integrations/base/package.json
+!integrations/base/package-lock.json
+!integrations/base/runtime.mjs
+!integrations/base/workspace/
+!integrations/base/workspace/**
+**/__pycache__/
+**/*.py[cod]
+**/.env*
+**/.ai/trace/
+**/.ai/changes/
+**/.ai/feedback/
+**/.ai/studio.settings.json
+**/base.manifest.json
+**/.temp/

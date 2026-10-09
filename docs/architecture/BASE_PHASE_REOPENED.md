@@ -67,3 +67,13 @@ Le premier guide générique devient un document de référence. Cela supprime s
 Une nouvelle préparation nécessite BASE; une panne refuse la résolution sans repli indépendant. La récupération idempotente d’un plan déjà retenu vérifie et rend l’original sans rejouer la langue ni le framework. Un test avec panne réelle simulée du bridge démontre refus de la nouvelle préparation, absence d’original pour cette nouvelle clé et récupération exacte de la clé antérieure.
 
 Régression locale des intentions historiques, plans et requêtes : 46 tests réussis, 4 tests PostgreSQL non exécutés faute d’environnement configuré. Test dédié de récupération : 1 réussi. Le contrôle d’intention est raccordé; l’acceptation PostgreSQL et le packaging runtime restent ouverts. La phase n’est pas clôturée.
+
+## Packaging runtime : checkpoint 17S
+
+Le Dockerfile backend passe à un build avec contexte racine et un stage Node. Le stage installe le package officiel verrouillé, puis valide le corpus et les exemples. L’image finale garde l’application à `/app/app`, avec Node et l’intégration à `/opt/flowpilot-base`. `BASE_RUNTIME_DIRECTORY` est un paramètre de déploiement serveur; un emplacement configuré manquant refuse avec 503, sans fallback vers le dépôt.
+
+Compose cible ce Dockerfile et conserve son montage applicatif. Une allowlist `.dockerignore` exclut les fichiers locaux inutiles, secrets, traces et brouillons. `docker compose config --quiet` passe sans lancer les services ni modifier la base persistante.
+
+Un test copie le package upstream complet et le corpus dans un dossier temporaire indépendant, puis appelle réellement le bridge depuis cet emplacement. Une première exécution a exposé MAX_PATH sur les exemples upstream; les chemins longs Windows corrigent la copie sans retirer de fichiers du package. Test de relocation et refus d’emplacement manquant : 2 réussis. Régression finale packaging/query/récupération : 14 réussis, aucun échec ni test ignoré.
+
+Docker demeure indisponible sur la machine : le build et le smoke test de l’image sont **non vérifiés**. Aucun résultat de test local n’est présenté comme une preuve Linux ou une validation du conteneur final. La validation PostgreSQL est poursuivie dans une instance temporaire isolée, indépendamment des conteneurs persistants.

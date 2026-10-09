@@ -6,6 +6,7 @@ import subprocess
 from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict
 from fastapi import HTTPException
+from app.core.config import settings
 
 
 class Route(BaseModel):
@@ -23,7 +24,8 @@ class Router(Protocol):
 
 class OfficialRouter:
     def resolve(self, message: str) -> Route:
-        script = Path(__file__).resolve().parents[4] / "integrations" / "base" / "runtime.mjs"
+        directory = Path(settings.BASE_RUNTIME_DIRECTORY) if settings.BASE_RUNTIME_DIRECTORY else Path(__file__).resolve().parents[4] / "integrations" / "base"
+        script = directory.resolve() / "runtime.mjs"
         try:
             completed = subprocess.run(
                 ["node", str(script)], input=json.dumps({"message": message}),
