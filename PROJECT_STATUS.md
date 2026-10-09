@@ -1,11 +1,17 @@
 CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18A_SOURCE_BOUND_OPERATIONAL_ANALYSIS
+CURRENT_CHECKPOINT = PHASE18B_SIGNED_FRESH_SOURCE_ANALYSIS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PARTIAL
+
+PHASE18B_SIGNED_FRESH_SOURCE_ANALYSIS:
+- Added POST /api/v1/jv/query using existing signed JWT/ticket-manager RBAC, closed BASE message/UI-context contract and existing official framework/service orchestration. No client evidence/analysis/actor/institute/SQL/provider accepted. Response pairs original BASE source with deterministic JV analysis referencing exact source SHA; clarification yields null analysis, upstream outage refuses and invalid JV source returns sanitized503.
+- Analysis stage emits structured scoped outcome linked to BASE interaction ID/evidence/analysis digests, without raw facts/message; no second routing/service capture or additional database mutation. Source clocks remain explicit; source hashes do not promise authentication/freshness independently of signed capture.
+- Actual SQLite/PostgreSQL signed HTTP four-capability capture/analysis/source SHA, cross-institute employee/ticket refusals and empty foreign queue tested with SQL observer proving zero INSERT/UPDATE/DELETE/DDL. Auth/injection rejected before framework; clarification never invokes analyzer; outage/invalid-source refuse without private error leakage.
+- Final JV route+kernel+BASE query regression22 passed49.74s, zero failures/skips, actual isolated PostgreSQL16.15; only existing deprecation/intentional unsafe-copy warnings. Temporary schemas0, owned server stopped; persistent application untouched. CHECKPOINT_STATUS = PASS for authenticated operational analysis. JV_PHASE remains PARTIAL; NEXT explicit comparison/scoring and source-grounded economic diagnostics/decision support, then full JV closure evidence. Full26-phase goal ACTIVE, no Linux rebuild/native/provider/production/deployment claim at this checkpoint.
 
 PHASE18A_SOURCE_BOUND_OPERATIONAL_ANALYSIS:
 - Added internal provider-independent JV OperationalAnalyzer implementing existing deterministic port. Four BASE service evidence types yield structured descriptive counts and source-owned availability/assignment diagnostics. Every metric/diagnostic cites evidence SHA and JSON pointer; output has scoped rule version/full SHA/explicit missing facts/empty actions. No duplicated availability/assignment rules, revenue inference, predictive or causal claim.
