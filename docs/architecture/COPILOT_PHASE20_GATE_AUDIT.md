@@ -1,5 +1,8 @@
 # Phase 20 completion audit
 
+Marketing damaged-preview refusal/recovery acceptance:2 PASS50.5s desktop/tablet (.cache/20-marketing-damaged-browser.log). Real signed API/pinned official BASE original preview fetched; browser transport alters recipient_count only. Interface refuses contradiction against independently read immutable audience/template, shows no preview/retain control. Restored native response permits preview with exact literal subject/body; one retention and lost-ack recovery yield exactly one new DRAFT/no delivery authorization/external message. Two preview POSTs and one retention POST only. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. This completes named marketing damaged-preview gap; final progressive gate reconciliation next. READ/SUGGEST PASS at controlled scope, PREPARE/EXECUTE currently PARTIAL, whole goal ACTIVE.
+
+
 ## Current requirement reconciliation (source e8b1ad3)
 
 COPILOT_READ = PASS and COPILOT_SUGGEST = PASS at the controlled signed API/official BASE/desktop-tablet scope. This does not certify production deployment, complete historical ledgers, provider inference quality or physical availability. The immutable source/evidence contracts and presentation keep missing data, conditional capacity, separate currencies and no action/contact authority explicit.

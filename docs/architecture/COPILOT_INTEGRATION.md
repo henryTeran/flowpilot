@@ -1,5 +1,8 @@
 # Copilot integration — phase 20
 
+Marketing damaged-preview refusal/recovery acceptance:2 PASS50.5s desktop/tablet (.cache/20-marketing-damaged-browser.log). Real signed API/pinned official BASE original preview fetched; browser transport alters recipient_count only. Interface refuses contradiction against independently read immutable audience/template, shows no preview/retain control. Restored native response permits preview with exact literal subject/body; one retention and lost-ack recovery yield exactly one new DRAFT/no delivery authorization/external message. Two preview POSTs and one retention POST only. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. This completes named marketing damaged-preview gap; final progressive gate reconciliation next. READ/SUGGEST PASS at controlled scope, PREPARE/EXECUTE currently PARTIAL, whole goal ACTIVE.
+
+
 Current reconciled gates: COPILOT_READ and COPILOT_SUGGEST PASS at controlled signed API/official BASE/desktop-tablet scope, based on all12 baseline/populated variants and current package67/frontend584. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain PARTIAL pending marketing adverse UI and final progressive reconciliation. Current requirement table: docs/architecture/COPILOT_PHASE20_GATE_AUDIT.md. Historical checkpoint pending statements below are superseded for already proved variants; no production/physical/provider-quality or full26-phase completion claim.
 
 
