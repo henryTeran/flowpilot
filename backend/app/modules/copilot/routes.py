@@ -8,6 +8,8 @@ from app.modules.base import audit
 from app.modules.waitlist.originals import fingerprint
 from app.modules.copilot import preparation
 from app.modules.copilot import marketing
+from app.modules.copilot import reorder
+from app.modules.inventory import reorders
 from app.modules.base import creation_capability as creation
 from app.modules.base import executions
 from app.modules.base import move_capability as move
@@ -34,14 +36,14 @@ def query(body: orchestration.Request, user=Depends(require_ticket_manager), db:
     return orchestration.read(db, principal, body)
 
 
-@router.get("/preparation-capabilities", response_model=tuple[preparation.Capability | marketing.Capability, ...])
+@router.get("/preparation-capabilities", response_model=tuple[preparation.Capability | marketing.Capability | reorder.Capability, ...])
 def preparation_capabilities(user=Depends(require_ticket_manager)):
     principal = signed_principal(user, user.get("institute_id"))
     guard(principal, principal.institute_id)
     with audit.trace(principal, "copilot_preparation_capabilities", {}) as span:
         result = (preparation.Capability(), preparation.Capability(name="APPOINTMENT_MOVE",
             input_schema=preparation.MoveRequest.model_json_schema(),
-            preview_input_schema=preparation.MovePreviewRequest.model_json_schema()), marketing.Capability())
+            preview_input_schema=preparation.MovePreviewRequest.model_json_schema()), marketing.Capability(), reorder.Capability())
         span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
         return result
 
@@ -78,6 +80,26 @@ def execution_capabilities(user=Depends(require_ticket_manager)):
     with audit.trace(principal, "copilot_execution_capabilities", {}) as span:
         result = (executions.REGISTRY["APPOINTMENT_CREATE"], executions.REGISTRY["APPOINTMENT_MOVE"])
         span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
+        return result
+
+
+@router.post("/prepare-preview/reorder", response_model=reorders.Preview)
+def reorder_preview(body: reorder.PreviewRequest, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return reorder.preview(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.post("/prepare/reorder", response_model=reorders.Receipt)
+def reorder_prepare(body: reorder.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return reorder.prepare(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.get("/reorder-proposals/{identifier}", response_model=reorders.Receipt)
+def reorder_original(identifier: str, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    principal = signed_principal(user, user.get("institute_id"))
+    guard(principal, principal.institute_id)
+    with audit.trace(principal, "copilot_reorder_recover", {"identifier":identifier}) as span:
+        result = reorders.require(db, principal.institute_id, identifier)
+        span.result("recovered", "STOCK_REORDER_PROPOSAL", result.fingerprint)
         return result
 
 

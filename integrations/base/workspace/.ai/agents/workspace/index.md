@@ -88,6 +88,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter les stocks enregistres; Consulter les stocks enregistres
 **Éviter si**: Annuler une reservation.
 
+### Preparer une proposition de reapprovisionnement: [`stock-reorder-proposal`](skills/processes/stock-reorder-proposal/SKILL.md)
+**Quand l'utiliser**: Preparer une proposition de reapprovisionnement; Preparer une proposition de reapprovisionnement; Preparer une proposition de commande de stock
+**Éviter si**: Afficher les quantites disponibles.
+
 ### Trouver des creneaux de liste d attente: [`waitlist-match`](skills/processes/waitlist-match/SKILL.md)
 **Quand l'utiliser**: Chercher des creneaux pour la liste d'attente; Chercher des creneaux pour la liste d'attente; Trouver des creneaux pour la liste d'attente; Examiner les creneaux de la liste d'attente; Find slots for the waitlist
 **Éviter si**: Modifier ou annuler une reservation.

@@ -76,10 +76,12 @@ def read(db, institute, limit, offset, scenario=None):
         demands=demands, limit=limit, offset=offset, items=rows)
 
 
-def item_rows(db, institute, limit, offset, known, complete):
+def item_rows(db, institute, limit, offset, known, complete, *, item_ids=None):
     """Caller holds the institute lock and establishes the demand coverage."""
-    items = db.scalars(select(StockItem).where(StockItem.institute_id == institute)
-        .order_by(StockItem.sku, StockItem.id).limit(limit).offset(offset)).all()
+    scope = select(StockItem).where(StockItem.institute_id == institute)
+    if item_ids is not None:
+        scope = scope.where(StockItem.id.in_(item_ids))
+    items = db.scalars(scope.order_by(StockItem.sku, StockItem.id).limit(limit).offset(offset)).all()
     ids = [row.id for row in items]
     balances = dict(db.execute(select(StockMovement.item_id, func.sum(StockMovement.quantity_milli)).where(
         StockMovement.institute_id == institute, StockMovement.item_id.in_(ids)).group_by(StockMovement.item_id)).all()) if ids else {}

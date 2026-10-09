@@ -1,7 +1,22 @@
 from datetime import datetime
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, UniqueConstraint, Index
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, UniqueConstraint, Index, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database.base import Base
+
+
+class StockReorderOriginal(Base):
+    __tablename__ = "stock_reorder_originals"
+    __table_args__ = (
+        UniqueConstraint("institute_id", "idempotency_key", name="uq_stock_reorder_replay"),
+        Index("ix_stock_reorder_history", "institute_id", "created_at", "id"),
+    )
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    institute_id: Mapped[str] = mapped_column(ForeignKey("institutes.id"), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(120), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    original: Mapped[dict] = mapped_column(JSON, nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
 
 
 class StockSupplier(Base):

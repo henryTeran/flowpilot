@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20V_TEMPLATE_BOUND_MARKETING_DRAFT_PREPARATION_PASS
+CURRENT_CHECKPOINT = PHASE20W_RETAINED_STOCK_REORDER_PROPOSAL_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20W_RETAINED_STOCK_REORDER_PROPOSAL:
+- Added official BASE stock-reorder-proposal process and manager-only preview/preparation/recovery/discovery. Explicit owned supplier,1–50 unique selected items, pending-order assumption and optional pinned recipe/volume scenario. Original stock outlook calculates the quantities; shared item_rows gains optional selected-ID scope without changing existing pagination. Partial norms remain partial, no scenario demand inference. Proposal may be zero; pending orders are conditional quantities, not actual deliveries. No supplier quote/eligibility/price/delivery-date claim.
+- Domain reorders service retains typed original selection/projection/source SHA/state SHA/reason/key/actor under existing institute lock. New migration1784e5c6a1b8 adds separate stock_reorder_originals; populated originals block downgrade. No booking receipt reuse, purchase order/contact/payment/receipt/movement write. Exact recovery bypasses current source recapture; fresh key requires current reviewed state. BASE receives only message; source supplier names/actors are hashed, not returned. Closed typed receipt/output schema.
+- Corpus29 resources validated54/54 routes. Initial corpus avoid_when accidentally shared preparation keywords; corrected exclusion wording. Initial domain test1 passed/2 failed9.67s due nonexistent test helper recipes.append, changed to original recipes.create. Actual SQLite/PostgreSQL stock proposal/migration/original stock/order/move combined14 passed61.62s. Extended run3 passed/2 failed23.15s because deliberately corrupting unit threshold was rightly blocked by DB constraint; defensive reader-contract injection replaces this impossible DB setup. Extended5 passed25.72s; final typed receipt/source/discovery/race suite3 passed21.16s, zero failures/skips. Covers SQL-zero preview mutations, exact selected items beyond catalogue page50, scenario/pending/partial quantities, role/scope/schema/route/forged-state refusal, receipt-source change/fresh-key refusal, exact historical recovery, one original under same-key concurrency, rollback, rehashed actor corruption denial/restoration, upgrade preserving orders, full schema parity and populated downgrade protection.
+- CHECKPOINT_STATUS = PASS for retained STOCK_REORDER_PROPOSAL preparation only. NEXT complete phase20 scope/evidence audit, current packaged Linux and UI acceptance before closing Copilot gates or advancing Voice. All four Copilot gates PARTIAL; whole26-phase goal ACTIVE. No remote purchase/contact, push/deployment or production claim.
 
 PHASE20V_TEMPLATE_BOUND_MARKETING_DRAFT_PREPARATION:
 - Added official BASE marketing-campaign-draft process, manager-only Copilot preview/preparation and closed discovery schema. Explicit retained audience/template IDs only; literal template text and verified retained recipients resolved through original marketing services. BASE receives message only; response exposes references/count/digests, no recipient IDs, content or contact coordinates. Required reviewed content digest/reason/key; coherent changed source refused. Existing original create service retains DRAFT atomically; no review/approve/send capability registered and no provider delivery.
