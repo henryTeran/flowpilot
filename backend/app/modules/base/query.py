@@ -1,14 +1,13 @@
 """FlowPilot-owned read orchestration around the official BASE process router."""
 from enum import IntEnum
 import hashlib
-import logging
 from types import MappingProxyType
 from typing import Annotated, Any, Literal, Protocol
-from uuid import uuid4
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, AwareDatetime, Field, StringConstraints, field_validator
 from app.core.permissions import can_manage_ticket
 from app.modules.base import read_capabilities as identity, upstream
+from app.modules.base import audit
 from app.modules.crm.metrics import Fact
 from app.modules.employees.models import Employee
 from app.modules.institutes.models import Institute
@@ -21,7 +20,6 @@ from app.shared.time import utcnow, explicit_utc_instant
 
 Name = Literal["EMPLOYEE_AVAILABILITY", "QUEUE_ASSIGNMENT_OPTIONS", "QUEUE_READ", "PLANNING_READ"]
 Text = Annotated[str, StringConstraints(strict=True, min_length=1, max_length=2000)]
-logger = logging.getLogger("flowpilot.base.query")
 
 
 class UIContext(Fact):
@@ -289,14 +287,8 @@ def query(db, principal, institute, candidate, router: upstream.Router | None = 
           provider: IntentProvider | None = None):
     # Signed scope is validated before any framework call or application dispatch.
     principal = guard(principal, institute)
-    request_id = str(uuid4())
-    try:
-        response = _query(db, principal, institute, candidate, router, provider, request_id=request_id)
-    except HTTPException as error:
-        logger.info("base_query_outcome request_id=%s actor_id=%s institute_id=%s status=%s", request_id, principal.actor_id, institute, error.status_code)
-        raise
-    except Exception:
-        logger.info("base_query_outcome request_id=%s actor_id=%s institute_id=%s status=500", request_id, principal.actor_id, institute)
-        raise
-    logger.info("base_query_outcome request_id=%s actor_id=%s institute_id=%s status=%s capability=%s evidence=%s", request_id, principal.actor_id, institute, response.status, response.capability, response.evidence.fingerprint if response.evidence else None)
-    return response
+    request = Request.model_validate(candidate.model_dump() if isinstance(candidate, Request) else candidate)
+    with audit.trace(principal, "query", request.model_dump(mode="json")) as span:
+        response = _query(db, principal, institute, request, router, provider, request_id=span.id)
+        span.result(response.status, response.capability, response.evidence.fingerprint if response.evidence else None)
+        return response

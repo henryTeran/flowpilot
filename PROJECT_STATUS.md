@@ -1,10 +1,16 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17T_POSTGRES_AND_LINUX_RUNTIME_ACCEPTANCE
+CURRENT_CHECKPOINT = PHASE17U_SIGNED_INTERACTION_CORRELATION
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = true
 BASE_PHASE = PARTIAL
 BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+
+PHASE17U_SIGNED_INTERACTION_CORRELATION:
+- Fixed query INFO logger outside configured application logger. Structured app audit now records attempt/outcome on21 existing signed handlers plus query/query-capabilities; closed actions, signed actor/institute, HTTP correlation and distinct interaction UUID, request/response/evidence digests, no raw payload/private exception. Authentication/validation before handler remains general HTTP logging.
+- Official Node subprocess receives scoped ContextVar correlation through BASE_TRACE_ACTOR without global environment mutation. Actual upstream trace-file actor/route/args_hash correlation proven; no selections/business facts in routing payload. Existing transactional originals remain authoritative; operational logs are not durable signed business receipts. Stashed HTTP journal draft untouched; read adapters do not add SQL writes.
+- Local focused50 passed35.71s, zero failures/skips. Initial Linux assertion incorrectly expected unprefixed official args hash:1 failed48 passed; corrected to official sha256:<digest>,49 passed. Final latest image sha256:4a636f2577375d32a3bce549e21b23e5b9a120951a83c7049461b0ddf6bd1a53:65 passed227.83s,14 PostgreSQL-only skipped in SQLite container, no failures. Complementary real PostgreSQL/read/handler/plan/approval/execution regression34 passed213.16s, zero failures/skips. No remaining temporary schema; temporary server stopped.
+- CHECKPOINT_STATUS = PASS for signed operational correlation and affected route regressions. Whole26-phase goal ACTIVE. Final canonical closure audit follows this green implementation checkpoint; no production-readiness or deployment claim.
 
 PHASE17T_POSTGRES_AND_LINUX_RUNTIME_ACCEPTANCE:
 - Actual official BASE -> signed HTTP -> PostgreSQL read test adds all four capabilities, source SHA checks, cross-institute employee/ticket refusals, empty foreign queue and SQL observer proving no INSERT/UPDATE/DELETE/DDL during reads. Temporary Windows PostgreSQL16.15 cluster/cache/loopback port, isolated schemas only; standard Python3.13 validation venv (registered3.12 path stale). Generic SQLAlchemy URL first selected missing alternate driver:26 passed/6 setup errors; explicit psycopg2 URL resolves this,32 passed70.79s, zero failures/skips.

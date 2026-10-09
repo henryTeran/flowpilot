@@ -1,12 +1,14 @@
 """Bounded stdin bridge to the pinned official BASE broker; no shell or DB access."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict
 from fastapi import HTTPException
 from app.core.config import settings
+from app.modules.base.audit import upstream_actor
 
 
 class Route(BaseModel):
@@ -31,6 +33,7 @@ class OfficialRouter:
                 ["node", str(script)], input=json.dumps({"message": message}, ensure_ascii=False),
                 capture_output=True, text=True, encoding="utf-8", timeout=15,
                 check=True, cwd=script.parent,
+                env={**os.environ, "BASE_TRACE_ACTOR": upstream_actor.get() or ""},
             )
             if len(completed.stdout) > 4096:
                 raise ValueError("Oversized routing result")
