@@ -304,7 +304,7 @@ test("forecast controls retain multiple selected services, original quantities a
 });
 
 test("creation form binds customer and DST terms, then recovers a lost preparation without replacement",async()=>{
-  sessionStorage.clear();setAccessToken(token());const calls:{path:string;body:any}[]=[];let damaged=false,lastPreview:any,retained:any=null;
+  sessionStorage.clear();setAccessToken(token());const calls:{path:string;body:any}[]=[];let damaged=false,lastPreview:any,retained:any=null,damagedHistory=false,damagedExecution=false;
   const registrations=Object.entries({APPOINTMENT_CREATE:["base.sensitive_originals.create","retained_pending_preparation_no_approval_or_execution"],APPOINTMENT_MOVE:["base.sensitive_originals.create","retained_pending_preparation_no_approval_or_execution"],MARKETING_CAMPAIGN_DRAFT:["marketing.campaign_originals.execute_create_only","retained_draft_only_no_campaign_approval_contact_or_delivery"],STOCK_REORDER_PROPOSAL:["inventory.reorders.create","retained_reorder_proposal_no_order_contact_payment_receipt_or_stock_write"]}).map(([name,[application_service,effect]])=>({name,level:2,permission:"signed_institute_manager",input_schema:{},preview_input_schema:{},output_schema:{},application_service,effect,audit:"signed_scope_interaction_id_and_source_digest_no_raw_message"}));
   globalThis.fetch=async(url,init)=>{
     const path=String(url),body=init?.body ? JSON.parse(init.body as string) : undefined;calls.push({path,body});
@@ -312,6 +312,8 @@ test("creation form binds customer and DST terms, then recovers a lost preparati
     if(path.endsWith("/capabilities"))return reply(discovery());
     if(path.includes("/customers/"))return reply([{id:"customer",institute_id:"own",display_name:"Cliente revue",phone:"+33999000000",created_at:clock}]);
     if(path.includes("/sensitive-operation-by-key"))return reply(retained);
+    if(path.endsWith("/sensitive-operations/operation/approval-state"))return reply({operation:retained,captured_at:"2028-01-01T00:00:00Z",decisions:[],status:"pending",expired:true,execution:"not_performed_by_approval_manager",current_source:damagedHistory ? "current_eligible" : "not_revalidated_by_historical_state_read"});
+    if(path.endsWith("/sensitive-operations/operation/execution"))return reply(damagedExecution ? {original:retained.original,fingerprint:retained.fingerprint} : null);
     if(path.endsWith("/sensitive-operations/operation"))return reply(retained);
     if(path.endsWith("/copilot/prepare")){
       const original={...body.operation,id:"operation",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T10:00:00.123457Z",preview:lastPreview,effect:"prepared_sensitive_operation_only_pending_human_approval_no_execution"};retained={original,fingerprint:await hash(original)};throw Error("Lost preparation response");
@@ -336,6 +338,10 @@ test("creation form binds customer and DST terms, then recovers a lost preparati
     assert.equal(calls.filter(c=>c.path.endsWith("/copilot/prepare")).length,1);assert.equal(retained.original.valid_until,"2027-10-31T01:30:00Z");assert.equal(retained.original.selection.notes,"Note corrigée");
     await click("Consulter avec le Copilot");await fill("Consultation","STOCK_READ");assert.equal(document.querySelector('[aria-label="Termes de création vérifiés"]'),null);
     await click("Créer un rendez-vous avec le Copilot");assert.ok(document.querySelector('[aria-label="Demande de préparation conservée"]'));await click("Reprendre la préparation");assert.equal(calls.filter(c=>c.path.endsWith("/copilot/prepare")).length,1);assert.equal(document.querySelector('[aria-label="Demande de préparation conservée"]'),null);assert.match(document.querySelector('[aria-label="Préparation de création relue"]')!.textContent!,/Note corrigée/);await click("Relire la préparation");assert.ok(document.querySelector('[aria-label="Préparation de création relue"]'));
+    let postCount=calls.filter(c=>c.body).length;await click("Relire les décisions et l’exécution");assert.equal(calls.filter(c=>c.body).length,postCount);assert.match(document.querySelector('[aria-label="Décisions de création relues"]')!.textContent!,/en attente · validité expirée/);assert.match(document.body.textContent!,/Aucun reçu d’exécution retourné/);assert.doesNotMatch(document.querySelector('[aria-label="Préparation de création relue"]')!.textContent!,/n’a pas encore été relu/);
+    damagedHistory=true;await click("Relire les décisions et l’exécution");assert.equal(document.querySelector('[aria-label="Décisions de création relues"]'),null);assert.ok(document.querySelector('[role="alert"]'));
+    damagedHistory=false;damagedExecution=true;await click("Relire les décisions et l’exécution");assert.equal(document.querySelector('[aria-label="Décisions de création relues"]'),null);assert.equal(document.querySelector('[aria-label="Preuve de création relue"]'),null);
+    damagedExecution=false;await click("Relire les décisions et l’exécution");await fill("Référence de préparation","other");assert.equal(document.querySelector('[aria-label="Décisions de création relues"]'),null);assert.equal(document.querySelector('[aria-label="Préparation de création relue"]'),null);
   }finally{await act(async()=>root.unmount());}
 });
 
