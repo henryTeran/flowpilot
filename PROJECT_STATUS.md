@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_SUPPLIER_PAGINATION_BROWSER_ACCEPTANCE:
+- Actual API/official BASE supplier pagination2 PASS47.1s desktop/tablet (.cache/20-reorder-supplier-browser.log).21 native suppliers per project, selected last beyond first20 catalogue page, then navigate previous page: exact selected ID preserved via explicit retained selection option. Native supplier-by-ID source GET observed before checked3.750ml preview. Retained proposal preserves exact selected supplier; lost acknowledgement/reload recovers same original with one retention POST.
+- Stocks/movements/orders unchanged; final screenshots inspected, fixture removed/listeners0, exit0. Production unchanged. Supplier pagination exercised gap closed; damaged sources/ambiguous failures/concurrency browser cases and other phase acceptance gaps remain. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_COMPACT_SELECTION_REVIEW:
 - Selected item removal controls now grouped in responsive columns inside bounded240px vertical scroll area with keyboard focus and accessible group name. All selected IDs remain present and removable; no collapsed/hidden selection, lifecycle or authority change. Small selection controls remain visible.
 - Build/focused form test PASS and actual API/BASE maximum-selection2 PASS1.0m desktop/tablet (.cache/20-reorder-selection-browser.log). Group has50 buttons, bounded height; actual removal from scrolled list enables another choice, checkbox reselect restores limit. All50 original projections still retained;51-item API422/native stocks/orders unchanged. Final screenshots inspected at reduced full-page scale, fixture removed/listeners0, exit0. Current full frontend584 proof precedes this narrow presentation change. Supplier pagination/damaged/ambiguous/race acceptance and other phase gaps remain; goal ACTIVE/gates PARTIAL.

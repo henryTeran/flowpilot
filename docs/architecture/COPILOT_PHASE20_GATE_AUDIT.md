@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Reorder supplier pagination now passes actual API/BASE desktop/tablet:21 original suppliers per project, exact selection beyond first20 page preserved when returning to previous page; independent native supplier-by-ID read observed before source-checked preview. Retention/lost response recovery preserves selected supplier with one retention POST and unchanged stocks/movements/orders. This closes exercised supplier pagination; damaged/ambiguous/concurrent browser cases and other phase gaps remain. Gates PARTIAL.
+
 Maximum reorder selection review UI improved to responsive bounded scroll group with keyboard access. Build/form test and both actual maximum-selection browsers pass;50 controls remain available, removal from scrolled group releases a slot and exact50-item retention/51st refusal still passes. Earlier excessive removal-list height note is superseded. Full584 suite precedes this presentation change. Remaining supplier pagination/damaged/ambiguous/race acceptance and other phase gaps keep gates PARTIAL.
 
 Reorder maximum selection now passes actual API/BASE desktop/tablet:50 selected originals including beyond-first50 source, exact whole-unit/ml projection retained, unselected51st blocked while selected items remain removable, direct51-item API422. Native stock catalogue/orders unchanged. Full-page screenshots expose excessive removal-list length requiring compact review UI. Supplier pagination and damaged/ambiguous/race browser acceptance remain; gates PARTIAL.
