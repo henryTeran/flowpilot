@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_MOVE_ORIGINAL_UI_CONTRACT_FOUNDATION:
+- Added separate APPOINTMENT_MOVE selection/preview/pending-original frontend guards against original backend contracts. Exact owned booking and reviewed target, preserved customer/status, no actual activity/checkout, changed slot, same-service duration, canonical microseconds, booking-history/event-count digest and Python-sorted unique resource IDs are bound. Optional employee/service null preserves original selection intent; captured registration false remains historical evidence only. No cancellation or creation-original substitution.
+- Build PASS and two targeted contract tests PASS: rehashed substituted target/customer/status/duration/resources, wrong selection/actor/scope, altered history/count, unchanged move, noncanonical original, wrong capability/effect/recovery terms and invalid chronology refused. This is frontend contract groundwork; move form/lifecycle/frozen recovery and actual browser acceptance remain outstanding. Goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_CREATION_DECLINE_BROWSER_ACCEPTANCE:
 - Actual signed API/official BASE creation suite4 PASS57.9s desktop/tablet (.cache/20-creation-decline-browser.log): positive human decline survives deliberately lost acknowledgement and reload, independently recovers original decision without second decision POST, displays retained refusal/reason and removes approval/decline/revoke/execution controls. No appointments before or after; exactly preview/preparation/decision browser POSTs. Existing positive execution/recovery/resource cases also pass.
 - Final decline screenshots inspected and owned fixture removed. Positive decline browser gap is closed; revocation, expiry/races/damaged-source browser paths and move/marketing/reorder interfaces remain open. Full goal ACTIVE, phase gates PARTIAL.

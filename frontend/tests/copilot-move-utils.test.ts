@@ -1,0 +1,26 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {revenueOriginalFingerprint as hash} from "../src/revenue-scenario-utils";
+import {canonicalMoveSelection,validMoveSelection,validMovePreview,validMoveEnvelope,type MovePreview,type MoveRequest} from "../src/copilot-move-utils";
+const selection={appointment_id:"booking",start_time:"2027-10-31T02:30:00.123456+01:00",employee_id:null,service_id:null};
+async function preview():Promise<MovePreview>{
+  const appointment={status:"confirmed" as const,employee_id:"employee",service_id:"service",customer_id:"customer",start_time:"2027-10-30T12:00:00.123456Z",end_time:"2027-10-30T12:30:00.123456Z",booked_start_time:"2027-10-30T12:00:00.123456Z",booked_end_time:"2027-10-30T12:30:00.123456Z",actual_start_time:null,actual_end_time:null,checkout_ticket_id:null};
+  const p:MovePreview={principal:{actor_id:"manager",institute_id:"own",role:"responsable_institut"},capability:{name:"APPOINTMENT_MOVE",prepare_level:2,roles:["responsable_institut"],application_service:"appointments.service.preview_update",approval:"explicit_human_approval_of_exact_retained_operation_required",execution_registered:true},selection:canonicalMoveSelection(selection),captured_at:"2026-10-09T12:00:00Z",appointment,proposed:{...appointment,start_time:"2027-10-31T01:30:00.123456Z",end_time:"2027-10-31T02:00:00.123456Z",booked_start_time:"2027-10-31T01:30:00.123456Z",booked_end_time:"2027-10-31T02:00:00.123456Z"},booking_events:2,booking_history_fingerprint:"a".repeat(64),resource_ids:["\uE000","\u{10000}"],state_fingerprint:"",effect:"move_preview_only_no_reservation_approval_or_execution"};return rehash(p);
+}
+async function rehash(p:MovePreview){p.state_fingerprint=await hash({institute_id:p.principal.institute_id,selection:p.selection,appointment:p.appointment,proposed:p.proposed,booking_history_fingerprint:p.booking_history_fingerprint,booking_events:p.booking_events,resource_ids:p.resource_ids});return p;}
+test("move preview binds selected booking, preserved customer/status, history, duration and exact changed target",async()=>{
+  const p=await preview();assert.ok(await validMovePreview(p,"own",selection,"manager"));assert.ok(await validMovePreview({...p,capability:{...p.capability,execution_registered:false}},"own",selection,"manager"));
+  for(const change of [{appointment_id:"other"},{employee_id:"other"},{service_id:"other"},{start_time:selection.start_time.replace("123456","123455")}])assert.equal(await validMovePreview(p,"own",{...selection,...change},"manager"),false);
+  assert.equal(validMoveSelection({...selection,customer_id:"forged"}),false);assert.equal(validMoveSelection({...selection,start_time:"2027-10-31T02:30:00"}),false);
+  for(const change of [{customer_id:"other"},{status:"scheduled"},{employee_id:"other"},{service_id:"other"},{actual_start_time:p.proposed.start_time},{checkout_ticket_id:"ticket"},{booked_start_time:null},{end_time:"2027-10-31T02:01:00.123456Z",booked_end_time:"2027-10-31T02:01:00.123456Z"}]){const damaged=await rehash({...p,proposed:{...p.proposed,...change} as any});assert.equal(await validMovePreview(damaged,"own",selection,"manager"),false);}
+  assert.equal(await validMovePreview(await rehash({...p,selection:{...p.selection,start_time:p.appointment.start_time},proposed:p.appointment}),"own"),false);
+  for(const resource_ids of [["a","a"],["\u{10000}","\uE000"]])assert.equal(await validMovePreview(await rehash({...p,resource_ids}),"own"),false);
+  assert.equal(await validMovePreview({...p,state_fingerprint:"0".repeat(64)},"own"),false);assert.equal(await validMovePreview(p,"foreign"),false);assert.equal(await validMovePreview(p,"own",selection,"other"),false);
+  assert.equal(await validMovePreview({...p,booking_events:3},"own"),false);assert.equal(await validMovePreview({...p,booking_history_fingerprint:"b".repeat(64)},"own"),false);
+});
+test("move preparation binds original actor, pending effect, exact recovery request and chronology",async()=>{
+  const p=await preview(),request:MoveRequest={capability:"APPOINTMENT_MOVE",selection,expected_state_fingerprint:p.state_fingerprint,valid_until:"2026-10-09T13:00:00.000Z",reason:"Déplacement revu",idempotency_key:"move-key"};
+  const original={...request,selection:p.selection,valid_until:"2026-10-09T13:00:00Z",id:"operation",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T12:00:00.000001Z",preview:p,effect:"prepared_sensitive_operation_only_pending_human_approval_no_execution"};const envelope={original,fingerprint:await hash(original)};assert.ok(await validMoveEnvelope(envelope,"own",request,"manager"));
+  for(const change of [{reason:"Another reason"},{idempotency_key:"other"},{valid_until:"2026-10-09T13:00:00.000001Z"},{selection:{...selection,appointment_id:"other"}}])assert.equal(await validMoveEnvelope(envelope,"own",{...request,...change},"manager"),false);
+  for(const change of [{actor_id:"other"},{capability:"APPOINTMENT_CREATE"},{selection},{effect:"approved"},{created_at:"2026-10-09T11:59:59Z"},{valid_until:original.created_at},{preview:{...p,booking_events:3}}]){const damaged={...original,...change};assert.equal(await validMoveEnvelope({original:damaged,fingerprint:await hash(damaged)},"own",request,"manager"),false);}
+});
