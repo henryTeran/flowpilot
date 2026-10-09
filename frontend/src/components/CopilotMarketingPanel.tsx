@@ -9,16 +9,16 @@ import {validMarketingPreview,type MarketingPreview} from "../copilot-marketing-
 import {createMarketingIntent} from "../copilot-marketing-intent";
 import type {CampaignContent,CampaignOriginal} from "../marketing-campaign-utils";
 const storage={getItem:(k:string)=>sessionStorage.getItem(k),setItem:(k:string,v:string)=>sessionStorage.setItem(k,v),removeItem:(k:string)=>sessionStorage.removeItem(k)};
-type Props={institute:string};
+type Props={initialMessage?:string;institute:string};
 export function CopilotMarketingPanel(props:Props){
   if(getOperatorRole()!=="responsable_institut" || props.institute!==getOperatorInstitute() || !getOperatorSubject())return null;
   return <Panel key={JSON.stringify([props.institute,getAccessToken()])} {...props}/>;
 }
-function Panel({institute}:Props){
+function Panel({initialMessage="",institute}:Props){
   const actor=getOperatorSubject()!,token=getAccessToken(),mounted=useRef(false),seq=useRef(0),flight=useRef(false);
   const current=()=>mounted.current && token===getAccessToken() && actor===getOperatorSubject() && institute===getOperatorInstitute() && getOperatorRole()==="responsable_institut";
   const [allowed,setAllowed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState<string>();
-  const [message,setMessage]=useState(""),[audience,setAudience]=useState(""),[template,setTemplate]=useState(""),[reason,setReason]=useState("");
+  const [message,setMessage]=useState(initialMessage),[audience,setAudience]=useState(""),[template,setTemplate]=useState(""),[reason,setReason]=useState("");
   const [audiences,setAudiences]=useState<AudienceCatalog>(),[templates,setTemplates]=useState<TemplateCatalog>();
   const [preview,setPreview]=useState<MarketingPreview>(),[content,setContent]=useState<CampaignContent>(),[original,setOriginal]=useState<CampaignOriginal>();
   const [driver]=useState(()=>createMarketingIntent({institute,actor,storage,current,get:p=>apiGet(p),post:(p,b)=>apiPost(p,b)}));

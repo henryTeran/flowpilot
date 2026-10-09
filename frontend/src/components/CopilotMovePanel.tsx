@@ -9,16 +9,16 @@ import {createMovePreparationIntent,createMoveDecisionIntent,createMoveExecution
 import {validBaseDecisionRequest,validBaseExecutionRequest} from "../base-cancellation-utils";
 import {validMoveExecutionDiscovery,validMoveApprovalState,validMoveExecution,type MoveApprovalState,type MoveExecutionEnvelope} from "../copilot-move-lifecycle";
 import type {Employee,Service} from "../types";
-type Props={institute:string;timezone:string;employees:Employee[];services:Service[]};
+type Props={initialMessage?:string;institute:string;timezone:string;employees:Employee[];services:Service[]};
 const storage={getItem:(k:string)=>sessionStorage.getItem(k),setItem:(k:string,v:string)=>sessionStorage.setItem(k,v),removeItem:(k:string)=>sessionStorage.removeItem(k)};
 export function CopilotMovePanel(props:Props){
   if(getOperatorRole()!=="responsable_institut" || !getOperatorSubject() || props.institute!==getOperatorInstitute())return null;
   return <Panel key={JSON.stringify([props.institute,props.timezone,getAccessToken()])} {...props}/>;
 }
-function Panel({institute,timezone,employees,services}:Props){
+function Panel({initialMessage="",institute,timezone,employees,services}:Props){
   const token=getAccessToken(),actor=getOperatorSubject()!,mounted=useRef(false),sequence=useRef(0),flight=useRef(false);
   const [allowed,setAllowed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState<string>();
-  const [message,setMessage]=useState(""),[employee,setEmployee]=useState(""),[service,setService]=useState(""),[local,setLocal]=useState(""),[occurrence,setOccurrence]=useState("");
+  const [message,setMessage]=useState(initialMessage),[employee,setEmployee]=useState(""),[service,setService]=useState(""),[local,setLocal]=useState(""),[occurrence,setOccurrence]=useState("");
   const [appointment,setAppointment]=useState("");
   const [preview,setPreview]=useState<MovePreview>();
   const [deadline,setDeadline]=useState(""),[deadlineOccurrence,setDeadlineOccurrence]=useState(""),[reason,setReason]=useState(""),[identifier,setIdentifier]=useState("");

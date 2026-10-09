@@ -13,17 +13,17 @@ import {revenueOriginalFingerprint as hash} from "../revenue-scenario-utils";
 import {CopilotForecastSelection} from "./CopilotForecastSelection";
 import type {Service} from "../types";
 const storage={getItem:(k:string)=>sessionStorage.getItem(k),setItem:(k:string,v:string)=>sessionStorage.setItem(k,v),removeItem:(k:string)=>sessionStorage.removeItem(k)};
-type Props={institute:string;timezone:string;services:Service[]};
+type Props={initialMessage?:string;institute:string;timezone:string;services:Service[]};
 export function CopilotReorderPanel(props:Props){
   if(getOperatorRole()!=="responsable_institut" || props.institute!==getOperatorInstitute() || !getOperatorSubject())return null;
   return <Panel key={JSON.stringify([props.institute,getAccessToken(),props.timezone])} {...props}/>;
 }
-function Panel({institute,timezone,services}:Props){
+function Panel({initialMessage="",institute,timezone,services}:Props){
   const actor=getOperatorSubject()!,token=getAccessToken(),mounted=useRef(false),seq=useRef(0),flight=useRef(false);
   const current=()=>mounted.current && token===getAccessToken() && actor===getOperatorSubject() && institute===getOperatorInstitute() && getOperatorRole()==="responsable_institut";
   const live=(n:number)=>current() && seq.current===n;
   const [allowed,setAllowed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState<string>();
-  const [message,setMessage]=useState(""),[supplier,setSupplier]=useState(""),[selected,setSelected]=useState<string[]>([]),[reason,setReason]=useState("");
+  const [message,setMessage]=useState(initialMessage),[supplier,setSupplier]=useState(""),[selected,setSelected]=useState<string[]>([]),[reason,setReason]=useState("");
   const [assumption,setAssumption]=useState<ReorderSelection["pending_order_assumption"]|"">("");
   const [suppliers,setSuppliers]=useState<Supplier[]>(),[items,setItems]=useState<StockItem[]>(),[supplierOffset,setSupplierOffset]=useState(0),[itemOffset,setItemOffset]=useState(0);
   const [withScenario,setWithScenario]=useState(false),[forecast,setForecast]=useState<ForecastDraft>({start:"",end:"",rows:[]});

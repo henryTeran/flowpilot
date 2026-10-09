@@ -9,17 +9,17 @@ import {createCreationPreparationIntent,createCreationDecisionIntent,createCreat
 import {validBaseDecisionRequest,validBaseExecutionRequest} from "../base-cancellation-utils";
 import {validCreationExecutionDiscovery,validCreationApprovalState,validCreationExecution,type CreationApprovalState,type CreationExecutionEnvelope} from "../copilot-creation-lifecycle";
 import type {Employee,Service} from "../types";
-type Props={institute:string;timezone:string;employees:Employee[];services:Service[]};
+type Props={initialMessage?:string;institute:string;timezone:string;employees:Employee[];services:Service[]};
 type Customer={id:string;name:string;phone:string|null};
 const storage={getItem:(k:string)=>sessionStorage.getItem(k),setItem:(k:string,v:string)=>sessionStorage.setItem(k,v),removeItem:(k:string)=>sessionStorage.removeItem(k)};
 export function CopilotCreationPanel(props:Props){
   if(getOperatorRole()!=="responsable_institut" || !getOperatorSubject() || props.institute!==getOperatorInstitute())return null;
   return <Panel key={JSON.stringify([props.institute,props.timezone,getAccessToken()])} {...props}/>;
 }
-function Panel({institute,timezone,employees,services}:Props){
+function Panel({initialMessage="",institute,timezone,employees,services}:Props){
   const token=getAccessToken(),actor=getOperatorSubject()!,mounted=useRef(false),sequence=useRef(0),flight=useRef(false);
   const [allowed,setAllowed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState<string>();
-  const [message,setMessage]=useState(""),[employee,setEmployee]=useState(""),[service,setService]=useState(""),[local,setLocal]=useState(""),[occurrence,setOccurrence]=useState("");
+  const [message,setMessage]=useState(initialMessage),[employee,setEmployee]=useState(""),[service,setService]=useState(""),[local,setLocal]=useState(""),[occurrence,setOccurrence]=useState("");
   const [query,setQuery]=useState(""),[customers,setCustomers]=useState<Customer[]>([]),[customer,setCustomer]=useState(""),[name,setName]=useState(""),[phone,setPhone]=useState(""),[notes,setNotes]=useState("");
   const [preview,setPreview]=useState<CreationPreview>();
   const [deadline,setDeadline]=useState(""),[deadlineOccurrence,setDeadlineOccurrence]=useState(""),[reason,setReason]=useState(""),[identifier,setIdentifier]=useState("");
