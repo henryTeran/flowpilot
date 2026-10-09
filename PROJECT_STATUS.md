@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 19
-CURRENT_CHECKPOINT = PHASE19A_PROVIDER_LAYER_IN_PROGRESS
+CURRENT_CHECKPOINT = PHASE19A_TYPED_PORTS_AND_OFFLINE_FAKES
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -7,6 +7,12 @@ BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PARTIAL
+
+PHASE19A_TYPED_PORTS_AND_OFFLINE_FAKES:
+- Added app.ai provider-independent LLMProvider/SpeechToTextProvider/EmbeddingProvider protocols and bounded strict/frozen DTOs for messages, structured JSON/text, binary audio and finite equal-dimension embeddings. No SDK/domain import or business authority in provider contracts. Transport limits are not tokenizer/audio-decoder quality claims.
+- Boundary revalidates nested unchecked copies and result shape, preserves arbitrary audio bytes, checks embedding cardinality and returns stable timeout/unavailability/invalid-response errors without private detail in public message. No raw payload logging. Three scripted fake providers run offline without credentials/remote calls/business access; caller still validates business semantics/schema and BASE/JV action guards.
+- Contracts+JV contribution/kernel regression20 passed4.77s, zero failures/skips. Fake success/silence, hostile authority fields, malformed responses, unsafe nested inputs before calls, nonfinite/mismatched embedding dimensions/count, prompt/audio/token bounds and sanitized outage types covered. Existing Starlette/intentional unsafe-copy warnings only. No SDK/remote/model-quality/production claim.
+- CHECKPOINT_STATUS = PASS for typed ports/offline fake boundary; AI_PROVIDER_PHASE PARTIAL, OPENAI_ISOLATED/VOXTRAL_ISOLATED missing. NEXT PHASE19B actual isolated SDK adapters, explicit server selection/settings and SDK transport-mocked tests; no SDK imports in business modules. docs/architecture/AI_PROVIDER_LAYER.md and ADR-002 updated. Full26-phase goal ACTIVE; no deployment/persistent mutation/remote provider activated.
 
 PHASE18F_JV_LINUX_ACCEPTANCE_AND_CLOSURE:
 - Canonical JV_RULES/JV_EVIDENCE/JV_PROVIDER_INDEPENDENCE PASS; docs/architecture/JV_FOUNDATION.md maps all8 Master Plan responsibilities to actual operational/financial/scoring/explainability implementations and guards. Prior partial checkpoints preserved as historical evidence. Pure source-bound analyzers, exact arithmetic, existing sovereign scoring/business rules, signed scopes and explicit unknowns; no model-generated financial causes or action authority.

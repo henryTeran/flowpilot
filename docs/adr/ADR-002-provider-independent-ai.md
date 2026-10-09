@@ -24,3 +24,7 @@ La logique métier doit continuer à fonctionner même sans provider IA.
 ## Consequences
 
 Les intégrations IA sont interchangeables et testables par contrat. Les parcours métier critiques restent disponibles sans dépendance forte à un fournisseur externe.
+
+## Implémentation
+
+Checkpoint 19A du 9 octobre 2026 : les trois ports typés, la validation d’infrastructure et les trois fournisseurs offline sont dans `app.ai`. Voir [les preuves et limites](../architecture/AI_PROVIDER_LAYER.md). Les adaptateurs SDK et l’acceptation complète de phase restent à implémenter; cette étape n’active aucun fournisseur distant dans les parcours métier.
