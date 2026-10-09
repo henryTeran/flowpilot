@@ -56,6 +56,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Consulter la file operationnelle; Consulter la file operationnelle; Afficher la file des clientes
 **Éviter si**: Modifier ou annuler une reservation.
 
+### Examiner les opportunites de revenus: [`revenue-opportunities`](skills/processes/revenue-opportunities/SKILL.md)
+**Quand l'utiliser**: Examiner les opportunites de revenus; Examiner les opportunites de revenus; Projeter une opportunite de capacite commerciale
+**Éviter si**: Annuler une reservation.
+
 ### Consulter le resume des revenus enregistres: [`revenue-summary`](skills/processes/revenue-summary/SKILL.md)
 **Quand l'utiliser**: Consulter le resume des revenus enregistres; Consulter le resume des revenus enregistres; Afficher le bilan de facturation
 **Éviter si**: Annuler une reservation.

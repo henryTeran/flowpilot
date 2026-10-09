@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20F_RECORDED_REVENUE_SUMMARY_PASS
+CURRENT_CHECKPOINT = PHASE20G_COMMERCIAL_CAPACITY_OPPORTUNITIES_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20G_COMMERCIAL_CAPACITY_OPPORTUNITIES:
+- Registered REVENUE_OPPORTUNITIES at SUGGEST level through actual official BASE process and original revenue.slot_opportunities.read/waiting projection engine. Signed manager permission, explicit selected active service and positive aware future horizon, missing selection clarification and unrelated fields refused. No copied queue/qualification/resource allocation rules, forecast money or provider call.
+- Typed source preserves care duration, qualifications/resource needs, prior queue/unprojectable count, conditional projected employee/slot and original unavailable reasons. Financial value remainsnull, capacity_reserved/action_executedfalse and actions empty; opening hours and fresh capacity checks still required before any domain action. This is the commercial slot opportunity slice, not all possible revenue opportunity classes.
+- Official corpus22 resources/routing42/42 PASS. Initial regression5 passed/2 failures identified numeric horizon coercion into epoch before source denial; added explicit aware ISO horizon validation. Final opportunity/customer/original-engine regression7 passed26.02s, zero failures/skips real SQLite/PostgreSQL. Actual prior queue+appointment blocker moves projected slot to+60 minutes; shortened horizon returns outside_horizon. Kernel also verifies missing qualifications/resources/machine configuration. Source SHA, role/selection/service/date refusal, no private customer context and zero SQL writes verified. Temporary schemas0, owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for conditional commercial capacity opportunity integration. NEXT REVENUE_LOSS_ANALYSIS and remaining closure/valuation/scenario opportunity scope audit, stock read/forecast, progressive guarded preparation/execution and Linux Copilot acceptance. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20F_RECORDED_REVENUE_SUMMARY:
 - Registered REVENUE_SUMMARY through actual official BASE process and existing locked revenue.sources.read. Manager-only signed institute, explicit aware start/end UI instants, missing-period clarification and unrelated selection refusal. Existing domain validates observed positive half-open interval; no copied billing arithmetic, currency conversion, customer records, SQL mutation or provider calls.

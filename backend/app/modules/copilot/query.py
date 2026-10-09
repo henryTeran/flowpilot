@@ -1,12 +1,12 @@
 from types import MappingProxyType
 from typing import Literal
-from datetime import date
+from datetime import date, datetime
 from fastapi import HTTPException
 from pydantic import AwareDatetime, ConfigDict, TypeAdapter, field_validator, model_validator
 from app.modules.base import audit, query, upstream, read_capabilities as identity
 from app.modules.crm import profile, rebooking
 from app.modules.copilot import planning
-from app.modules.revenue import capacity, sources as revenue_sources, billing
+from app.modules.revenue import capacity, sources as revenue_sources, billing, slot_opportunities
 from app.modules.workforce import conflicts
 from app.modules.resources import conflicts as resource_conflicts
 from app.modules.institutes.models import Institute
@@ -16,10 +16,10 @@ from app.modules.customers.repository import require_customer
 from app.modules.waitlist.originals import fingerprint
 from app.shared.time import utcnow, explicit_utc_instant
 
-Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY"]
+Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS", "REVENUE_SUMMARY", "REVENUE_OPPORTUNITIES"]
 PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY",
     "client-rebooking-opportunities": "CLIENT_REBOOKING_OPPORTUNITIES", "planning-read": "PLANNING_READ",
-    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS", "revenue-summary": "REVENUE_SUMMARY"})
+    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS", "revenue-summary": "REVENUE_SUMMARY", "revenue-opportunities": "REVENUE_OPPORTUNITIES"})
 
 
 class Selection(Fact):
@@ -30,6 +30,14 @@ class Selection(Fact):
     day: date | None = None
     start: AwareDatetime | None = None
     end: AwareDatetime | None = None
+    horizon_end: AwareDatetime | None = None
+
+    @field_validator("horizon_end", mode="before")
+    @classmethod
+    def explicit_horizon(cls, value):
+        if value is not None and (not isinstance(value, (str, datetime)) or isinstance(value, str) and "T" not in value):
+            raise ValueError("An explicit aware ISO horizon is required")
+        return value
 
     @field_validator("day", mode="before")
     @classmethod
@@ -56,6 +64,11 @@ class BillingSelection(Fact):
     end: AwareDatetime
 
 
+class OpportunitySelection(Fact):
+    service_id: identity.ExactId
+    horizon_end: AwareDatetime
+
+
 class ConflictsSelection(CapacitySelection):
     model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
         {"required": ["employee_id"], "properties": {"employee_id": {"type": "string"}, "resource_id": {"type": "null"}}},
@@ -74,7 +87,7 @@ class ConflictsSelection(CapacitySelection):
 INPUTS = MappingProxyType({"CLIENT_READ": CustomerSelection, "CLIENT_SUMMARY": CustomerSelection,
     "CLIENT_REBOOKING_OPPORTUNITIES": CustomerSelection, "PLANNING_READ": query.EmptySelection,
     "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection, "PLANNING_CONFLICTS": ConflictsSelection,
-    "REVENUE_SUMMARY": BillingSelection})
+    "REVENUE_SUMMARY": BillingSelection, "REVENUE_OPPORTUNITIES": OpportunitySelection})
 
 
 class Request(query.Request):
@@ -108,7 +121,8 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("PLANNING_GAPS", "planning_operator", 0, planning.Gaps, "scheduling.service.availability_pool"),
         ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
         ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"),
-        ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"))})
+        ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"),
+        ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read"))})
 
 
 class Evidence(Fact):
@@ -116,7 +130,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -131,7 +145,7 @@ class Evidence(Fact):
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
             or any(row.institute_id != self.institute_id for row in self.result.rows)):
             raise ValueError("Availability source scope and capture must match evidence")
-        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read)) and (
+        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read, slot_opportunities.Read)) and (
             self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
             raise ValueError("Conflict source scope and capture must match evidence")
         return self
@@ -159,7 +173,7 @@ def read(db, principal, candidate, router=None):
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
             "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"},
-            "REVENUE_SUMMARY": {"start", "end"}}
+            "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
         if name == "PLANNING_CONFLICTS" and selected.get("employee_id") and selected.get("resource_id"):
@@ -167,6 +181,8 @@ def read(db, principal, candidate, router=None):
         required = {"customer_id"} if name and name.startswith("CLIENT_") else {"day"} if name in {"EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS"} else set()
         if name == "REVENUE_SUMMARY":
             required = {"start", "end"}
+        elif name == "REVENUE_OPPORTUNITIES":
+            required = {"service_id", "horizon_end"}
         missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
         if name is None or required - selected.keys() or missing_target:
             response = Response(request_id=span.id, status="clarification", capability=name,
@@ -219,6 +235,12 @@ def read(db, principal, candidate, router=None):
                 result = revenue_sources.read(db, principal.institute_id, request.ui_context.start, request.ui_context.end)
                 captured = result.window.captured_at
                 answer = "Facturation enregistrée sur la période sélectionnée, séparée par devise; encaissement et exhaustivité non établis."
+            elif name == "REVENUE_OPPORTUNITIES":
+                result = slot_opportunities.read(db, principal.institute_id, request.ui_context.service_id, request.ui_context.horizon_end)
+                captured = result.captured_at
+                answer = "Créneau projeté à examiner; vérifiez les horaires et la capacité avant toute affectation. Valeur financière inconnue."
+                if result.unavailable_reason:
+                    answer = "Opportunité de capacité indisponible : " + result.unavailable_reason + "."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at
