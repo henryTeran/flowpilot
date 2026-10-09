@@ -7,14 +7,14 @@ const root = fileURLToPath(new URL('./workspace/', import.meta.url));
 let input = '';
 for await (const chunk of process.stdin) {
   input += chunk;
-  if (Buffer.byteLength(input) > 12000) throw new Error('Input too large');
+  if (Buffer.byteLength(input) > 16000) throw new Error('Input too large');
 }
 try {
   const installed = JSON.parse(await readFile(new URL('./node_modules/@ai-swiss/base/package.json', import.meta.url), 'utf8'));
   if (installed.version !== '1.5.1') throw new Error('Unexpected BASE version');
   const request = JSON.parse(input);
   if (Object.keys(request).join() !== 'message' || typeof request.message !== 'string' ||
-      !request.message.trim() || request.message.length > 2000) throw new Error('Invalid request');
+      !request.message.trim() || Array.from(request.message).length > 2000) throw new Error('Invalid request');
   // Pin the documented deterministic mode; machine Studio model settings cannot
   // introduce a remote dependency into this read-first application boundary.
   const route = await routeRequest(root, request.message, {

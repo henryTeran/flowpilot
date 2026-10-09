@@ -10,6 +10,6 @@ Le backend local requiert `node` dans le PATH et ce dossier avec son package ins
 
 Le Dockerfile backend utilise désormais le contexte racine: `docker build -f backend/Dockerfile .`. Un stage Node installe la dépendance verrouillée sans scripts d'installation, valide le corpus et rejoue le routage. L'image Python reçoit le binaire Node, le package complet et le corpus dans `/opt/flowpilot-base`. Compose conserve le montage de développement de l'application et configure ce Dockerfile. Le fichier `.dockerignore` limite les sources transmises et exclut traces, réglages locaux et données temporaires.
 
-Le runtime a été testé depuis une copie isolée du package complet. La configuration Compose est validée. L'image Docker elle-même reste à construire et tester: ces vérifications locales ne prouvent pas son exécution sous Linux.
+Le runtime a été testé depuis une copie isolée du package complet. Compose est validé. Le build via le moteur Docker accessible depuis Ubuntu/WSL et les tests dans l'image Python 3.12/Node 22 passent aussi, avec PostgreSQL Linux isolé. Ces preuves concernent le runtime de lecture; elles ne constituent pas une validation de production. Voir le checkpoint 17T dans l'audit de phase.
 
 Attribution du scaffold généré et adapté: BASE, Bâtir des Assistants avec une Structure d'Expertise, par AI Swiss, https://a-i.swiss. Contenus upstream CC BY 4.0; code upstream Apache-2.0. Les licences sont distribuées dans `node_modules/@ai-swiss/base/LICENSES`. Voir [le plan d'intégration](../../docs/architecture/BASE_UPSTREAM_INTEGRATION.md).

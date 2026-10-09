@@ -212,3 +212,11 @@ def test_runtime_bridge_timeout_and_malformed_result_fail_closed(monkeypatch):
     with pytest.raises(HTTPException) as error:
         upstream.OfficialRouter().resolve("private")
     assert error.value.status_code == 503 and "DELETE" not in error.value.detail
+
+
+def test_unicode_message_size_matches_python_and_node_contract(client):
+    institute, employee, ticket = prepared(client)
+    # Python counts Unicode codepoints; JS string.length counts UTF-16 units.
+    response = post(client, institute, {"message": "🙂" * 2000})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "clarification" and response.json()["evidence"] is None

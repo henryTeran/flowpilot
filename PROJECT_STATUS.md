@@ -1,10 +1,17 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17S_RUNTIME_PACKAGING
+CURRENT_CHECKPOINT = PHASE17T_POSTGRES_AND_LINUX_RUNTIME_ACCEPTANCE
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = true
 BASE_PHASE = PARTIAL
 BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+
+PHASE17T_POSTGRES_AND_LINUX_RUNTIME_ACCEPTANCE:
+- Actual official BASE -> signed HTTP -> PostgreSQL read test adds all four capabilities, source SHA checks, cross-institute employee/ticket refusals, empty foreign queue and SQL observer proving no INSERT/UPDATE/DELETE/DDL during reads. Temporary Windows PostgreSQL16.15 cluster/cache/loopback port, isolated schemas only; standard Python3.13 validation venv (registered3.12 path stale). Generic SQLAlchemy URL first selected missing alternate driver:26 passed/6 setup errors; explicit psycopg2 URL resolves this,32 passed70.79s, zero failures/skips.
+- Full18-module BASE regression:128 passed217.58s, zero failures/skips, SQLite and actual PostgreSQL including legacy read/plans, retained approvals/executions/journal and migrations. Deprecation/intentional unsafe-copy warnings only. Zero residual temporary schemas; owned Windows server stopped. Persistent app/database not migrated or touched.
+- Docker Windows client pipe unavailable, but existing Ubuntu/WSL Docker27.2.0 engine works. Real backend image build succeeds with official corpus14 resources and25/25 route examples. Node22.23.3 broker executes inside Python3.12 image. Existing validation containers observed exited and not restarted.
+- New isolated Linux PostgreSQL16.14 container, no published ports, tmpfs storage; source tests readonly-mounted into actual image. Initial image14 passed26.72s. Unicode boundary reproduction1 failed2.98s exposed valid2000-codepoint emoji message falsely503. UTF-8 transport/codepoint counting/consistent frame limit fix; focused1 passed3.27s. Final image rebuilt SHA2562d48b70add93e2cc48cc4a04be24eaccaf972d4008497f44b78e14da67577590; final actual Linux image15 passed73.11s, zero failures/skips. Test HTTP client installed only in ephemeral container, no application/provider change.
+- PostgreSQL schemas verified0; labeled owned Linux container/network removed, test container auto-removed. No persistent mutation/migration/deployment/push, production/physical-input/remote-provider claim. BASE_PHASE remains PARTIAL pending final gate and interaction-audit closure; full26-phase goal ACTIVE. NEXT: evidence-based Phase17 closure audit and resolve any remaining canonical audit gap, then next incomplete master-plan phase only after gates pass.
 
 PHASE17S_RUNTIME_PACKAGING:
 - Backend Dockerfile now builds from root context with a Node stage installing the locked official package without install scripts, validating corpus and route examples; Python image receives Node/package/corpus/runtime at /opt/flowpilot-base. Compose preserves app mount and targets this Dockerfile; root .dockerignore allowlists needed inputs and excludes local secrets/traces/cache.

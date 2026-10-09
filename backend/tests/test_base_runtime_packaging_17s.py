@@ -15,7 +15,7 @@ def filesystem_path(value):
 
 
 def test_real_upstream_runtime_at_trusted_deployment_location(tmp_path, monkeypatch):
-    source = Path(__file__).resolve().parents[2] / "integrations" / "base"
+    source = Path(settings.BASE_RUNTIME_DIRECTORY) if settings.BASE_RUNTIME_DIRECTORY else Path(__file__).resolve().parents[2] / "integrations" / "base"
     target = tmp_path / "packaged-base"
     target.mkdir()
     for filename in ("runtime.mjs", "package.json", "package-lock.json"):
