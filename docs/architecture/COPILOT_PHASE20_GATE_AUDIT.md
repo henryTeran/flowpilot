@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Opportunity integrated DOM acceptance: all three source selections exercised through actual Copilot form/common evidence guards in12-test suite; exclusive payloads, verified passive displays, source-switch field/result reset and incomplete-selection no request/correction messages pass. These synthetic sources are not actual API/BASE browser evidence; that acceptance and horizon product refinement remain outstanding.
+
 Opportunity form increment: three original variants now selectable and passively displayed through official BASE query/common evidence gate. Capacity requires catalogue service/explicit timezone-bearing horizon, rebooking admits no unrelated source fields, closures uses selected observed institute period; switching source clears fields/evidence. Build and12 regression/render tests pass. Dedicated integrated controls and real browser acceptance pending; horizon input needs product refinement. Forecast and four progressive UI flows still outstanding; gates remain partial.
 
 Loss browser baseline: actual signed API/official BASE16-test suite passes desktop/tablet (1.7m), scoped common selected period, separate original clocks/source displays, null financial loss and false causal/history claims, only query POST. Screenshots inspected, fixture removed/listeners0. Zero-event case only; populated retained-commercial-value browser evidence remains pending. Phase gates remain partial.

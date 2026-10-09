@@ -229,6 +229,28 @@ test("opportunity responses bind explicit capacity source, capture, action bound
   assert.equal(await validReadResponse(await answer("REVENUE_OPPORTUNITIES",{...source,captured_at:"2026-10-09T10:00:00.123455Z"}),"own","REVENUE_OPPORTUNITIES",selection),false);
 });
 
+test("opportunity form sends exclusive source selections and clears evidence when switching",async()=>{
+  const period={start:"2026-10-07T22:00:00.000Z",end:"2026-10-08T22:00:00.000Z"},window={institute_id:"own",...period,captured_at:clock};
+  const returns={institute_id:"own",captured_at:clock,source_digest:"a".repeat(64),source:"observed_care_declared_rebooking_rule",total_candidates:0,examined_customers:0,already_booked_customers:0,scheduled_customers:0,disabled_customers:0,no_candidate_customers:0,diagnostics:{},candidates:[],page_limit:20,estimated_value:null,delivery_authorized:false,action_executed:false,complete_customer_history:false};
+  const follow={institute_id:"own",captured_at:clock,source:"recorded_closure_follow_up",bookings:{window,source_digest:"a".repeat(64),cancelled_count:0,no_show_count:0,unpriced_count:0,institute_terminal_bookings_without_closure_event:0},walk_ins:{window,source_digest:"b".repeat(64),retained_terms_count:0,legacy_unpriced_count:0,retained_amounts:[]},booking_total:0,walk_in_total:0,booking_candidates:[],walk_in_candidates:[],page_limit_per_source:20,estimated_recovered_revenue:null,causal_loss_proven:false,delivery_authorized:false,action_executed:false,complete_history:false};
+  setAccessToken(token());const queries:any[]=[];
+  globalThis.fetch=async(url,init)=>{
+    if(String(url).endsWith("/capabilities"))return reply(discovery());
+    const body=JSON.parse(init!.body as string);queries.push(body);const selected=body.ui_context;
+    return reply(await answer("REVENUE_OPPORTUNITIES",selected.opportunity_source==="rebooking" ? returns : selected.opportunity_source==="closures" ? follow : {institute_id:"own",service_id:"service",captured_at:clock,horizon_end:selected.horizon_end,opportunity:null,unavailable_reason:"capacity_unknown"}));
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await render(root);await settle();await fill("Consultation","REVENUE_OPPORTUNITIES");await fill("Votre question","Examiner les opportunites");
+    await click("Consulter");assert.equal(queries.length,0);assert.match(document.querySelector('[role="alert"]')!.textContent!,/Choisissez une source/);
+    await fill("Source des opportunités","capacity");await fill("Prestation sélectionnée","service");await fill("Horizon avec fuseau","2026-10-09T11:00:00Z");await click("Consulter");
+    assert.deepEqual(queries[0].ui_context,{opportunity_source:"capacity",service_id:"service",horizon_end:"2026-10-09T11:00:00Z"});assert.match(document.body.textContent!,/Capacité non établie/);
+    await fill("Source des opportunités","rebooking");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);await click("Consulter");assert.deepEqual(queries[1].ui_context,{opportunity_source:"rebooking"});assert.match(document.body.textContent!,/Aucun message envoyé/);
+    await fill("Source des opportunités","closures");await fill("Début de période","2026-10-08");await fill("Fin de période exclue","2026-10-09");await click("Consulter");assert.deepEqual(queries[2].ui_context,{opportunity_source:"closures",...period});assert.match(document.body.textContent!,/Aucun contact effectué/);
+    await fill("Source des opportunités","capacity");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);await click("Consulter");assert.equal(queries.length,3);assert.match(document.querySelector('[role="alert"]')!.textContent!,/prestation/);
+  }finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

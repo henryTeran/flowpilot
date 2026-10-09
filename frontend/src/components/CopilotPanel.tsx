@@ -78,7 +78,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
     if(name==="REVENUE_OPPORTUNITIES"){
-      if(!opportunitySource)return;
+      if(!opportunitySource){setError("Choisissez une source d’opportunités avant de consulter.");return;}
       selection.opportunity_source=opportunitySource;
       if(opportunitySource==="capacity"){
         if(!services.some(r=>r.id===service && r.status==="active") || certificationInstant(horizon)===undefined){setError("Choisissez une prestation et un horizon daté avec fuseau.");return;}

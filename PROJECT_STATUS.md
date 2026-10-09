@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_OPPORTUNITY_FORM_WIRING_INCREMENT:
+- Dedicated integrated three-source controls test now PASS in Copilot12-test suite: exact selected capacity service/horizon, no-extra-field rebooking, institute-midnight closure period, verified respective rendering, changed-source evidence/fields cleared, incomplete capacity/source makes no request. Empty source now gives explicit correction message. Actual API/BASE browser acceptance and horizon product refinement remain pending.
 - Mounted all three original opportunity displays in Copilot; discovery now exposes REVENUE_OPPORTUNITIES for authorized manager. Explicit empty-default source selection: active selected catalogue service plus timezone-bearing horizon for capacity, no extra selections for institute rebooking, selected institute civil-date observed period for closures. Source changes clear service/horizon/period and previous response. Requests use existing official BASE query and common evidence guard; no implicit read/contact/execution.
 - Build PASS and Copilot/passive-render12 regression tests PASS. Dedicated integrated three-source control tests, product refinement of horizon entry and actual API/BASE browser acceptance remain outstanding. STOCK_FORECAST is the remaining initial UI implementation; all four progressive flows and populated acceptance gaps still required. Full goal ACTIVE, phase gates PARTIAL.
 
