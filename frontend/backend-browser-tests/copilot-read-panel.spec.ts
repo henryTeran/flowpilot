@@ -105,6 +105,33 @@ test("recorded capacity binds the selected day through real BASE without reserva
   await panel.getByLabel("Journée terminée").fill("2025-10-27");await expect(facts).toHaveCount(0);
 });
 
+test("conflicts use explicit employee and resource references through real BASE",async({page},info)=>{
+  const panel=await login(page),posts:any[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push(r.postDataJSON());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("PLANNING_CONFLICTS");
+  await panel.getByLabel("Journée à examiner").fill("2025-10-26");
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Examiner les conflits du planning");
+  await expect(panel.getByRole("button",{name:"Consulter",exact:true})).toBeDisabled();
+  await panel.getByRole("combobox",{name:"Collaboratrice ou ressource",exact:true}).selectOption("employee:emp-angela");
+  async function consult(kind:"employee"|"resource"){
+    const result=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+    await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+    const response=await result;expect(response.status()).toBe(200);const value=await response.json();
+    expect(value.capability).toBe("PLANNING_CONFLICTS");expect(value.evidence.result.institute_id).toBe(institute);
+    expect(value.evidence.result.day).toBe("2025-10-26");expect(value.evidence.result.physical_activity_proven).toBe(false);
+    expect(value.evidence.result[kind==="employee" ? "employee_id" : "resource_id"]).toBeTruthy();
+    await expect(panel.getByRole("region",{name:"Réponse du Copilot",exact:true})).toContainText("conflit(s) observé(s)");
+    await expect(panel.getByRole("alert")).toHaveCount(0);
+  }
+  await consult("employee");expect(posts[0].ui_context).toEqual({day:"2025-10-26",employee_id:"emp-angela"});
+  await panel.getByRole("button",{name:"Lire les ressources",exact:true}).click();
+  const selection=panel.getByRole("combobox",{name:"Collaboratrice ou ressource",exact:true});
+  const option=selection.locator('option[value^="resource:"]').first();await expect(option).toBeAttached();
+  const target=await option.getAttribute("value");await selection.selectOption(target!);await consult("resource");
+  expect(posts[1].ui_context).toEqual({day:"2025-10-26",resource_id:target!.slice(9)});expect(posts).toHaveLength(2);
+  await page.screenshot({path:info.outputPath("copilot-conflicts.png"),fullPage:true});
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");

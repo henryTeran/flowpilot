@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Conflict browser baseline now PASS:12-test actual signed API/official BASE suite, desktop/tablet explicit employee and resource selection, scoped selected DST day, zero-overlap original source, no implicit query/empty target submission and preserved physical-coverage boundary. Resource screenshots inspected, fixture cleaned/listeners0. Populated overlaps remain a browser acceptance gap; phase gates stay partial.
+
 Conflict UI evidence: both employee and resource modes now connect explicit selected day/reference to official BASE API with closed evidence validation and original half-open overlap arithmetic. Dedicated DOM controls verify no implicit catalogue read, empty-target prevention, explicit resource loading, exclusive query references and edited-result removal; build/combined10 targeted tests pass. Actual signed API/BASE browser cases remain pending. Four initial UI capabilities (three revenue modes and stock forecast) and all four progressive flows still require work.
 
 Capacity browser acceptance: real API/official BASE suite10 passes desktop/tablet (1.2m), including selected completed DST day, scoped cohort with missing hours, no physical/bookable authority, only query POST, no empty-date submit and stale evidence cleared on date edit. Both screenshots inspected; fixture cleaned/listeners0. Populated-activity browser case and remaining phase requirements are not covered by this evidence.
