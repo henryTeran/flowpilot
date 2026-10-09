@@ -2,6 +2,11 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_FORM_INCREMENT:
+- Added manager-only Copilot reorder mode with explicit paginated supplier/item catalogues, up to50 selected items retained across pages, mandatory pending-order assumption and optional multi-service scenario using original recipe selection and institute-local midnight periods. Native source reads and exact selection/source digest required before official BASE preview. Edited terms clear evidence; stale/scope responses ignored.
+- Explicit reason and frozen actor/institute request driver connected to proposal retention. Lost response blocks replacement; resume independently rereads key and original ID before displaying retained quantities. No purchase/contact/payment/receipt/stock action controls. Build and nine targeted reorder tests PASS, including integrated lost-response mode reopen/recovery with one retention POST. Full frontend584 PASS,0 failures/skips114.47s (.cache/20-reorder-frontend.log).
+- Initial mount command used wrong working directory and made no mount edit; corrected before final build/checks. Actual API/official BASE browser acceptance, enabled/disabled/full scenario and adverse form acceptance remain required. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_SCENARIO_SOURCE_READER:
 - Extended native source reader to explicit multi-service forecast scenarios: exact selected recipe ID reads, institute/service validation and original norm arithmetic checked for every paginated stock row. Missing selected norms retained as partial coverage; demand summaries must remain identical across pages. Forecast POST is the existing read-only inventory projection, not proposal creation.
 - Build PASS and eight combined reorder source/contract/recovery tests PASS, including original selected recipe quantities, missing norm coverage, arithmetically coherent but norm-inconsistent projection, substituted recipe ID and absent original refusal. Form mounting, full enabled/disabled scenario UI acceptance and actual API/BASE browser evidence remain required. Goal ACTIVE; phase gates PARTIAL.
