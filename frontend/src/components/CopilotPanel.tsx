@@ -22,6 +22,7 @@ import {CopilotForecastSelection} from "./CopilotForecastSelection";
 import {validForecastSelection,validForecastOriginals,type ForecastDraft} from "../copilot-forecast-utils";
 import {validRecipe} from "../recipe-utils";
 import {CopilotCreationPanel} from "./CopilotCreationPanel";
+import {CopilotMarketingPanel} from "./CopilotMarketingPanel";
 import {CopilotMovePanel} from "./CopilotMovePanel";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -33,8 +34,8 @@ export function CopilotPanel(props: Props) {
   return <CopilotModes key={JSON.stringify([props.institute,getAccessToken(),props.timezone])} {...props} />;
 }
 function CopilotModes(props:Props){
-  const [mode,setMode]=useState<"read"|"creation"|"move">("read");
-  return <>{getOperatorRole()==="responsable_institut" && <div role="group" aria-label="Parcours du Copilot"><button type="button" aria-pressed={mode==="read"} onClick={()=>setMode("read")}>Consulter avec le Copilot</button><button type="button" aria-pressed={mode==="creation"} onClick={()=>setMode("creation")}>Créer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="move"} onClick={()=>setMode("move")}>Déplacer un rendez-vous avec le Copilot</button></div>}{mode==="creation" ? <CopilotCreationPanel {...props}/> : mode==="move" ? <CopilotMovePanel {...props}/> : <Consultations {...props}/>}</>;
+  const [mode,setMode]=useState<"read"|"creation"|"move"|"marketing">("read");
+  return <>{getOperatorRole()==="responsable_institut" && <div role="group" aria-label="Parcours du Copilot"><button type="button" aria-pressed={mode==="read"} onClick={()=>setMode("read")}>Consulter avec le Copilot</button><button type="button" aria-pressed={mode==="creation"} onClick={()=>setMode("creation")}>Créer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="move"} onClick={()=>setMode("move")}>Déplacer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="marketing"} onClick={()=>setMode("marketing")}>Préparer un brouillon marketing</button></div>}{mode==="creation" ? <CopilotCreationPanel {...props}/> : mode==="move" ? <CopilotMovePanel {...props}/> : mode==="marketing" ? <CopilotMarketingPanel institute={props.institute}/> : <Consultations {...props}/>}</>;
 }
 function Consultations({ institute, timezone, employees, services }: Props) {
   const token = getAccessToken(), role = getOperatorRole() || "";
