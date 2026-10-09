@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_MARKETING_ORIGINAL_UI_CONTRACT_FOUNDATION:
+- Added distinct MARKETING_CAMPAIGN_DRAFT selection/request/preview/compact-result frontend contracts. Preview binds selected audience/template, scoped original campaign content digest, channel/count and source chronology. Compact retained result additionally requires independent validated create-only campaign original, exact signed actor/IDs/reason/key/content digest and literal DRAFT/no-contact/no-delivery effect. Audience order is preserved; no generated text substitution or approval authority inferred.
+- Build PASS and seven combined Copilot-marketing/original campaign tests PASS: altered template/audience order/text/count/actor/scope/clock, false delivery effect, changed independent original, substituted recovery terms and non-DRAFT result refused. This is contract groundwork; actual template/audience original reads, form, frozen recovery and real API/BASE browser acceptance remain required. Goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_MOVE_BROWSER_ACCEPTANCE:
 - Actual signed API/pinned official BASE move lifecycle2 PASS50.8s desktop/tablet (.cache/20-move-browser-final.log). Existing appointment remains exactly unchanged through preview/preparation/approval; execution moves the same ID to reviewed local interval with original employee/service and name/phone/notes/status/customer_id unchanged. Lost execution acknowledgement then page reload independently recovers receipt with exactly one execution POST. Old room interval becomes available; new interval specifically refuses competing qualified employee for unavailable resources. No second appointment.
 - First browser run exposed production preview endpoint incorrectly targeting creation (422/no mutation); fixed to /copilot/prepare-preview/move and adjusted DOM guard to assert actual route. Corrected move execution labels. Final build and focused DOM PASS; full567 frontend PASS is prior a75fac9 evidence before this narrow route/label correction. Final screenshots inspected, owned fixture removed/listeners4198/4199=0.
