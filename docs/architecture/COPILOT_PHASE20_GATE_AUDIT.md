@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Opportunity form increment: three original variants now selectable and passively displayed through official BASE query/common evidence gate. Capacity requires catalogue service/explicit timezone-bearing horizon, rebooking admits no unrelated source fields, closures uses selected observed institute period; switching source clears fields/evidence. Build and12 regression/render tests pass. Dedicated integrated controls and real browser acceptance pending; horizon input needs product refinement. Forecast and four progressive UI flows still outstanding; gates remain partial.
+
 Loss browser baseline: actual signed API/official BASE16-test suite passes desktop/tablet (1.7m), scoped common selected period, separate original clocks/source displays, null financial loss and false causal/history claims, only query POST. Screenshots inspected, fixture removed/listeners0. Zero-event case only; populated retained-commercial-value browser evidence remains pending. Phase gates remain partial.
 
 Loss analysis UI increment: explicit observed period now reaches official BASE with closed original booking/walk-in summary validation and response SHA. Separate sources/clocks/counts/retained currencies displayed; causal financial loss remains null/unproven. Build and combined11 targeted source/DOM tests pass. Actual signed API/BASE browser acceptance pending. Opportunities and forecast UI plus all four progressive flows remain outstanding; phase gates remain partial.

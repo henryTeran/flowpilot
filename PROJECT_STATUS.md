@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_OPPORTUNITY_FORM_WIRING_INCREMENT:
+- Mounted all three original opportunity displays in Copilot; discovery now exposes REVENUE_OPPORTUNITIES for authorized manager. Explicit empty-default source selection: active selected catalogue service plus timezone-bearing horizon for capacity, no extra selections for institute rebooking, selected institute civil-date observed period for closures. Source changes clear service/horizon/period and previous response. Requests use existing official BASE query and common evidence guard; no implicit read/contact/execution.
+- Build PASS and Copilot/passive-render12 regression tests PASS. Dedicated integrated three-source control tests, product refinement of horizon entry and actual API/BASE browser acceptance remain outstanding. STOCK_FORECAST is the remaining initial UI implementation; all four progressive flows and populated acceptance gaps still required. Full goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_OPPORTUNITY_PASSIVE_VIEW_INCREMENT:
 - Added passive display component for all three validated opportunity source variants: conditional slot and queue uncertainty/no reservation, CRM cohort counts/first20 care due candidates/no contact, booking/walk-in first20 references with separate capture clocks and retained commercial values/no recovery claim. Component issues no request and exposes no action controls.
 - Build PASS; targeted render test PASS for unavailable capacity, incomplete CRM care, retained CHF commercial value/separate clocks and absence of action controls. Component is not yet mounted by Copilot form; integrated controls and actual browser acceptance remain outstanding. Full goal ACTIVE, phase gates PARTIAL.

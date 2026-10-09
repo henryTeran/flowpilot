@@ -11,7 +11,7 @@ import { validRevenueBilling, type RevenueBilling } from "./revenue-utils";
 import { validLossRead, type LossRead } from "./copilot-loss-utils";
 import {validOpportunitySelection,validOpportunityFacts,type OpportunityFacts} from "./copilot-opportunity-utils";
 
-export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", EMPLOYEE_CAPACITY: "Capacité enregistrée", PLANNING_CONFLICTS: "Conflits de planning", REVENUE_SUMMARY: "Revenus enregistrés", REVENUE_LOSS_ANALYSIS: "Annulations et absences", STOCK_READ: "Stock enregistré" } as const;
+export const readLabels = { CLIENT_READ: "Fiche cliente", CLIENT_SUMMARY: "Profil CRM observé", CLIENT_REBOOKING_OPPORTUNITIES: "Reprise de rendez-vous", PLANNING_READ: "Planning du jour", PLANNING_GAPS: "Créneaux disponibles", EMPLOYEE_CAPACITY: "Capacité enregistrée", PLANNING_CONFLICTS: "Conflits de planning", REVENUE_SUMMARY: "Revenus enregistrés", REVENUE_LOSS_ANALYSIS: "Annulations et absences", REVENUE_OPPORTUNITIES: "Opportunités à examiner", STOCK_READ: "Stock enregistré" } as const;
 export type RebookingFacts = { institute_id:string;customer_id:string;captured_at:string;policy_original_id:string|null;policy_original_digest:string|null;
   rule:AutomationRule|null;candidate:EventCandidate|null;active_bookings:{appointment_id:string;service_id:string;start_at:string;end_at:string;status:string}[];
   invalid_booking_count:number;diagnostics:Record<string,number>;review:"available"|"already_booked"|"not_due"|"disabled"|"unavailable";

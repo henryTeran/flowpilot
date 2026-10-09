@@ -14,6 +14,8 @@ import type { ConflictRead } from "../copilot-conflict-utils";
 import { revenueMoney, type RevenueBilling } from "../revenue-utils";
 import { instituteMidnight } from "../outlook-utils";
 import type { LossRead } from "../copilot-loss-utils";
+import {CopilotOpportunityFacts} from "./CopilotOpportunityFacts";
+import type {OpportunityFacts} from "../copilot-opportunity-utils";
 import type { Employee, Service } from "../types";
 
 type Props = { institute: string; timezone: string; employees: Employee[]; services: Service[] };
@@ -32,6 +34,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
   const [day,setDay] = useState("");
   const [periodStart,setPeriodStart]=useState(""),[periodEnd,setPeriodEnd]=useState("");
+  const [opportunitySource,setOpportunitySource]=useState<""|"capacity"|"rebooking"|"closures">(""),[horizon,setHorizon]=useState("");
   const [target,setTarget]=useState(""),[resourceChoices,setResourceChoices]=useState<{id:string;name:string}[]>([]);
   async function loadResources(){
     if(flight.current)return;flight.current=true;const seq=++sequence.current;setBusy(true);setError(undefined);setResponse(undefined);
@@ -74,7 +77,15 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   async function consult() {
     if (flight.current || !name || !available.includes(name) || !question.trim() || token !== getAccessToken()) return;
     const selection: ReadSelection = customerMode ? { customer_id:customer } : name === "PLANNING_CONFLICTS" ? {day,...(target.startsWith("resource:") ? {resource_id:target.slice(9)} : {employee_id:target.slice(9)})} : name === "EMPLOYEE_CAPACITY" ? {day} : name === "PLANNING_GAPS" && service ? { service_id:service } : {};
-    if(name==="REVENUE_SUMMARY" || name==="REVENUE_LOSS_ANALYSIS"){
+    if(name==="REVENUE_OPPORTUNITIES"){
+      if(!opportunitySource)return;
+      selection.opportunity_source=opportunitySource;
+      if(opportunitySource==="capacity"){
+        if(!services.some(r=>r.id===service && r.status==="active") || certificationInstant(horizon)===undefined){setError("Choisissez une prestation et un horizon daté avec fuseau.");return;}
+        selection.service_id=service;selection.horizon_end=horizon;
+      }
+    }
+    if(name==="REVENUE_SUMMARY" || name==="REVENUE_LOSS_ANALYSIS" || name==="REVENUE_OPPORTUNITIES" && opportunitySource==="closures"){
       const start=instituteMidnight(periodStart,timezone),end=instituteMidnight(periodEnd,timezone);
       if(!start || !end || certificationInstant(start)!>=certificationInstant(end)!){setError("Choisissez une date de fin postérieure au début de la période.");return;}
       selection.start=start;selection.end=end;
@@ -104,6 +115,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if(evidence.capability==="REVENUE_OPPORTUNITIES")return <CopilotOpportunityFacts value={evidence.result as OpportunityFacts} date={date} employee={employee} service={serviceName}/>;
     if(evidence.capability==="REVENUE_LOSS_ANALYSIS"){
       const value=evidence.result as LossRead;
       return <><p>Événements enregistrés sur la période sélectionnée. Historique complet et perte financière causale non établis.</p>
@@ -195,7 +207,10 @@ function Consultations({ institute, timezone, employees, services }: Props) {
         {name === "PLANNING_GAPS" && <label>Prestation à vérifier<select value={service} onChange={event => { edit(); setService(event.target.value); }}><option value="">Sans prestation particulière</option>{services.filter(row => row.status === "active").map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>}
         <label>Votre question<textarea required value={question} maxLength={2000} onChange={event => { edit(); setQuestion(event.target.value); }} placeholder={name === "CLIENT_READ" ? "Consulter la fiche cliente" : name === "PLANNING_READ" ? "Consulter le planning du jour" : name === "PLANNING_GAPS" ? "Consulter les creneaux libres" : name === "STOCK_READ" ? "Consulter les stocks enregistres" : "Saisissez votre question"} /></label>
         {name === "EMPLOYEE_CAPACITY" && <label>Journée terminée<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>}
-        {(name === "REVENUE_SUMMARY" || name === "REVENUE_LOSS_ANALYSIS") && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
+        {name === "REVENUE_OPPORTUNITIES" && <><label>Source des opportunités<select value={opportunitySource} onChange={event=>{edit();setOpportunitySource(event.target.value as typeof opportunitySource);setService("");setHorizon("");setPeriodStart("");setPeriodEnd("");}}><option value="">Choisir une source</option><option value="capacity">Capacité conditionnelle</option><option value="rebooking">Reprises clientes</option><option value="closures">Suivi des annulations</option></select></label>
+          {opportunitySource==="capacity" && <><label>Prestation sélectionnée<select value={service} onChange={event=>{edit();setService(event.target.value);}}><option value="">Choisir une prestation</option>{services.filter(r=>r.status==="active").map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label><label>Horizon avec fuseau<input value={horizon} placeholder="2026-10-09T18:00:00+02:00" onChange={event=>{edit();setHorizon(event.target.value);}} /></label><p>Indiquez une date future avec heure et décalage UTC explicite.</p></>}
+        </>}
+        {(name === "REVENUE_SUMMARY" || name === "REVENUE_LOSS_ANALYSIS" || name === "REVENUE_OPPORTUNITIES" && opportunitySource==="closures") && <><label>Début de période<input type="date" required value={periodStart} onChange={event=>{edit();setPeriodStart(event.target.value);}} /></label><label>Fin de période exclue<input type="date" required value={periodEnd} onChange={event=>{edit();setPeriodEnd(event.target.value);}} /></label><p>Dates à minuit dans le fuseau {timezone}. Choisissez une période terminée.</p></>}
         {name === "PLANNING_CONFLICTS" && <><label>Journée à examiner<input type="date" required value={day} onChange={event=>{edit();setDay(event.target.value);}} /></label>
           <button type="button" onClick={()=>void loadResources()}>Lire les ressources</button>
           <label>Collaboratrice ou ressource<select value={target} onChange={event=>{edit();setTarget(event.target.value);}}><option value="">Choisir une référence</option>{employees.filter(r=>r.institute_id===institute).map(r=><option key={r.id} value={`employee:${r.id}`}>{r.first_name}</option>)}{resourceChoices.map(r=><option key={r.id} value={`resource:${r.id}`}>{r.name}</option>)}</select></label></>}
