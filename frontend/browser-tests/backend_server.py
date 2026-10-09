@@ -79,10 +79,15 @@ def main():
             return dict(manifest=planning_manifest, sources=read_snapshot(engine))
     if os.environ.get("FLOWPILOT_BROWSER_REVENUE_FIXTURE") == "1":
         from revenue_fixture import seed_revenue, read_revenue_snapshot
+        from copilot_closure_fixture import seed_closures, read_closure_snapshot
         seed_revenue(engine, DEMO_INSTITUTE_ID)
+        seed_closures(engine, DEMO_INSTITUTE_ID)
         @app.get("/_fixture/revenue")
         def revenue_snapshot():
             return read_revenue_snapshot(engine)
+        @app.get("/_fixture/closures")
+        def closure_snapshot():
+            return read_closure_snapshot(engine)
     if options.simulate_payments:
         from payment_simulator import PaymentSimulator
         from app.modules.payments.dispatch import ProviderBinding
