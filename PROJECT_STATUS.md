@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_OPPORTUNITY_SOURCE_SELECTION_FOUNDATION:
+- Added closed exclusive OpportunitySelection for all three original variants: selected service/horizon capacity, institute rebooking, or selected observed-period closures. Shared fact guard delegates exclusively to validRevenueSlot, validReturnOpportunities or validFollowUps and binds original capture. No new language router or eligibility engine.
+- Build PASS and three focused opportunity-source tests PASS. Explicit mixed-source selections, missing horizon, empty closure period, wrong scope/capture and extra contact context refused. Actual Copilot form/evidence integration and all three UI/browser acceptance remain outstanding; whole goal ACTIVE, all phase gates PARTIAL.
+
 PHASE20_FOLLOW_UP_OPPORTUNITY_UI_CONTRACT_FOUNDATION:
 - Added closed original closure-follow-up projection validation reusing loss-summary source guards. Exact selected period and separate source clocks, full totals/first20 per source, unique events, half-open event dates, typed retained currency/value/confidence and null recovery/false delivery/action/history checked. No new financial or contact eligibility engine.
 - Build PASS and two focused follow-up/loss tests PASS: valid original unpriced events and wrong window/scope/count, extra phone, unsupported recovery/delivery and legacy-value contradiction refused. Opportunity UI remains unconnected; capacity variant can reuse original validRevenueSlot, return and follow-up source validators now exist. All UI/browser acceptance and four progressive flows remain outstanding. Goal ACTIVE, gates PARTIAL.
