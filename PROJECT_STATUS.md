@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21G_REVIEWED_VOICE_CONSULTATION_HANDOFF:
+- Voice reviewed consultation handoff:2 PASS44.7s desktop/tablet (.cache/21-voice-handoff-browser.log), production rebuild plus actual signed API/official BASE with offline STT fixture. Explicit use-reviewed-text fills question only, no auto query/no capability or business-ID selection; consultation remains empty until operator selects STOCK_READ and explicitly submits. Native query200 displays verified source response. Exactly one audio preview then one read query; no preparation/execution. Ordinary mode navigation clears seed; parent signed scope remount prevents cross-session/institute reuse. Tablet screenshot inspected; fixture removed/terminal exit0. Test title corrected after terminal completion, behavior unchanged. Microphone, progressive form handoff, real STT and current full UI regression remain required; prior585 predates this production edit. Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21F_VOICE_NATIVE_PREVIEW_ACCEPTANCE:
 - Voice native preview acceptance:2 PASS47.0s desktop/tablet (.cache/21-voice-preview-browser.log), explicit --voice-fixture sets offline fake STT only in owned temporary server; actual signed raw-audio API and pinned official BASE produce exact displayed transcript. One preview POST/no domain POST, no implicit import submit, no error, button remains usable. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. This proves integration with deterministic transcription, not real speech decoding/Voxtral quality. Current full frontend585 PASS0fail/skip124.39s (.cache/21-current-frontend-regression.log), after import UI and validator. Subsequent fixture/browser/docs changes do not change production UI. Reviewed typed handoff/microphone/real STT/audit/package remain required. Voice gates PARTIAL, goal ACTIVE.
 

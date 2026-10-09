@@ -1,9 +1,11 @@
 import {test,expect} from "@playwright/test";
-test("audio import preserves signed official BASE preview without domain action",async({page},info)=>{
+test("audio preview requires explicit reviewed transfer and typed consultation submit",async({page},info)=>{
  await page.goto("/");await page.getByLabel("Adresse e-mail").fill("manager@browser.example.com");await page.getByLabel("Mot de passe").fill("Browser-test-only-2026");await page.getByRole("button",{name:"Se connecter",exact:true}).click();await expect(page.locator(".flow-session-exit")).toBeVisible();
  await page.getByRole("button",{name:"Copilot",exact:true}).click();await page.getByRole("button",{name:"Demande vocale",exact:true}).click();const panel=page.getByRole("region",{name:"Copilot vocal",exact:true});
  const posts:string[]=[];page.on("request",r=>{if(r.method()==="POST")posts.push(r.url());});
  await expect(panel.getByRole("button",{name:"Transcrire l’audio",exact:true})).toBeDisabled();await panel.getByLabel("Fichier audio").setInputFiles({name:"voice.wav",mimeType:"audio/wav",buffer:Buffer.from("fixture audio")});
  const waiting=page.waitForResponse(r=>r.url().includes("/copilot/voice/preview"));await panel.getByRole("button",{name:"Transcrire l’audio",exact:true}).click();expect((await waiting).status()).toBe(200);await expect(panel.getByRole("alert")).toHaveCount(0);await expect(panel.getByRole("button",{name:"Transcrire l’audio",exact:true})).toBeEnabled();await expect(panel.getByRole("article",{name:"Transcription relue",exact:true})).toContainText("Consulter les stocks enregistres");expect(posts).toHaveLength(1);expect(posts[0]).toContain("/copilot/voice/preview?language=fr");
+ await panel.getByRole("button",{name:"Utiliser ce texte pour une consultation",exact:true}).click();await expect(page.getByRole("textbox",{name:"Votre question",exact:true})).toHaveValue("Consulter les stocks enregistres");await expect(page.getByRole("combobox",{name:"Consultation",exact:true})).toHaveValue("");expect(posts).toHaveLength(1);
+ await page.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");const queryWait=page.waitForResponse(r=>r.url().endsWith("/copilot/query"));await page.getByRole("button",{name:"Consulter",exact:true}).click();expect((await queryWait).status()).toBe(200);await expect(page.getByRole("region",{name:"Réponse du Copilot",exact:true})).toBeVisible();expect(posts).toHaveLength(2);expect(posts[1]).toContain("/copilot/query");
  await page.screenshot({path:info.outputPath("voice-preview.png"),fullPage:true});
 });

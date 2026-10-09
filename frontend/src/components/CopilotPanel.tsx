@@ -37,13 +37,16 @@ export function CopilotPanel(props: Props) {
 }
 function CopilotModes(props:Props){
   const [mode,setMode]=useState<"read"|"creation"|"move"|"marketing"|"reorder"|"voice">("read");
-  return <>{getOperatorRole()==="responsable_institut" && <div role="group" aria-label="Parcours du Copilot"><button type="button" aria-pressed={mode==="voice"} onClick={()=>setMode("voice")}>Demande vocale</button><button type="button" aria-pressed={mode==="read"} onClick={()=>setMode("read")}>Consulter avec le Copilot</button><button type="button" aria-pressed={mode==="creation"} onClick={()=>setMode("creation")}>Créer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="move"} onClick={()=>setMode("move")}>Déplacer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="marketing"} onClick={()=>setMode("marketing")}>Préparer un brouillon marketing</button><button type="button" aria-pressed={mode==="reorder"} onClick={()=>setMode("reorder")}>Préparer un réapprovisionnement</button></div>}{mode==="voice" ? <CopilotVoicePanel institute={props.institute}/> : mode==="creation" ? <CopilotCreationPanel {...props}/> : mode==="move" ? <CopilotMovePanel {...props}/> : mode==="marketing" ? <CopilotMarketingPanel institute={props.institute}/> : mode==="reorder" ? <CopilotReorderPanel {...props}/> : <Consultations {...props}/>}</>;
+  const [reviewedQuestion,setReviewedQuestion]=useState("");
+  function navigate(next:typeof mode){setReviewedQuestion("");setMode(next);}
+  function acceptVoice(text:string){setReviewedQuestion(text);setMode("read");}
+  return <>{getOperatorRole()==="responsable_institut" && <div role="group" aria-label="Parcours du Copilot"><button type="button" aria-pressed={mode==="voice"} onClick={()=>navigate("voice")}>Demande vocale</button><button type="button" aria-pressed={mode==="read"} onClick={()=>navigate("read")}>Consulter avec le Copilot</button><button type="button" aria-pressed={mode==="creation"} onClick={()=>navigate("creation")}>Créer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="move"} onClick={()=>navigate("move")}>Déplacer un rendez-vous avec le Copilot</button><button type="button" aria-pressed={mode==="marketing"} onClick={()=>navigate("marketing")}>Préparer un brouillon marketing</button><button type="button" aria-pressed={mode==="reorder"} onClick={()=>navigate("reorder")}>Préparer un réapprovisionnement</button></div>}{mode==="voice" ? <CopilotVoicePanel institute={props.institute} onReviewed={acceptVoice}/> : mode==="creation" ? <CopilotCreationPanel {...props}/> : mode==="move" ? <CopilotMovePanel {...props}/> : mode==="marketing" ? <CopilotMarketingPanel institute={props.institute}/> : mode==="reorder" ? <CopilotReorderPanel {...props}/> : <Consultations {...props} initialQuestion={reviewedQuestion}/>}</>;
 }
-function Consultations({ institute, timezone, employees, services }: Props) {
+function Consultations({ institute, timezone, employees, services, initialQuestion="" }: Props & {initialQuestion?:string}) {
   const token = getAccessToken(), role = getOperatorRole() || "";
   const mounted = useRef(false), sequence = useRef(0), flight = useRef(false);
   const [available,setAvailable] = useState<ReadName[]>([]), [name,setName] = useState<ReadName | "">("");
-  const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
+  const [question,setQuestion] = useState(initialQuestion), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
   const [day,setDay] = useState("");
   const [forecast,setForecast]=useState<ForecastDraft>({start:"",end:"",rows:[]});
