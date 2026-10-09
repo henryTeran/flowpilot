@@ -103,3 +103,29 @@ Tests Windows ciblés : **50 réussis en 35,71 s**, aucun échec ni test ignoré
 Image finale `sha256:4a636f2577375d32a3bce549e21b23e5b9a120951a83c7049461b0ddf6bd1a53` : **65 réussis en 227,83 s**, aucun échec; **14 tests PostgreSQL ignorés** car cette exécution utilise SQLite. Cette régression couvre les routes historiques, plans, décisions et exécutions instrumentés en plus du bridge officiel, des intentions et des nouvelles lectures. Les tests PostgreSQL sont exécutés séparément sur le cluster temporaire Windows, sans utiliser la base persistante de l’application.
 
 Régression complémentaire SQLite/PostgreSQL réelle : **34 réussis en 213,16 s**, aucun échec ni test ignoré. Elle couvre les handlers signés, originaux de plans, décisions, exécutions et la chaîne official BASE → HTTP → quatre lectures PostgreSQL, avec refus inter-instituts et observateur SQL sans mutation. Zéro schéma temporaire résiduel; serveur temporaire arrêté. Le conteneur Linux de test est retiré automatiquement. Les avertissements sont des dépréciations existantes et des constructions volontairement invalides dans les tests de garde.
+
+## Audit final de clôture : checkpoint 17V
+
+Les tables de reprise et de 17Q ci-dessus décrivent leur état historique. La décision actuelle est **BASE_PHASE = PASS**, **BASE_PHASE_REOPENED = false**, pour la fondation locale et les adaptateurs autorisés définis par la demande. L’intégration officielle est fixée à la révision documentée; cette clôture ne certifie pas une version upstream ultérieure.
+
+| Gate demandé | État final | Preuve et périmètre |
+| --- | --- | --- |
+| BASE_UPSTREAM_INTEGRATION | PASS | Dépendance officielle et lockfile; runtime officiel routeRequest/contextPack réellement exécuté sous Windows et dans l’image Linux, 17Q–17U |
+| BASE_ADAPTER_LAYER | PASS | Bridge borné et correspondance fermée de procédures vers services; les entrées de langage historiques utilisent aussi UpstreamInterpreter, 17R |
+| CONTEXT_RESOLVER | PASS | Identité et institut signés; sélection UI explicite et minimale; faits métier confinés aux adaptateurs, tests query/routes |
+| INTENT_RESOLVER | PASS | Routage/abstention upstream, clarification des sélections manquantes, panne sans résolveur parallèle; récupération historique sans nouvelle résolution, 17R |
+| CAPABILITY_REGISTRY | PASS | Quatre capacités fermées READ/SUGGEST, schémas publiés, niveaux et services déclarés; aucune capacité SQL dynamique |
+| PERMISSION_GUARD | PASS | RBAC existant et périmètre signé; refus de champs libres, rôle interdit et références étrangères, SQLite et PostgreSQL |
+| BUSINESS_RULE_GUARD | PASS | Scheduling, assignment et planning existants; disponibilité, pauses, réservations et refus conservés; règles non recopiées dans le bridge |
+| EVIDENCE_BUILDER | PASS | Faits minimaux typés, horodatages et SHA complet vérifié; actions query vides; SHA explicitement distinct d’une signature |
+| FLOWPILOT_SERVICE_INTEGRATION | PASS | Quatre vrais services appelés depuis l’API signée avec BASE officiel, PostgreSQL Windows et image/PostgreSQL Linux, 17T |
+| FAKE_PROVIDER_TESTS | PASS | Accord limité au routage officiel, panne, proposition malformée et tentative de bypass; aucune dépendance à un fournisseur concret |
+| TENANT_ISOLATION | PASS | Ressources étrangères refusées, file étrangère vide et preuves de scope exact; tests PostgreSQL signés 17T/17U |
+| BASE_READ_VERTICAL_SLICE | PASS | Disponibilité, options d’affectation, file opérationnelle et planning; endpoint query réel, source SHA et observateur SQL sans écritures |
+| TESTS | PASS | Corpus 14 ressources et 25 exemples dans le build; régression BASE 128 tests SQLite/PostgreSQL en 17T; dernières modifications couvertes par 50 tests ciblés, 65 Linux et 34 SQLite/PostgreSQL en 17U |
+
+Les neuf gates canoniques du Master Plan sont aussi **PASS** : `BASE_UPSTREAM_CORPUS`, `BASE_UPSTREAM_ROUTING`, `BASE_APPLICATION_ADAPTER` correspondent aux preuves de build/routage/chaîne réelle; `BASE_CONTEXT`, `BASE_INTENT`, `BASE_CAPABILITIES`, `BASE_PERMISSIONS`, `BASE_GUARDS` aux lignes ci-dessus. `BASE_AUDIT` correspond à la traçabilité opérationnelle 17U, aux traces upstream corrélées et aux originaux métier existants. Il ne promet pas un stockage de logs immuable ou une politique de conservation de production.
+
+Les responsabilités Action Planner et Approval Manager restent celles des adaptateurs FlowPilot vérifiés : original préparé, décision humaine explicite, source/prédécesseur/expiration contrôlés, récupération idempotente et exécution par service existant. La régression PostgreSQL 17U couvre ces couches; la formulation de langage ne les autorise pas. Le broker de fichiers upstream ne remplace pas les confirmations métier.
+
+Les limites de production restent ouvertes : migration contrôlée de la base persistante, rétention et exploitation des logs, charge, validation humaine physique, fournisseur distant et déploiement. Elles ne sont pas présentées comme réalisées et ne ferment pas l’objectif global. La phase suivante est **18 — JV**, gates `JV_RULES`, `JV_EVIDENCE`, `JV_PROVIDER_INDEPENDENCE`, à construire à partir des faits structurés sans dupliquer les moteurs d’éligibilité métier.

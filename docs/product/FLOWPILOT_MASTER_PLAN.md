@@ -1650,6 +1650,8 @@ BASE_GUARDS = PASS
 BASE_AUDIT = PASS
 ```
 
+Clôture de fondation enregistrée le 9 octobre 2026 : [preuves et audit final 17V](../architecture/BASE_PHASE_REOPENED.md). La traçabilité opérationnelle et les originaux métier ne constituent pas une certification de rétention des logs ou de production. La phase 18 poursuit l’objectif global.
+
 ---
 
 # 39. Phase 18 — JV

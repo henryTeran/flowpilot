@@ -1,10 +1,16 @@
-CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17U_SIGNED_INTERACTION_CORRELATION
+CURRENT_PHASE = PHASE 18
+CURRENT_CHECKPOINT = PHASE18A_JV_FOUNDATION_IN_PROGRESS
 STATUS = ACTIVE
 
-BASE_PHASE_REOPENED = true
-BASE_PHASE = PARTIAL
-BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+BASE_PHASE_REOPENED = false
+BASE_PHASE = PASS
+BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
+JV_PHASE = PARTIAL
+
+PHASE17V_BASE_FOUNDATION_CLOSURE:
+- Final13 requested gates and9 canonical Master Plan gates PASS within proven local foundation scope; docs/architecture/BASE_PHASE_REOPENED.md records gate-to-evidence mapping. Official ai-swiss/base revision remains canonical, not custom engine. Historical checkpoints retain original proof scope and failures;17U green implementation commit b103b1b.
+- Action planner/explicit approval/execution/recovery remain existing tested FlowPilot adapters, not upstream file approvals or model authority. Operational trace correlation plus retained business originals satisfy foundation audit; no immutable production-log retention claim.
+- Full26-phase goal ACTIVE. Production deployment/persistent migrations, physical human acceptance, log operations/retention, load and concrete providers remain open. NEXT automatically PHASE18 JV: deterministic structured diagnostics/calculations/comparison/scoring/explainability from source-bound facts, provider independent and without duplicate eligibility rules. JV_RULES/JV_EVIDENCE/JV_PROVIDER_INDEPENDENCE remain OPEN until implementation/tests.
 
 PHASE17U_SIGNED_INTERACTION_CORRELATION:
 - Fixed query INFO logger outside configured application logger. Structured app audit now records attempt/outcome on21 existing signed handlers plus query/query-capabilities; closed actions, signed actor/institute, HTTP correlation and distinct interaction UUID, request/response/evidence digests, no raw payload/private exception. Authentication/validation before handler remains general HTTP logging.

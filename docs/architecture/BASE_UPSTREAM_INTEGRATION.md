@@ -2,7 +2,7 @@
 
 Correction de référence du 8 octobre 2026, demandée par l’utilisateur.
 
-Mise à jour du 9 octobre : la phase est rouverte pour implémentation. Le [checkpoint 17Q et son audit](BASE_PHASE_REOPENED.md) introduisent la première chaîne runtime upstream → API signée → services de lecture. La phase complète reste partielle; ce document conserve la décision et le plan de référence.
+Mise à jour du 9 octobre : la phase rouverte est désormais **PASS** dans le périmètre de fondation locale défini. Les checkpoints 17Q–17U prouvent la chaîne runtime upstream → API signée → services réels, PostgreSQL, image Linux et traçabilité corrélée. Voir [l’audit final 17V](BASE_PHASE_REOPENED.md). La préparation de production et les phases suivantes restent ouvertes; ce document conserve la décision et le plan de référence.
 
 BASE désigne exclusivement [ai-swiss/base](https://github.com/ai-swiss/base), le framework ouvert de ressources, agents et procédures versionnées. La référence étudiée est la version 1.5.1, commit `cc0e4d1a723565fb5ebb17c6a26664423e5226c1`. Le standard de ressources est `base.resource.v1`.
 
