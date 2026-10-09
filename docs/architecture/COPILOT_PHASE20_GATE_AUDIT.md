@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Forecast contract foundation: original scenario/outlook validators now have a closed Copilot selection and source adapter binding institute, selected period and microsecond capture. Explicit missing norms retain partial coverage. Build and focused contract test pass; actual forecast form, original recipe selection, common response integration and browser acceptance remain outstanding. Phase gates stay partial.
+
 Opportunity browser baseline: real signed API/official BASE18-test suite passes desktop/tablet (1.7m), all three exclusive source selections, second repeated local-hour capacity instant, selected closure DST period, source-switch evidence clear and no contact/recovered-revenue authority. Closure screenshots inspected, fixture cleaned/listeners0. Populated candidate/retained-value and projected-slot visual cases remain acceptance gaps. Forecast UI and four progressive flows still outstanding; gates remain partial.
 
 Opportunity local-horizon controls: local institute date/time now reuses original instituteInstants; dedicated Copilot13-test suite verifies skipped hour/no query, repeated hour/explicit occurrence, exact selected UTC and reset after editing. Technical ISO text entry removed. Actual API/official BASE browser opportunity acceptance remains outstanding; no phase closure claim.

@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_FORECAST_SELECTION_FOUNDATION:
+- Added closed STOCK_FORECAST selection/source guard using original validScenario and validOutlook: explicit period, 1..50 unique service volumes, selected recipe references or explicit missing norm, original first50 scope and exact microsecond capture/period binding. Missing norms remain partial; no inferred demand or purchase authority.
+- Build PASS and focused forecast contract test PASS: extra customer/contact fields, zero/duplicate volumes, false complete coverage, wrong institute/capture/period/page size and altered demand refused. Actual Copilot form/common-response integration, original recipe selection and browser acceptance remain outstanding. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_OPPORTUNITY_LOCAL_HORIZON_INCREMENT:
 - Dedicated DST control test now PASS in Copilot13-test suite: Zurich skipped spring02:30 makes no query; repeated autumn02:30 exposes both00:30Z/01:30Z and requires explicit occurrence; chosen second occurrence sends exact01:30Z; changing repeated date resets choice and prevents implicit reuse. Actual API/BASE browser opportunity acceptance remains pending.
 - Replaced technical timezone-bearing text horizon with local date/time input using original instituteInstants calendar. Unique occurrence maps to UTC; skipped/invalid hour refuses query, repeated hour exposes explicit first/second occurrence selection. Selected instant remains bound by original capacity/evidence validation. No browser-local timezone assumption.
