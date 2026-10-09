@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20W_RETAINED_STOCK_REORDER_PROPOSAL_PASS
+CURRENT_CHECKPOINT = PHASE20X_CURRENT_PACKAGED_BACKEND_AND_GATE_AUDIT_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20X_CURRENT_PACKAGED_BACKEND_AND_GATE_AUDIT:
+- Added docs/architecture/COPILOT_PHASE20_GATE_AUDIT.md: all12 initial and4 progressive Master §41 requirements matched to source contracts, named tests and limits. Current signed adapters provide scoped ANSWER/EVIDENCE and separate preparation/approval/execution; no provider-selected IDs or second language router. Actual App/sidebar lack general Copilot, and cancellation-only panel does not prove new capabilities. All four gates stay PARTIAL; UI completion/acceptance required, not replaced by API tests or existing domain panels.
+- Built actual backend image from524c554 source/corpus: flowpilot-copilot-20x-validation, SHA92580c1c5b7a6b9b45e3e36a9ff06c9dd4acff4f2ca3dede8fcc868fcde2c470. Build validated29 resources54/54 routes. Runtime Python3.12.15/Node22.23.3; all19 Copilot modules plus creation/move/marketing domain previews and reorder migration ran in image:64 passed273.90s, zero failures/skips, actual SQLite/isolated PostgreSQL16. Existing passlib crypt deprecation only. Mounted read-only tests/migrations; no bundled production-migration/deployment/model-quality/whole-project claim.
+- Terminal success verified, PostgreSQL temporary fp_test schemas0, exact resource20x ownership labels checked and only owned tmpfs/no-host-port server/network removed; test container auto-removed. Image/logs retained locally. No user service stopped, provider call, external contact/purchase, push/deploy or production readiness claim.
+- CHECKPOINT_STATUS = PASS for latest packaged backend acceptance and explicit phase20 gap audit only. NEXT general Copilot UI covering authorized reads/suggestions, explicit selections/partial evidence, separate exact preparation/decision/execution and uncertain-result recovery, then real browser/backend acceptance. Voice/later phases incomplete; whole26-phase goal ACTIVE.
 
 PHASE20W_RETAINED_STOCK_REORDER_PROPOSAL:
 - Added official BASE stock-reorder-proposal process and manager-only preview/preparation/recovery/discovery. Explicit owned supplier,1–50 unique selected items, pending-order assumption and optional pinned recipe/volume scenario. Original stock outlook calculates the quantities; shared item_rows gains optional selected-ID scope without changing existing pagination. Partial norms remain partial, no scenario demand inference. Proposal may be zero; pending orders are conditional quantities, not actual deliveries. No supplier quote/eligibility/price/delivery-date claim.

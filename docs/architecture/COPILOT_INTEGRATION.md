@@ -171,7 +171,13 @@ Every registered capability now declares its operational audit requirement: sign
 
 Targeted tests capture the configured application logger directly, verify reception's five allowed capabilities, signed actor/institute, shared interaction ID, exact returned-schema digest and absence of a discovery domain span for an unauthorized role. The application logger's existing nonpropagation is preserved. The20K image proof precedes this metadata/audit change; final packaged acceptance must include the resulting code before phase closure.
 
-### Packaged acceptance (20K)
+### Current gate audit and packaged backend acceptance (20X)
+
+[The phase20 gate audit](COPILOT_PHASE20_GATE_AUDIT.md) maps all12 initial and4 progressive capabilities to current source contracts/tests and identifies the missing general Copilot UI. All four phase gates remain PARTIAL. The cancellation-only frontend is not evidence of the newer preparation/execution workflows.
+
+Actual backend image from524c554 source/corpus: `sha256:92580c1c5b7a6b9b45e3e36a9ff06c9dd4acff4f2ca3dede8fcc868fcde2c470`, local tag flowpilot-copilot-20x-validation. Build validates29 resources54/54 routes. Actual Python3.12.15/Node22.23.3 runtime: all19 Copilot test modules, creation/move/marketing domain preview tests and reorder migration ran against SQLite/isolated PostgreSQL16;64 passed273.90s, zero failures/skips. Existing passlib crypt deprecation only. Tests and migration source mounted read-only; this does not prove a production migration runner or deployment. Temporary fp_test schemas0, owned labelled tmpfs/no-host-port PostgreSQL container/network removed after terminal completion, test container auto-removed. No provider inference/external contact/purchase. Current backend packaged acceptance is proven; general UI, browser/backend acceptance and whole-project production readiness remain unproven.
+
+### Historical packaged acceptance (20K)
 
 The actual backend image `sha256:c520c766fb8a9c466890a41e5b42af4a9f7ec8e7f12c576e42ca19bdf68544f3` includes the pinned official BASE runtime/corpus and current Copilot code. Its build validates25 resources and46 routing examples. All ten Copilot test modules run inside this Linux/Python3.12/Node22 image:22 passed in125.79s, zero failures/skips, actual SQLite and isolated PostgreSQL16. The only warning is the existing passlib `crypt` deprecation. Test fixtures exercise every named initial capability, signed roles/selections, original domain services, source hashes/bindings, missing/invalid sources, actual PostgreSQL scope and read-only behavior. Provider ports remain disabled; no remote inference or model quality is claimed.
 
