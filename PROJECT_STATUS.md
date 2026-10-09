@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_AMBIGUOUS_SERVER_RESPONSE_ACCEPTANCE:
+- Actual API/official BASE with browser-injected500 response before transmission or after real successful retention:4 PASS1.0m desktop/tablet (.cache/20-reorder-ambiguous-browser.log). Both outcomes preserve exact saved request/key across reload, disable replacement and expose no definitive correction. Committed outcome recovers identical native original with one retention POST; nontransmitted outcome retries exact frozen terms/key after absence and independently confirms retained original.
+- Actual native item/movements/orders unchanged in both outcomes; independent key/ID original equals receipt. Representative committed desktop/uncommitted tablet final screenshots inspected. Fixture removed/listeners0, exit0. This simulates ambiguous response delivery, not an actual backend500 bug. Production unchanged. Concurrent/remount session acceptance and other phase gaps remain; goal ACTIVE/gates PARTIAL.
+
 PHASE20_REORDER_DAMAGED_RESPONSE_BROWSER_ACCEPTANCE:
 - Actual API/official BASE with deliberately altered browser response streams2 PASS44.5s desktop/tablet (.cache/20-reorder-damaged-browser.log). Incoherent original stock shortfall refused before any BASE preview POST/facts. Restored native response then succeeds. After real retained proposal/lost acknowledgement, damaged independent ID receipt fingerprint refuses confirmation, preserves frozen request, disables replacement and exposes no correction or retained facts.
 - Restoring valid independent receipt recovers same original without second retention POST; actual stocks/movements/orders unchanged. Blocked/recovered screenshots inspected, fixture removed/listeners0, exit0. This proves exercised response damage, not malicious server authenticity; hashes remain integrity checks. Production unchanged. Concurrent/multiple-tab and ambiguous server failure browser cases plus other phase gaps remain; goal ACTIVE/gates PARTIAL.
