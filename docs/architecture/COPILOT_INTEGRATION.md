@@ -77,6 +77,12 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Packaged acceptance (20K)
+
+The actual backend image `sha256:c520c766fb8a9c466890a41e5b42af4a9f7ec8e7f12c576e42ca19bdf68544f3` includes the pinned official BASE runtime/corpus and current Copilot code. Its build validates25 resources and46 routing examples. All ten Copilot test modules run inside this Linux/Python3.12/Node22 image:22 passed in125.79s, zero failures/skips, actual SQLite and isolated PostgreSQL16. The only warning is the existing passlib `crypt` deprecation. Test fixtures exercise every named initial capability, signed roles/selections, original domain services, source hashes/bindings, missing/invalid sources, actual PostgreSQL scope and read-only behavior. Provider ports remain disabled; no remote inference or model quality is claimed.
+
+PostgreSQL used temporary tmpfs storage with no published ports. All random fixture schemas were removed (count0); the auto-removed test container, then label-verified owned database/network were cleaned up. Persistent user services were not changed. This proves packaged runtime regression for the current slices, not production deployment, physical activity, UI acceptance or complete opportunity semantics. Registry audit requirements/discovery correlation and remaining revenue opportunity source coverage still need final scope reconciliation; all four progressive prepare/execute capabilities remain open.
+
 ### Evidence binding audit (20J)
 
 An explicit closed output-type map now binds each of the12 named capabilities to its registered source type. A valid customer fact cannot be relabelled as a revenue/planning/stock result. Customer institute, CRM institute/capture and planning capture are checked in addition to prior inventory/capacity/conflict checks. Stock read versus explicit forecast must also match the original source marker. These are structural evidence guards, not a signature or permission granted by a payload. Public source selection still comes from the official router and signed application dispatch.

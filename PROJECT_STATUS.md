@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20J_EVIDENCE_BINDING_AUDIT_PASS
+CURRENT_CHECKPOINT = PHASE20K_LINUX_INITIAL_CAPABILITY_ACCEPTANCE_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20K_LINUX_INITIAL_CAPABILITY_ACCEPTANCE:
+- Actual image sha256:c520c766fb8a9c466890a41e5b42af4a9f7ec8e7f12c576e42ca19bdf68544f3 built from current backend plus pinned official BASE, validating25 resources/46 routing examples. All10 Copilot modules22 passed125.79s, zero failures/skips, actual Linux/Python3.12/Node22 SQLite and PostgreSQL16. Existing passlib crypt deprecation only; no remote provider/credential/model-quality claim.
+- All12 registered initial capabilities exercised with actual signed API, source services, original fixture corruption/unknown cases, scopes/selections, evidence bindings/SHA and read-only checks. This verifies packaged current slices, not complete opportunity coverage, physical facts, UI acceptance or whole-phase closure. Canonical four prepare/execute capabilities remain required and unimplemented here.
+- Isolated PostgreSQL tmpfs/no published ports; fixture schemas verified0. Test auto-removed, exact database/network labels checked before removal; persistent user services unchanged. No migration/deployment/push/production claim.
+- CHECKPOINT_STATUS = PASS for packaged initial-capability regression. NEXT reconcile registry audit/discovery correlation and remaining revenue-opportunity source scope, then APPOINTMENT_CREATE/MOVE, MARKETING_CAMPAIGN_DRAFT and STOCK_REORDER_PROPOSAL with explicit original/approval/domain guards. READ/SUGGEST remain PARTIAL until scope audit closes; PREPARE/EXECUTE_GUARDED OPEN, whole26-phase goal ACTIVE.
 
 PHASE20J_EVIDENCE_BINDING_AUDIT:
 - Current12-capability audit identified union DTO accepting a correctly typed source under an unrelated capability label. Added closed capability/output-type binding, customer institute validation, CRM institute/capture and planning capture checks, plus stock read/forecast source-marker binding. Existing guards/sovereign service rules preserved; no new mutation, permission or provider authority.
