@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REBOOKING_UI_INCREMENT:
+- Added CLIENT_REBOOKING_OPPORTUNITIES with explicit owned customer selection through official BASE. Reuses original automation-rule/event-candidate validators; closed scoped source, policy identity/digest pair, capture, positive active booking intervals, diagnostics and original review-label binding checked before fingerprint-verified display. Shows rule/care due dates, already-booked suppression and unavailable diagnostics; no contact or booking control.
+- Build PASS; targeted Copilot DOM/response6 passed, including due/active-booking/unavailable cases and rehashed wrong customer, timing, rule, diagnostics and authority refusals. Actual browser acceptance for this new mode remains pending. Six initial modes now have UI code; six other initial modes and all four progressive UI flows remain outstanding. All phase gates PARTIAL, whole goal ACTIVE.
+
 PHASE20_CRM_SUMMARY_UI_INCREMENT:
 - Real signed SQLite API/official BASE browser verification now PASS:6 tests across desktop/tablet, including all four20Y modes and selected-customer CRM summary bound to an actual retained policy. New registered customer classified NEW, observed zero-ticket window displayed, phone omitted, only query POST and unchanged policy original. Desktop/tablet screenshots inspected; owned fixture removed and4198/4199 listeners0. Log:.cache/20-crm-browser.log. This is not proof of all CRM classifications or completion of the phase.
 - Added explicit selected-customer CLIENT_SUMMARY consultation through the existing official BASE query API. Reuses original CRM profile validation, adds closed profile/registration keys and exact evidence capture binding. Passive display preserves absent-policy/unavailable states, observed window, separate currencies, unknown amounts and incomplete history. No additional domain fetch, mutation or contact.

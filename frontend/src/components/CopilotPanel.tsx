@@ -6,6 +6,7 @@ import { certificationInstant } from "../certification-utils";
 import { stockDisplay, stockUnits } from "../inventory-utils";
 import type { Outlook } from "../outlook-utils";
 import type { SegmentProfile } from "../crm-segment-utils";
+import type { RebookingFacts } from "../copilot-read-utils";
 import { crmMoney } from "./CustomerCrmPanel";
 import type { Employee, Service } from "../types";
 
@@ -23,7 +24,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   const [available,setAvailable] = useState<ReadName[]>([]), [name,setName] = useState<ReadName | "">("");
   const [question,setQuestion] = useState(""), [customerQuery,setCustomerQuery] = useState(""), [choices,setChoices] = useState<Choice[]>([]);
   const [customer,setCustomer] = useState(""), [service,setService] = useState("");
-  const customerMode = name === "CLIENT_READ" || name === "CLIENT_SUMMARY";
+  const customerMode = name === "CLIENT_READ" || name === "CLIENT_SUMMARY" || name === "CLIENT_REBOOKING_OPPORTUNITIES";
   const [response,setResponse] = useState<ReadResponse>(), [busy,setBusy] = useState(false), [error,setError] = useState<string>();
   const current = (seq: number) => mounted.current && sequence.current === seq && token === getAccessToken() && institute === getOperatorInstitute();
   function edit() { sequence.current++; setResponse(undefined); setError(undefined); }
@@ -80,6 +81,17 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   function facts() {
     const evidence = response?.evidence;
     if (!evidence) return null;
+    if (evidence.capability === "CLIENT_REBOOKING_OPPORTUNITIES") {
+      const value = evidence.result as RebookingFacts;
+      const reviews = {available:"Reprise à examiner avec la cliente",already_booked:"Rendez-vous actif déjà enregistré",not_due:"Échéance de reprise non atteinte",disabled:"Règle de reprise désactivée",unavailable:"Opportunité non établie"};
+      const diagnostics:Record<string,string> = {policy_absent:"Politique CRM non configurée",future_policy:"Date de politique à vérifier",future_registration:"Date d’inscription à vérifier",care_unavailable:"Dernier soin non établi",care_unlinked_ticket:"Ticket du soin non relié",care_invalid_owner_or_service:"Cliente ou prestation du soin à vérifier",care_invalid_actual_times:"Dates réelles du soin à vérifier",invalid_event_timing:"Échéance CRM à vérifier"};
+      return <><h4>{reviews[value.review]}</h4><p>Selon la règle CRM et le soin enregistrés. L’historique complet reste indisponible. Vérifiez avec la cliente avant toute réservation.</p>
+        {value.candidate && <dl><dt>Soin observé</dt><dd>{date(value.candidate.source.occurred_at)}</dd><dt>Échéance selon la règle</dt><dd>{date(value.candidate.due_at)}</dd></dl>}
+        {!!value.active_bookings.length && <><h4>Rendez-vous actifs enregistrés</h4><ul>{value.active_bookings.map(booking=><li key={booking.appointment_id}>{serviceName(booking.service_id)} · {date(booking.start_at)} — {date(booking.end_at)}</li>)}</ul></>}
+        {!!value.invalid_booking_count && <p>{value.invalid_booking_count} rendez-vous à vérifier ; aucune opportunité confirmée.</p>}
+        <ul>{Object.entries(value.diagnostics).filter(([,count])=>count>0).map(([key,count])=><li key={key}>{diagnostics[key]} ({count}).</li>)}</ul>
+        <p>Cette consultation n’envoie aucun message et n’autorise aucune réservation.</p></>;
+    }
     if (evidence.capability === "CLIENT_SUMMARY") {
       const value = evidence.result as SegmentProfile, segment = value.segment;
       const labels: Record<string,string> = { NEW:"Nouvelle cliente",ACTIVE:"Active",LOYAL:"Fidèle",VIP:"VIP",AT_RISK:"À risque",DORMANT:"Inactive" };

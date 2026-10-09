@@ -121,6 +121,27 @@ test("CRM summary: absent policy remains explicit and rehashed wrong source is r
   } finally {await act(async () => root.unmount());}
 });
 
+test("rebooking: original due rule, active bookings and authority refusals remain bound",async () => {
+  const rule = {trigger:"rebooking",enabled:true,offset_us:"1"};
+  const candidate = {institute_id:"own",customer_id:"customer",policy_original_id:"policy",rule,source:{institute_id:"own",customer_id:"customer",source_id:"care",source_kind:"care_episode",occurred_at:"2026-10-09T10:00:00.123455Z",expires_at:null,remaining:null},due_at:clock,valid_until:null,captured_at:clock,state:"due",external_message_sent:false,delivery_authorized:false};
+  const source = {institute_id:"own",customer_id:"customer",captured_at:clock,policy_original_id:"policy",policy_original_digest:"a".repeat(64),rule,candidate,active_bookings:[],invalid_booking_count:0,diagnostics:{},review:"available",complete_customer_history:false,external_message_sent:false,delivery_authorized:false,execution_authorized:false};
+  const check = async (value:unknown)=>validReadResponse(await answer("CLIENT_REBOOKING_OPPORTUNITIES",value),"own","CLIENT_REBOOKING_OPPORTUNITIES",{customer_id:"customer"});
+  assert.ok(await check(source));
+  const booking={appointment_id:"booking",service_id:"service",start_at:clock,end_at:"2026-10-09T11:00:00Z",status:"confirmed"};
+  assert.ok(await check({...source,active_bookings:[booking],review:"already_booked"}));
+  for (const change of [{execution_authorized:true},{delivery_authorized:true},{external_message_sent:true},{customer_id:"foreign"},{active_bookings:[booking]},{candidate:{...candidate,customer_id:"foreign"}},{candidate:{...candidate,due_at:"2026-10-09T10:00:00.123455Z"}},{rule:{...rule,enabled:false}},{diagnostics:{birthday_unavailable:1}},{active_bookings:[{...booking,end_at:clock}]}])assert.equal(await check({...source,...change}),false);
+  const unavailable={...source,policy_original_id:null,policy_original_digest:null,rule:null,candidate:null,review:"unavailable",diagnostics:{policy_absent:1,care_unavailable:1}};
+  assert.ok(await check(unavailable));
+  setAccessToken(token());
+  globalThis.fetch = async (url,init)=>String(url).endsWith("/capabilities") ? reply(discovery()) : String(url).includes("/customers/") ? reply([{id:"customer",institute_id:"own",display_name:"Cliente",phone:null,created_at:clock}]) : (assert.deepEqual(JSON.parse(init!.body as string).ui_context,{customer_id:"customer"}),reply(await answer("CLIENT_REBOOKING_OPPORTUNITIES",{...source,active_bookings:[booking],review:"already_booked"})));
+  const root=createRoot(document.getElementById("root")!);
+  try {
+    await render(root);await settle();await fill("Consultation","CLIENT_REBOOKING_OPPORTUNITIES");await fill("Rechercher une cliente","Cliente");await click("Rechercher les clientes");await fill("Cliente","customer");
+    await fill("Votre question","Examiner les opportunites de reprise rendez-vous");await click("Consulter");
+    assert.match(document.body.textContent!,/Rendez-vous actif déjà enregistré/);assert.match(document.body.textContent!,/n’autorise aucune réservation/);
+  } finally {await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

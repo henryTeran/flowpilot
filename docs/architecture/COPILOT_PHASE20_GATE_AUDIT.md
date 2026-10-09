@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Rebooking UI increment: selected-customer CLIENT_REBOOKING_OPPORTUNITIES now renders verified original rule/care dates, active bookings and uncertainty diagnostics without booking/contact authority. Build and targeted six-test Copilot DOM suite pass; real API/BASE browser acceptance remains pending. Six other initial UI capabilities and all four progressive flows still require implementation/acceptance. Gates remain partial.
+
 Increment after20Y: CLIENT_SUMMARY now has selected-customer UI, original CRM profile validation and passive observed/unavailable presentation. Build and targeted five-test DOM suite pass. Real signed SQLite API/official BASE browser suite6 passes desktop/tablet, including retained-policy identity, selected customer NEW classification, observed zero-ticket window, no phone, only query POST and unchanged policy. Both screenshots inspected; fixture cleaned/listeners0. Other seven initial UI capabilities and four progressive flows remain outstanding; all phase gates remain partial.
 
 Audit baseline: commit524c554, Master Plan §41, signed APIs and frontend inspected9 October2026. This audit preserves all12 initial and4 progressive capabilities. Registering names or passing an isolated test does not close a phase gate. Backend service coverage is distinguished from operator-facing acceptance.
