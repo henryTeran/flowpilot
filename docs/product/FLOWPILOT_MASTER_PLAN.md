@@ -1718,6 +1718,9 @@ Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../ar
 
 # 41. Phase 20 — FlowPilot Copilot
 
+SMS marketing browser acceptance:2 PASS58.9s desktop/tablet (.cache/20-marketing-sms-browser.log), actual signed API/pinned official BASE. Native explicit SMS marketing permission, retained NEW audience and SMS original template with null subject/literal placeholder/whitespace/emoji. Preview and stored DRAFT retain exact body/source identities; lost retention acknowledgement recovered after reload, exactly one retention POST/one new campaign, external_message_sent and delivery_authorized false. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Email and SMS positive paths proved; push is domain unsupported_channel and needs adverse UI acceptance, as do historical catalogue pagination and remaining adverse variants. Whole goal ACTIVE, Phase20 gates PARTIAL.
+
+
 Move changed-source browser acceptance:2 PASS1.0m desktop/tablet (.cache/20-move-source-change-browser.log), actual signed API/pinned official BASE. Native appointment notes changed after exact retained preparation/human approval; UI execution receives400, retains frozen request/no receipt, and explicit rejection verification clears intent only after independent absence read. Exactly one execution POST; edited original booking remains unchanged by execution, original room still blocked/proposed slot free. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Source-change refusal proves this move path, not all decision races or expiry. Goal ACTIVE; remaining creation revocation/expiry/race and marketing historical-page/channel/adverse acceptance required.
 
 
