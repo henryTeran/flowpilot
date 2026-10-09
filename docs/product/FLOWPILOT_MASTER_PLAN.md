@@ -1718,6 +1718,9 @@ Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../ar
 
 # 41. Phase 20 — FlowPilot Copilot
 
+Current reconciled gates: COPILOT_READ and COPILOT_SUGGEST PASS at controlled signed API/official BASE/desktop-tablet scope, based on all12 baseline/populated variants and current package67/frontend584. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain PARTIAL pending marketing adverse UI and final progressive reconciliation. Current requirement table: docs/architecture/COPILOT_PHASE20_GATE_AUDIT.md. Historical checkpoint pending statements below are superseded for already proved variants; no production/physical/provider-quality or full26-phase completion claim.
+
+
 Creation actual expiry acceptance:2 PASS2.7m desktop/tablet (.cache/20-creation-expiry-browser.log). Real signed API/pinned official BASE, explicit near-future institute-local deadline, separate human approval and actual elapsed time (no server/browser clock override). Independently signed state becomes expired; UI reread shows validity expired/disabled execution. Zero execution POSTs, native agenda empty and room still available. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Both CREATE/MOVE expiry and revocation presentations now proved; final requirement/gate reconciliation remains required, not automatic phase closure. Whole26-phase goal ACTIVE, Phase20 PARTIAL.
 
 

@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_PROGRESSIVE_COPILOT_UI_ACCEPTANCE_PARTIAL
 STATUS = ACTIVE
 
+PHASE20_READ_SUGGEST_RECONCILIATION:
+- Signed source contracts, all12 baseline/populated operator consultations and current package67/frontend584 reviewed against Master Plan41; READ/SUGGEST PASS at controlled scope. Preparation/execution remain PARTIAL; next marketing damaged-source/preview refusal then progressive closure reconciliation. See current reconciliation table in COPILOT_PHASE20_GATE_AUDIT.md; old checkpoint pending statements historical. Whole goal ACTIVE.
+
 PHASE20_CREATION_EXPIRY_ACCEPTANCE:
 - Creation actual expiry acceptance:2 PASS2.7m desktop/tablet (.cache/20-creation-expiry-browser.log). Real signed API/pinned official BASE, explicit near-future institute-local deadline, separate human approval and actual elapsed time (no server/browser clock override). Independently signed state becomes expired; UI reread shows validity expired/disabled execution. Zero execution POSTs, native agenda empty and room still available. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Both CREATE/MOVE expiry and revocation presentations now proved; final requirement/gate reconciliation remains required, not automatic phase closure. Whole26-phase goal ACTIVE, Phase20 PARTIAL.
 
@@ -330,8 +333,8 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
-COPILOT_READ = PARTIAL
-COPILOT_SUGGEST = PARTIAL
+COPILOT_READ = PASS
+COPILOT_SUGGEST = PASS
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
 

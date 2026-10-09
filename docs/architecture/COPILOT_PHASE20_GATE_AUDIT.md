@@ -1,5 +1,25 @@
 # Phase 20 completion audit
 
+## Current requirement reconciliation (source e8b1ad3)
+
+COPILOT_READ = PASS and COPILOT_SUGGEST = PASS at the controlled signed API/official BASE/desktop-tablet scope. This does not certify production deployment, complete historical ledgers, provider inference quality or physical availability. The immutable source/evidence contracts and presentation keep missing data, conditional capacity, separate currencies and no action/contact authority explicit.
+
+| Initial requirement | Operator-facing evidence inspected |
+| --- | --- |
+| CLIENT_READ / PLANNING_READ / PLANNING_GAPS / STOCK_READ | copilot-read-panel.spec.ts: explicit selection, baseline sources, physical/pending stock, reception role, damaged evidence and clarification |
+| CLIENT_SUMMARY | copilot-crm-populated.spec.ts and copilot-crm-history.spec.ts: all six segments, unavailable/outside horizon, policy/ticket originals |
+| CLIENT_REBOOKING_OPPORTUNITIES | copilot-rebooking-populated.spec.ts: not due, disabled, due, existing native booking suppression |
+| EMPLOYEE_CAPACITY / PLANNING_CONFLICTS | copilot-planning-populated.spec.ts: recorded occupied/covered/uncovered activity, exact employee/resource overlaps, DST day |
+| REVENUE_SUMMARY | copilot-revenue-populated.spec.ts: known/missing amounts and separate CHF/EUR/unknown groups |
+| REVENUE_LOSS_ANALYSIS / REVENUE_OPPORTUNITIES closures | copilot-closures-populated.spec.ts: nonzero closures, bounded original event references, retained values and unknown causal loss |
+| REVENUE_OPPORTUNITIES rebooking / capacity | copilot-rebooking-populated.spec.ts and copilot-capacity-opportunity.spec.ts: native candidate suppression and active/maintenance/restored conditional room capacity |
+| STOCK_FORECAST | copilot-read-panel.spec.ts: pinned original recipe after newer version, explicit missing norm, exact arithmetic/no stock mutation |
+
+Current backend package log20-current-package-regression.log:67 passed, no skips/failures,341.06s on actual SQLite/PostgreSQL/Linux relocated official BASE runtime. Current frontend log20-current-frontend-regression.log:584 passed, no skips/failures,100.32s. Production sources unchanged since those baselines; later commits add browser proof/documentation only. Each named browser result is recorded below; no aggregate all-browser run is claimed.
+
+COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain PARTIAL pending final adversarial UI/source/session reconciliation. Already proved: all four positive preparations/recovery, creation decline/revocation/expiry, move linked customer/changed targets/source change/revocation/expiry/stale approval, email/SMS drafts/push refusal/paginated historical audience and immutable chosen template, reorder source/damaged/refusal/ambiguous/in-flight-remount cases. Existing simultaneous PostgreSQL creation/move/draft/reorder races are included in the67 package checks; ordered browser peer revocation is a separate evidence scope. Do not reopen already passed variants merely because historical paragraphs still say pending. Next concrete gap: real marketing damaged-source/preview refusal and recovery, then final progressive requirement review. Whole26-phase goal remains ACTIVE; phases21-26 and production gates are not completed.
+
+
 Creation actual expiry acceptance:2 PASS2.7m desktop/tablet (.cache/20-creation-expiry-browser.log). Real signed API/pinned official BASE, explicit near-future institute-local deadline, separate human approval and actual elapsed time (no server/browser clock override). Independently signed state becomes expired; UI reread shows validity expired/disabled execution. Zero execution POSTs, native agenda empty and room still available. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. Both CREATE/MOVE expiry and revocation presentations now proved; final requirement/gate reconciliation remains required, not automatic phase closure. Whole26-phase goal ACTIVE, Phase20 PARTIAL.
 
 
@@ -212,8 +232,8 @@ CREATE/MOVE share original signed-scope/current-approval/expiry/key/source check
 
 | Gate | Current conclusion | Evidence still required for closure |
 | --- | --- | --- |
-| COPILOT_READ | PARTIAL: all12 source contracts and interfaces mounted; baseline and populated forecast browser evidence | Evidence now present:67 packaged checks and all initial populated variants; final closure reconciliation required |
-| COPILOT_SUGGEST | PARTIAL: source-backed rebooking/revenue/stock presentations preserve uncertainty | Evidence now present:67 packaged checks and all initial populated variants; final closure reconciliation required |
+| COPILOT_READ | PASS at controlled signed API/BASE/UI scope | No remaining scoped consultation gap; production gates separate |
+| COPILOT_SUGGEST | PASS at controlled signed API/BASE/UI scope | No remaining scoped suggestion gap; production gates separate |
 | COPILOT_PREPARE | PARTIAL: all4 reviewed forms and scoped frozen recovery mounted; actual positive browser paths | Remaining marketing channel/historical page/adverse variants and named source/session variants; current package67 PASS |
 | COPILOT_EXECUTE_GUARDED | PARTIAL: separate human decisions/atomic CREATE/MOVE/receipt recovery mounted and positive browser paths proved | Decision revocation/expiry/source/race browser acceptance; changed target/customer2 PASS and current database/package67 PASS |
 
