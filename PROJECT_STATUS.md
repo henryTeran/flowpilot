@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_PAGINATION_BROWSER_ACCEPTANCE:
+- Actual API/official BASE paginated selection2 PASS1.1m desktop/tablet (.cache/20-reorder-pagination-browser-final.log).61 original items per project, selected first/last on separate20-row catalogue pages, selected IDs retained across navigation and stock source reader actually requests offset50. Exact2.000unit/3.125ml preview items match retained original. Full native item catalogue and orders unchanged.
+- Initial run desktop failed because test counted checkboxes before initial catalogue render and skipped first page; tablet passed. Fixed test to wait for read completion/enabled catalogue control before checking each page. No production correction. Final screenshots inspected; fixture removed/listeners0, exit0. Maximum50 selected items, supplier pagination, partial receipts and damaged/ambiguous/race browser cases remain; phase gates PARTIAL and goal ACTIVE.
+
 PHASE20_REORDER_CHANGED_SOURCE_BROWSER_ACCEPTANCE:
 - Actual signed API/official BASE source-change refusal2 PASS1.3m desktop/tablet (.cache/20-reorder-refusal-browser.log). Explicit fixture stock receipt after3.750ml preview causes retention400 with native source-change reason; frozen exact old request remains and edits/new preparation blocked. Native key read confirms no original. Correction performs another fresh absence read before removing frozen intent and clearing old preview; new source review then retains2.750ml under a different explicit key.
 - Browser writes exactly old preview/rejected retention/new preview/new retention. Updated native item/movement snapshots and original order list unchanged by the proposal flow; only separately authorized fixture stock receipt changes stock. Final screenshots inspected; owned fixture removed/listeners0, terminal exit0. Production unchanged. Large/paginated multi-item selections, partial receipts and damaged-source/ambiguous/race browser cases remain; goal ACTIVE and phase gates PARTIAL.
