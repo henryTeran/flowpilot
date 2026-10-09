@@ -32,6 +32,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Quand l'utilisateur veut partir de ses documents existants: «importe mes procédures», «transforme ce mode d'emploi en process», «j'ai déjà tout dans un wiki». Importer mes procédures existantes; Transformer ce document en process; J'ai déjà un wiki, comment le réutiliser?
 **Éviter si**: Signaler un dysfonctionnement de l'assistant. Faire le point sur un dossier en service et dire ce qui pourrait aller mieux dans ses process.
 
+### Examiner les conflits de planning: [`planning-conflicts`](skills/processes/planning-conflicts/SKILL.md)
+**Quand l'utiliser**: Examiner les conflits de planning; Examiner les conflits de planning; Detecter les chevauchements des engagements
+**Éviter si**: Annuler une reservation.
+
 ### Consulter les creneaux libres du planning: [`planning-gaps`](skills/processes/planning-gaps/SKILL.md)
 **Quand l'utiliser**: Consulter les creneaux libres du planning; Consulter les creneaux libres du planning; Consulter les creneaux libres
 **Éviter si**: Annuler une reservation.

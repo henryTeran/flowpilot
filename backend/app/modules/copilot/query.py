@@ -7,6 +7,7 @@ from app.modules.base import audit, query, upstream, read_capabilities as identi
 from app.modules.crm import profile, rebooking
 from app.modules.copilot import planning
 from app.modules.revenue import capacity
+from app.modules.workforce import conflicts
 from app.modules.institutes.models import Institute
 from app.modules.services.models import Service
 from app.modules.crm.metrics import Fact
@@ -14,15 +15,16 @@ from app.modules.customers.repository import require_customer
 from app.modules.waitlist.originals import fingerprint
 from app.shared.time import utcnow, explicit_utc_instant
 
-Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY"]
+Name = Literal["CLIENT_READ", "CLIENT_SUMMARY", "CLIENT_REBOOKING_OPPORTUNITIES", "PLANNING_READ", "PLANNING_GAPS", "EMPLOYEE_CAPACITY", "PLANNING_CONFLICTS"]
 PROCESSES = MappingProxyType({"client-read": "CLIENT_READ", "client-summary": "CLIENT_SUMMARY",
     "client-rebooking-opportunities": "CLIENT_REBOOKING_OPPORTUNITIES", "planning-read": "PLANNING_READ",
-    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY"})
+    "planning-gaps": "PLANNING_GAPS", "employee-capacity": "EMPLOYEE_CAPACITY", "planning-conflicts": "PLANNING_CONFLICTS"})
 
 
 class Selection(Fact):
     customer_id: identity.ExactId | None = None
     service_id: identity.ExactId | None = None
+    employee_id: identity.ExactId | None = None
     day: date | None = None
 
     @field_validator("day", mode="before")
@@ -45,9 +47,13 @@ class CapacitySelection(Fact):
     day: date
 
 
+class ConflictsSelection(CapacitySelection):
+    employee_id: identity.ExactId
+
+
 INPUTS = MappingProxyType({"CLIENT_READ": CustomerSelection, "CLIENT_SUMMARY": CustomerSelection,
     "CLIENT_REBOOKING_OPPORTUNITIES": CustomerSelection, "PLANNING_READ": query.EmptySelection,
-    "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection})
+    "PLANNING_GAPS": GapsSelection, "EMPLOYEE_CAPACITY": CapacitySelection, "PLANNING_CONFLICTS": ConflictsSelection})
 
 
 class Request(query.Request):
@@ -79,7 +85,8 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("CLIENT_REBOOKING_OPPORTUNITIES", "crm_manager", 1, rebooking.RebookingRead, "crm.rebooking.read"),
         ("PLANNING_READ", "planning_operator", 0, query.PlanningFacts, "planning.service.get_day_planning"),
         ("PLANNING_GAPS", "planning_operator", 0, planning.Gaps, "scheduling.service.availability_pool"),
-        ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"))})
+        ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
+        ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read"))})
 
 
 class Evidence(Fact):
@@ -87,7 +94,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -102,6 +109,9 @@ class Evidence(Fact):
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
             or any(row.institute_id != self.institute_id for row in self.result.rows)):
             raise ValueError("Availability source scope and capture must match evidence")
+        if isinstance(self.result, conflicts.Read) and (
+            self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
+            raise ValueError("Conflict source scope and capture must match evidence")
         return self
 
 
@@ -126,11 +136,11 @@ def read(db, principal, candidate, router=None):
         selected = {k: v for k, v in request.ui_context.model_dump().items() if v is not None}
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
-            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}}
+            "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "day"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
-        required = "customer_id" if name and name.startswith("CLIENT_") else "day" if name == "EMPLOYEE_CAPACITY" else None
-        if name is None or required and required not in selected:
+        required = {"customer_id"} if name and name.startswith("CLIENT_") else {"day"} if name == "EMPLOYEE_CAPACITY" else {"employee_id", "day"} if name == "PLANNING_CONFLICTS" else set()
+        if name is None or required - selected.keys():
             response = Response(request_id=span.id, status="clarification", capability=name,
                 answer="Précisez la consultation et sa sélection cliente ou sa journée explicite.")
         else:
@@ -165,6 +175,12 @@ def read(db, principal, candidate, router=None):
                     raise HTTPException(404, "Selected service not found")
                 result = planning.read_gaps(db, principal.institute_id, request.ui_context.service_id, captured)
                 answer = "Fenêtres du moteur de disponibilité; horaires de travail complets et réservation non établis."
+            elif name == "PLANNING_CONFLICTS":
+                result = conflicts.read(db, principal.institute_id, request.ui_context.employee_id, request.ui_context.day)
+                captured = result.captured_at
+                answer = f"{result.overlap_count} chevauchement(s) d'engagements enregistrés pour la collaboratrice; conflits de ressources non couverts."
+                if result.invalid_source_count or result.overdue_open_source_count:
+                    answer += " Certaines sources sont invalides ou dépassées; le planning réel reste incertain."
             else:
                 result = capacity.read(db, principal.institute_id, request.ui_context.day)
                 captured = result.window.captured_at

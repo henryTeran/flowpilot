@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20C_PLANNING_AND_CAPACITY_READS_PASS
+CURRENT_CHECKPOINT = PHASE20D_EMPLOYEE_COMMITMENT_CONFLICTS_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20D_EMPLOYEE_COMMITMENT_CONFLICTS:
+- Added source-backed PLANNING_CONFLICTS employee slice via workforce application service and actual official BASE process. Explicit employee/local day, existing manager-only employee-calendar authorization and institute lock; current active appointment/session slots and uncancelled absences. Existing active-status constants and exact half-open interval arithmetic reused; no raw SQL/domain rules in Copilot.
+- Deterministic clipped source-pair evidence and exact microsecond duration, full overlap count with first50 page and ordered minimal-cohort SHA. Adjacency and redundant absence/absence declarations excluded. Invalid active source count and overdue open obligation count explicit; no guessed actual activity/end. Names/contact/notes/absence reasons omitted; no actions/mutations. Explicit1000 active-source capture bound fails rather than truncates.
+- Official corpus20 resources/routing37/37 PASS. Four-module Copilot regression10 passed42.72s real SQLite/PostgreSQL, zero failures/skips; final conflict suite3 passed11.07s after adding actual planned-session source and69-total/50-returned case. Fixture initially assumed nonexistent ticket.lines relation, corrected to TicketLine scoped read before final green run. Current versus historical booked times, cancellation exclusions, malformed intervals, permutation/clipping/adjacency, source SHA, auth/cross-institute denial/privacy and zero SQL writes verified. Temporary schemas0, owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for employee commitment conflict slice. PLANNING_CONFLICTS remains PARTIAL for resource coverage (response explicitlyfalse); no physical activity/comprehensive conflict proof. NEXT resource conflict coverage and remaining revenue/stock capabilities, progressive guarded preparation/execution and Linux Copilot acceptance. COPILOT_READ/SUGGEST PARTIAL, PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20C_PLANNING_AND_CAPACITY_READS:
 - Common Copilot orchestration moved from customer to query module, retaining real official BASE routing, signed scope, original customer/rebooking behavior and closed registry. Added PLANNING_READ via existing day service, PLANNING_GAPS via availability_pool and EMPLOYEE_CAPACITY via original recorded-capacity service. Reception planning reads, manager-only capacity, capability-specific schemas/selections and explicit ISO completed day; no arbitrary clocks/actor/provider/SQL.
