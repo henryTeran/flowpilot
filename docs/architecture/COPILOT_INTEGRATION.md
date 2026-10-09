@@ -93,6 +93,16 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Retained appointment move preparation (20S)
+
+APPOINTMENT_MOVE is exposed through manager-only preparation discovery, `/copilot/prepare-preview/move` and the shared `/copilot/prepare` endpoint. Official BASE must route to `appointment-move`; the explicit operation capability and route must agree. Discovery input schemas distinguish creation and move terms. The move selection requires an owned booking and explicit aware ISO start, with optional explicit employee/service changes. Customer identity, contact and note changes are excluded.
+
+The adapter reuses the existing owned booking/history reader, validates registered customer scope when present, and calls the shared move/resource preview. Source and proposed snapshots are canonical UTC, with unchanged customer/execution/checkout fields, preserved same-service duration and a genuinely changed target. No source name, phone, notes or raw booking-event actors are returned. Exact submitted terms, original snapshot, full booking-history digest/count and conditional proposed interval/resources bind the state SHA. Metadata-only source edits change the history and invalidate the old preparation even when the recorded slot stays the same.
+
+Existing retained-operation originals and explicit approval chains now support the typed move selection/preview. Creation and cancellation retain their contracts. Approval rechecks the capability-specific current source/projection; recovery keeps the original capture and exact actor/request/key. Move execution remains unregistered and is refused even after approval; preparation/decision alone neither moves the booking nor changes reservations. This checkpoint does not close the phase's preparation or execution gates.
+
+Official corpus27 resources validates and50/50 routing examples pass. Actual SQLite/PostgreSQL move/creation plus legacy retention/approval/race regression17 passed70.84s, zero failures/skips. Final narrow-schema move/creation suite4 passed42.54s; final contradictory-source move suite2 passed15.25s, zero failures/skips. Zero SQL preview writes, own-overlap/resources/history, exact recovery/SHA, role/selection/date/no-op/route/forged-state guards, metadata-only source-edit approval refusal, fresh explicit approval and unregistered-execution400 are covered. Contradictory actual-start data causes controlled400; restoring the original source permits preview again. Temporary schemas0 and owned55473 server stopped. Current packaged Linux acceptance and move execution remain open.
+
 ### Appointment move preview foundation (20R)
 
 The appointment service exposes an institute-owned `preview_update` for the upcoming APPOINTMENT_MOVE adapter. The preview and actual update share the original status/selection/name/customer/time/qualification/absence/ticket/session/appointment eligibility function. Same-service moves retain the original booking duration; an explicitly changed service uses the original catalog-duration rule. Structural before/after snapshots, normalized submitted updates and conditional resource IDs are returned without a booking, event or reservation write. Unchanged slots are explicitly marked, with no new resource projection.

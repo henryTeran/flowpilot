@@ -12,6 +12,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 **Quand l'utiliser**: Preparer la creation d'un rendez-vous; Preparer la creation d'un rendez-vous; Preparer une nouvelle reservation cliente
 **Éviter si**: Annuler un rendez-vous existant.
 
+### Preparer le deplacement d'un rendez-vous: [`appointment-move`](skills/processes/appointment-move/SKILL.md)
+**Quand l'utiliser**: Preparer le deplacement d'un rendez-vous; Preparer le deplacement d'un rendez-vous; Preparer un changement de creneau de reservation
+**Éviter si**: Creer une nouvelle reservation.
+
 ### Consulter la fiche cliente: [`client-read`](skills/processes/client-read/SKILL.md)
 **Quand l'utiliser**: Consulter la fiche cliente; Consulter la fiche cliente; Lire la fiche identite client
 **Éviter si**: Annuler une reservation.

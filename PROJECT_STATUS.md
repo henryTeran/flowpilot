@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20R_APPOINTMENT_MOVE_PREVIEW_FOUNDATION_PASS
+CURRENT_CHECKPOINT = PHASE20S_RETAINED_MOVE_PREPARATION_AND_APPROVAL_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,13 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20S_RETAINED_MOVE_PREPARATION_AND_APPROVAL:
+- Added official BASE appointment-move process and manager-only Copilot move preview/discovery/shared preparation. Explicit owned booking/new aware ISO instant, optional explicit employee/service change; no customer/contact/note changes. Closed route/capability binding and per-capability narrow input schemas; no second language router.27 resources validate and50/50 routing examples pass.
+- Move adapter reuses owned booking/history source and shared update/resource preview. Canonical before/proposed snapshots, original customer scope, no actual execution/checkout terms, unchanged same-service duration and genuinely changed slot enforced. Exact selection/source/full recorded booking-history SHA/count/proposed interval/resources bind the state digest; raw source names/phones/notes/event actors excluded. Contradictory sources return verification400.
+- Existing retained pending-operation originals and approval chain extended with typed MOVE bindings. Metadata-only booking edits invalidate old approval through the changed history; fresh preparation can be explicitly approved. Creation/cancellation contracts retained. Both Copilot and BASE executors refuse MOVE until registered; preparation/approval do not move the booking or reserve a new interval.
+- Actual SQLite/PostgreSQL move/creation and legacy retention/approval/race regression17 passed70.84s, zero failures/skips. Final narrow-schema move/creation suite4 passed42.54s; final contradictory-source move suite2 passed15.25s, zero failures/skips. Zero SQL preview writes, own-overlap/resources/history, exact recovery/SHA, roles/selections/dates/no-op/routing/forged-state denial, metadata-only source-change approval refusal, fresh approval and unsupported-execution400 covered. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for APPOINTMENT_MOVE retained preparation and explicit approval. NEXT atomic guarded move execution, marketing draft/reorder proposal and latest packaged Linux/full scope acceptance. All four Copilot gates PARTIAL; whole26-phase goal ACTIVE. No deployment/push/production or external contact claim.
 
 PHASE20R_APPOINTMENT_MOVE_PREVIEW_FOUNDATION:
 - Extracted original modification eligibility for shared use by actual update and institute-owned read-only preview_update. Existing status/selection/customer/text/time/qualification/absence/ticket/session/booking rules preserved, including original duration for same-service moves. Structural before/after, normalized submitted updates, changed-slot marker and conditional resource IDs; no preview booking/event/reservation writes.

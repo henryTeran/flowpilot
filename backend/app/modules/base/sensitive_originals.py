@@ -5,6 +5,7 @@ from pydantic import AwareDatetime, model_validator, field_validator
 from sqlalchemy import select
 from app.modules.base import read_capabilities as base, sensitive_capabilities as sensitive
 from app.modules.base import creation_capability as creation
+from app.modules.base import move_capability as move
 from app.modules.base.plans import Key, Reason, guard
 from app.modules.base.models import SensitiveOperationOriginal
 from app.modules.crm.metrics import Fact, Count
@@ -16,8 +17,8 @@ from app.shared.exceptions import business_error, not_found
 
 
 class Request(Fact):
-    capability: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE"]
-    selection: sensitive.Selection | creation.Selection
+    capability: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE", "APPOINTMENT_MOVE"]
+    selection: sensitive.Selection | creation.Selection | move.Selection
     expected_state_fingerprint: base.Digest
     valid_until: base.matching.Horizon
     reason: Reason
@@ -30,7 +31,7 @@ class Request(Fact):
 
     @model_validator(mode="after")
     def exact_terms(self):
-        expected = sensitive.Selection if self.capability == "APPOINTMENT_CANCEL" else creation.Selection
+        expected = {"APPOINTMENT_CANCEL": sensitive.Selection, "APPOINTMENT_CREATE": creation.Selection, "APPOINTMENT_MOVE": move.Selection}[self.capability]
         if not isinstance(self.selection, expected):
             raise ValueError("Selection must match the registered preparation capability")
         if any(v != v.strip() or any(ord(c) < 32 for c in v) for v in (self.reason, self.idempotency_key)):
@@ -43,16 +44,16 @@ class Original(Request):
     institute_id: base.ExactId
     actor_id: base.Actor
     created_at: AwareDatetime
-    preview: sensitive.Preview | creation.Preview
+    preview: sensitive.Preview | creation.Preview | move.Preview
     effect: Literal["prepared_sensitive_operation_only_pending_human_approval_no_execution"] = "prepared_sensitive_operation_only_pending_human_approval_no_execution"
 
     @model_validator(mode="after")
     def binding(self):
-        expected = sensitive.Preview if self.capability == "APPOINTMENT_CANCEL" else creation.Preview
+        expected = {"APPOINTMENT_CANCEL": sensitive.Preview, "APPOINTMENT_CREATE": creation.Preview, "APPOINTMENT_MOVE": move.Preview}[self.capability]
         if not isinstance(self.preview, expected):
             raise ValueError("Preview must match the registered preparation capability")
-        if self.capability == "APPOINTMENT_CREATE" and self.preview.selection != self.selection:
-            raise ValueError("Creation preview must retain every exact submitted term")
+        if self.capability in {"APPOINTMENT_CREATE", "APPOINTMENT_MOVE"} and self.preview.selection != self.selection:
+            raise ValueError("Preparation preview must retain every exact submitted term")
         if self.capability == "APPOINTMENT_CANCEL" and self.preview.appointment_id != self.selection.appointment_id:
             raise ValueError("Cancellation preview must retain the selected appointment")
         if (self.preview.principal.actor_id, self.preview.principal.institute_id, self.preview.state_fingerprint) != \
@@ -131,6 +132,8 @@ def current_preview(db, principal, institute, operation):
         return sensitive.preview(db, principal, institute, operation.selection)
     if operation.capability == "APPOINTMENT_CREATE":
         return creation.preview(db, principal, institute, operation.selection)
+    if operation.capability == "APPOINTMENT_MOVE":
+        return move.preview(db, principal, institute, operation.selection)
     raise business_error("Unregistered sensitive preparation capability")
 
 

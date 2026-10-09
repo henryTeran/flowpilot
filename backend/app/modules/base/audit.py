@@ -35,7 +35,7 @@ class Span:
 
 @contextmanager
 def trace(principal: Principal, action: str, payload):
-    if action not in ROUTE_ACTIONS | {"query", "query_capabilities", "copilot_customer_query", "copilot_query", "copilot_capabilities", "copilot_creation_preview", "copilot_prepare", "copilot_preparation_capabilities", "copilot_execute", "copilot_execution_capabilities"}:
+    if action not in ROUTE_ACTIONS | {"query", "query_capabilities", "copilot_customer_query", "copilot_query", "copilot_capabilities", "copilot_creation_preview", "copilot_move_preview", "copilot_prepare", "copilot_preparation_capabilities", "copilot_execute", "copilot_execution_capabilities"}:
         raise ValueError("Unregistered BASE audit action")
     principal = Principal.model_validate(principal.model_dump())
     span = Span(principal, action, payload)
