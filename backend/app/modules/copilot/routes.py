@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
+from starlette.concurrency import run_in_threadpool
+from typing import Literal
 from sqlalchemy.orm import Session
 from app.core.permissions import require_ticket_manager
 from app.database.session import get_db
@@ -15,8 +17,30 @@ from app.modules.base import executions
 from app.modules.base import move_capability as move
 from app.modules.base.plans import guard
 from app.modules.waitlist.originals import Envelope
+from app.modules.copilot import voice
 
 router = APIRouter(prefix="/copilot", tags=["copilot"])
+
+
+@router.post("/voice/preview", response_model=voice.Preview)
+async def voice_preview(request: Request,
+                        language: Literal["fr", "en", "de", "it"] | None = Query(None),
+                        user=Depends(require_ticket_manager)):
+    principal = signed_principal(user, user.get("institute_id"))
+    guard(principal, principal.institute_id)
+    media_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+    if media_type not in {"audio/wav", "audio/mpeg", "audio/webm", "audio/mp4", "audio/ogg"}:
+        raise HTTPException(415, "Supported audio content type required")
+    audio = bytearray()
+    async for chunk in request.stream():
+        if len(audio) + len(chunk) > 10_000_000:
+            raise HTTPException(413, "Audio exceeds supported size")
+        audio.extend(chunk)
+    if not audio:
+        raise HTTPException(422, "Nonempty audio required")
+    provider = request.app.state.ai_providers.stt
+    return await run_in_threadpool(voice.preview, principal,
+        {"audio": bytes(audio), "media_type": media_type, "language": language}, provider)
 
 
 @router.get("/capabilities", response_model=tuple[orchestration.Capability, ...])

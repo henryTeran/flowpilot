@@ -1,0 +1,11 @@
+# Voice integration
+
+Master Plan42 requires audio -> SpeechToTextProvider -> text -> official BASE -> typed capability -> domain. Voxtral has no business decision authority. Current implementation is an intent preview foundation, not completed Voice acceptance.
+
+POST `/api/v1/copilot/voice/preview?language=fr` requires signed institute-manager authorization and raw audio body. Allowed media types are WAV, MPEG, WebM, MP4 and Ogg. Stream accumulation stops above10,000,000 bytes; empty audio/invalid language are refused. No upload filename/path, client-selected provider or model is accepted. Existing app.ai runtime supplies SpeechToTextProvider, disabled by default. Blocking transcription/BASE process work runs in the worker pool.
+
+Provider input/output use existing strict infrastructure contracts. Silence returns `silent` with no route. Nonempty text remains literal and is capped at2000 characters for BASE intent. Provider failure is a controlled503 without SDK detail. The pinned official BASE1.5.1 router resolves exact transcript; result is `review_required` with `transcript_intent_only_no_domain_action`. Preview does not read domain facts, select business identities, retain preparations, approve or execute actions. No audio/transcript persistence is added.
+
+Current6 focused service/HTTP tests pass5.41s. Real official BASE routing is exercised with deterministic provider transcription; fake audio and transcripts do not establish speech quality or Voxtral execution. Auth, unsupported type, empty/oversized body, invalid language, disabled/failed provider and silence are covered. Existing Starlette/httpx deprecation warning only. Production source changed; earlier Phase20 packaged67 is its historical scoped baseline, not a package check of this new route.
+
+Remaining: operator audio capture/import and reviewed transcript, explicit typed capability/selection handoff through existing Copilot guards, signed scope and response disposal, audit/privacy treatment, packaged runtime and real-audio/Voxtral acceptance. Reception role support must be reconciled with read capability permissions before widening the initial manager-only preview. Voice gates remain PARTIAL; whole26-phase goal ACTIVE.

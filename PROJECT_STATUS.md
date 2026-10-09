@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21B_VOICE_HTTP_PREVIEW:
+- Signed manager raw-audio POST /copilot/voice/preview uses server-selected app.ai STT and official BASE. Bounded stream10MB, closed media/language, empty/oversize refusal; blocking providers/BASE delegated to worker pool. Six service/HTTP checks PASS5.41s; real BASE with deterministic transcript, no real Voxtral/audio-quality claim. Interface/reviewed typed handoff/audit/package/real audio acceptance remain. See VOICE_INTEGRATION.md. Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21A_VOICE_INTENT_PREVIEW_FOUNDATION:
 - Internal manager-scoped service validates bounded audio through existing app.ai transcription boundary, preserves exact transcript and routes through pinned official BASE. Silent audio never routes; disabled/failed provider and over2000-character intent refused without leaking provider details. No domain read/preparation/execution occurs in this preview; explicit reviewed capability handoff remains next. Focused5 PASS0.75s, official BASE exercised with deterministic fake transcript, not real speech recognition. No HTTP/UI or Voxtral audio-quality acceptance yet; Voice gates PARTIAL, whole goal ACTIVE. Production source changed: earlier package67 proves Phase20 baseline, not this new Voice service.
 
