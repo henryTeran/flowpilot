@@ -93,6 +93,14 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Appointment move preview foundation (20R)
+
+The appointment service exposes an institute-owned `preview_update` for the upcoming APPOINTMENT_MOVE adapter. The preview and actual update share the original status/selection/name/customer/time/qualification/absence/ticket/session/appointment eligibility function. Same-service moves retain the original booking duration; an explicitly changed service uses the original catalog-duration rule. Structural before/after snapshots, normalized submitted updates and conditional resource IDs are returned without a booking, event or reservation write. Unchanged slots are explicitly marked, with no new resource projection.
+
+Resource preview and actual reservation use the same owner-aware matching function. Both exclude the booking's own reservations and retain the existing restriction for in-use units. A partially overlapping move can therefore reuse its own unit; unavailable resources still block the proposed move. The existing update API keeps its default commit, unchanged-slot behavior and original modification event. The caller-owned `commit=False` path permits the future executor to roll back the changed interval, reservations and event together. This is a domain prerequisite, not registration, retention, approval or execution of APPOINTMENT_MOVE.
+
+Initial actual SQLite/PostgreSQL preview plus original move/race/overdue/resource lifecycle/guarded-creation regression12 passed/1 failed62.47s. The failed assertion compared equal committed instants formatted as+02 versus UTC; tests now compare aware instants. Final preview suite2 passed6.86s, zero failures/skips. Production source did not change after that initial run. Coverage includes zero SQL preview writes, own-overlap/resource matching, rollback of changed booking/resource/event, default committed effect, foreign scope, unchanged-slot marker and resource maintenance refusal. Temporary schemas0 and owned55473 server stopped. Copilot move preparation/execution and packaged current Linux acceptance remain required.
+
 ### Atomic guarded appointment creation (20Q)
 
 Manager-only Copilot execution discovery and `/copilot/execute` accept exact retained operation/approval references and an explicit execution reason/key. Execution does not interpret a new message as approval: BASE already routed the preparation, while this endpoint uses the reviewed original and current decision. The common executor rechecks current approval, validity, signed scope and the capability-specific current eligible projection. An occupied or unavailable resource, changed checked interval/resource set, forged decision reference or already-performed operation is refused before any new effect.

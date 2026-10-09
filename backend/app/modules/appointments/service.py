@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 
@@ -258,13 +259,17 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
     return appointment
 
 
-def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate, actor_id: str | None = None) -> Appointment:
-    appointment = get_appointment(db, appointment_id)
-    if appointment is None:
-        raise not_found("Rendez-vous introuvable")
-    lock_institute(db, appointment.institute_id)
-    db.refresh(appointment)
-    before = snapshot(appointment)
+@dataclass(frozen=True)
+class UpdatePreview:
+    before: dict
+    after: dict
+    updates: dict
+    resource_ids: tuple[str, ...]
+    changed_slot: bool
+
+
+def _check_update(db: Session, appointment: Appointment, payload: AppointmentUpdate):
+    """Shared modification eligibility; callers own source locking and writes."""
     if appointment.status not in {"scheduled", "confirmed"}:
         raise business_error("Seul un rendez-vous planifie ou confirme peut etre modifie")
     values = payload.model_dump(exclude_unset=True)
@@ -318,6 +323,46 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
         if any((other.status == "in_progress" and _ensure_aware(other.end_time) <= now)
                or _has_overlap(start, end, other.start_time, other.end_time) for other in bookings):
             raise business_error("Un autre rendez-vous bloque ce creneau")
+    else:
+        end = _ensure_aware(appointment.end_time)
+    return values, start, end, changed_slot
+
+
+def preview_update(db: Session, institute_id: str, appointment_id: str, payload: AppointmentUpdate):
+    """Owned modification preview, no booking/event/resource writes."""
+    appointment = db.scalar(select(Appointment).where(Appointment.id == appointment_id,
+        Appointment.institute_id == institute_id))
+    if appointment is None:
+        raise not_found("Rendez-vous introuvable")
+    lock_institute(db, institute_id)
+    db.refresh(appointment)
+    values, start, end, changed = _check_update(db, appointment, payload)
+    before = snapshot(appointment)
+    after = dict(before)
+    for key, value in values.items():
+        if key in after and key != "start_time":
+            after[key] = value
+    resource_ids = ()
+    if changed:
+        from app.modules.resources.reservations import preview_appointment_resources
+        match = preview_appointment_resources(db, institute_id, values.get("service_id", appointment.service_id),
+            start, end, exclude_appointment_id=appointment.id)
+        resource_ids = match.resource_ids
+        after.update(start_time=start.isoformat(), end_time=end.isoformat(),
+            booked_start_time=start.isoformat(), booked_end_time=end.isoformat())
+    return UpdatePreview(before, after, values, resource_ids, changed)
+
+
+def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate, actor_id: str | None = None, *, commit: bool = True) -> Appointment:
+    appointment = get_appointment(db, appointment_id)
+    if appointment is None:
+        raise not_found("Rendez-vous introuvable")
+    lock_institute(db, appointment.institute_id)
+    db.refresh(appointment)
+    before = snapshot(appointment)
+    values, start, end, changed_slot = _check_update(db, appointment, payload)
+    service_id = values.get("service_id", appointment.service_id)
+    if changed_slot:
         # Resource matching must use the proposed service, but failure must not
         # flush proposed booking fields before it proves the new interval.
         from app.modules.resources.allocation_domain import ResourceNeed
@@ -334,7 +379,10 @@ def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpd
         if key != "start_time":
             setattr(appointment, key, value)
     record_booking_event(db, appointment, "modified", before, actor_id)
-    return save_appointment(db, appointment)
+    if commit:
+        return save_appointment(db, appointment)
+    db.flush()
+    return appointment
 
 
 def confirm_appointment(db: Session, appointment_id: str, actor_id: str | None = None) -> Appointment:

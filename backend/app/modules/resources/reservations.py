@@ -45,13 +45,7 @@ def _owner(db, institute_id, ticket_id, appointment_id):
     return ResourceReservation.ticket_id == ticket_id if ticket_id else ResourceReservation.appointment_id == appointment_id
 
 
-def reserve(db, institute_id, needs, start, end, *, ticket_id=None, appointment_id=None, in_use=False):
-    lock_institute(db, institute_id)
-    owner_filter = _owner(db, institute_id, ticket_id, appointment_id)
-    start, end = aware(start), aware(end)
-    existing = list(db.scalars(select(ResourceReservation).where(
-        ResourceReservation.institute_id == institute_id, owner_filter,
-        ResourceReservation.status != "released")).all())
+def _match_for_owner(db, institute_id, needs, start, end, existing, *, ticket_id=None, appointment_id=None):
     timelines = resource_timelines(db, institute_id, exclude_ticket_id=ticket_id,
                                    exclude_appointment_id=appointment_id)
     if any(row.status == "in_use" for row in existing):
@@ -60,6 +54,18 @@ def reserve(db, institute_id, needs, start, end, *, ticket_id=None, appointment_
     match = match_resources(timelines, needs, start, end)
     if match is None:
         raise business_error("Aucune combinaison de ressources disponible sur tout le creneau")
+    return match
+
+
+def reserve(db, institute_id, needs, start, end, *, ticket_id=None, appointment_id=None, in_use=False):
+    lock_institute(db, institute_id)
+    owner_filter = _owner(db, institute_id, ticket_id, appointment_id)
+    start, end = aware(start), aware(end)
+    existing = list(db.scalars(select(ResourceReservation).where(
+        ResourceReservation.institute_id == institute_id, owner_filter,
+        ResourceReservation.status != "released")).all())
+    match = _match_for_owner(db, institute_id, needs, start, end, existing,
+        ticket_id=ticket_id, appointment_id=appointment_id)
     selected = set(match.resource_ids)
     retained = set()
     for row in existing:
@@ -112,13 +118,16 @@ def appointment_resource_needs(db, institute_id, service_id):
     return [ResourceNeed(*need) for need in facts.get(service_id, [])]
 
 
-def preview_appointment_resources(db, institute_id, service_id, start, end):
+def preview_appointment_resources(db, institute_id, service_id, start, end, *, exclude_appointment_id=None):
     lock_institute(db, institute_id)
     needs = appointment_resource_needs(db, institute_id, service_id)
-    match = match_resources(resource_timelines(db, institute_id), needs, aware(start), aware(end))
-    if match is None:
-        raise business_error("Aucune combinaison de ressources disponible sur tout le creneau")
-    return match
+    existing = []
+    if exclude_appointment_id is not None:
+        owner = _owner(db, institute_id, None, exclude_appointment_id)
+        existing = list(db.scalars(select(ResourceReservation).where(ResourceReservation.institute_id == institute_id,
+            owner, ResourceReservation.status != "released")))
+    return _match_for_owner(db, institute_id, needs, aware(start), aware(end), existing,
+        appointment_id=exclude_appointment_id)
 
 
 def reserve_appointment(db, appointment, start, end, *, in_use=False):

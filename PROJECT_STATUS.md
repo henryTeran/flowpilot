@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20Q_ATOMIC_GUARDED_APPOINTMENT_CREATION_PASS
+CURRENT_CHECKPOINT = PHASE20R_APPOINTMENT_MOVE_PREVIEW_FOUNDATION_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20R_APPOINTMENT_MOVE_PREVIEW_FOUNDATION:
+- Extracted original modification eligibility for shared use by actual update and institute-owned read-only preview_update. Existing status/selection/customer/text/time/qualification/absence/ticket/session/booking rules preserved, including original duration for same-service moves. Structural before/after, normalized submitted updates, changed-slot marker and conditional resource IDs; no preview booking/event/reservation writes.
+- Owner-aware resource matching shared between preview/reserve, including exclusion of own reservations and in-use-unit restriction. Partial overlap can reuse own resource. Actual update keeps default commit/no-op/modification event contract and adds caller-owned commit=False for future atomic executor.
+- Initial actual SQLite/PostgreSQL preview plus original move/race/overdue/resource lifecycle and guarded-creation regression12 passed/1 failed62.47s: PostgreSQL returned the same committed instants as+02 rather than UTC, exposing an over-strict string assertion. Test now compares aware instants. Final move preview suite2 passed6.86s, zero failures/skips; zero SQL preview writes, own-overlap/resource equality, rollback of interval/resource/event, default committed effect, foreign scope/no-op/maintenance refusal verified. Production source unchanged after the initial run. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for shared move-preview/transaction domain prerequisite. NEXT official BASE APPOINTMENT_MOVE retained preparation, exact approval and guarded atomic execution, then marketing/reorder and latest packaged Linux/scope acceptance. All Copilot gates PARTIAL, whole26-phase goal ACTIVE; no deployment/push/production or external contact claim.
 
 PHASE20Q_ATOMIC_GUARDED_APPOINTMENT_CREATION:
 - Registered CREATE beside the original CANCEL executor, sharing exact current approval, validity, signed scope, operation/version/key/actor and fresh eligibility checks. Copilot execution discovery/explicit-reference endpoint manager-only, source/receipt digest audit without raw booking/message data. Execution is an explicit action on reviewed originals, not a message-derived approval.
