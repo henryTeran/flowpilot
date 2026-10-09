@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_FROZEN_INTENT_FOUNDATION:
+- Added institute/actor-scoped proposal intent storing exact BASE message and proposal before /copilot/prepare/reorder. New scoped key GET plus independent ID receipt validation required before cleanup; exact actor/request/original hashes checked. Ambiguous failures stay frozen; definitive rejection correction needs fresh absent-key read. Concurrent storage driver/session guards included.
+- Build and three combined proposal tests PASS, including lost response then new driver recovery with one POST and independent original ID read. Initial generated import/equality names corrected before final build. Adverse driver cases, form/source/scenario integration and actual browser proof remain required. Goal ACTIVE, gates PARTIAL.
+
 PHASE20_REORDER_KEY_RECOVERY_API:
 - Added signed-manager /copilot/reorder-proposal-by-key GET using native institute-locked original lookup and integrity verification. Absent key returns null; invalid key refused; exact scoped retained proposal returned without recapturing sources or creating another proposal. Uses existing registered recovery audit action and hashed payload.
 - Actual SQLite reorder lifecycle/source regression1 PASS15.07s,2 PostgreSQL cases deselected (.cache/20-reorder-key-tests.log), including new original-by-key/absent/invalid/role/nonexistent foreign scope checks. Initial audit-action registration failure corrected by reusing existing recovery action; nonexistent foreign institute correctly returns404. PostgreSQL/current packaged proof, frontend recovery driver/form and actual browser acceptance remain required. Goal ACTIVE, gates PARTIAL.
