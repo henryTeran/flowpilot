@@ -97,8 +97,8 @@ def execute(db, principal, candidate):
     request = executions.Request.model_validate(candidate.model_dump(mode="json") if isinstance(candidate, executions.Request) else candidate)
     with audit.trace(principal, "copilot_execute", request.model_dump(mode="json")) as span:
         operation = operations.Original.model_validate(operations.require(db, principal, principal.institute_id, request.operation_id).original)
-        if operation.capability != "APPOINTMENT_CREATE":
+        if operation.capability not in {"APPOINTMENT_CREATE", "APPOINTMENT_MOVE"}:
             raise HTTPException(400, "Copilot execution capability is not registered")
         result = executions.execute(db, principal, principal.institute_id, request)
-        span.result("executed", "APPOINTMENT_CREATE", result.fingerprint)
+        span.result("executed", operation.capability, result.fingerprint)
         return result

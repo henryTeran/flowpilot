@@ -19,15 +19,16 @@ from app.shared.exceptions import business_error
 
 
 class Capability(Fact):
-    name: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE"] = "APPOINTMENT_CANCEL"
+    name: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE", "APPOINTMENT_MOVE"] = "APPOINTMENT_CANCEL"
     level: Literal[3] = 3
     roles: tuple[Literal["responsable_institut"], ...] = ("responsable_institut",)
     authority: Literal["exact_retained_operation_latest_approval_future_validity_fresh_source"] = "exact_retained_operation_latest_approval_future_validity_fresh_source"
-    service: Literal["appointments.service.cancel_appointment_commit_false", "appointments.service.create_appointment_commit_false"] = "appointments.service.cancel_appointment_commit_false"
+    service: Literal["appointments.service.cancel_appointment_commit_false", "appointments.service.create_appointment_commit_false", "appointments.service.update_appointment_commit_false"] = "appointments.service.cancel_appointment_commit_false"
 
 
 REGISTRY = MappingProxyType({"APPOINTMENT_CANCEL": Capability(), "APPOINTMENT_CREATE": Capability(
-    name="APPOINTMENT_CREATE", service="appointments.service.create_appointment_commit_false")})
+    name="APPOINTMENT_CREATE", service="appointments.service.create_appointment_commit_false"), "APPOINTMENT_MOVE": Capability(
+    name="APPOINTMENT_MOVE", service="appointments.service.update_appointment_commit_false")})
 
 
 class Request(Fact):
@@ -79,11 +80,13 @@ def event_raw(event):
 
 def verify(db, principal, institute, row, now):
     from app.modules.base import creation_execution as creation
+    from app.modules.base import move_execution as move
     try:
         if not isinstance(row.original, dict) or row.institute_id != institute or fingerprint(row.original) != row.fingerprint:
             raise ValueError("Execution ownership/raw SHA mismatch")
         is_creation = row.original.get("effect") == "appointment_created_through_existing_service_no_contact_or_payment"
-        original = (creation.Original if is_creation else Original).model_validate(row.original)
+        is_move = row.original.get("effect") == "appointment_moved_through_existing_service_no_contact_or_payment"
+        original = (creation.Original if is_creation else move.Original if is_move else Original).model_validate(row.original)
         if original.model_dump(mode="json") != row.original or \
                 (original.id, original.institute_id, original.operation_id, original.approval_id, original.booking_event_id,
                  original.idempotency_key, original.actor_id, original.created_at) != \
@@ -92,9 +95,9 @@ def verify(db, principal, institute, row, now):
             raise ValueError("Canonical execution columns/clock mismatch")
         state = approvals.state(db, principal, institute, original.operation_id, _now=now)
         operation = operations.Original.model_validate(state.operation.original)
-        if operation.capability != ("APPOINTMENT_CREATE" if is_creation else "APPOINTMENT_CANCEL"):
+        if operation.capability != ("APPOINTMENT_CREATE" if is_creation else "APPOINTMENT_MOVE" if is_move else "APPOINTMENT_CANCEL"):
             raise ValueError("Execution receipt must match the operation capability")
-        if is_creation and original.before.selection != operation.selection:
+        if (is_creation or is_move) and original.before.selection != operation.selection:
             raise ValueError("Creation receipt must retain the exact prepared selection")
         approval = next((v for v in state.decisions if v.original["id"] == original.approval_id), None)
         if state.operation.fingerprint != original.operation_fingerprint or approval is None or \
@@ -103,13 +106,13 @@ def verify(db, principal, institute, row, now):
                 not approvals.Original.model_validate(approval.original).created_at <= original.before.captured_at <= original.created_at < operation.valid_until:
             raise ValueError("Execution requires its exact historical approved operation and validity")
         event = db.scalar(select(BookingEvent).where(BookingEvent.id == original.booking_event_id,
-            BookingEvent.institute_id == institute, BookingEvent.appointment_id == (original.appointment_id if is_creation else operation.selection.appointment_id))
+            BookingEvent.institute_id == institute, BookingEvent.appointment_id == (original.appointment_id if is_creation or is_move else operation.selection.appointment_id))
             .execution_options(populate_existing=True))
-        if event is None or event.event_type != ("created" if is_creation else "cancelled") or event.actor_id != original.actor_id or \
+        if event is None or event.event_type != ("created" if is_creation else "modified" if is_move else "cancelled") or event.actor_id != original.actor_id or \
                 fingerprint(event_raw(event)) != original.booking_event_fingerprint or explicit_utc_instant(event.occurred_at) > original.created_at or \
-                (is_creation and explicit_utc_instant(event.occurred_at) < original.before.captured_at) or \
-                (event.before is not None if is_creation else sensitive.Snapshot.model_validate(event.before).model_dump(mode="json") != original.before.appointment) or \
-                (creation.Result if is_creation else Result).model_validate(event.after) != original.after:
+                ((is_creation or is_move) and explicit_utc_instant(event.occurred_at) < original.before.captured_at) or \
+                (event.before is not None if is_creation else sensitive.Snapshot.model_validate(event.before) != original.before.appointment if is_move else sensitive.Snapshot.model_validate(event.before).model_dump(mode="json") != original.before.appointment) or \
+                (creation.Result if is_creation else sensitive.Snapshot if is_move else Result).model_validate(event.after) != original.after:
             raise ValueError("Execution booking-event proof requires verification")
         return Envelope(original=row.original, fingerprint=row.fingerprint)
     except (ValueError, TypeError, KeyError, OverflowError, StopIteration) as error:
@@ -145,6 +148,9 @@ def execute(db, principal, institute, candidate):
         if operation.capability == "APPOINTMENT_CREATE":
             from app.modules.base import creation_execution as creation
             original = creation.perform(db, principal, request, before)
+        elif operation.capability == "APPOINTMENT_MOVE":
+            from app.modules.base import move_execution as move
+            original = move.perform(db, principal, request, before)
         else:
             original = perform_cancellation(db, principal, institute, request, operation, before)
         if original.created_at >= operation.valid_until:

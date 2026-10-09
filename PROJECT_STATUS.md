@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20S_RETAINED_MOVE_PREPARATION_AND_APPROVAL_PASS
+CURRENT_CHECKPOINT = PHASE20T_ATOMIC_GUARDED_APPOINTMENT_MOVE_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -12,6 +12,12 @@ COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
 COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20T_ATOMIC_GUARDED_APPOINTMENT_MOVE:
+- Registered MOVE beside CREATE/CANCEL in shared exact-current-approval/validity/signed-scope/actor/key/fresh-source execution lifecycle. Copilot execution discovery and explicit-reference endpoint support creation/move. Original update service commit=False used; actual booking must equal approved proposed snapshot, customer metadata unchanged, exact reserved IDs/intervals and one new modification event verified before single booking/resource/event/receipt commit.
+- Receipt binds selected booking, typed before/after, original approval/event/SHA/chronology and unchanged metadata digests. Old captured registration=false previews remain decodable without rewriting SHA. Historical recovery after expiry/later cancellation does not revalidate or move again; new key cannot repeat an operation. Resource proof is transaction allocation, not current physical occupancy/immutable resource history. No contact or payment.
+- Actual SQLite/PostgreSQL move/prepare/creation/cancellation combined regression32 passed115.38s, zero failures/skips. Includes explicit service change to25-minute target with old room released/new device reserved, unchanged name/phone/notes, current resource/role/schema/forged approval refusal, pending/revoked/expired/history-changed denial, one effect under same/different-key races, full rollback after domain writes and committed lost-ack recovery. Final integrity suite2 passed12.82s: altered event.before rejected even after event/receipt hashes recomputed; restoration and historical replay succeed. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for APPOINTMENT_MOVE atomic guarded execution. NEXT MARKETING_CAMPAIGN_DRAFT and STOCK_REORDER_PROPOSAL preparation/guarded execution, initial capability scope audit and latest packaged Linux/UI acceptance. All four Copilot gates PARTIAL; whole26-phase goal ACTIVE. No deployment/push/production or external contact claim.
 
 PHASE20S_RETAINED_MOVE_PREPARATION_AND_APPROVAL:
 - Added official BASE appointment-move process and manager-only Copilot move preview/discovery/shared preparation. Explicit owned booking/new aware ISO instant, optional explicit employee/service change; no customer/contact/note changes. Closed route/capability binding and per-capability narrow input schemas; no second language router.27 resources validate and50/50 routing examples pass.

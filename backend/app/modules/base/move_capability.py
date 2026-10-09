@@ -19,7 +19,14 @@ class Capability(Fact):
     roles: tuple[Literal["responsable_institut"], ...] = ("responsable_institut",)
     application_service: Literal["appointments.service.preview_update"] = "appointments.service.preview_update"
     approval: Literal["explicit_human_approval_of_exact_retained_operation_required"] = "explicit_human_approval_of_exact_retained_operation_required"
-    execution_registered: Literal[False] = False
+    execution_registered: Literal[False, True] = True
+
+    @field_validator("execution_registered", mode="before")
+    @classmethod
+    def captured_registration(cls, value):
+        if type(value) is not bool:
+            raise ValueError("An explicit captured registration flag is required")
+        return value
 
 
 CAPABILITY = Capability()
@@ -66,7 +73,7 @@ class Preview(Fact):
     @model_validator(mode="after")
     def binding(self):
         before, after, selection = self.appointment, self.proposed, self.selection
-        if (self.capability != CAPABILITY or self.principal.role.value not in self.capability.roles
+        if (self.capability.model_dump(exclude={"execution_registered"}) != CAPABILITY.model_dump(exclude={"execution_registered"}) or self.principal.role.value not in self.capability.roles
             or self.captured_at.utcoffset() != timedelta(0) or before.status not in {"scheduled", "confirmed"}
             or before.actual_start_time is not None or before.actual_end_time is not None or before.checkout_ticket_id is not None
             or after.status != before.status or after.customer_id != before.customer_id

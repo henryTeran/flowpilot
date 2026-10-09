@@ -87,10 +87,7 @@ def exercise(client, engine, institute, employee, service):
     approval = client.post(f"{base}/approvals", headers=headers, json=decision)
     assert approval.status_code == 200, approval.text
     approved = approval.json()
-    request = dict(operation_id=decision["operation_id"], operation_fingerprint=decision["operation_fingerprint"],
-        approval_id=approved["original"]["id"], approval_fingerprint=approved["fingerprint"], reason="Unsupported move execution", idempotency_key="move-execution")
-    assert client.post("/api/v1/copilot/execute", headers=headers, json=request).status_code == 400
-    assert client.post(f"{base}/executions", headers=headers, json=request).status_code == 400
+    assert approved["original"]["decision"] == "approve"
     with Session(engine) as db:
         assert explicit_utc_instant(db.get(Appointment, identifier).start_time) == source_start
         assert len(db.scalars(select(BookingEvent)).all()) == 2  # only creation and explicit metadata edit

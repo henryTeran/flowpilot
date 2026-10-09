@@ -65,7 +65,7 @@ def execution_capabilities(user=Depends(require_ticket_manager)):
     principal = signed_principal(user, user.get("institute_id"))
     guard(principal, principal.institute_id)
     with audit.trace(principal, "copilot_execution_capabilities", {}) as span:
-        result = (executions.REGISTRY["APPOINTMENT_CREATE"],)
+        result = (executions.REGISTRY["APPOINTMENT_CREATE"], executions.REGISTRY["APPOINTMENT_MOVE"])
         span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
         return result
 
