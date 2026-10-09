@@ -153,6 +153,26 @@ test("revenue summary binds institute period through real BASE and preserves fin
   await panel.getByRole("button",{name:"Consulter",exact:true}).click();await expect(panel.getByRole("alert")).toContainText("postérieure");expect(posts).toHaveLength(1);
 });
 
+test("loss analysis retains separate real source clocks and unknown financial loss",async({page},info)=>{
+  const panel=await login(page),posts:any[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push(r.postDataJSON());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("REVENUE_LOSS_ANALYSIS");
+  await panel.getByLabel("Début de période").fill("2025-10-26");await panel.getByLabel("Fin de période exclue").fill("2025-10-27");
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Analyser les pertes enregistrees");
+  const result=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+  const response=await result;expect(response.status()).toBe(200);const value=await response.json();
+  expect(value.capability).toBe("REVENUE_LOSS_ANALYSIS");const source=value.evidence.result;
+  expect(source.institute_id).toBe(institute);expect(source.causal_loss_proven).toBe(false);expect(source.complete_history).toBe(false);expect(source.financial_loss).toBeNull();
+  expect(source.bookings.window.institute_id).toBe(institute);expect(source.walk_ins.window.institute_id).toBe(institute);
+  expect(source.bookings.window.start).toBe(source.walk_ins.window.start);expect(source.bookings.window.end).toBe(source.walk_ins.window.end);
+  const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});
+  await expect(facts).toContainText("perte financière causale non établis");await expect(facts).toContainText("Passages sans rendez-vous");
+  await expect(facts).toContainText("événement(s) sans prix retenu");await expect(panel.getByRole("alert")).toHaveCount(0);
+  expect(posts).toEqual([{message:"Analyser les pertes enregistrees",ui_context:{start:"2025-10-25T22:00:00.000Z",end:"2025-10-26T23:00:00.000Z"}}]);
+  await page.screenshot({path:info.outputPath("copilot-losses.png"),fullPage:true});
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");

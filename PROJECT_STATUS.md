@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_LOSS_UI_WIRING_INCREMENT:
+- Real signed SQLite API/official BASE browser baseline PASS desktop/tablet: suite16 passed1.7m, selected common observed period, independent scoped booking/walk-in windows, null financial loss/false causal/history, separate source displays and only query POST. Both screenshots inspected; fixture cleaned/listeners4198/4199=0. Log:.cache/20-loss-browser.log. Source cohort has zero closures; populated retained-commercial-value browser acceptance remains pending.
 - Connected REVENUE_LOSS_ANALYSIS to explicit institute civil-date period, official BASE query and common evidence SHA with original loss-source validation. Passive UI separates booking cancellations/no-shows/unpriced and institute missing-event counts from retained/legacy walk-in terms and currencies. Independent source clocks remain visible; financial loss/recovery/complete-history claims remain unavailable.
 - Build PASS; combined loss/Copilot11 tests PASS including selected period, original counts, null financial-loss refusal and clearing edited evidence. Real signed API/BASE browser acceptance remains pending. Two initial UI capabilities (opportunities and stock forecast) and all four progressive flows remain outstanding; whole goal ACTIVE, all phase gates PARTIAL.
 

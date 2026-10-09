@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Loss browser baseline: actual signed API/official BASE16-test suite passes desktop/tablet (1.7m), scoped common selected period, separate original clocks/source displays, null financial loss and false causal/history claims, only query POST. Screenshots inspected, fixture removed/listeners0. Zero-event case only; populated retained-commercial-value browser evidence remains pending. Phase gates remain partial.
+
 Loss analysis UI increment: explicit observed period now reaches official BASE with closed original booking/walk-in summary validation and response SHA. Separate sources/clocks/counts/retained currencies displayed; causal financial loss remains null/unproven. Build and combined11 targeted source/DOM tests pass. Actual signed API/BASE browser acceptance pending. Opportunities and forecast UI plus all four progressive flows remain outstanding; phase gates remain partial.
 
 Revenue summary browser baseline: real API/official BASE14-test suite passes desktop/tablet (1.8m), scoped selected25h DST period, false history/settlement/null projection, only query POST, invalid-period correction and no additional query. Screenshots inspected; owned fixture cleaned/listeners0. Zero-ticket case only; populated mixed-currency browser acceptance remains pending. All phase gates remain partial.
