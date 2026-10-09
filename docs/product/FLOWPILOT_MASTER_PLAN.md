@@ -1718,6 +1718,9 @@ Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../ar
 
 # 41. Phase 20 — FlowPilot Copilot
 
+Move stale-approval acceptance:2 PASS45.9s desktop/tablet (.cache/20-move-stale-approval-browser.log). Real signed API/pinned official BASE: first manager reviews approved move/execution permission; independently authenticated manager-peer revokes exact approval before first manager clicks stale enabled execution. Server returns400, no receipt/move; frozen intent requires independent absence verification before correction. Exactly one execution POST, original booking unchanged, original room blocked/proposed slot free. Tablet screenshot inspected; owned fixture removed/listeners0/terminal exit0. This proves ordered cross-session invalidation, not simultaneous PostgreSQL locking (covered separately by packaged backend races). No production change; packaged67/frontend584 remain current. Expiry and final named progressive acceptance reconciliation remain open; goal ACTIVE, Phase20 PARTIAL.
+
+
 Creation revocation browser acceptance:4 PASS1.1m (.cache/20-creation-revocation-browser.log), including existing decline compatibility2 and new revocation2 desktop/tablet. Actual signed API/pinned official BASE: exact retained creation separately approved then explicitly revoked, previous approval ID bound; independent history reread stays revoked, execution control absent/no execution POST, native agenda empty and room still available. Tablet screenshot inspected; fixture removed/terminal exit0. After terminal completion redundant copied decline test removed from new file (original remains in copilot-creation-panel.spec.ts); new revocation test behavior unchanged, title corrected. No production change; package67/frontend584 remain current. Remaining expiry and decision races/browser adverse acceptance require reconciliation. Goal ACTIVE, Phase20 PARTIAL.
 
 
