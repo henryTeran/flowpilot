@@ -11,6 +11,8 @@
 .copilot-table { overflow-x: auto; }
 .copilot-reorder .copilot-reorder-toggle { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
 .copilot-reorder .copilot-reorder-toggle input[type="checkbox"] { width: 22px; height: 22px; min-height: 22px; padding: 0; flex-shrink: 0; }
+.copilot-reorder-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 8px; max-height: 240px; overflow-y: auto; padding: 4px; }
+.copilot-reorder .copilot-reorder-selection button { width: 100%; overflow-wrap: anywhere; text-align: left; }
 .copilot-reorder article { overflow-wrap: anywhere; }
 .copilot-reorder .copilot-table td:first-child { max-width: 240px; overflow-wrap: anywhere; white-space: normal; }
 .copilot-table table { border-collapse: collapse; width: 100%; min-width: 900px; }

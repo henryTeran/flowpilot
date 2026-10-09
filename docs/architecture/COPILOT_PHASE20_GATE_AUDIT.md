@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Maximum reorder selection review UI improved to responsive bounded scroll group with keyboard access. Build/form test and both actual maximum-selection browsers pass;50 controls remain available, removal from scrolled group releases a slot and exact50-item retention/51st refusal still passes. Earlier excessive removal-list height note is superseded. Full584 suite precedes this presentation change. Remaining supplier pagination/damaged/ambiguous/race acceptance and other phase gaps keep gates PARTIAL.
+
 Reorder maximum selection now passes actual API/BASE desktop/tablet:50 selected originals including beyond-first50 source, exact whole-unit/ml projection retained, unselected51st blocked while selected items remain removable, direct51-item API422. Native stock catalogue/orders unchanged. Full-page screenshots expose excessive removal-list length requiring compact review UI. Supplier pagination and damaged/ambiguous/race browser acceptance remain; gates PARTIAL.
 
 Reorder partial purchase receipt acceptance now passes four actual API/BASE scenario tests: both0.000ml and0.500ml received on desktop/tablet. Receipt shifts stock/pending consistently; both explicit pending assumptions yield exact source-backed quantities. Native order progress and receipt list remain unchanged by proposal calls. Earlier selected norm/missing/disabled and25h tests remain green. This closes exercised partial-receipt arithmetic; maximum50 selections/supplier pagination and damaged/ambiguous/race browser gaps remain. Gates PARTIAL.

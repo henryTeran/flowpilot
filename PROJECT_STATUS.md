@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_COMPACT_SELECTION_REVIEW:
+- Selected item removal controls now grouped in responsive columns inside bounded240px vertical scroll area with keyboard focus and accessible group name. All selected IDs remain present and removable; no collapsed/hidden selection, lifecycle or authority change. Small selection controls remain visible.
+- Build/focused form test PASS and actual API/BASE maximum-selection2 PASS1.0m desktop/tablet (.cache/20-reorder-selection-browser.log). Group has50 buttons, bounded height; actual removal from scrolled list enables another choice, checkbox reselect restores limit. All50 original projections still retained;51-item API422/native stocks/orders unchanged. Final screenshots inspected at reduced full-page scale, fixture removed/listeners0, exit0. Current full frontend584 proof precedes this narrow presentation change. Supplier pagination/damaged/ambiguous/race acceptance and other phase gaps remain; goal ACTIVE/gates PARTIAL.
+
 PHASE20_REORDER_MAXIMUM_SELECTION_BROWSER_ACCEPTANCE:
 - Actual API/official BASE maximum selection2 PASS1.1m desktop/tablet (.cache/20-reorder-maximum-browser.log).61 original items per project,49 selected whole-unit items plus one ml item beyond first50; exact50 source rows previewed and retained. Unselected51st checkbox disabled while selected checkbox remains removable; uncheck enables additional choice, recheck restores limit. Direct API51-item preview refused422. Exact49x2.000unit and1x3.125ml projections match original; native items/orders unchanged.
 - Final full-page captures inspected at reduced scale, showing complete long list/table but exposing excessive50-button removal-list length; compact selection review remains UI polish work, not hidden proof of visual completion. Fixture removed/listeners0, exit0. Production unchanged. Supplier pagination and damaged/ambiguous/race browser acceptance remain; goal ACTIVE, phase gates PARTIAL.
