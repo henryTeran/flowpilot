@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21E_VOICE_DISABLED_BROWSER_ACCEPTANCE:
+- Voice disabled-provider native browser acceptance:2 PASS39.0s desktop/tablet (.cache/21-voice-disabled-browser.log), rebuilt actual signed backend/UI. Audio file explicitly imported, only one raw-audio preview POST, server disabled STT503, controlled French retry message/button enabled/no transcript or domain POST. Initial no-file submit disabled. Fake fixture bytes prove transport/error path, not audio decoding or speech quality. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. Voice gates PARTIAL, goal ACTIVE; successful transcript/typed handoff/microphone/real Voxtral remain required.
+
 PHASE21D_VOICE_AUDIO_IMPORT_UI:
 - Manager Copilot audio mode imports compatible bounded file, explicit transcription POST and exact signed-scope/transcript-digest response validation. Loading/error/silence states, sequence/unmount/session guards, no persisted audio or automatic domain action. TypeScript/Vite build PASS; validator1 PASS674ms covers scope/actor/transcript substitution and silence. Initial build caught redundant early-return mode comparison, fixed with shared mode navigation. Actual DOM/browser/API audio import acceptance, microphone capture, reviewed typed form handoff and real STT remain required. Prior frontend584 is historical after this UI change; Voice gates PARTIAL, goal ACTIVE.
 
