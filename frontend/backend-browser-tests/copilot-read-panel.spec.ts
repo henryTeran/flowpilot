@@ -54,6 +54,34 @@ test("real BASE consultations preserve selected identity, planning and physical 
   expect((await actual.json()).on_hand).toBe("0.000");
 });
 
+test("rebooking preserves unavailable original sources through real BASE",async ({page,request},info) => {
+  const session=await request.post(`${api}/auth/login`,{data:{email:"manager@browser.example.com",password:"Browser-test-only-2026"}});
+  expect(session.status()).toBe(200);
+  const headers={Authorization:`Bearer ${(await session.json()).access_token}`};
+  const identity=`Reprise Copilot ${info.project.name}`;
+  const created=await request.post(`${api}/customers/institutes/${institute}`,{headers,data:{display_name:identity,phone:"+33999777666",idempotency_key:`reprise-copilot-${info.project.name}`}});
+  expect(created.status()).toBe(200);const customer=await created.json();
+  const panel=await login(page),posts:string[]=[];
+  page.on("request",r=>{if(r.method()==="POST")posts.push(r.url());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("CLIENT_REBOOKING_OPPORTUNITIES");
+  await panel.getByRole("textbox",{name:"Rechercher une cliente",exact:true}).fill(identity);
+  await panel.getByRole("button",{name:"Rechercher les clientes",exact:true}).click();
+  await panel.getByRole("combobox",{name:"Cliente",exact:true}).selectOption(customer.id);
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Examiner les opportunites de reprise rendez-vous");
+  const result=page.waitForResponse(r=>r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+  const response=await result;expect(response.status()).toBe(200);
+  const evidence=(await response.json()).evidence;
+  expect(evidence.capability).toBe("CLIENT_REBOOKING_OPPORTUNITIES");expect(evidence.result.customer_id).toBe(customer.id);
+  expect(evidence.result.review).toBe("unavailable");expect(evidence.result.candidate).toBeNull();
+  expect(evidence.result.execution_authorized).toBe(false);expect(evidence.result.delivery_authorized).toBe(false);
+  const facts=panel.getByRole("region",{name:"Réponse du Copilot",exact:true});
+  await expect(facts).toContainText("Opportunité non établie");await expect(facts).toContainText("Dernier soin non établi");
+  await expect(facts).toContainText("n’autorise aucune réservation");await expect(panel).not.toContainText("+33999777666");
+  expect(posts).toEqual([`${api}/copilot/query`]);
+  await page.screenshot({path:info.outputPath("copilot-rebooking.png"),fullPage:true});
+});
+
 test("reception consults through BASE and rejects damaged evidence before showing facts",async ({page}) => {
   const panel = await login(page,"cashier@browser.example.com");
   await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("STOCK_READ");

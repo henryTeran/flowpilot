@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_REBOOKING_UI_INCREMENT:
+- Real signed API/official BASE browser unavailable-source acceptance now PASS on desktop/tablet; whole Copilot browser suite8 passed1.4m. Selected registered customer with no care returns candidate null/review unavailable, original care/policy diagnostics, no booking/delivery authority or phone, and only query POST. Screenshots inspected, owned fixture removed,4198/4199 listeners0. Log:.cache/20-rebooking-browser.log. Due/already-booked real browser acceptance remains pending; DOM checks do not replace it.
 - Added CLIENT_REBOOKING_OPPORTUNITIES with explicit owned customer selection through official BASE. Reuses original automation-rule/event-candidate validators; closed scoped source, policy identity/digest pair, capture, positive active booking intervals, diagnostics and original review-label binding checked before fingerprint-verified display. Shows rule/care due dates, already-booked suppression and unavailable diagnostics; no contact or booking control.
 - Build PASS; targeted Copilot DOM/response6 passed, including due/active-booking/unavailable cases and rehashed wrong customer, timing, rule, diagnostics and authority refusals. Actual browser acceptance for this new mode remains pending. Six initial modes now have UI code; six other initial modes and all four progressive UI flows remain outstanding. All phase gates PARTIAL, whole goal ACTIVE.
 
