@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_CONFLICT_UI_WIRING_INCREMENT:
+- Dedicated control/evidence test now PASS: explicit employee and explicitly loaded resource each issue exactly one selected-reference/day query; no resource read on mount, empty target disables submit, resource read/date edit clear results. Common response gate rejects wrong timezone and simultaneous employee/resource selection. Final build PASS and combined10 tests PASS. Real API/official BASE browser conflict acceptance remains pending.
 - Connected PLANNING_CONFLICTS discovery, explicit day and one owned employee/resource selection to official BASE query, common response SHA and original conflict validation with institute timezone. Resource choices require explicit read; no domain fetch on mount. Passive display retains source/invalid/overdue counts, first50 overlaps, exact durations and incomplete coverage. Empty selection prevents submit.
 - Build PASS before final disabled-button refinement; final targeted conflict/Copilot regression9 PASS. New employee/resource controls and real API/BASE browser acceptance still require dedicated tests; no phase gate closed. Four other initial UI capabilities and all four progressive flows remain outstanding. Whole goal ACTIVE.
 

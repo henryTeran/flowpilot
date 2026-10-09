@@ -153,6 +153,36 @@ test("capacity binds selected completed day and preserves unavailable physical a
   try{await render(root);await settle();await fill("Consultation","EMPLOYEE_CAPACITY");await fill("Journée terminée",day);await fill("Votre question","Mesurer la capacite enregistree des collaboratrices");await click("Consulter");assert.match(document.body.textContent!,/capacité réservable ne sont pas établies/);assert.match(document.body.textContent!,/0 h 00 min 00 s/);}finally{await act(async()=>root.unmount());}
 });
 
+test("conflict controls explicitly select one owned employee or loaded resource and discard edited evidence",async()=>{
+  const day="2026-10-08",calls:{path:string;body:any}[]=[];
+  const base={institute_id:"own",day,captured_at:clock,start_at:"2026-10-07T22:00:00Z",end_at:"2026-10-08T22:00:00Z",source_digest:"a".repeat(64),source_count:0,invalid_source_count:0,overlap_count:0,overlaps:[],page_limit:50,physical_activity_proven:false};
+  const employee={...base,employee_id:"employee",overdue_open_source_count:0,basis:"current_recorded_employee_commitments_half_open",resource_conflicts_covered:false};
+  const resource={...base,resource_id:"room",resource_status:"maintenance",overdue_unreleased_source_count:0,basis:"current_unreleased_resource_reservations_half_open",complete_institute_conflict_coverage:false,booking_authorized:false};
+  assert.ok(await validReadResponse(await answer("PLANNING_CONFLICTS",employee),"own","PLANNING_CONFLICTS",{day,employee_id:"employee"},"Europe/Zurich"));
+  assert.equal(await validReadResponse(await answer("PLANNING_CONFLICTS",resource),"own","PLANNING_CONFLICTS",{day,resource_id:"room"},"UTC"),false);
+  assert.equal(await validReadResponse(await answer("PLANNING_CONFLICTS",resource),"own","PLANNING_CONFLICTS",{day,employee_id:"employee",resource_id:"room"},"Europe/Zurich"),false);
+  setAccessToken(token());
+  globalThis.fetch=async(url,init)=>{
+    const path=String(url),body=init?.body ? JSON.parse(init.body as string) : undefined;calls.push({path,body});
+    if(path.endsWith("/capabilities"))return reply(discovery());
+    if(path.includes("/resources/"))return reply([{id:"room",institute_id:"own",name:"Cabine",kind:"room",capabilities:[],status:"maintenance"}]);
+    return reply(await answer("PLANNING_CONFLICTS",body.ui_context.resource_id ? resource : employee));
+  };
+  const root=createRoot(document.getElementById("root")!);
+  try{
+    await render(root);await settle();assert.equal(calls.length,1);
+    await fill("Consultation","PLANNING_CONFLICTS");await fill("Votre question","Examiner les conflits du planning");
+    assert.equal(Array.from(document.querySelectorAll("button")).find(b=>b.textContent==="Consulter")!.disabled,true);
+    await fill("Journée à examiner",day);await fill("Collaboratrice ou ressource","employee:employee");await click("Consulter");
+    assert.deepEqual(calls.at(-1)!.body.ui_context,{day,employee_id:"employee"});assert.match(document.body.textContent!,/0 conflit/);
+    await click("Lire les ressources");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);
+    await fill("Collaboratrice ou ressource","resource:room");await click("Consulter");
+    assert.deepEqual(calls.at(-1)!.body.ui_context,{day,resource_id:"room"});assert.match(document.body.textContent!,/Cabine/);
+    await fill("Journée à examiner","2026-10-07");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);
+    assert.ok(calls.filter(c=>c.body).every(c=>c.path.endsWith("/copilot/query")));
+  }finally{await act(async()=>root.unmount());}
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

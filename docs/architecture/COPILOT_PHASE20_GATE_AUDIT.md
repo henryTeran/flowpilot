@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Conflict UI evidence: both employee and resource modes now connect explicit selected day/reference to official BASE API with closed evidence validation and original half-open overlap arithmetic. Dedicated DOM controls verify no implicit catalogue read, empty-target prevention, explicit resource loading, exclusive query references and edited-result removal; build/combined10 targeted tests pass. Actual signed API/BASE browser cases remain pending. Four initial UI capabilities (three revenue modes and stock forecast) and all four progressive flows still require work.
+
 Capacity browser acceptance: real API/official BASE suite10 passes desktop/tablet (1.2m), including selected completed DST day, scoped cohort with missing hours, no physical/bookable authority, only query POST, no empty-date submit and stale evidence cleared on date edit. Both screenshots inspected; fixture cleaned/listeners0. Populated-activity browser case and remaining phase requirements are not covered by this evidence.
 
 Capacity UI increment: EMPLOYEE_CAPACITY now accepts explicit completed day and validates original recorded-capacity source, clock, scope and hash. Build/combined Copilot-capacity10 tests pass; real API/BASE browser acceptance pending. Five other initial UI capabilities and four progressive flows remain outstanding; no phase completion claim.
