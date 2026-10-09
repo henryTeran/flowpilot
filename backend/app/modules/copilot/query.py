@@ -145,6 +145,16 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("STOCK_FORECAST", "inventory_operator", 1, OutlookRead, "inventory.outlook.read/explicit_scenario"))})
 
 
+OUTPUT_TYPES = MappingProxyType({
+    "CLIENT_READ": CustomerFacts, "CLIENT_SUMMARY": profile.SegmentProfile,
+    "CLIENT_REBOOKING_OPPORTUNITIES": rebooking.RebookingRead, "PLANNING_READ": query.PlanningFacts,
+    "PLANNING_GAPS": planning.Gaps, "EMPLOYEE_CAPACITY": capacity.Capacity,
+    "PLANNING_CONFLICTS": (conflicts.Read, resource_conflicts.Read), "REVENUE_SUMMARY": billing.Billing,
+    "REVENUE_OPPORTUNITIES": slot_opportunities.Read, "REVENUE_LOSS_ANALYSIS": losses.Read,
+    "STOCK_READ": OutlookRead, "STOCK_FORECAST": OutlookRead,
+})
+
+
 class Evidence(Fact):
     capability: Name
     institute_id: identity.ExactId
@@ -157,11 +167,23 @@ class Evidence(Fact):
 
     @model_validator(mode="after")
     def coherent_capture(self):
+        if not isinstance(self.result, OUTPUT_TYPES[self.capability]):
+            raise ValueError("Evidence result must match the registered capability")
+        if isinstance(self.result, CustomerFacts) and self.result.institute_id != self.institute_id:
+            raise ValueError("Customer source scope must match evidence")
+        if isinstance(self.result, (profile.SegmentProfile, rebooking.RebookingRead)) and (
+            self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
+            raise ValueError("CRM source scope and capture must match evidence")
+        if isinstance(self.result, query.PlanningFacts) and self.result.generated_at != self.captured_at:
+            raise ValueError("Planning source capture must match evidence")
         if self.read_completed_at < self.captured_at:
             raise ValueError("Read completion cannot precede source capture")
         if isinstance(self.result, OutlookRead) and (self.result.institute_id != self.institute_id
             or explicit_utc_instant(self.result.generated_at) != self.captured_at):
             raise ValueError("Inventory source scope and capture must match evidence")
+        if isinstance(self.result, OutlookRead) and self.result.source != (
+            "recorded_stock" if self.capability == "STOCK_READ" else "explicit_service_volume_scenario"):
+            raise ValueError("Stock source must match read or forecast capability")
         if isinstance(self.result, (capacity.Capacity, billing.Billing)) and (
             self.result.window.institute_id != self.institute_id or self.result.window.captured_at != self.captured_at):
             raise ValueError("Capacity source scope and capture must match evidence")

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20I_STOCK_READ_AND_EXPLICIT_FORECAST_PASS
+CURRENT_CHECKPOINT = PHASE20J_EVIDENCE_BINDING_AUDIT_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,11 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20J_EVIDENCE_BINDING_AUDIT:
+- Current12-capability audit identified union DTO accepting a correctly typed source under an unrelated capability label. Added closed capability/output-type binding, customer institute validation, CRM institute/capture and planning capture checks, plus stock read/forecast source-marker binding. Existing guards/sovereign service rules preserved; no new mutation, permission or provider authority.
+- Targeted regression5 passed8.06s, zero failures/skips: actual signed SQLite customer/discovery plus all11 invalid relabellings of customer facts, foreign source institute and altered planning capture. This is targeted structural proof, not PostgreSQL/Linux/all-capability acceptance. No external service/server started or business database mutated.
+- CHECKPOINT_STATUS = PASS for evidence binding correction. NEXT full12-capability scope audit and actual packaged Linux/SQLite/PostgreSQL regression, then progressive appointment/marketing/reorder preparation and guarded execution. READ/SUGGEST remain PARTIAL and PREPARE/EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE, no production/deployment/push claim.
 
 PHASE20I_STOCK_READ_AND_EXPLICIT_FORECAST:
 - Registered STOCK_READ/FORECAST using actual official BASE processes and original inventory.outlook.read. Existing signed inventory operator permission (reception or manager) retained. Stock read accepts no unrelated selection; forecast requires explicit aware ISO scenario instants/volumes/pinned original recipe IDs, with explicit null missing norm. No inferred demand, copied stock/norm/order calculations or provider call.

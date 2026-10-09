@@ -77,4 +77,10 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Evidence binding audit (20J)
+
+An explicit closed output-type map now binds each of the12 named capabilities to its registered source type. A valid customer fact cannot be relabelled as a revenue/planning/stock result. Customer institute, CRM institute/capture and planning capture are checked in addition to prior inventory/capacity/conflict checks. Stock read versus explicit forecast must also match the original source marker. These are structural evidence guards, not a signature or permission granted by a payload. Public source selection still comes from the official router and signed application dispatch.
+
+The targeted regression covers relabelling a customer fact against all11 other capability names, foreign customer scope, altered planning capture and actual signed customer/discovery reads. Packaged cross-database regression across all12 capabilities and full requirement acceptance remain open; this check alone does not close READ/SUGGEST or the phase.
+
 COPILOT_READ and COPILOT_SUGGEST remain PARTIAL pending the complete initial capability scope audit and packaged acceptance in Master Plan §41. CLIENT_SUMMARY is a CRM segment summary, not a comprehensive customer history. COPILOT_PREPARE and COPILOT_EXECUTE_GUARDED remain open. These checkpoints do not establish remote model quality, user interface acceptance or production readiness.
