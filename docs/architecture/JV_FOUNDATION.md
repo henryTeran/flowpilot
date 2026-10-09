@@ -42,6 +42,19 @@ Les périodes de durées différentes sont signalées; les écarts restent ceux 
 
 Validation SQLite/PostgreSQL réelle : **23 réussis en 19,82 s**, aucun échec ni test ignoré, avec régression des kernels/sources de CA et du scoring JV. Après typage des montants non négatifs et ajout du diagnostic durée/date/exhaustivité : **6 tests ciblés réussis en 6,53 s**, zéro échec/skip. SHA sources/sorties, comparaison −12,4 % exacte, séparation des devises, baseline nulle, montants/devise inconnus, durées inégales, faux drapeau d’exhaustivité, scope, injections et SQL sans mutation sont vérifiés. Zéro schéma temporaire résiduel; serveur temporaire arrêté.
 
+## Checkpoint 18E : contributions arithmétiques exactes
+
+La comparaison passe à la règle versionnée `jv.recorded_billing_comparison.v2`. Pour chaque devise complète, avec un nombre de tickets de référence positif, elle expose deux termes rationnels en unités mineures. Si `N0`, `G0`, `N1`, `G1` désignent les comptes et totaux de tickets payés datés de cette devise :
+
+- terme volume : `(N1 − N0) × G0 / N0`;
+- terme panier : `G1 − N1 × G0 / N0`.
+
+Leur somme est exactement `G1 − G0`. La règle fixe l’ordre de cette décomposition; il n’existe aucune attribution causale implicite. Les comptes sont ceux du groupe de devise, jamais ceux de l’ensemble multidevise. La validation structurée vérifie les deux formules et leur somme, afin qu’une paire de termes inventés qui se compensent soit aussi refusée.
+
+Un panier de référence observé à zéro reste connu lorsque ses tickets existent : la décomposition peut être calculée même si le pourcentage est indisponible. Aucun ticket de référence signifie une moyenne inconnue et une décomposition indisponible. Une cohorte courante vide donne un terme volume de `−G0` et un terme panier nul, sans inventer une moyenne courante. Les montants incomplets et devises inconnues restent indisponibles. Les contributions causales demeurent vides; les citations et le SHA lient tous ces termes aux deux agrégats observés.
+
+Validation complète des cinq modules JV sur SQLite et PostgreSQL réel : **24 réussis en 32,96 s**, zéro échec/skip. Les nouvelles variantes couvrent fractions exactes sous faible précision décimale, séparation des devises, disparition de la cohorte courante, baseline monétaire nulle, inconnues et faux termes compensés. Les tests HTTP existants vérifient les termes sur de vraies captures payées avec zéro mutation SQL. Zéro schéma temporaire résiduel; serveur temporaire arrêté. La validation Linux et l’audit final des gates restent à réaliser avant clôture de phase.
+
 ## Acceptation restante
 
 `JV_RULES`, `JV_EVIDENCE`, `JV_PROVIDER_INDEPENDENCE` restent **PARTIAL** pour la phase entière. Le noyau descriptif seul ne ferme pas la phase.

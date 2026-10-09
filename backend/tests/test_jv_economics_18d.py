@@ -65,6 +65,9 @@ def exercise(client, engine, institute, monkeypatch):
         assert response.status_code == 200, response.text
         value = response.json()
         assert value["analysis"]["currencies"][0]["difference_minor"] == "-1240"
+        decomposition = value["analysis"]["currencies"][0]["decomposition"]
+        assert decomposition["volume_term_minor"]["numerator"] == "0"
+        assert decomposition["basket_term_minor"]["numerator"] == "-1240"
         assert value["analysis"]["evidence_fingerprint"] == fingerprint(value["source"])
         assert value["analysis"]["fingerprint"] == fingerprint({k: v for k, v in value["analysis"].items() if k != "fingerprint"})
         assert value["source"]["baseline"]["ticket_count"] == value["source"]["current"]["ticket_count"] == 1

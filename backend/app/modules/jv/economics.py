@@ -3,7 +3,7 @@ from fractions import Fraction
 from datetime import datetime
 from typing import Annotated, Literal
 from pydantic import AwareDatetime, StringConstraints, model_validator, field_validator
-from app.modules.crm.metrics import Fact, Unsigned
+from app.modules.crm.metrics import Fact, Unsigned, Count
 from app.modules.base.read_capabilities import Digest, ExactId
 from app.modules.revenue import billing, sources
 from app.modules.jv.operational import Citation
@@ -38,6 +38,17 @@ class Ratio(Fact):
     denominator: Annotated[str, StringConstraints(pattern=r"^[1-9][0-9]*$")]
 
 
+def ratio(value: Fraction) -> Ratio:
+    return Ratio(numerator=str(value.numerator), denominator=str(value.denominator))
+
+
+class AccountingDecomposition(Fact):
+    volume_term_minor: Ratio
+    basket_term_minor: Ratio
+    rule: Literal["volume_at_baseline_mean_then_current_basket"] = "volume_at_baseline_mean_then_current_basket"
+    meaning: Literal["arithmetic_identity_not_causal_attribution"] = "arithmetic_identity_not_causal_attribution"
+
+
 class CurrencyDifference(Fact):
     currency: Literal["CHF", "EUR"]
     baseline_gross_minor: Unsigned | None
@@ -45,13 +56,35 @@ class CurrencyDifference(Fact):
     difference_minor: Signed | None
     percent_change: Ratio | None
     unavailable_reason: Literal["unknown_currency", "incomplete_amounts", "zero_baseline"] | None
+    baseline_ticket_count: Count
+    current_ticket_count: Count
+    decomposition: AccountingDecomposition | None
+    decomposition_unavailable_reason: Literal["unknown_currency", "incomplete_amounts", "no_baseline_tickets"] | None
     sources: tuple[Citation, ...]
+
+    @model_validator(mode="after")
+    def conservation(self):
+        if self.decomposition is not None:
+            a, b = self.decomposition.volume_term_minor, self.decomposition.basket_term_minor
+            if not self.baseline_ticket_count or self.baseline_gross_minor is None or self.current_gross_minor is None:
+                raise ValueError("JV decomposition requires observed baseline tickets and complete amounts")
+            mean = Fraction(int(self.baseline_gross_minor), self.baseline_ticket_count)
+            volume = Fraction(int(a.numerator), int(a.denominator))
+            basket = Fraction(int(b.numerator), int(b.denominator))
+            if self.difference_minor is None or self.decomposition_unavailable_reason is not None or \
+                volume != (self.current_ticket_count-self.baseline_ticket_count)*mean or \
+                basket != int(self.current_gross_minor)-self.current_ticket_count*mean or \
+                volume+basket != int(self.difference_minor):
+                raise ValueError("JV accounting terms must exactly explain the observed difference")
+        elif self.decomposition_unavailable_reason is None:
+            raise ValueError("JV missing decomposition requires an explicit reason")
+        return self
 
 
 class Analysis(Fact):
     institute_id: ExactId
     evidence_fingerprint: Digest
-    rule_version: Literal["jv.recorded_billing_comparison.v1"] = "jv.recorded_billing_comparison.v1"
+    rule_version: Literal["jv.recorded_billing_comparison.v2"] = "jv.recorded_billing_comparison.v2"
     ticket_count_difference: int
     currencies: tuple[CurrencyDifference, ...]
     same_elapsed_duration: bool
@@ -91,20 +124,30 @@ def analyze(candidate: Capture) -> Analysis:
     differences = []
     for currency in currencies:
         gross = []
+        counts = []
         for value in (baseline, current):
             group = next((g for g in value.ticket_amounts if g.currency == currency), None)
             gross.append(group.complete_gross_minor if group else "0")
+            counts.append(group.source_count if group else 0)
         reason = "unknown_currency" if "unknown_currency" in diagnostics else "incomplete_amounts" if any(v is None for v in gross) else None
         difference = percentage = None
         if reason is None:
             difference = str(int(gross[1]) - int(gross[0]))
             if int(gross[0]):
                 exact = Fraction(int(difference) * 100, int(gross[0]))
-                percentage = Ratio(numerator=str(exact.numerator), denominator=str(exact.denominator))
+                percentage = ratio(exact)
             else:
                 reason = "zero_baseline"
+        decomposition = None
+        decomposition_reason = reason if reason in {"unknown_currency", "incomplete_amounts"} else "no_baseline_tickets" if not counts[0] else None
+        if decomposition_reason is None:
+            baseline_mean = Fraction(int(gross[0]), counts[0])
+            decomposition = AccountingDecomposition(volume_term_minor=ratio((counts[1]-counts[0])*baseline_mean),
+                basket_term_minor=ratio(Fraction(int(gross[1]))-counts[1]*baseline_mean))
         differences.append(CurrencyDifference(currency=currency, baseline_gross_minor=gross[0], current_gross_minor=gross[1],
             difference_minor=difference, percent_change=percentage, unavailable_reason=reason,
+            baseline_ticket_count=counts[0], current_ticket_count=counts[1], decomposition=decomposition,
+            decomposition_unavailable_reason=decomposition_reason,
             sources=tuple(Citation(evidence_fingerprint=digest, pointer=f"/{period}/ticket_amounts") for period in ("baseline", "current"))))
     result = Analysis(institute_id=baseline.window.institute_id, evidence_fingerprint=digest,
         ticket_count_difference=current.ticket_count-baseline.ticket_count, currencies=tuple(differences),

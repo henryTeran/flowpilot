@@ -1,11 +1,17 @@
 CURRENT_PHASE = PHASE 18
-CURRENT_CHECKPOINT = PHASE18D_OBSERVED_BILLING_COMPARISONS
+CURRENT_CHECKPOINT = PHASE18E_EXACT_ACCOUNTING_CONTRIBUTIONS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
 BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PARTIAL
+
+PHASE18E_EXACT_ACCOUNTING_CONTRIBUTIONS:
+- Billing comparison v2 adds source-bound per-currency baseline/current ticket counts and exact rational volume/basket accounting terms. Fixed rule: volume=(N1-N0)*G0/N0, basket=G1-N1*G0/N0. Structured validation verifies individual formulas and exact sum G1-G0, refusing fabricated compensating terms. No float, currency conversion, duplicated billing authority or causal attribution.
+- Observed zero baseline gross with positive baseline tickets remains decomposable despite unavailable percentage; no baseline tickets gives explicit unknown decomposition. Empty current cohort yields -G0 volume/zero basket without invented current mean. Unknown currency/incomplete amounts remain unavailable. Source citations/SHA and empty causal contributions/actions preserved; period-duration/undated/history limits unchanged.
+- Complete five-module JV regression24 passed32.96s, zero failures/skips, actual SQLite/PostgreSQL signed reads and existing source/analysis guards. New cases cover exact fractions with low Decimal precision, per-currency counts, empty current, baseline zero/missing, unknowns and falsified compensating terms; signed HTTP source scenario verifies terms and no SQL writes. Temporary schemas0/server stopped; only existing Starlette and intentional unsafe-copy warnings.
+- CHECKPOINT_STATUS = PASS for arithmetic contribution/explainability rules. JV_PHASE remains PARTIAL pending final phase requirement/evidence audit and deployed Linux runtime regression. NEXT PHASE18F verify canonical JV_RULES/JV_EVIDENCE/JV_PROVIDER_INDEPENDENCE across current implementation, resolve gaps then next incomplete Master Plan phase automatically. Causal business attribution remains unknown without real supporting facts; whole26-phase goal ACTIVE, production/deployment/native gates not claimed.
 
 PHASE18D_OBSERVED_BILLING_COMPARISONS:
 - Added signed manager-only POST /api/v1/jv/institutes/{institute_id}/billing-comparison. Two explicit aware positive ordered nonoverlapping windows captured by existing revenue sources/billing authority; no client amounts/source/actor/provider. Structured source+analysis with full source/output SHA and citations, exact count/gross-minor differences and rational percent changes separated by CHF/EUR, no floats/conversion.
