@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21C_VOICE_RESPONSE_BINDING:
+- Preview now includes signed actor/institute/role and validates exact transcript SHA against official route, routed context versus clarification and silent no-route boundary. Contradictory bridge result controlled503. Seven focused service/HTTP tests PASS3.86s; UI/audio capture and reviewed typed capability handoff remain next. No real STT acceptance, Voice gates PARTIAL, goal ACTIVE.
+
 PHASE21B_VOICE_HTTP_PREVIEW:
 - Signed manager raw-audio POST /copilot/voice/preview uses server-selected app.ai STT and official BASE. Bounded stream10MB, closed media/language, empty/oversize refusal; blocking providers/BASE delegated to worker pool. Six service/HTTP checks PASS5.41s; real BASE with deterministic transcript, no real Voxtral/audio-quality claim. Interface/reviewed typed handoff/audit/package/real audio acceptance remain. See VOICE_INTEGRATION.md. Voice gates PARTIAL, goal ACTIVE.
 

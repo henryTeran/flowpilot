@@ -1,5 +1,8 @@
 # Voice integration
 
+Current contract reinforcement: preview includes original signed principal for client scope checks. Response validation binds route request_digest to exact UTF8 transcript SHA256, checks prepared process context for routed intent and forbids process/context on clarification. Silence cannot carry a route. Seven service/HTTP checks PASS3.86s, including contradictory digest refusal503 and signed silent scope. No domain authority or real audio-quality claim added.
+
+
 Master Plan42 requires audio -> SpeechToTextProvider -> text -> official BASE -> typed capability -> domain. Voxtral has no business decision authority. Current implementation is an intent preview foundation, not completed Voice acceptance.
 
 POST `/api/v1/copilot/voice/preview?language=fr` requires signed institute-manager authorization and raw audio body. Allowed media types are WAV, MPEG, WebM, MP4 and Ogg. Stream accumulation stops above10,000,000 bytes; empty audio/invalid language are refused. No upload filename/path, client-selected provider or model is accepted. Existing app.ai runtime supplies SpeechToTextProvider, disabled by default. Blocking transcription/BASE process work runs in the worker pool.

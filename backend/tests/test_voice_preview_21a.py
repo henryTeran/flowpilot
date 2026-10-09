@@ -38,3 +38,16 @@ def test_disabled_and_failed_provider_are_controlled():
 def test_oversized_transcript_does_not_route():
     with pytest.raises(HTTPException) as error: voice.preview(principal, audio, Provider("a"*2001))
     assert error.value.status_code == 422
+
+
+def test_voice_preview_rejects_unbound_route_and_retains_signed_scope():
+    from app.modules.base.upstream import Route
+    class Forged:
+        def resolve(self, text):
+            return Route(status="routed", process_id="wrong", framework_version="1.5.1",
+                         request_digest="0"*64, context_prepared=True)
+    with pytest.raises(HTTPException) as error:
+        voice.preview(principal, audio, Provider("Consulter les stocks enregistres"), Forged())
+    assert error.value.status_code == 503
+    value = voice.preview(principal, audio, Provider(""))
+    assert value.principal == principal
