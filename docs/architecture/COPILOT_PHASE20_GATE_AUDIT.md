@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Reorder retained-original contract now checks exact request/selection, signed actor/scope, reason/key/source fingerprint, canonical original and chronology plus full proposal preview and SHA. Build and two contract tests pass, including rehashed substitutions and false order claims. Recovery/form/source selection/browser proof remain open; gates PARTIAL.
+
 Reorder preview frontend contract groundwork added with explicit supplier/items/pending assumption/scenario, closed scoped source digest and exact milli-unit arithmetic/coverage checks. Build and focused contract test pass, including conditional pending quantities and rehashed damage refusal. Retained original/recovery, form/source reads and actual browser acceptance remain open. Gates PARTIAL.
 
 Marketing real browser evidence now established: signed API/official BASE desktop/tablet2 PASS53.6s, selected recorded audience and literal email template, one native DRAFT, lost acknowledgement/reload recovery with no second write and no delivery authority. Exact subject/body/native original checked. Screenshots inspected, fixture removed/listeners0. SMS/push, multi-page/large catalogue and adverse cases remain open; reorder interface and other acceptance work still required. Gates PARTIAL.

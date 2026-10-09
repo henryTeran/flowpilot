@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {revenueOriginalFingerprint as hash} from "../src/revenue-scenario-utils";
-import {validReorderPreview,validReorderSelection} from "../src/copilot-reorder-utils";
+import {validReorderPreview,validReorderSelection,validReorderReceipt,type ReorderRequest} from "../src/copilot-reorder-utils";
 test("reorder projection binds explicit assumption, source digest and exact stock arithmetic",async()=>{
   const selection={supplier_id:"supplier",item_ids:["item"],pending_order_assumption:"ignore_pending_orders",scenario:null};
   const raw={institute_id:"own",selection,coverage:"not_applicable",items:[{item_id:"item",unit:"ml",on_hand:"1.250",threshold:"5.000",pending_order_quantity:"2.000",known_demand:"0.000",complete_demand:null,proposed_quantity:"3.750"}],source_digest:"a".repeat(64),basis:"original_stock_shortfalls_selected_scenario_and_explicit_pending_assumption_not_supplier_quote",effect:"reorder_proposal_only_no_order_contact_payment_receipt_or_stock_write"};
@@ -9,4 +9,12 @@ test("reorder projection binds explicit assumption, source digest and exact stoc
   const conditional={...raw,selection:{...selection,pending_order_assumption:"all_pending_orders_received"},items:[{...raw.items[0],proposed_quantity:"1.750"}]};assert.ok(await validReorderPreview(await seal(conditional),"own"));
   for(const change of [{items:[{...raw.items[0],proposed_quantity:"4.000"}]},{coverage:"complete_selected_norms"},{items:[{...raw.items[0],complete_demand:"0.000"}]},{items:[{...raw.items[0],unit:"unit"}]},{effect:"purchase_order_created"}])assert.equal(await validReorderPreview(await seal({...raw,...change}),"own"),false);
   assert.equal(await validReorderPreview(await seal(raw),"foreign"),false);assert.equal(validReorderSelection({...selection,item_ids:["item","item"]}),false);assert.equal(validReorderSelection({...selection,automatic_purchase:true}),false);
+});
+test("retained reorder original binds actor, exact recovery terms, chronology and proposal-only projection",async()=>{
+  const selection:ReorderRequest["selection"]={supplier_id:"supplier",item_ids:["item"],pending_order_assumption:"ignore_pending_orders",scenario:null};
+  const raw={institute_id:"own",selection,coverage:"not_applicable",items:[{item_id:"item",unit:"unit",on_hand:"1.000",threshold:"4.000",pending_order_quantity:"2.000",known_demand:"0.000",complete_demand:null,proposed_quantity:"3.000"}],source_digest:"a".repeat(64),basis:"original_stock_shortfalls_selected_scenario_and_explicit_pending_assumption_not_supplier_quote",effect:"reorder_proposal_only_no_order_contact_payment_receipt_or_stock_write"};
+  const preview={...raw,captured_at:"2026-10-09T12:00:00.123456Z",state_fingerprint:await hash(raw)},request:ReorderRequest={selection,expected_state_fingerprint:preview.state_fingerprint,reason:"Proposition relue",idempotency_key:"proposal-key"};
+  const original={...request,id:"proposal",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T12:00:00.123457Z",preview},seal=async(o:any)=>({original:o,fingerprint:await hash(o)});assert.ok(await validReorderReceipt(await seal(original),"own",request,"manager"));
+  for(const change of [{actor_id:"other"},{institute_id:"foreign"},{created_at:"2026-10-09T12:00:00.123455Z"},{selection:{...selection,supplier_id:"other"}},{expected_state_fingerprint:"0".repeat(64)},{order_created:true}])assert.equal(await validReorderReceipt(await seal({...original,...change}),"own",request,"manager"),false);
+  for(const change of [{reason:"Different reason"},{idempotency_key:"other"},{selection:{...selection,pending_order_assumption:"all_pending_orders_received" as const}}])assert.equal(await validReorderReceipt(await seal(original),"own",{...request,...change},"manager"),false);
 });

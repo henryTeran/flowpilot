@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_ORIGINAL_UI_CONTRACT_FOUNDATION:
+- Added distinct proposal request/native original/receipt checks. Signed institute/actor, canonical exact selection, retained reason/key/fingerprint and capture-before-creation chronology bound to validated proposal-only preview and original SHA. Extra order-execution claims refused. No cancellation/booking/marketing original reuse.
+- Build PASS and two reorder contract tests PASS: rehashed wrong actor/scope/supplier/clock/source fingerprint/order effect and changed exact recovery terms refused. Original/recovery integration, form/source selection/scenario and actual API/BASE browser acceptance remain required. Goal ACTIVE; gates PARTIAL.
+
 PHASE20_REORDER_PREVIEW_UI_CONTRACT_FOUNDATION:
 - Added distinct stock proposal selection/preview contract: explicit supplier/unique1..50 items, pending-order assumption and optional closed scenario. Canonical scenario instants, scoped capture, complete/partial/no-scenario coverage, exact item set, original source/projection digests and milli-unit shortfall arithmetic checked. Whole-unit fractions refused; pending-order assumption remains conditional, no purchase/receipt/physical-stock authority.
 - Build PASS and focused contract test PASS: both pending assumptions and exact3.750/1.750 quantities accepted; rehashed wrong quantity/coverage/completeness/unit/effect, foreign scope and duplicate/extra selection refused. This is preview groundwork; retained original/recovery/form/source reads and populated API/BASE browser acceptance remain required. Goal ACTIVE; phase gates PARTIAL.
