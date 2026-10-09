@@ -137,7 +137,7 @@ def decide(db, principal, institute, candidate):
             operation = operations.Original.model_validate(current.operation.original)
             if current.expired:
                 raise business_error("Expired operation cannot be approved")
-            preview = sensitive.preview(db, principal, institute, operation.selection)
+            preview = operations.current_preview(db, principal, institute, operation)
             now = utcnow()
             if preview.state_fingerprint != operation.expected_state_fingerprint or now >= operation.valid_until:
                 raise business_error("Changed or expired operation must be prepared again")

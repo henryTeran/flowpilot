@@ -93,6 +93,16 @@ The existing outlook reader supplies exact recorded stock, reorder thresholds, p
 
 ## Remaining phase gates
 
+### Retained appointment creation preparation (20P)
+
+Manager-only `/copilot/preparation-capabilities`, `/copilot/prepare-preview` and `/copilot/prepare` expose APPOINTMENT_CREATE at level2. Both request paths use the pinned official BASE router and accept only its `appointment-create` process; unrelated language routes are refused. All booking terms come from explicit UI fields, never extracted from the message. Exact IDs/text and aware ISO instants are validated, UTC-normalized and rehydrated before use. The preview calls the shared appointment domain and resource kernels without booking mutations.
+
+The operation reuses existing SensitiveOperationOriginal retention, original request/actor/idempotency checks and signed institute scope. It binds every submitted term, checked interval and conditional resource IDs to its SHA and retains explicit validity/reason. That SHA describes the eligible projection, not every database fact. Preparation rechecks eligibility and stores a pending original; it does not create a booking, reserve a resource or approve itself. The existing approval manager now dispatches the capability-specific current preview and rejects a changed interval/resource projection, ineligible sources or expired original. Historical recovery retains the original capture rather than recapturing.
+
+The current executor explicitly refuses APPOINTMENT_CREATE even after approval because its atomic creation execution is not registered yet. Cancellation receipt/execution paths require a cancellation original and retain their prior contract. Operational audit correlates signed scope, interaction and source/receipt digest without raw message or booking/contact text. This checkpoint does not close PREPARE for all four progressive capabilities or EXECUTE_GUARDED.
+
+Official corpus26 resources validates and48/48 routing examples pass. Actual signed SQLite/PostgreSQL creation preparation plus legacy original/approval/execution/race/rollback/recovery suite28 passed142.76s, zero failures/skips. Extended final creation suite2 passed31.62s, including retained-term substitution and capability relabelling refusal. A changed duration rejects approval; restored original duration permits an explicit decision. The approved creation still returns400 at execution, with no booking/event/resource rows. Exact receipt/recovery, actor/role/selection/routing/date/schema guards and pending/approval state are covered. Temporary schemas0 and owned55473 server stopped. PREPARE is PARTIAL; current packaged Linux acceptance and creation execution remain open.
+
 ### Appointment creation preview foundation (20O)
 
 The appointment domain exposes `preview_creation` for the upcoming Copilot preparation adapter. Creation and preview share the same institute-locked eligibility function: registered customer scope, existing service/employee qualification, past-time rule, recorded absences, assigned-ticket occupancy, active sessions and appointments, including overdue unknown occupancy. The preview uses the existing resource timeline/matching kernel and the same resource requirements as actual reservations. It returns the checked interval and conditional resource IDs without creating a booking, booking event or reservation.

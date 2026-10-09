@@ -4,6 +4,7 @@ from datetime import timezone, timedelta
 from pydantic import AwareDatetime, model_validator, field_validator
 from sqlalchemy import select
 from app.modules.base import read_capabilities as base, sensitive_capabilities as sensitive
+from app.modules.base import creation_capability as creation
 from app.modules.base.plans import Key, Reason, guard
 from app.modules.base.models import SensitiveOperationOriginal
 from app.modules.crm.metrics import Fact, Count
@@ -15,8 +16,8 @@ from app.shared.exceptions import business_error, not_found
 
 
 class Request(Fact):
-    capability: Literal["APPOINTMENT_CANCEL"]
-    selection: sensitive.Selection
+    capability: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE"]
+    selection: sensitive.Selection | creation.Selection
     expected_state_fingerprint: base.Digest
     valid_until: base.matching.Horizon
     reason: Reason
@@ -29,6 +30,9 @@ class Request(Fact):
 
     @model_validator(mode="after")
     def exact_terms(self):
+        expected = sensitive.Selection if self.capability == "APPOINTMENT_CANCEL" else creation.Selection
+        if not isinstance(self.selection, expected):
+            raise ValueError("Selection must match the registered preparation capability")
         if any(v != v.strip() or any(ord(c) < 32 for c in v) for v in (self.reason, self.idempotency_key)):
             raise ValueError("Exact preparation reason and recovery key required")
         return self
@@ -39,13 +43,20 @@ class Original(Request):
     institute_id: base.ExactId
     actor_id: base.Actor
     created_at: AwareDatetime
-    preview: sensitive.Preview
+    preview: sensitive.Preview | creation.Preview
     effect: Literal["prepared_sensitive_operation_only_pending_human_approval_no_execution"] = "prepared_sensitive_operation_only_pending_human_approval_no_execution"
 
     @model_validator(mode="after")
     def binding(self):
-        if (self.preview.principal.actor_id, self.preview.principal.institute_id, self.preview.appointment_id, self.preview.state_fingerprint) != \
-                (self.actor_id, self.institute_id, self.selection.appointment_id, self.expected_state_fingerprint) or \
+        expected = sensitive.Preview if self.capability == "APPOINTMENT_CANCEL" else creation.Preview
+        if not isinstance(self.preview, expected):
+            raise ValueError("Preview must match the registered preparation capability")
+        if self.capability == "APPOINTMENT_CREATE" and self.preview.selection != self.selection:
+            raise ValueError("Creation preview must retain every exact submitted term")
+        if self.capability == "APPOINTMENT_CANCEL" and self.preview.appointment_id != self.selection.appointment_id:
+            raise ValueError("Cancellation preview must retain the selected appointment")
+        if (self.preview.principal.actor_id, self.preview.principal.institute_id, self.preview.state_fingerprint) != \
+                (self.actor_id, self.institute_id, self.expected_state_fingerprint) or \
                 self.created_at.utcoffset() != timedelta(0) or not self.preview.captured_at <= self.created_at < self.valid_until or self.capability != self.preview.capability.name:
             raise ValueError("Sensitive preparation requires its exact signed current selection and explicit validity")
         if self.id != self.id.strip() or any(ord(c) < 32 for c in self.id):
@@ -85,7 +96,7 @@ def _row(db, institute, field, value):
 def create(db, principal, institute, candidate):
     try:
         principal = guard(principal, institute)
-        request = Request.model_validate(candidate.model_dump() if isinstance(candidate, Request) else candidate)
+        request = Request.model_validate(candidate.model_dump(mode="json") if isinstance(candidate, Request) else candidate)
         lock_institute(db, institute)
         old = _row(db, institute, SensitiveOperationOriginal.idempotency_key, request.idempotency_key)
         if old:
@@ -94,11 +105,11 @@ def create(db, principal, institute, candidate):
             if Request(**{k: receipt.original[k] for k in Request.model_fields}) != request or original.actor_id != principal.actor_id:
                 raise business_error("Sensitive recovery key retains the original request and actor")
             return receipt
-        preview = sensitive.preview(db, principal, institute, request.selection)
+        preview = current_preview(db, principal, institute, request)
         now = utcnow()
         if preview.state_fingerprint != request.expected_state_fingerprint or request.valid_until <= now:
             raise business_error("Sensitive preparation requires fresh reviewed state and future explicit validity")
-        original = Original(**request.model_dump(), id=new_id("base_operation"), institute_id=institute,
+        original = Original(**request.model_dump(mode="json"), id=new_id("base_operation"), institute_id=institute,
             actor_id=principal.actor_id, created_at=now, preview=preview)
         raw = original.model_dump(mode="json")
         row = SensitiveOperationOriginal(id=original.id, institute_id=institute, actor_id=principal.actor_id,
@@ -113,6 +124,14 @@ def create(db, principal, institute, candidate):
     except Exception:
         db.rollback()
         raise
+
+
+def current_preview(db, principal, institute, operation):
+    if operation.capability == "APPOINTMENT_CANCEL":
+        return sensitive.preview(db, principal, institute, operation.selection)
+    if operation.capability == "APPOINTMENT_CREATE":
+        return creation.preview(db, principal, institute, operation.selection)
+    raise business_error("Unregistered sensitive preparation capability")
 
 
 def by_key(db, principal, institute, key):

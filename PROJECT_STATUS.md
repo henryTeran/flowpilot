@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20O_APPOINTMENT_CREATION_PREVIEW_FOUNDATION_PASS
+CURRENT_CHECKPOINT = PHASE20P_RETAINED_CREATION_PREPARATION_AND_APPROVAL_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,17 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+COPILOT_READ = PARTIAL
+COPILOT_SUGGEST = PARTIAL
+COPILOT_PREPARE = PARTIAL
+COPILOT_EXECUTE_GUARDED = OPEN
+
+PHASE20P_RETAINED_CREATION_PREPARATION_AND_APPROVAL:
+- Manager-only Copilot preparation discovery, preview and prepare endpoints route through official BASE appointment-create process. Explicit UI creation selection with exact terms/IDs/aware ISO instants; no message-derived dates/contact/IDs. Shared domain eligibility/resource preview remains authoritative. Separate level2 discovery exposes schemas, signed scope and operational audit requirements.
+- Extended existing pending-operation originals with typed CREATE selection/preview and exact term/capability binding, preserving cancellation originals. Original actor/request/idempotency/validity/reason/SHA and signed institute checks reused. Digest is the exact eligible interval/resource projection, not full database history. Existing approval manager rechecks current capability-specific preview; duration/resource changes or current ineligibility/expiry require a new preparation.
+- Preparation/approval do not book, reserve resources or create booking events. Existing cancellation executor explicitly refuses CREATE until its atomic execution is registered; cancellation receipts require cancellation originals. Native BASE receives only message/correlation, no UI booking terms.26 corpus resources validate and48/48 route examples pass.
+- Actual signed SQLite/PostgreSQL new preparation plus legacy original/approval/execution/race/rollback/recovery regression28 passed142.76s, zero failures/skips. Final creation suite2 passed31.62s with retained-term substitution and capability relabelling rejection; exact recovery/hash, current changed-duration approval refusal, role/selection/routing/schema guards, pending then explicit approval and approved-but-unregistered execution400 verified. Zero booking/event/resource rows despite retained preparation and approval. Temporary schemas0, owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for APPOINTMENT_CREATE retained preparation and explicit approval integration. NEXT atomic guarded creation execution, appointment move, marketing draft/reorder proposal; latest packaged Linux acceptance and initial-scope audit remain required. PREPARE now PARTIAL, EXECUTE_GUARDED OPEN; whole26-phase goal ACTIVE. No deployment/push/production or external message claim.
 
 PHASE20O_APPOINTMENT_CREATION_PREVIEW_FOUNDATION:
 - Extracted original appointment creation eligibility into shared institute-locked domain check, used by actual creation and new read-only preview_creation. Existing customer/service/employee/qualification/time/absence/assigned-ticket/session/appointment checks retained, including overdue unknown occupancy. Preview uses the existing resource timelines/matching kernel; resource needs shared with actual reservation. No copied Copilot scheduling rules.

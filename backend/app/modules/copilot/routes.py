@@ -6,6 +6,10 @@ from app.modules.base.read_capabilities import signed_principal
 from app.modules.copilot import query as orchestration
 from app.modules.base import audit
 from app.modules.waitlist.originals import fingerprint
+from app.modules.copilot import preparation
+from app.modules.base import creation_capability as creation
+from app.modules.base.plans import guard
+from app.modules.waitlist.originals import Envelope
 
 router = APIRouter(prefix="/copilot", tags=["copilot"])
 
@@ -25,3 +29,23 @@ def capabilities(user=Depends(require_ticket_manager)):
 def query(body: orchestration.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
     principal = signed_principal(user, user.get("institute_id"))
     return orchestration.read(db, principal, body)
+
+
+@router.get("/preparation-capabilities", response_model=tuple[preparation.Capability, ...])
+def preparation_capabilities(user=Depends(require_ticket_manager)):
+    principal = signed_principal(user, user.get("institute_id"))
+    guard(principal, principal.institute_id)
+    with audit.trace(principal, "copilot_preparation_capabilities", {}) as span:
+        result = (preparation.Capability(),)
+        span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
+        return result
+
+
+@router.post("/prepare-preview", response_model=creation.Preview)
+def prepare_preview(body: preparation.PreviewRequest, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return preparation.preview(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.post("/prepare", response_model=Envelope)
+def prepare(body: preparation.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return preparation.prepare(db, signed_principal(user, user.get("institute_id")), body)

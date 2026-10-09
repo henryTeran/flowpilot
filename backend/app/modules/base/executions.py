@@ -89,6 +89,8 @@ def verify(db, principal, institute, row, now):
             raise ValueError("Canonical execution columns/clock mismatch")
         state = approvals.state(db, principal, institute, original.operation_id, _now=now)
         operation = operations.Original.model_validate(state.operation.original)
+        if operation.capability != "APPOINTMENT_CANCEL":
+            raise ValueError("Cancellation receipt requires a cancellation operation")
         approval = next((v for v in state.decisions if v.original["id"] == original.approval_id), None)
         if state.operation.fingerprint != original.operation_fingerprint or approval is None or \
                 approval.fingerprint != original.approval_fingerprint or approval.original["decision"] != "approve" or \
@@ -129,6 +131,8 @@ def execute(db, principal, institute, candidate):
                 last is None or (request.approval_id, request.approval_fingerprint) != (last.original["id"], last.fingerprint):
             raise business_error("Execution requires the exact current approved operation")
         operation = operations.Original.model_validate(state.operation.original)
+        if operation.capability != "APPOINTMENT_CANCEL":
+            raise business_error("Execution is not registered for this preparation capability")
         before = sensitive.preview(db, principal, institute, operation.selection)
         if before.state_fingerprint != operation.expected_state_fingerprint or utcnow() >= operation.valid_until:
             raise business_error("Changed or expired operation cannot execute")
