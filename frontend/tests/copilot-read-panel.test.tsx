@@ -217,6 +217,18 @@ test("loss consultation binds selected period and shows uncertainty without a fi
   try{await render(root);await settle();await fill("Consultation","REVENUE_LOSS_ANALYSIS");await fill("Début de période","2026-10-08");await fill("Fin de période exclue","2026-10-09");await fill("Votre question","Examiner les pertes enregistrees");await click("Consulter");assert.deepEqual(queries[0].ui_context,period);assert.match(document.body.textContent!,/2 annulation/);assert.match(document.body.textContent!,/3 événement/);assert.match(document.body.textContent!,/perte financière causale non établis/);await fill("Début de période","2026-10-07");assert.equal(document.querySelector('[aria-label="Réponse du Copilot"]'),null);}finally{await act(async()=>root.unmount());}
 });
 
+test("opportunity responses bind explicit capacity source, capture, action boundary and canonical hash",async()=>{
+  const selection={opportunity_source:"capacity" as const,service_id:"service",horizon_end:"2026-10-09T11:00:00Z"};
+  const source={institute_id:"own",service_id:"service",captured_at:clock,horizon_end:selection.horizon_end,opportunity:null,unavailable_reason:"capacity_unknown"};
+  const response=await answer("REVENUE_OPPORTUNITIES",source);
+  assert.ok(await validReadResponse(response,"own","REVENUE_OPPORTUNITIES",selection));
+  assert.equal(await validReadResponse(response,"own","REVENUE_OPPORTUNITIES",{opportunity_source:"rebooking"}),false);
+  assert.equal(await validReadResponse(response,"own","REVENUE_OPPORTUNITIES",{...selection,customer_id:"customer"}),false);
+  assert.equal(await validReadResponse({...response,actions:[{execute:true}]},"own","REVENUE_OPPORTUNITIES",selection),false);
+  assert.equal(await validReadResponse({...response,evidence:{...response.evidence,fingerprint:"0".repeat(64)}},"own","REVENUE_OPPORTUNITIES",selection),false);
+  assert.equal(await validReadResponse(await answer("REVENUE_OPPORTUNITIES",{...source,captured_at:"2026-10-09T10:00:00.123455Z"}),"own","REVENUE_OPPORTUNITIES",selection),false);
+});
+
 test("DOM: unauthorized presentation or mismatched selected institute makes no request",async () => {
   let calls=0;globalThis.fetch=async () => {calls++;return reply(discovery());};
   const root=createRoot(document.getElementById("root")!);

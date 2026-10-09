@@ -187,7 +187,7 @@ function Consultations({ institute, timezone, employees, services }: Props) {
   return <section className="copilot-panel" aria-label="Copilot"><h2>Consulter avec le Copilot</h2>
     <form onSubmit={event => { event.preventDefault(); void consult(); }}>
       <fieldset disabled={busy || !available.length}><label>Consultation<select value={name} onChange={event => { edit(); setName(event.target.value as ReadName | ""); setCustomer(""); setChoices([]); setService(""); }}>
-        <option value="">Choisir une consultation</option>{available.map(value => <option key={value} value={value}>{readLabels[value]}</option>)}</select></label>
+        <option value="">Choisir une consultation</option>{available.map(value => <option key={value} value={value}>{readLabels[value as keyof typeof readLabels]}</option>)}</select></label>
         {customerMode && <><label>Rechercher une cliente<input value={customerQuery} maxLength={160} onChange={event => { edit(); setCustomerQuery(event.target.value); setChoices([]); setCustomer(""); }} /></label>
           <button type="button" disabled={customerQuery.trim().length < 2} onClick={() => void search()}>Rechercher les clientes</button>
           <label>Cliente<select value={customer} onChange={event => { edit(); setCustomer(event.target.value); }}><option value="">Choisir une cliente</option>{choices.map(row => <option key={row.id} value={row.id}>{row.display_name}</option>)}</select></label>

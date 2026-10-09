@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_OPPORTUNITY_RESPONSE_GATE_INCREMENT:
+- Connected all original opportunity variants to common signed-scope response validation: exclusive typed selection delegates to original source guard, then evidence capture/completion/action/framework and canonical SHA checks. Capability type includes opportunities while discovery presentation still excludes this mode until its form/rendering exists.
+- Final build PASS after correcting label indexing for a not-yet-presented capability; combined Copilot/opportunity12 tests PASS. New full-response tests verify explicit capacity selection, wrong variant, extra customer context, changed microsecond capture, action and hash refusals. No frontend language routing added. Actual opportunity form/rendering and browser acceptance remain outstanding; full goal ACTIVE, gates PARTIAL.
+
 PHASE20_OPPORTUNITY_SOURCE_SELECTION_FOUNDATION:
 - Added closed exclusive OpportunitySelection for all three original variants: selected service/horizon capacity, institute rebooking, or selected observed-period closures. Shared fact guard delegates exclusively to validRevenueSlot, validReturnOpportunities or validFollowUps and binds original capture. No new language router or eligibility engine.
 - Build PASS and three focused opportunity-source tests PASS. Explicit mixed-source selections, missing horizon, empty closure period, wrong scope/capture and extra contact context refused. Actual Copilot form/evidence integration and all three UI/browser acceptance remain outstanding; whole goal ACTIVE, all phase gates PARTIAL.
