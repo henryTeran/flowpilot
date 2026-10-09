@@ -1,6 +1,13 @@
-CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20Y_PROGRESSIVE_COPILOT_UI_ACCEPTANCE_PARTIAL
+CURRENT_PHASE = PHASE 21
+CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
+
+PHASE20_SCOPED_CLOSURE:
+- Master Plan41 all12 consultations/all4 progressive capabilities reconciled with current package67/frontend584 and native desktop/tablet evidence. All four Copilot gates PASS at controlled scope; exact progressive closure matrix in COPILOT_PHASE20_GATE_AUDIT.md. Production/physical/provider quality remain unproven. Phase21 Voice opens with existing app.ai ports; transcript-to-official-BASE integration and real audio acceptance not yet established. Whole26-phase goal ACTIVE. Historical checkpoint partial statements below superseded only at scoped Phase20 acceptance.
+
+VOICE_TRANSCRIPTION = PARTIAL
+VOICE_INTENT = PARTIAL
+VOICE_BASE_INTEGRATION = PARTIAL
 
 PHASE20_MARKETING_DAMAGED_PREVIEW_ACCEPTANCE:
 - Marketing damaged-preview refusal/recovery acceptance:2 PASS50.5s desktop/tablet (.cache/20-marketing-damaged-browser.log). Real signed API/pinned official BASE original preview fetched; browser transport alters recipient_count only. Interface refuses contradiction against independently read immutable audience/template, shows no preview/retain control. Restored native response permits preview with exact literal subject/body; one retention and lost-ack recovery yield exactly one new DRAFT/no delivery authorization/external message. Two preview POSTs and one retention POST only. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. This completes named marketing damaged-preview gap; final progressive gate reconciliation next. READ/SUGGEST PASS at controlled scope, PREPARE/EXECUTE currently PARTIAL, whole goal ACTIVE.
@@ -335,11 +342,11 @@ BASE_PHASE = PASS
 BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and final13+9 gate audit17V
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
-COPILOT_PHASE = PARTIAL
+COPILOT_PHASE = PASS
 COPILOT_READ = PASS
 COPILOT_SUGGEST = PASS
-COPILOT_PREPARE = PARTIAL
-COPILOT_EXECUTE_GUARDED = PARTIAL
+COPILOT_PREPARE = PASS
+COPILOT_EXECUTE_GUARDED = PASS
 
 PHASE20Y_INITIAL_COPILOT_READ_UI:
 - Added lazy Copilot App/sidebar entry for reception/manager and signed-institute presentation guard. Four initial consultations implemented: CLIENT_READ, PLANNING_READ, PLANNING_GAPS, STOCK_READ. Empty mode/question/customer defaults, explicit owned customer search/selection and optional explicit service. Discovery only on mount; no implicit domain query. Question goes to existing official BASE query API; no frontend language classifier. Editing input clears evidence; institute/token/timezone remount and sequence checks discard old results.

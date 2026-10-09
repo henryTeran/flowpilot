@@ -1,5 +1,24 @@
 # Phase 20 completion audit
 
+## Phase 20 scoped closure (source101ebd7)
+
+All four Master Plan41 gates PASS at controlled signed API/official BASE/desktop-tablet scope. Whole-project production readiness remains unproven and goal remains ACTIVE. The source/projection limits in the initial capability table remain part of accepted behavior, not silently removed requirements.
+
+| Progressive requirement | Authoritative evidence reviewed |
+| --- | --- |
+| APPOINTMENT_CREATE preview/preparation/separate approval/atomic execution | test_copilot_creation_prepare_20p.py, test_copilot_creation_execute_20q.py; copilot-creation-panel.spec.ts native exact booking/resource terms, one booking and lost-ack reload receipt |
+| Creation denied transitions and expiry | Same packaged API tests pending/revoked/expired/source/role/schema checks; browser decline in creation-panel, creation-revocation and creation-expiry: no booking/reservation before valid execution |
+| APPOINTMENT_MOVE preview/history/source binding/atomic same-ID effect | test_copilot_move_prepare_20s.py, test_copilot_move_execute_20t.py; move-panel and move-targets preserve original metadata/linked customer, changed employee/service duration and original room release |
+| Move stale source/decision/expiry and recovery | move-source-change, move-revocation, move-stale-approval, move-expiry: real native source edit/independent peer revocation/actual elapsed deadline, no invalid move, independent absence verification after definitive rejection |
+| MARKETING_CAMPAIGN_DRAFT literal original audience/template DRAFT only | test_copilot_marketing_20v.py, test_marketing_draft_preview_20u.py; marketing-panel/SMS/push-refusal/pagination/damaged browser cases: exact historical sources/literal text, channel eligibility, damaged response refusal, one retained DRAFT after lost reply, no delivery |
+| STOCK_REORDER_PROPOSAL separate typed original/no purchase or stock effect | test_copilot_reorder_20w.py, test_reorder_migration_20w.py; reorder-panel/scenario/supplier/pagination/maximum/refusal/damaged/ambiguous/remount browser cases: frozen exact sources, partial coverage, bounded catalogue/50 items, one retained proposal and independent recovery, native stock/movements/orders unchanged |
+| PostgreSQL races/rollback/integrity | Current packaged67 checks include actual creation/move same/different-key races and rollback, marketing two-thread same-key/atomic rollback and reorder race/source/rollback/migration cases. Browser ordered peer revocation is distinct from simultaneous DB race evidence. |
+
+Existing full frontend584 and current packaged67 regressions cover unchanged production sources; subsequent commits add browser evidence/docs only. Individual terminal browser results and reviewed screenshots are recorded below. No aggregate all-browser/whole-backend regression, physical tablet, remote provider inference quality, production migration/deployment or bank settlement is claimed. These remain separate production/phase26 scopes. No push/contact/purchase performed.
+
+Phase21 next: audio through app.ai SpeechToTextProvider, validated transcript, pinned official BASE intent, explicit typed capability selection and domain guards. Transcription never invents authority, selects business IDs or performs an automatic sensitive action. Real transcription acceptance remains required; provider-disabled and fake tests cannot prove Voxtral audio quality.
+
+
 Marketing damaged-preview refusal/recovery acceptance:2 PASS50.5s desktop/tablet (.cache/20-marketing-damaged-browser.log). Real signed API/pinned official BASE original preview fetched; browser transport alters recipient_count only. Interface refuses contradiction against independently read immutable audience/template, shows no preview/retain control. Restored native response permits preview with exact literal subject/body; one retention and lost-ack recovery yield exactly one new DRAFT/no delivery authorization/external message. Two preview POSTs and one retention POST only. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. This completes named marketing damaged-preview gap; final progressive gate reconciliation next. READ/SUGGEST PASS at controlled scope, PREPARE/EXECUTE currently PARTIAL, whole goal ACTIVE.
 
 
@@ -237,8 +256,8 @@ CREATE/MOVE share original signed-scope/current-approval/expiry/key/source check
 | --- | --- | --- |
 | COPILOT_READ | PASS at controlled signed API/BASE/UI scope | No remaining scoped consultation gap; production gates separate |
 | COPILOT_SUGGEST | PASS at controlled signed API/BASE/UI scope | No remaining scoped suggestion gap; production gates separate |
-| COPILOT_PREPARE | PARTIAL: all4 reviewed forms and scoped frozen recovery mounted; actual positive browser paths | Remaining marketing channel/historical page/adverse variants and named source/session variants; current package67 PASS |
-| COPILOT_EXECUTE_GUARDED | PARTIAL: separate human decisions/atomic CREATE/MOVE/receipt recovery mounted and positive browser paths proved | Decision revocation/expiry/source/race browser acceptance; changed target/customer2 PASS and current database/package67 PASS |
+| COPILOT_PREPARE | PASS at controlled signed API/BASE/UI scope | Four reviewed original preparations and recovery/adverse proof; production gates separate |
+| COPILOT_EXECUTE_GUARDED | PASS at controlled signed API/BASE/UI scope | Separate exact CREATE/MOVE approval, native atomic effects, refusal/recovery and DB races proved; production gates separate |
 
 At the20X baseline, `frontend/src/App.tsx` and `FlowPilotSidebar.tsx` had no general Copilot entry.20Y now adds that entry and four consultations, described below. `BaseCancellationPanel.tsx` still covers historical cancellation only; it does not prove CREATE/MOVE/marketing/reorder UI. Existing domain panels cannot substitute for proof that the Copilot interaction uses official BASE and these contracts. No phase closure is claimed from backend API tests or this partial UI alone.
 

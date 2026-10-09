@@ -1718,6 +1718,9 @@ Clôture de fondation le 9 octobre 2026 : [audit 19E et preuves d’image](../ar
 
 # 41. Phase 20 — FlowPilot Copilot
 
+Phase20 scoped closure: READ/SUGGEST/PREPARE/EXECUTE_GUARDED PASS based on the final requirement matrix in COPILOT_PHASE20_GATE_AUDIT.md, current packaged67/frontend584 and individual native desktop/tablet cases. Historical partial/pending paragraphs below are superseded at controlled Copilot scope. Phase21 Voice is next; whole26-phase goal ACTIVE. No production deployment, physical acceptance or remote inference quality claim.
+
+
 Marketing damaged-preview refusal/recovery acceptance:2 PASS50.5s desktop/tablet (.cache/20-marketing-damaged-browser.log). Real signed API/pinned official BASE original preview fetched; browser transport alters recipient_count only. Interface refuses contradiction against independently read immutable audience/template, shows no preview/retain control. Restored native response permits preview with exact literal subject/body; one retention and lost-ack recovery yield exactly one new DRAFT/no delivery authorization/external message. Two preview POSTs and one retention POST only. Tablet screenshot inspected; fixture removed/listeners0/terminal exit0. No production change; packaged67/frontend584 remain current. This completes named marketing damaged-preview gap; final progressive gate reconciliation next. READ/SUGGEST PASS at controlled scope, PREPARE/EXECUTE currently PARTIAL, whole goal ACTIVE.
 
 
