@@ -1,7 +1,32 @@
 import {validSupplier,type Supplier} from "./supplier-utils";
-import {validOutlookItems,type OutlookItem,type Outlook} from "./outlook-utils";
+import {validOutlook,validOutlookItems,type OutlookItem,type Outlook} from "./outlook-utils";
 import {revenueOriginalFingerprint as hash} from "./revenue-scenario-utils";
-import {validReorderPreview,type ReorderPreview} from "./copilot-reorder-utils";
+import {validReorderSelection,validReorderPreview,type ReorderPreview,type ReorderSelection} from "./copilot-reorder-utils";
+// Recorded-stock reads only: scenario sources require independently checked recipe originals.
+export async function readRecordedReorderSources(institute:string,selection:ReorderSelection,get:(path:string)=>Promise<unknown>,current:()=>boolean):Promise<{supplier:Supplier;rows:OutlookItem[];demands:Outlook["demands"]}|undefined>{
+  if(!validReorderSelection(selection) || selection.scenario!==null || !current())return;
+  const base=`/inventory/institutes/${encodeURIComponent(institute)}`;
+  const supplier=await get(`${base}/suppliers/${encodeURIComponent(selection.supplier_id)}`);
+  if(!current())return;
+  if(!validSupplier(supplier,institute) || supplier.id!==selection.supplier_id)throw Error("Invalid selected supplier original");
+  const rows:OutlookItem[]=[],seen=new Set<string>(),skus=new Set<string>();
+  for(let offset=0;offset<=100000;offset+=50){
+    if(!current())return;
+    const page=await get(`${base}/outlook?limit=50&offset=${offset}`);
+    if(!current())return;
+    if(!validOutlook(page,institute,offset,undefined,50))throw Error("Invalid recorded stock page");
+    for(const row of page.items){
+      if(seen.has(row.item_id) || skus.has(row.item_sku))throw Error("Repeated stock source across pages");
+      seen.add(row.item_id);skus.add(row.item_sku);
+      if(selection.item_ids.includes(row.item_id))rows.push(row);
+    }
+    if(page.items.length<50){
+      if(rows.length!==selection.item_ids.length)throw Error("Selected stock source missing");
+      return {supplier,rows,demands:[]};
+    }
+  }
+  throw Error("Recorded stock pagination did not finish");
+}
 // Bind the compact proposal to the supplier and full original stock projection read by the UI.
 export async function validReorderSources(preview:ReorderPreview,institute:string,supplier:Supplier,rows:OutlookItem[],demands:Outlook["demands"]):Promise<boolean>{
   try{

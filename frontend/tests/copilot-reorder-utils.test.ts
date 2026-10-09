@@ -2,7 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {revenueOriginalFingerprint as hash} from "../src/revenue-scenario-utils";
 import {validReorderPreview,validReorderSelection,validReorderReceipt,type ReorderRequest} from "../src/copilot-reorder-utils";
-import {validReorderSources} from "../src/copilot-reorder-sources";
+import {readRecordedReorderSources,validReorderSources} from "../src/copilot-reorder-sources";
+test("recorded reorder sources read beyond page one and refuse repeated, missing or stale sources",async()=>{
+  const supplier={id:"supplier",institute_id:"own",actor_id:"manager",created_at:"2026-10-09T11:00:00Z",reference:"SUP",name:"Supplier",reason:"Supplier reviewed",idempotency_key:"supplier-key"};
+  const row=(i:number)=>({item_id:`item-${i}`,item_sku:`SKU-${i}`,item_name:"Item",category:"cabine",unit:"unit",on_hand:"1.000",threshold:"4.000",at_or_below_threshold:true,threshold_shortfall:"3.000",pending_order_quantity:"0.000",known_demand:"0.000",complete_demand:null,known_demand_shortfall:"3.000",conditional_shortfall_after_all_orders:"3.000"});
+  const selection={supplier_id:"supplier",item_ids:["item-50","item-0"],pending_order_assumption:"ignore_pending_orders" as const,scenario:null};
+  const page=(offset:number,items:unknown[])=>({institute_id:"own",generated_at:"2026-10-09T12:00:00Z",starts_at:null,ends_at:null,source:"recorded_stock",coverage:"not_applicable",demands:[],limit:50,offset,items});
+  const calls:string[]=[];
+  const get=async(path:string)=>{calls.push(path);return path.includes("suppliers/")?supplier:path.endsWith("offset=0")?page(0,Array.from({length:50},(_,i)=>row(i))):page(50,[row(50)]);};
+  const result=await readRecordedReorderSources("own",selection,get,()=>true);
+  assert.deepEqual(result?.rows.map(r=>r.item_id),["item-0","item-50"]);assert.equal(calls.length,3);
+  await assert.rejects(readRecordedReorderSources("own",selection,async p=>p.endsWith("offset=50")?page(50,[row(0)]):get(p),()=>true),/Repeated/);
+  await assert.rejects(readRecordedReorderSources("own",{...selection,item_ids:["missing"]},get,()=>true),/missing/);
+  let active=true,writes=0;
+  assert.equal(await readRecordedReorderSources("own",selection,async()=>{writes++;active=false;return supplier;},()=>active),undefined);assert.equal(writes,1);
+});
 test("reorder projection binds explicit assumption, source digest and exact stock arithmetic",async()=>{
   const selection={supplier_id:"supplier",item_ids:["item"],pending_order_assumption:"ignore_pending_orders",scenario:null};
   const raw={institute_id:"own",selection,coverage:"not_applicable",items:[{item_id:"item",unit:"ml",on_hand:"1.250",threshold:"5.000",pending_order_quantity:"2.000",known_demand:"0.000",complete_demand:null,proposed_quantity:"3.750"}],source_digest:"a".repeat(64),basis:"original_stock_shortfalls_selected_scenario_and_explicit_pending_assumption_not_supplier_quote",effect:"reorder_proposal_only_no_order_contact_payment_receipt_or_stock_write"};

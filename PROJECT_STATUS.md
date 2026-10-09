@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_REORDER_RECORDED_SOURCE_READER:
+- Added scoped native supplier and paginated recorded-stock reads, preserving source row order and supporting selected items beyond the first50. Invalid pages, duplicate IDs/SKUs across pages, missing selected rows and stale session callbacks refused. Explicitly limited to scenario=null; selected recipe originals and scenario source reads remain required.
+- Build PASS and seven combined reorder contract/recovery/source tests PASS, including selection across pages and duplicate/missing/stale sources. Reader is not yet mounted in a form; full scenario UI and actual API/BASE browser acceptance remain outstanding. Goal ACTIVE; phase gates PARTIAL.
+
 PHASE20_REORDER_SOURCE_BINDING_FOUNDATION:
 - Added compact proposal binding to independently supplied native supplier and complete selected original stock rows/demands. Exact supplier identity, selected item set/order, original quantities and conditional shortfall fields checked; full supplier/demand/item SHA must match retained source_digest. This helper does not itself fetch or certify source provenance; form must use validated native reads and selected recipe originals.
 - Build and six combined proposal contract/driver tests PASS, including changed independent supplier name/item name refused despite unchanged compact projection. Actual paginated source reads, scenario recipe binding, form and real API/BASE browser evidence remain outstanding. Goal ACTIVE; gates PARTIAL.
