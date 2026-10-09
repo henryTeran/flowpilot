@@ -2,6 +2,9 @@ CURRENT_PHASE = PHASE 21
 CURRENT_CHECKPOINT = PHASE21A_VOICE_PIPELINE_FOUNDATION
 STATUS = ACTIVE
 
+PHASE21A_VOICE_INTENT_PREVIEW_FOUNDATION:
+- Internal manager-scoped service validates bounded audio through existing app.ai transcription boundary, preserves exact transcript and routes through pinned official BASE. Silent audio never routes; disabled/failed provider and over2000-character intent refused without leaking provider details. No domain read/preparation/execution occurs in this preview; explicit reviewed capability handoff remains next. Focused5 PASS0.75s, official BASE exercised with deterministic fake transcript, not real speech recognition. No HTTP/UI or Voxtral audio-quality acceptance yet; Voice gates PARTIAL, whole goal ACTIVE. Production source changed: earlier package67 proves Phase20 baseline, not this new Voice service.
+
 PHASE20_SCOPED_CLOSURE:
 - Master Plan41 all12 consultations/all4 progressive capabilities reconciled with current package67/frontend584 and native desktop/tablet evidence. All four Copilot gates PASS at controlled scope; exact progressive closure matrix in COPILOT_PHASE20_GATE_AUDIT.md. Production/physical/provider quality remain unproven. Phase21 Voice opens with existing app.ai ports; transcript-to-official-BASE integration and real audio acceptance not yet established. Whole26-phase goal ACTIVE. Historical checkpoint partial statements below superseded only at scoped Phase20 acceptance.
 
