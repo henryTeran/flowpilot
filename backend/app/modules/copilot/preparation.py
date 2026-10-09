@@ -2,7 +2,7 @@
 from typing import Literal
 from fastapi import HTTPException
 from app.modules.crm.metrics import Fact
-from app.modules.base import query, upstream, creation_capability as creation, sensitive_originals as operations
+from app.modules.base import query, upstream, creation_capability as creation, sensitive_originals as operations, executions
 from app.modules.base.plans import guard
 from app.modules.base import audit
 
@@ -61,4 +61,16 @@ def prepare(db, principal, candidate, router=None):
             raise HTTPException(400, "Routed preparation and explicit operation must match")
         result = operations.create(db, principal, principal.institute_id, request.operation)
         span.result("prepared_pending_approval", "APPOINTMENT_CREATE", result.fingerprint)
+        return result
+
+
+def execute(db, principal, candidate):
+    principal = guard(principal, principal.institute_id)
+    request = executions.Request.model_validate(candidate.model_dump(mode="json") if isinstance(candidate, executions.Request) else candidate)
+    with audit.trace(principal, "copilot_execute", request.model_dump(mode="json")) as span:
+        operation = operations.Original.model_validate(operations.require(db, principal, principal.institute_id, request.operation_id).original)
+        if operation.capability != "APPOINTMENT_CREATE":
+            raise HTTPException(400, "Copilot execution capability is not registered")
+        result = executions.execute(db, principal, principal.institute_id, request)
+        span.result("executed", "APPOINTMENT_CREATE", result.fingerprint)
         return result

@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20P_RETAINED_CREATION_PREPARATION_AND_APPROVAL_PASS
+CURRENT_CHECKPOINT = PHASE20Q_ATOMIC_GUARDED_APPOINTMENT_CREATION_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -11,7 +11,14 @@ COPILOT_PHASE = PARTIAL
 COPILOT_READ = PARTIAL
 COPILOT_SUGGEST = PARTIAL
 COPILOT_PREPARE = PARTIAL
-COPILOT_EXECUTE_GUARDED = OPEN
+COPILOT_EXECUTE_GUARDED = PARTIAL
+
+PHASE20Q_ATOMIC_GUARDED_APPOINTMENT_CREATION:
+- Registered CREATE beside the original CANCEL executor, sharing exact current approval, validity, signed scope, operation/version/key/actor and fresh eligibility checks. Copilot execution discovery/explicit-reference endpoint manager-only, source/receipt digest audit without raw booking/message data. Execution is an explicit action on reviewed originals, not a message-derived approval.
+- Original appointments.create_appointment supports caller-owned commit=False; unchanged default API commit/replay behavior. Atomic adapter verifies actual initial booking snapshot and normalized saved metadata, exact reserved resource IDs/intervals and single created event. Booking, resource, event and execution receipt committed once; receipt failure rolls back all, lost post-commit acknowledgement recovers without duplicate effects.
+- Historical receipt binds typed creation effect to original approval/event/time/SHA, not current booking status or physical occupancy. Old captured execution_registered=false preview metadata decodes without rewriting its SHA. Current registry controls support. Saved metadata digest and resource transaction check do not imply independent immutable resource history, contact or payment.
+- Actual SQLite/PostgreSQL creation/prepare/cancellation/domain-preview combined regression22 passed220.14s, zero failures/skips. Extended current creation suite8 passed44.75s: pending/revoked/expired refusals, current resource maintenance/forged approval/role/schema denial, exact saved terms, one effect under same/different-key races, full pre-commit rollback and post-commit lost-ack recovery. Final integrity suite2 passed23.22s: backdated event rejected even after both hashes recomputed; restoration/historical recovery after later cancellation and expiry succeeds without recapture or new booking. Temporary schemas0 and owned55473 PostgreSQL stopped.
+- CHECKPOINT_STATUS = PASS for APPOINTMENT_CREATE guarded atomic execution. NEXT APPOINTMENT_MOVE, MARKETING_CAMPAIGN_DRAFT, STOCK_REORDER_PROPOSAL preparation/guarded execution, remaining initial scope audit and latest packaged Linux acceptance. READ/SUGGEST/PREPARE/EXECUTE_GUARDED PARTIAL; whole26-phase goal ACTIVE. No deployment/push/production or external contact claim.
 
 PHASE20P_RETAINED_CREATION_PREPARATION_AND_APPROVAL:
 - Manager-only Copilot preparation discovery, preview and prepare endpoints route through official BASE appointment-create process. Explicit UI creation selection with exact terms/IDs/aware ISO instants; no message-derived dates/contact/IDs. Shared domain eligibility/resource preview remains authoritative. Separate level2 discovery exposes schemas, signed scope and operational audit requirements.

@@ -1,4 +1,4 @@
-"""Closed atomic APPOINTMENT_CANCEL executor, after exact approval and reread."""
+"""Closed atomic booking executors, after exact approval and current reread."""
 from datetime import timedelta, timezone
 from types import MappingProxyType
 from typing import Literal
@@ -19,14 +19,15 @@ from app.shared.exceptions import business_error
 
 
 class Capability(Fact):
-    name: Literal["APPOINTMENT_CANCEL"] = "APPOINTMENT_CANCEL"
+    name: Literal["APPOINTMENT_CANCEL", "APPOINTMENT_CREATE"] = "APPOINTMENT_CANCEL"
     level: Literal[3] = 3
     roles: tuple[Literal["responsable_institut"], ...] = ("responsable_institut",)
     authority: Literal["exact_retained_operation_latest_approval_future_validity_fresh_source"] = "exact_retained_operation_latest_approval_future_validity_fresh_source"
-    service: Literal["appointments.service.cancel_appointment_commit_false"] = "appointments.service.cancel_appointment_commit_false"
+    service: Literal["appointments.service.cancel_appointment_commit_false", "appointments.service.create_appointment_commit_false"] = "appointments.service.cancel_appointment_commit_false"
 
 
-REGISTRY = MappingProxyType({"APPOINTMENT_CANCEL": Capability()})
+REGISTRY = MappingProxyType({"APPOINTMENT_CANCEL": Capability(), "APPOINTMENT_CREATE": Capability(
+    name="APPOINTMENT_CREATE", service="appointments.service.create_appointment_commit_false")})
 
 
 class Request(Fact):
@@ -77,10 +78,12 @@ def event_raw(event):
 
 
 def verify(db, principal, institute, row, now):
+    from app.modules.base import creation_execution as creation
     try:
-        if row.institute_id != institute or fingerprint(row.original) != row.fingerprint:
+        if not isinstance(row.original, dict) or row.institute_id != institute or fingerprint(row.original) != row.fingerprint:
             raise ValueError("Execution ownership/raw SHA mismatch")
-        original = Original.model_validate(row.original)
+        is_creation = row.original.get("effect") == "appointment_created_through_existing_service_no_contact_or_payment"
+        original = (creation.Original if is_creation else Original).model_validate(row.original)
         if original.model_dump(mode="json") != row.original or \
                 (original.id, original.institute_id, original.operation_id, original.approval_id, original.booking_event_id,
                  original.idempotency_key, original.actor_id, original.created_at) != \
@@ -89,8 +92,10 @@ def verify(db, principal, institute, row, now):
             raise ValueError("Canonical execution columns/clock mismatch")
         state = approvals.state(db, principal, institute, original.operation_id, _now=now)
         operation = operations.Original.model_validate(state.operation.original)
-        if operation.capability != "APPOINTMENT_CANCEL":
-            raise ValueError("Cancellation receipt requires a cancellation operation")
+        if operation.capability != ("APPOINTMENT_CREATE" if is_creation else "APPOINTMENT_CANCEL"):
+            raise ValueError("Execution receipt must match the operation capability")
+        if is_creation and original.before.selection != operation.selection:
+            raise ValueError("Creation receipt must retain the exact prepared selection")
         approval = next((v for v in state.decisions if v.original["id"] == original.approval_id), None)
         if state.operation.fingerprint != original.operation_fingerprint or approval is None or \
                 approval.fingerprint != original.approval_fingerprint or approval.original["decision"] != "approve" or \
@@ -98,12 +103,13 @@ def verify(db, principal, institute, row, now):
                 not approvals.Original.model_validate(approval.original).created_at <= original.before.captured_at <= original.created_at < operation.valid_until:
             raise ValueError("Execution requires its exact historical approved operation and validity")
         event = db.scalar(select(BookingEvent).where(BookingEvent.id == original.booking_event_id,
-            BookingEvent.institute_id == institute, BookingEvent.appointment_id == operation.selection.appointment_id)
+            BookingEvent.institute_id == institute, BookingEvent.appointment_id == (original.appointment_id if is_creation else operation.selection.appointment_id))
             .execution_options(populate_existing=True))
-        if event is None or event.event_type != "cancelled" or event.actor_id != original.actor_id or \
+        if event is None or event.event_type != ("created" if is_creation else "cancelled") or event.actor_id != original.actor_id or \
                 fingerprint(event_raw(event)) != original.booking_event_fingerprint or explicit_utc_instant(event.occurred_at) > original.created_at or \
-                sensitive.Snapshot.model_validate(event.before).model_dump(mode="json") != original.before.appointment or \
-                Result.model_validate(event.after) != original.after:
+                (is_creation and explicit_utc_instant(event.occurred_at) < original.before.captured_at) or \
+                (event.before is not None if is_creation else sensitive.Snapshot.model_validate(event.before).model_dump(mode="json") != original.before.appointment) or \
+                (creation.Result if is_creation else Result).model_validate(event.after) != original.after:
             raise ValueError("Execution booking-event proof requires verification")
         return Envelope(original=row.original, fingerprint=row.fingerprint)
     except (ValueError, TypeError, KeyError, OverflowError, StopIteration) as error:
@@ -131,30 +137,24 @@ def execute(db, principal, institute, candidate):
                 last is None or (request.approval_id, request.approval_fingerprint) != (last.original["id"], last.fingerprint):
             raise business_error("Execution requires the exact current approved operation")
         operation = operations.Original.model_validate(state.operation.original)
-        if operation.capability != "APPOINTMENT_CANCEL":
+        if operation.capability not in REGISTRY:
             raise business_error("Execution is not registered for this preparation capability")
-        before = sensitive.preview(db, principal, institute, operation.selection)
+        before = operations.current_preview(db, principal, institute, operation)
         if before.state_fingerprint != operation.expected_state_fingerprint or utcnow() >= operation.valid_until:
             raise business_error("Changed or expired operation cannot execute")
-        event_ids = set(db.scalars(select(BookingEvent.id).where(BookingEvent.institute_id == institute,
-            BookingEvent.appointment_id == operation.selection.appointment_id)))
-        appointment = cancel_appointment(db, operation.selection.appointment_id, principal.actor_id, commit=False)
-        events = [v for v in db.scalars(select(BookingEvent).where(BookingEvent.institute_id == institute,
-            BookingEvent.appointment_id == appointment.id)) if v.id not in event_ids]
-        if len(events) != 1:
-            raise business_error("Cancellation must produce one exact booking event")
-        now = utcnow()
-        if now >= operation.valid_until:
+        if operation.capability == "APPOINTMENT_CREATE":
+            from app.modules.base import creation_execution as creation
+            original = creation.perform(db, principal, request, before)
+        else:
+            original = perform_cancellation(db, principal, institute, request, operation, before)
+        if original.created_at >= operation.valid_until:
             raise business_error("Operation validity elapsed before execution confirmation")
-        original = Original(**request.model_dump(), id=new_id("base_execution"), institute_id=institute,
-            actor_id=principal.actor_id, created_at=now, before=before, after=Result.model_validate(snapshot(appointment)),
-            booking_event_id=events[0].id, booking_event_fingerprint=fingerprint(event_raw(events[0])))
         raw = original.model_dump(mode="json")
         row = ExecutionOriginal(id=original.id, institute_id=institute, operation_id=request.operation_id,
             approval_id=request.approval_id, booking_event_id=original.booking_event_id, actor_id=principal.actor_id,
-            idempotency_key=request.idempotency_key, created_at=now, original=raw, fingerprint=fingerprint(raw))
+            idempotency_key=request.idempotency_key, created_at=original.created_at, original=raw, fingerprint=fingerprint(raw))
         db.add(row); db.flush()
-        receipt = verify(db, principal, institute, row, now)
+        receipt = verify(db, principal, institute, row, original.created_at)
         db.commit()
         return receipt
     except ValueError as error:
@@ -163,6 +163,22 @@ def execute(db, principal, institute, candidate):
     except Exception:
         db.rollback()
         raise
+
+
+def perform_cancellation(db, principal, institute, request, operation, before):
+    event_ids = set(db.scalars(select(BookingEvent.id).where(BookingEvent.institute_id == institute,
+        BookingEvent.appointment_id == operation.selection.appointment_id)))
+    appointment = cancel_appointment(db, operation.selection.appointment_id, principal.actor_id, commit=False)
+    events = [v for v in db.scalars(select(BookingEvent).where(BookingEvent.institute_id == institute,
+        BookingEvent.appointment_id == appointment.id)) if v.id not in event_ids]
+    if len(events) != 1:
+        raise business_error("Cancellation must produce one exact booking event")
+    now = utcnow()
+    if now >= operation.valid_until:
+        raise business_error("Operation validity elapsed before execution confirmation")
+    return Original(**request.model_dump(), id=new_id("base_execution"), institute_id=institute,
+        actor_id=principal.actor_id, created_at=now, before=before, after=Result.model_validate(snapshot(appointment)),
+        booking_event_id=events[0].id, booking_event_fingerprint=fingerprint(event_raw(events[0])))
 
 
 def by_key(db, principal, institute, key):

@@ -209,7 +209,7 @@ def preview_creation(db: Session, payload: AppointmentCreate):
     return preview_appointment_resources(db, payload.institute_id, payload.service_id, start, end)
 
 
-def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None) -> Appointment:
+def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | None = None, *, commit: bool = True) -> Appointment:
     lock_institute(db, payload.institute_id)
     if len(payload.customer_name.strip()) < 2:
         raise business_error("Le nom de la cliente est requis")
@@ -252,7 +252,10 @@ def create_appointment(db: Session, payload: AppointmentCreate, actor_id: str | 
     from app.modules.resources.reservations import reserve_appointment
     reserve_appointment(db, appointment, start_time, end_time)
     record_booking_event(db, appointment, "created", None, actor_id)
-    return save_appointment(db, appointment)
+    if commit:
+        return save_appointment(db, appointment)
+    db.flush()
+    return appointment
 
 
 def update_appointment(db: Session, appointment_id: str, payload: AppointmentUpdate, actor_id: str | None = None) -> Appointment:

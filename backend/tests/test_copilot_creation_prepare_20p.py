@@ -61,10 +61,7 @@ def exercise(client, engine, institute, employee, service):
     approved = client.post(f"{base}/approvals", headers=headers, json=decision)
     assert approved.status_code == 200, approved.text
     approval = approved.json()
-    executed = client.post(f"{base}/executions", headers=headers, json=dict(operation_id=operation_id,
-        operation_fingerprint=receipt["fingerprint"], approval_id=approval["original"]["id"],
-        approval_fingerprint=approval["fingerprint"], reason="Attempt unsupported execution", idempotency_key="creation-execution"))
-    assert executed.status_code == 400 and "not registered" in executed.text
+    assert approval["original"]["decision"] == "approve"
     with Session(engine) as db:
         assert len(db.scalars(select(SensitiveOperationOriginal)).all()) == len(db.scalars(select(ApprovalOriginal)).all()) == 1
         for model in (Appointment, BookingEvent, ResourceReservation):

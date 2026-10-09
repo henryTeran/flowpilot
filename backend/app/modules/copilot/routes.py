@@ -8,6 +8,7 @@ from app.modules.base import audit
 from app.modules.waitlist.originals import fingerprint
 from app.modules.copilot import preparation
 from app.modules.base import creation_capability as creation
+from app.modules.base import executions
 from app.modules.base.plans import guard
 from app.modules.waitlist.originals import Envelope
 
@@ -49,3 +50,18 @@ def prepare_preview(body: preparation.PreviewRequest, user=Depends(require_ticke
 @router.post("/prepare", response_model=Envelope)
 def prepare(body: preparation.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
     return preparation.prepare(db, signed_principal(user, user.get("institute_id")), body)
+
+
+@router.get("/execution-capabilities", response_model=tuple[executions.Capability, ...])
+def execution_capabilities(user=Depends(require_ticket_manager)):
+    principal = signed_principal(user, user.get("institute_id"))
+    guard(principal, principal.institute_id)
+    with audit.trace(principal, "copilot_execution_capabilities", {}) as span:
+        result = (executions.REGISTRY["APPOINTMENT_CREATE"],)
+        span.fields["audit_response_digest"] = fingerprint([value.model_dump(mode="json") for value in result])
+        return result
+
+
+@router.post("/execute", response_model=Envelope)
+def execute(body: executions.Request, user=Depends(require_ticket_manager), db: Session = Depends(get_db)):
+    return preparation.execute(db, signed_principal(user, user.get("institute_id")), body)
