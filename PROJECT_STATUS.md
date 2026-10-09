@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_OPPORTUNITY_PASSIVE_VIEW_INCREMENT:
+- Added passive display component for all three validated opportunity source variants: conditional slot and queue uncertainty/no reservation, CRM cohort counts/first20 care due candidates/no contact, booking/walk-in first20 references with separate capture clocks and retained commercial values/no recovery claim. Component issues no request and exposes no action controls.
+- Build PASS; targeted render test PASS for unavailable capacity, incomplete CRM care, retained CHF commercial value/separate clocks and absence of action controls. Component is not yet mounted by Copilot form; integrated controls and actual browser acceptance remain outstanding. Full goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_OPPORTUNITY_RESPONSE_GATE_INCREMENT:
 - Connected all original opportunity variants to common signed-scope response validation: exclusive typed selection delegates to original source guard, then evidence capture/completion/action/framework and canonical SHA checks. Capability type includes opportunities while discovery presentation still excludes this mode until its form/rendering exists.
 - Final build PASS after correcting label indexing for a not-yet-presented capability; combined Copilot/opportunity12 tests PASS. New full-response tests verify explicit capacity selection, wrong variant, extra customer context, changed microsecond capture, action and hash refusals. No frontend language routing added. Actual opportunity form/rendering and browser acceptance remain outstanding; full goal ACTIVE, gates PARTIAL.
