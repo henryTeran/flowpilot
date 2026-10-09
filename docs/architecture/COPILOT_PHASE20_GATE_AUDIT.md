@@ -1,6 +1,6 @@
 # Phase 20 completion audit
 
-Increment after20Y: CLIENT_SUMMARY now has selected-customer UI, original CRM profile validation and passive observed/unavailable presentation. Build and targeted five-test DOM suite pass. Its actual API/BASE browser and retained-policy visual acceptance remain pending; do not count this increment as a closed phase gate. Other seven initial UI capabilities and four progressive flows remain outstanding.
+Increment after20Y: CLIENT_SUMMARY now has selected-customer UI, original CRM profile validation and passive observed/unavailable presentation. Build and targeted five-test DOM suite pass. Real signed SQLite API/official BASE browser suite6 passes desktop/tablet, including retained-policy identity, selected customer NEW classification, observed zero-ticket window, no phone, only query POST and unchanged policy. Both screenshots inspected; fixture cleaned/listeners0. Other seven initial UI capabilities and four progressive flows remain outstanding; all phase gates remain partial.
 
 Audit baseline: commit524c554, Master Plan §41, signed APIs and frontend inspected9 October2026. This audit preserves all12 initial and4 progressive capabilities. Registering names or passing an isolated test does not close a phase gate. Backend service coverage is distinguished from operator-facing acceptance.
 

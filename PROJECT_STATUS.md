@@ -3,6 +3,7 @@ CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
 PHASE20_CRM_SUMMARY_UI_INCREMENT:
+- Real signed SQLite API/official BASE browser verification now PASS:6 tests across desktop/tablet, including all four20Y modes and selected-customer CRM summary bound to an actual retained policy. New registered customer classified NEW, observed zero-ticket window displayed, phone omitted, only query POST and unchanged policy original. Desktop/tablet screenshots inspected; owned fixture removed and4198/4199 listeners0. Log:.cache/20-crm-browser.log. This is not proof of all CRM classifications or completion of the phase.
 - Added explicit selected-customer CLIENT_SUMMARY consultation through the existing official BASE query API. Reuses original CRM profile validation, adds closed profile/registration keys and exact evidence capture binding. Passive display preserves absent-policy/unavailable states, observed window, separate currencies, unknown amounts and incomplete history. No additional domain fetch, mutation or contact.
 - Frontend build PASS; targeted Copilot DOM/response suite5 passed (including absent-policy presentation and rehashed wrong customer/clock/history/extra-field refusals). Real browser coverage for this new CRM mode and retained-policy display remains outstanding;20Y browser proof covers its original four modes only. Current checkpoint remains20Y; all Copilot gates PARTIAL, whole goal ACTIVE.
 

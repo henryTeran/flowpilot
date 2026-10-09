@@ -81,3 +81,41 @@ test("reception consults through BASE and rejects damaged evidence before showin
   await expect(panel.getByRole("heading",{name:"Précisions nécessaires",exact:true})).toBeVisible();
   await expect(panel.locator("table")).toHaveCount(0);
 });
+
+test("CRM summary uses the real retained policy and selected customer without mutation",async ({page,request},info) => {
+  const session = await request.post(`${api}/auth/login`,{data:{email:"manager@browser.example.com",password:"Browser-test-only-2026"}});
+  expect(session.status()).toBe(200);
+  const headers = {Authorization:`Bearer ${(await session.json()).access_token}`};
+  const identity = `CRM Copilot ${info.project.name}`;
+  const created = await request.post(`${api}/customers/institutes/${institute}`,{headers,data:{display_name:identity,phone:"+33999111222",idempotency_key:`crm-copilot-${info.project.name}`}});
+  expect(created.status()).toBe(200);const customer = await created.json();
+  const before = await request.get(`${api}/crm/institutes/${institute}/segment-policies/current`,{headers});
+  expect(before.status()).toBe(200);const previous = await before.json();
+  const day = 86400000000;
+  const retained = await request.post(`${api}/crm/institutes/${institute}/segment-policies`,{headers,data:{
+    policy:{institute_id:institute,observation_us:365*day,new_customer_us:30*day,at_risk_us:60*day,dormant_us:90*day,loyal_min_tickets:3,vip_min_tickets:5,vip_currency:"CHF",vip_gross_minor:"10000"},
+    previous_policy_id:previous?.id ?? null,reason:"Explicit CRM browser fixture",idempotency_key:`crm-policy-copilot-${info.project.name}`}});
+  expect(retained.status(),await retained.text()).toBe(200);const policy = await retained.json();
+  const panel = await login(page), posts:string[]=[];
+  page.on("request",r => {if(r.method()==="POST") posts.push(r.url());});
+  await panel.getByRole("combobox",{name:"Consultation",exact:true}).selectOption("CLIENT_SUMMARY");
+  await panel.getByRole("textbox",{name:"Rechercher une cliente",exact:true}).fill(identity);
+  await panel.getByRole("button",{name:"Rechercher les clientes",exact:true}).click();
+  await panel.getByRole("combobox",{name:"Cliente",exact:true}).selectOption(customer.id);
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Resumer le profil CRM cliente");
+  const result = page.waitForResponse(r => r.url().endsWith("/copilot/query") && r.request().method()==="POST");
+  await panel.getByRole("button",{name:"Consulter",exact:true}).click();
+  const response = await result;expect(response.status()).toBe(200);
+  const evidence = (await response.json()).evidence;
+  expect(evidence.capability).toBe("CLIENT_SUMMARY");expect(evidence.result.customer_id).toBe(customer.id);
+  expect(evidence.result.policy_original.id).toBe(policy.id);
+  const facts = panel.getByRole("region",{name:"Réponse du Copilot",exact:true});
+  await expect(facts).toContainText("Nouvelle cliente");await expect(facts).toContainText("historique complet");
+  await expect(facts).toContainText("0 ticket(s) clôturé(s)");await expect(panel).not.toContainText("+33999111222");
+  expect(posts).toEqual([`${api}/copilot/query`]);
+  await page.screenshot({path:info.outputPath("copilot-crm.png"),fullPage:true});
+  const after = await request.get(`${api}/crm/institutes/${institute}/segment-policies/current`,{headers});
+  expect((await after.json()).id).toBe(policy.id);
+  await panel.getByRole("textbox",{name:"Votre question",exact:true}).fill("Autre question");
+  await expect(facts).toHaveCount(0);
+});
