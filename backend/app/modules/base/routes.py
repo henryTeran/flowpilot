@@ -113,7 +113,7 @@ def context(institute_id: str, body: base.Invocation, user: base.Principal = Dep
 
 @router.post("/intents/resolve", response_model=intents.Resolution)
 def intent(institute_id: str, body: intents.Request, user: base.Principal = Depends(principal)):
-    return intents.resolve(user, institute_id, body)
+    return intents.resolve(user, institute_id, body, interpreter=intents.UpstreamInterpreter())
 
 
 @router.post("/plans", response_model=RetainedEnvelope)

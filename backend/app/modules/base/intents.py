@@ -5,6 +5,7 @@ from unicodedata import combining, normalize
 from fastapi import HTTPException
 from pydantic import Field, StringConstraints, model_validator
 from app.modules.base import read_capabilities as base
+from app.modules.base import upstream
 from app.modules.crm.metrics import Fact
 from app.modules.waitlist.originals import fingerprint
 
@@ -46,8 +47,19 @@ class Interpreter(Protocol):
         ...
 
 
+class UpstreamInterpreter:
+    """Public application language paths select methods through official BASE."""
+    processes = MappingProxyType({"waitlist-read": "WAITLIST_READ",
+        "waitlist-match": "WAITLIST_MATCH", "planning-optimization": "PLANNING_OPTIMIZATION"})
+
+    def propose(self, utterance, allowed):
+        route = upstream.OfficialRouter().resolve(utterance)
+        capability = self.processes.get(route.process_id) if route.status == "routed" and route.context_prepared else None
+        return Proposal(status="recognized", capabilities=(capability,)) if capability in allowed else Proposal(status="clarification")
+
+
 class LocalInterpreter:
-    """Conservative whole-utterance grammar, not a general language/LLM claim.
+    """Pure legacy contract-test fixture, not the public application router.
 
     Unrecognized wording, negation, mixed actions and instructions are clarified;
     substring detection never turns an arbitrary sentence into a tool call.

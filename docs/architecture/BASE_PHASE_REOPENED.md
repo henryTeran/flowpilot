@@ -57,3 +57,13 @@ La phase reste **PARTIAL**, `BASE_PHASE_REOPENED = true`. La fermeture des gates
 | TENANT_ISOLATION | PARTIAL | Références étrangères refusées avec SQLite; acceptation PostgreSQL à compléter |
 | BASE_READ_VERTICAL_SLICE | PASS | API authentifiée, runtime upstream et quatre services réels en local |
 | TESTS | PARTIAL | Tests ciblés locaux verts; régressions backend complètes/environnement cible ouverts |
+
+## Alignement des entrées historiques : checkpoint 17R
+
+Les requêtes `/base/institutes/{id}/intents/resolve` et les nouvelles préparations de plans utilisent maintenant `UpstreamInterpreter`, qui dépend du même bridge officiel. Trois procédures spécialisées upstream couvrent `WAITLIST_READ`, `WAITLIST_MATCH` et `PLANNING_OPTIMIZATION`. Le résolveur local historique reste un outil de tests de contrat isolés; aucune entrée applicative de langage ne l’utilise comme routeur.
+
+Le premier guide générique devient un document de référence. Cela supprime sa concurrence avec les procédures spécialisées sans réduire le seuil d’abstention du framework. La CLI valide 14 ressources et 25/25 exemples de routage après correction de deux ambiguïtés observées.
+
+Une nouvelle préparation nécessite BASE; une panne refuse la résolution sans repli indépendant. La récupération idempotente d’un plan déjà retenu vérifie et rend l’original sans rejouer la langue ni le framework. Un test avec panne réelle simulée du bridge démontre refus de la nouvelle préparation, absence d’original pour cette nouvelle clé et récupération exacte de la clé antérieure.
+
+Régression locale des intentions historiques, plans et requêtes : 46 tests réussis, 4 tests PostgreSQL non exécutés faute d’environnement configuré. Test dédié de récupération : 1 réussi. Le contrôle d’intention est raccordé; l’acceptation PostgreSQL et le packaging runtime restent ouverts. La phase n’est pas clôturée.

@@ -1,7 +1,7 @@
 ---
 schema_version: base.resource.v1
 id: consulter-flowpilot
-type: process
+type: document
 title: Consulter les faits FlowPilot
 description: Consulter une liste d'attente ou une proposition de planning vérifiée, sans mutation métier.
 use_when: Quand un manager demande de consulter la liste d'attente ou les propositions de planning de son institut.
@@ -9,16 +9,11 @@ scope: personal
 status: active
 sensitivity: internal
 keywords: [flowpilot, institut, attente, planning, consulter]
-routing:
-  examples:
-    - Consulter la liste d'attente FlowPilot
-    - Consulter les propositions de planning FlowPilot
-  avoid_when:
-    - Annuler une réservation ou modifier le planning.
-user-invocable: true
 ---
 
 # Consulter les faits FlowPilot
+
+Document de référence commun. Les procédures spécialisées portent désormais le routage applicatif; ce guide général ne choisit pas une capacité.
 
 1. Clarifier la demande si la capacité ou la sélection est ambiguë. Ne jamais déduire un droit, un institut ou un utilisateur du texte demandé.
 2. Obtenir le contexte de session authentifié depuis l'application. Le périmètre institut et les droits sont vérifiés par le serveur FlowPilot.

@@ -1,10 +1,16 @@
 CURRENT_PHASE = PHASE 17
-CURRENT_CHECKPOINT = PHASE17Q_UPSTREAM_READ_VERTICAL_SLICE
+CURRENT_CHECKPOINT = PHASE17R_UPSTREAM_LANGUAGE_ALIGNMENT
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = true
 BASE_PHASE = PARTIAL
 BASE_REOPEN_REASON = upstream documentation prepared; application runtime orchestration was incomplete
+
+PHASE17R_UPSTREAM_LANGUAGE_ALIGNMENT:
+- Legacy signed /intents/resolve and new retained plan preparations now explicitly use the same official upstream bridge; no public application language path uses the pure historical LocalInterpreter as its router. Three specialized resources select WAITLIST_READ/MATCH/PLANNING_OPTIMIZATION; signed selections/permissions and existing services retain authority.
+- General initial consultation guide reclassified as reference document to remove route competition. No ambiguity threshold weakened. Initial author-examples run exposed2 ambiguous routes (25/27); resource correction yields official corpus14 resources valid and25/25 lexical examples passing.
+- Local intention/plan/query regression46 passed40.16s,4 actual PostgreSQL cases skipped because environment unavailable, no failures. Dedicated new framework-outage/recovery test1 passed3.36s: new intent/plan refuses without independent fallback; same-key retained original recovers exactly; failed fresh-key preparation creates no original. Warnings are existing deprecation/intentional unsafe-copy only.
+- CHECKPOINT_STATUS = PARTIAL; BASE_PHASE_REOPENED remains true. Whole phase/environment closure not claimed. NEXT: deployable runtime packaging (historical backend image lacks Node/package/corpus), actual PostgreSQL acceptance and remaining gate audit. No persistent application mutation/migration, deployment or push; full26-phase goal ACTIVE.
 
 PHASE17Q_UPSTREAM_READ_VERTICAL_SLICE:
 - Audit of all 13 requested gates recorded in docs/architecture/BASE_PHASE_REOPENED.md. Earlier phases and historical 17A-17O application evidence retained; custom HTTP journal draft not restored.

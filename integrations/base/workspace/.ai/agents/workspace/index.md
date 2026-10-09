@@ -8,10 +8,6 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 
 ## Process
 
-### Consulter les faits FlowPilot: [`consulter-flowpilot`](skills/processes/consulter-flowpilot/SKILL.md)
-**Quand l'utiliser**: Quand un manager demande de consulter la liste d'attente ou les propositions de planning de son institut. Consulter la liste d'attente FlowPilot; Consulter les propositions de planning FlowPilot
-**Éviter si**: Annuler une réservation ou modifier le planning.
-
 ### Disponibilite des collaboratrices: [`employee-availability`](skills/processes/employee-availability/SKILL.md)
 **Quand l'utiliser**: Consulter la disponibilite des collaboratrices; Consulter la disponibilite des collaboratrices; Qui est disponible maintenant
 **Éviter si**: Modifier ou annuler une reservation.
@@ -19,6 +15,10 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 ### Importer l'existant: [`importer-l-existant`](skills/processes/importer-l-existant/SKILL.md)
 **Quand l'utiliser**: Quand l'utilisateur veut partir de ses documents existants: «importe mes procédures», «transforme ce mode d'emploi en process», «j'ai déjà tout dans un wiki». Importer mes procédures existantes; Transformer ce document en process; J'ai déjà un wiki, comment le réutiliser?
 **Éviter si**: Signaler un dysfonctionnement de l'assistant. Faire le point sur un dossier en service et dire ce qui pourrait aller mieux dans ses process.
+
+### Comparer les scores du planning: [`planning-optimization`](skills/processes/planning-optimization/SKILL.md)
+**Quand l'utiliser**: Optimiser le planning; Optimiser le planning; Comparer les scores du planning; Calculer les scores du planning; Optimize the schedule; Score the schedule
+**Éviter si**: Modifier ou annuler une reservation.
 
 ### Consulter le planning du jour: [`planning-read`](skills/processes/planning-read/SKILL.md)
 **Quand l'utiliser**: Consulter le planning du jour; Consulter le planning du jour; Afficher les sessions du jour
@@ -30,4 +30,12 @@ Choisissez le process dont le «Quand l'utiliser» couvre la demande. Respectez 
 
 ### Consulter la file operationnelle: [`queue-read`](skills/processes/queue-read/SKILL.md)
 **Quand l'utiliser**: Consulter la file operationnelle; Consulter la file operationnelle; Afficher la file des clientes
+**Éviter si**: Modifier ou annuler une reservation.
+
+### Trouver des creneaux de liste d attente: [`waitlist-match`](skills/processes/waitlist-match/SKILL.md)
+**Quand l'utiliser**: Chercher des creneaux pour la liste d'attente; Chercher des creneaux pour la liste d'attente; Trouver des creneaux pour la liste d'attente; Examiner les creneaux de la liste d'attente; Find slots for the waitlist
+**Éviter si**: Modifier ou annuler une reservation.
+
+### Lire, afficher ou consulter la liste d attente: [`waitlist-read`](skills/processes/waitlist-read/SKILL.md)
+**Quand l'utiliser**: Lire la liste d'attente; Lire la liste d'attente; Afficher la liste d'attente; Consulter la liste d'attente; Read the waitlist; Show the waitlist
 **Éviter si**: Modifier ou annuler une reservation.

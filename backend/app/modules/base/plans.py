@@ -131,7 +131,7 @@ def create(db, principal, institute, candidate):
             if terms != request or original.actor_id != principal.actor_id:
                 raise business_error("BASE recovery key retains the exact original request and actor")
             return receipt
-        resolution = intents.resolve(principal, institute, request.intent)
+        resolution = intents.resolve(principal, institute, request.intent, interpreter=intents.UpstreamInterpreter())
         if resolution.status != "ready":
             raise business_error("Clarify intent and select exactly one reference before preparing")
         # Explicit preparation captures existing service facts/refusals, never a new allocator.
