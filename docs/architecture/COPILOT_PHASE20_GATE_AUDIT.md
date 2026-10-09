@@ -1,5 +1,7 @@
 # Phase 20 completion audit
 
+Marketing real browser evidence now established: signed API/official BASE desktop/tablet2 PASS53.6s, selected recorded audience and literal email template, one native DRAFT, lost acknowledgement/reload recovery with no second write and no delivery authority. Exact subject/body/native original checked. Screenshots inspected, fixture removed/listeners0. SMS/push, multi-page/large catalogue and adverse cases remain open; reorder interface and other acceptance work still required. Gates PARTIAL.
+
 Current full frontend regression575 PASS,0 failures/skips120.13s with mounted marketing form (.cache/20-marketing-frontend.log). This does not establish populated form lifecycle or actual API/BASE browser acceptance; those remain required alongside reorder and other acceptance gaps. Gates PARTIAL.
 
 Marketing form now mounted for signed managers: explicit paginated original selection, full historical source read and official BASE preview, literal content/count, reason and separate retained DRAFT/frozen recovery controls. Build and24 targeted Copilot/marketing tests pass; new DOM coverage is discovery/empty catalogue/no-selection refusal only. Populated form lifecycle, full current frontend suite and real API/BASE browser acceptance remain outstanding. No approval/contact/delivery authority; gates PARTIAL.

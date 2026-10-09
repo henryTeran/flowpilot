@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_MARKETING_BROWSER_ACCEPTANCE:
+- Actual signed API/pinned official BASE desktop/tablet2 PASS53.6s (.cache/20-marketing-browser.log). Recorded permission, retained audience and literal original email template selected; preview rendered exact subject/body without interpolation. Native catalogue increases by one DRAFT only; deliberately lost POST acknowledgement then reload resumes same independent original without another write. Exactly preview/prepare browser POSTs; native revision external_message_sent=false/delivery_authorized=false. Final screenshots inspected, owned fixture removed/listeners4198/4199=0.
+- Full current frontend575 PASS remains valid: no production changes since that proof. Email/single retained page acceptance does not cover SMS/push, multi-page/large catalogue, rejection/source damage or all scope variants. Reorder interface and other populated/adverse acceptance remain open. Whole goal ACTIVE, phase gates PARTIAL.
+
 PHASE20_MARKETING_FULL_FRONTEND_REGRESSION:
 - Current full frontend575 PASS,0 failures/skips120.13s (.cache/20-marketing-frontend.log), including mounted marketing form and existing creation/move/read interfaces. This strengthens regression evidence only; populated marketing retention/recovery and actual signed API/official BASE browser acceptance remain required. Marketing browser fixture source paths inspected for the next real acceptance run. Whole goal ACTIVE; phase gates PARTIAL.
 
