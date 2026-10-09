@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from pydantic import AwareDatetime, ConfigDict, TypeAdapter, field_validator, model_validator
 from app.modules.base import audit, query, upstream, read_capabilities as identity
 from app.modules.crm import profile, rebooking
-from app.modules.copilot import planning, losses
+from app.modules.copilot import planning, losses, opportunities
 from app.modules.revenue import capacity, sources as revenue_sources, billing, slot_opportunities
 from app.modules.workforce import conflicts
 from app.modules.resources import conflicts as resource_conflicts
@@ -43,6 +43,7 @@ class Selection(Fact):
     end: AwareDatetime | None = None
     horizon_end: AwareDatetime | None = None
     scenario: Scenario | None = None
+    opportunity_source: Literal["capacity", "rebooking"] | None = None
 
     @field_validator("horizon_end", mode="before")
     @classmethod
@@ -77,8 +78,23 @@ class BillingSelection(Fact):
 
 
 class OpportunitySelection(Fact):
-    service_id: identity.ExactId
-    horizon_end: AwareDatetime
+    model_config = ConfigDict(extra="forbid", frozen=True, json_schema_extra={"oneOf": [
+        {"required": ["service_id", "horizon_end"], "properties": {
+            "opportunity_source": {"const": "capacity"}, "service_id": {"type": "string"}, "horizon_end": {"type": "string"}}},
+        {"required": ["opportunity_source"], "properties": {
+            "opportunity_source": {"const": "rebooking"}, "service_id": {"type": "null"}, "horizon_end": {"type": "null"}}},
+    ]})
+    opportunity_source: Literal["capacity", "rebooking"] = "capacity"
+    service_id: identity.ExactId | None = None
+    horizon_end: AwareDatetime | None = None
+
+    @model_validator(mode="after")
+    def source_selection(self):
+        if self.opportunity_source == "capacity" and (self.service_id is None or self.horizon_end is None):
+            raise ValueError("Capacity requires an explicit service and horizon")
+        if self.opportunity_source == "rebooking" and (self.service_id is not None or self.horizon_end is not None):
+            raise ValueError("Rebooking does not accept capacity selections")
+        return self
 
 
 class ForecastSelection(Fact):
@@ -130,7 +146,7 @@ class Capability(Fact):
 
 
 REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, level=level,
-    input_schema=INPUTS[name].model_json_schema(), output_schema=TypeAdapter(conflicts.Read | resource_conflicts.Read).json_schema() if name == "PLANNING_CONFLICTS" else output.model_json_schema(),
+    input_schema=INPUTS[name].model_json_schema(), output_schema=TypeAdapter(conflicts.Read | resource_conflicts.Read).json_schema() if name == "PLANNING_CONFLICTS" else TypeAdapter(slot_opportunities.Read | opportunities.Returns).json_schema() if name == "REVENUE_OPPORTUNITIES" else output.model_json_schema(),
     application_service=service) for name, permission, level, output, service in (
         ("CLIENT_READ", "customer_operator", 0, CustomerFacts, "customers.repository.require_customer"),
         ("CLIENT_SUMMARY", "crm_manager", 0, profile.SegmentProfile, "crm.profile.read"),
@@ -140,7 +156,7 @@ REGISTRY = MappingProxyType({name: Capability(name=name, permission=permission, 
         ("EMPLOYEE_CAPACITY", "capacity_manager", 0, capacity.Capacity, "revenue.capacity.read"),
         ("PLANNING_CONFLICTS", "capacity_manager", 0, conflicts.Read, "workforce.conflicts.read/resources.conflicts.read"),
         ("REVENUE_SUMMARY", "capacity_manager", 0, billing.Billing, "revenue.sources.read"),
-        ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read"),
+        ("REVENUE_OPPORTUNITIES", "capacity_manager", 1, slot_opportunities.Read, "revenue.slot_opportunities.read/copilot.opportunities.read_returns/revenue.rebooking.read"),
         ("REVENUE_LOSS_ANALYSIS", "capacity_manager", 0, losses.Read, "copilot.losses.read/revenue.closures/revenue.walk_in_cancellations"),
         ("STOCK_READ", "inventory_operator", 0, OutlookRead, "inventory.outlook.read"),
         ("STOCK_FORECAST", "inventory_operator", 1, OutlookRead, "inventory.outlook.read/explicit_scenario"))})
@@ -151,7 +167,7 @@ OUTPUT_TYPES = MappingProxyType({
     "CLIENT_REBOOKING_OPPORTUNITIES": rebooking.RebookingRead, "PLANNING_READ": query.PlanningFacts,
     "PLANNING_GAPS": planning.Gaps, "EMPLOYEE_CAPACITY": capacity.Capacity,
     "PLANNING_CONFLICTS": (conflicts.Read, resource_conflicts.Read), "REVENUE_SUMMARY": billing.Billing,
-    "REVENUE_OPPORTUNITIES": slot_opportunities.Read, "REVENUE_LOSS_ANALYSIS": losses.Read,
+    "REVENUE_OPPORTUNITIES": (slot_opportunities.Read, opportunities.Returns), "REVENUE_LOSS_ANALYSIS": losses.Read,
     "STOCK_READ": OutlookRead, "STOCK_FORECAST": OutlookRead,
 })
 
@@ -161,7 +177,7 @@ class Evidence(Fact):
     institute_id: identity.ExactId
     captured_at: AwareDatetime
     read_completed_at: AwareDatetime
-    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | losses.Read | OutlookRead
+    result: CustomerFacts | profile.SegmentProfile | rebooking.RebookingRead | query.PlanningFacts | planning.Gaps | capacity.Capacity | conflicts.Read | resource_conflicts.Read | billing.Billing | slot_opportunities.Read | opportunities.Returns | losses.Read | OutlookRead
     fingerprint: identity.Digest
     integrity: Literal["response_sha256_not_signature_or_retained_original"] = "response_sha256_not_signature_or_retained_original"
     complete_customer_history: Literal[False] = False
@@ -191,7 +207,7 @@ class Evidence(Fact):
         if isinstance(self.result, planning.Gaps) and (self.result.captured_at != self.captured_at
             or any(row.institute_id != self.institute_id for row in self.result.rows)):
             raise ValueError("Availability source scope and capture must match evidence")
-        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read, slot_opportunities.Read, losses.Read)) and (
+        if isinstance(self.result, (conflicts.Read, resource_conflicts.Read, slot_opportunities.Read, opportunities.Returns, losses.Read)) and (
             self.result.institute_id != self.institute_id or self.result.captured_at != self.captured_at):
             raise ValueError("Conflict source scope and capture must match evidence")
         return self
@@ -219,7 +235,7 @@ def read(db, principal, candidate, router=None):
         fields = {"CLIENT_READ": {"customer_id"}, "CLIENT_SUMMARY": {"customer_id"},
             "CLIENT_REBOOKING_OPPORTUNITIES": {"customer_id"}, "PLANNING_READ": set(),
             "PLANNING_GAPS": {"service_id"}, "EMPLOYEE_CAPACITY": {"day"}, "PLANNING_CONFLICTS": {"employee_id", "resource_id", "day"},
-            "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end"}, "REVENUE_LOSS_ANALYSIS": {"start", "end"},
+            "REVENUE_SUMMARY": {"start", "end"}, "REVENUE_OPPORTUNITIES": {"service_id", "horizon_end", "opportunity_source"}, "REVENUE_LOSS_ANALYSIS": {"start", "end"},
             "STOCK_READ": set(), "STOCK_FORECAST": {"scenario"}}
         if name and selected.keys() - fields[name]:
             raise HTTPException(400, "UI selection does not match the routed capability")
@@ -229,7 +245,9 @@ def read(db, principal, candidate, router=None):
         if name in {"REVENUE_SUMMARY", "REVENUE_LOSS_ANALYSIS"}:
             required = {"start", "end"}
         elif name == "REVENUE_OPPORTUNITIES":
-            required = {"service_id", "horizon_end"}
+            required = set() if request.ui_context.opportunity_source == "rebooking" else {"service_id", "horizon_end"}
+            if request.ui_context.opportunity_source == "rebooking" and ({"service_id", "horizon_end"} & selected.keys()):
+                raise HTTPException(400, "Rebooking source does not accept capacity selections")
         elif name == "STOCK_FORECAST":
             required = {"scenario"}
         missing_target = name == "PLANNING_CONFLICTS" and not (selected.get("employee_id") or selected.get("resource_id"))
@@ -289,11 +307,15 @@ def read(db, principal, candidate, router=None):
                 captured = result.captured_at
                 answer = "Annulations et absences enregistrées, avec les valeurs commerciales conservées. Perte financière causale indéterminée."
             elif name == "REVENUE_OPPORTUNITIES":
-                result = slot_opportunities.read(db, principal.institute_id, request.ui_context.service_id, request.ui_context.horizon_end)
+                if request.ui_context.opportunity_source == "rebooking":
+                    result = opportunities.read_returns(db, principal.institute_id)
+                    answer = f"{result.total_candidates} reprise(s) à examiner selon les soins observés et la politique CRM; vérifiez les permissions de contact et les créneaux."
+                else:
+                    result = slot_opportunities.read(db, principal.institute_id, request.ui_context.service_id, request.ui_context.horizon_end)
+                    answer = "Créneau projeté à examiner; vérifiez les horaires et la capacité avant toute affectation. Valeur financière inconnue."
+                    if result.unavailable_reason:
+                        answer = "Opportunité de capacité indisponible : " + result.unavailable_reason + "."
                 captured = result.captured_at
-                answer = "Créneau projeté à examiner; vérifiez les horaires et la capacité avant toute affectation. Valeur financière inconnue."
-                if result.unavailable_reason:
-                    answer = "Opportunité de capacité indisponible : " + result.unavailable_reason + "."
             elif name in {"STOCK_READ", "STOCK_FORECAST"}:
                 result = outlook.read(db, principal.institute_id, 50, 0,
                     request.ui_context.scenario if name == "STOCK_FORECAST" else None)

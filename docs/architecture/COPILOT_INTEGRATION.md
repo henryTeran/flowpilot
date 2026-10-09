@@ -63,6 +63,14 @@ REVENUE_OPPORTUNITIES reuses the existing commercial slot reader and its waiting
 
 The typed source retains capture time, required skills/resources, prior queue count and conditional projected slot. Estimated financial value stays null; capacity is not reserved and no assignment is executed. Opening hours and capacity must be checked again before any subsequent domain action. This is the commercial-capacity opportunity slice, not a claim that all revenue opportunities have been exhausted; closure follow-up, retained valuations and scenario integrations remain distinct sources for later scope audit.
 
+## Institute-wide rebooking opportunities (20M)
+
+REVENUE_OPPORTUNITIES also accepts the explicit UI source `rebooking`. The legacy default `capacity` still requires service/horizon; `rebooking` refuses those selections and uses the existing institute-wide revenue.rebooking reader. Conditional discovery input schemas and both typed output schemas expose this distinction. BASE remains the sole language router; the source is selected by the interface, not inferred from the message.
+
+The original reader controls policy selection, latest observed care, active-booking suppression and malformed-source refusal. The adapter returns full cohort counts/diagnostics and the first20 due candidates, with original policy/source IDs, original capture and a digest of the complete bounded reader response. It omits unrelated lifecycle, birthday, contact and actor declarations. Candidate scope, capture, rebooking trigger, care source, uniqueness and page count are validated. Estimated money stays null; contact permission, delivery and booking execution are not authorized. No SQL mutation or provider invocation occurs.
+
+Actual SQLite/PostgreSQL signed HTTP regression, including the original source fixture and unchanged capacity mode, passed5 tests in27.64s with zero failures/skips. It verifies23 due candidates/20 returned,1 already booked,1 invalid-care diagnostic, source/response digests, privacy, roles/selections and zero SQL writes. Official corpus25 resources and46 routing examples pass. Temporary schemas were0 and the owned55473 PostgreSQL server stopped. The20K packaged proof precedes this change; complete opportunity coverage and final packaged acceptance remain open.
+
 ## Closure-based loss analysis (20H)
 
 REVENUE_LOSS_ANALYSIS requires manager authorization and an explicit observed period. The adapter invokes both existing institute-locked source readers, which validate original booking closure transitions and retained walk-in cancellation terms across their full cohorts, including records beyond their returned pages. It projects full aggregate cancellation/no-show/unpriced counts, terminal bookings without events, retained terms/legacy counts and currency-separated recorded commercial amount groups. Customer, actor, booking/ticket/line dossiers and individual follow-up suggestions are omitted.

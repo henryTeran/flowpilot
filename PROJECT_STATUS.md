@@ -1,5 +1,5 @@
 CURRENT_PHASE = PHASE 20
-CURRENT_CHECKPOINT = PHASE20L_REGISTRY_AND_DISCOVERY_AUDIT_PASS
+CURRENT_CHECKPOINT = PHASE20M_INSTITUTE_REBOOKING_OPPORTUNITIES_PASS
 STATUS = ACTIVE
 
 BASE_PHASE_REOPENED = false
@@ -8,6 +8,12 @@ BASE_REOPEN_REASON = historical upstream/runtime gap resolved by17Q-17U and fina
 JV_PHASE = PASS
 AI_PROVIDER_PHASE = PASS
 COPILOT_PHASE = PARTIAL
+
+PHASE20M_INSTITUTE_REBOOKING_OPPORTUNITIES:
+- REVENUE_OPPORTUNITIES now accepts explicit UI source capacity (legacy default service/horizon) or rebooking (no capacity selections). Existing institute-wide revenue.rebooking reader remains authoritative: original CRM policy/latest observed care, already-booked suppression, full cohort counts/diagnostics and first20 due candidates. Minimal adapter excludes unrelated lifecycle/contact/actor declarations; source reader-response digest and capture retained. Money/contact/execution authority remain unknown/false; no provider call or SQL mutation.
+- Closed conditional input schema, union output schema/application-service metadata and candidate institute/capture/trigger/source/page guards. Official BASE process documents both explicit selections;25 resources validate and46/46 routing examples pass. No independent language router introduced.
+- Actual SQLite/PostgreSQL signed HTTP and original source regression5 passed27.64s, zero failures/skips.23 due candidates/20 returned,1 already booked and1 invalid care diagnostic; exact original digest, response SHA, privacy, selection/role/foreign-scope refusal and zero SQL writes verified. Temporary schemas0 and owned55473 server stopped.
+- CHECKPOINT_STATUS = PASS for observed institute-wide rebooking integration.20K packaged proof precedes20L/20M; final packaged regression must include latest changes. READ/SUGGEST remain PARTIAL pending remaining source-scope audit; PREPARE/EXECUTE_GUARDED OPEN. Whole26-phase goal ACTIVE; no production/deployment/push or external message claim.
 
 PHASE20L_REGISTRY_AND_DISCOVERY_AUDIT:
 - Each capability now declares signed-scope/interaction/source-digest/no-raw-message audit requirement. Authorized role-filtered Copilot discovery uses existing BASE trace with closed copilot_capabilities action, attempt/outcome and exact response-schema SHA; signed actor/institute and restored context. Authentication/role rejection remains before domain audit, existing HTTP logging unchanged. No durable/signature/retention or execution authority claim.
