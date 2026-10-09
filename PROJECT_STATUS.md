@@ -2,6 +2,10 @@ CURRENT_PHASE = PHASE 20
 CURRENT_CHECKPOINT = PHASE20Y_INITIAL_COPILOT_READ_UI_PASS
 STATUS = ACTIVE
 
+PHASE20_CONFLICT_UI_CONTRACT_FOUNDATION:
+- Added closed frontend validation for both original employee-commitment and resource-reservation conflict readers: selected institute/reference/day, DST-aware day bounds/capture, source digest/counts, false coverage/physical/booking markers, first50 count, distinct source pairs and exact clipped microsecond intersections. No new conflict detector or allocator.
+- Build PASS; two focused tests PASS for valid employee/resource evidence and wrong scope, digest, extra context, timing/arithmetic, source kind, duplicate pairs and authority refusal. Validator is not yet connected to Copilot controls/evidence rendering; UI/browser acceptance remains outstanding. Whole goal ACTIVE, all Copilot gates PARTIAL.
+
 PHASE20_CAPACITY_UI_INCREMENT:
 - Real signed API/official BASE browser capacity acceptance PASS desktop/tablet: suite10 passed1.2m. Explicit completed DST-transition day2025-10-26 bound to returned scope/day; empty date prevents submit, physical/bookable claims remain unavailable, only query POST and date edit clears evidence. Actual cohort has4 employees without usable hours; unknown duration correctly displayed. Screenshots inspected; owned fixture removed,4198/4199 listeners0. Log:.cache/20-capacity-browser.log. This does not prove populated-activity or all remaining phase requirements.
 - Added explicit completed-day EMPLOYEE_CAPACITY UI through official BASE with original validRevenueCapacity validation, selected-day/capture binding and canonical evidence SHA. Passive exact-duration display preserves unavailable attendance/physical/bookable capacity, uncertainty counts and first20 versus whole-cohort totals. No new allocator or business calculation.
